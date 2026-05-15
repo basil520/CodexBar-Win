@@ -13,7 +13,7 @@ class LocalizationTest : public QObject {
 private slots:
     void initTestCase() {
         qputenv("WINCODEXBAR_TRANSLATION_DIR", TEST_TRANSLATION_DIR);
-        const QString zhPath = QStringLiteral(TEST_TRANSLATION_DIR) + "/WinCodexBar_zh_CN.qm";
+        const QString zhPath = QStringLiteral(TEST_TRANSLATION_DIR) + "/CodexBarX_zh_CN.qm";
         if (!QFileInfo::exists(zhPath)) {
             QSKIP("Compiled zh_CN translation is not available.");
         }
