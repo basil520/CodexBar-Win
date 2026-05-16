@@ -81,6 +81,8 @@ static void fileMessageHandler(QtMsgType type, const QMessageLogContext& context
 #include "providers/ProviderBootstrap.h"
 #include "account/TokenAccountStore.h"
 #include "runtime/ProviderRuntimeManager.h"
+#include "browserbridge/BrowserSessionBridgeStore.h"
+#include "browserbridge/BrowserSessionBridgeService.h"
 
 #ifdef Q_OS_WIN
 static void applyRoundedWindowRegion(QWindow* window, int radius) {
@@ -363,6 +365,12 @@ int main(int argc, char* argv[]) {
         tokenStore->migrateFromLegacy(settings);
         tokenStore->saveToDisk();
     }
+
+    // Browser Session Bridge (Phase 2)
+    auto* bridgeStore = new BrowserSessionBridgeStore(&app);
+    auto* bridgeService = new BrowserSessionBridgeService(bridgeStore, &app);
+    bridgeService->start();
+    usageStore->setBrowserSessionBridgeService(bridgeService);
 
     QObject::connect(usageStore, &UsageStore::codexAccountsChanged, [usageStore]() {
         // Refresh Codex data when accounts change
@@ -647,8 +655,9 @@ int main(int argc, char* argv[]) {
     // Fast quit path: immediately hide all UI, destroy tray icon, and force exit.
     // Do NOT go through QCoreApplication::quit() → app.exec() return, because Qt's
     // event-loop shutdown can be blocked by background threads for 20+ seconds.
-    auto forceQuit = [&trayView, &settingsView, &usageView, &trayCtrl, usageStore]() {
+    auto forceQuit = [&trayView, &settingsView, &usageView, &trayCtrl, usageStore, bridgeService]() {
         // Set shuttingDown flags so background threads can check and exit early
+        if (bridgeService) bridgeService->stop();
         usageStore->shutdown();
         trayView.hide();
         settingsView.hide();
@@ -683,6 +692,9 @@ int main(int argc, char* argv[]) {
     // Non-fast-quit fallback: brief wait then force exit.
     // In normal operation, forceQuit lambda handles exit via ExitProcess(0).
     // This path is only reached if app.exec() returns naturally (e.g. last window closed).
+    if (bridgeService) {
+        bridgeService->stop();
+    }
     if (usageStore) {
         usageStore->shutdown();
     }

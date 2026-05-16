@@ -31,6 +31,8 @@
 #include "../providers/codex/CodexDashboardCache.h"
 #include "../account/TokenAccountStore.h"
 #include "../runtime/ProviderRuntimeManager.h"
+#include "../browserbridge/BrowserSessionBridgeService.h"
+#include "../browserbridge/BrowserSessionBridgeCatalog.h"
 
 #include <QDateTime>
 #include <QJsonObject>
@@ -344,6 +346,35 @@ void UsageStore::setSettingsStore(SettingsStore* s) {
     configureStatusPolling();
 }
 
+void UsageStore::setBrowserSessionBridgeService(BrowserSessionBridgeService* service)
+{
+    if (m_bridgeService == service) return;
+    if (m_bridgeService) {
+        disconnect(m_bridgeService, nullptr, this, nullptr);
+    }
+    m_bridgeService = service;
+    if (m_bridgeService) {
+        connect(m_bridgeService, &BrowserSessionBridgeService::providerSessionImported,
+                this, &UsageStore::onBridgeProviderImported);
+    }
+}
+
+void UsageStore::onBridgeProviderImported(const QString& providerId)
+{
+    m_bridgePendingRefreshes.insert(providerId);
+    m_bridgeDebounceTimer.setSingleShot(true);
+    m_bridgeDebounceTimer.setInterval(1500);
+    disconnect(&m_bridgeDebounceTimer, &QTimer::timeout, nullptr, nullptr);
+    connect(&m_bridgeDebounceTimer, &QTimer::timeout, this, [this]() {
+        const auto providers = m_bridgePendingRefreshes;
+        m_bridgePendingRefreshes.clear();
+        for (const auto& id : providers) {
+            refreshProvider(id);
+        }
+    });
+    m_bridgeDebounceTimer.start();
+}
+
 void UsageStore::configureStatusPolling() {
     const bool enabled = m_settingsStore ? m_settingsStore->statusChecksEnabled() : true;
     if (!enabled) {
@@ -529,6 +560,32 @@ UsageStore::buildProviderFetchCommandInput(const QString& providerId) const
         input.codexManagedHomePath = m_codexAccountService->activeManagedHomePath();
     }
     input.defaultTokenAccountId = TokenAccountStore::instance()->defaultAccountId(providerId);
+
+    // Bridge session injection for worker thread
+    if (m_bridgeService) {
+        const auto spec = BrowserSessionBridgeCatalog::specForProvider(providerId);
+        if (spec.has_value()) {
+            if (spec->materialKind == BridgeMaterialKind::Cookies ||
+                spec->materialKind == BridgeMaterialKind::Hybrid) {
+                const auto header = m_bridgeService->store()->resolvedCookieHeader(providerId);
+                if (header.has_value()) {
+                    input.bridgeCookieHeader = header.value();
+                }
+            }
+            if (providerId == QLatin1String("windsurf") &&
+                (spec->materialKind == BridgeMaterialKind::LocalStorage ||
+                 spec->materialKind == BridgeMaterialKind::Hybrid)) {
+                const auto payload = m_bridgeService->store()->resolvedSessionPayload(providerId);
+                if (payload.has_value()) {
+                    ImportedBrowserSession session;
+                    session.providerId = providerId;
+                    session.sessionPayload = payload.value();
+                    input.bridgeImportedSession = session;
+                }
+            }
+        }
+    }
+
     return input;
 }
 
@@ -629,6 +686,28 @@ ProviderFetchContext UsageStore::buildFetchContextForProvider(const QString& pro
     }
     if (!manualCookie.isEmpty()) {
         ctx.manualCookieHeader = manualCookie;
+    } else if (cookieSource == QLatin1String("auto") && m_bridgeService) {
+        const auto spec = BrowserSessionBridgeCatalog::specForProvider(providerId);
+        if (spec.has_value()) {
+            if (spec->materialKind == BridgeMaterialKind::Cookies ||
+                spec->materialKind == BridgeMaterialKind::Hybrid) {
+                const auto header = m_bridgeService->store()->resolvedCookieHeader(providerId);
+                if (header.has_value()) {
+                    ctx.manualCookieHeader = header.value();
+                }
+            }
+            if (providerId == QLatin1String("windsurf") &&
+                (spec->materialKind == BridgeMaterialKind::LocalStorage ||
+                 spec->materialKind == BridgeMaterialKind::Hybrid)) {
+                const auto payload = m_bridgeService->store()->resolvedSessionPayload(providerId);
+                if (payload.has_value()) {
+                    ImportedBrowserSession session;
+                    session.providerId = providerId;
+                    session.sessionPayload = payload.value();
+                    ctx.importedBrowserSession = session;
+                }
+            }
+        }
     }
 
     QString accountId = addSetting("accountID", "").toString().trimmed();

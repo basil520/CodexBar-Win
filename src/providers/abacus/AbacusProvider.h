@@ -27,7 +27,7 @@ public:
             {"cookieSource", "Cookie source", "picker", QVariant(QStringLiteral("auto")),
              { {"auto", "Automatic"}, {"manual", "Manual"} }},
             {"manualCookieHeader", "Manual cookie", "secret", QVariant(),
-             {}, {}, {}, "sessionid=...", "Paste cookie header", false, true}
+             {}, "com.codexbarx.cookie.abacus", {}, "sessionid=...", "Paste cookie header", false, true}
         };
     }
 

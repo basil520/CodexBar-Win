@@ -8,6 +8,10 @@
 #include "../src/providers/zai/ZaiProvider.h"
 #include "../src/providers/windsurf/WindsurfProvider.h"
 #include "../src/providers/shared/ProviderCredentialStore.h"
+#include "../src/browserbridge/BrowserSessionBridgeStore.h"
+#include "../src/browserbridge/BrowserSessionBridgeService.h"
+#include "../src/browserbridge/BrowserSessionBridgeCatalog.h"
+#include "../src/browserbridge/BrowserSessionBridgeTypes.h"
 
 #include <QDir>
 #include <QFile>
@@ -524,6 +528,117 @@ private slots:
         QCOMPARE(store.providerConnectionTest("connection-lag").value("state").toString(), QString("succeeded"));
         QVERIFY(backend->readCount > 0);
 #endif
+    }
+
+    void bridgeCookieInjectedWhenManualMissing() {
+        SettingsStore settings;
+        settings.setProviderSetting("cursor", "cookieSource", "auto");
+
+        UsageStore store;
+        store.setSettingsStore(&settings);
+
+        auto* bridgeStore = new BrowserSessionBridgeStore();
+        BridgeClientInfo client;
+        client.id.browserFamily = QStringLiteral("chrome");
+        client.id.profileInstanceId = QStringLiteral("uuid-bridge-test-001");
+        bridgeStore->upsertClient(client);
+
+        BridgeSessionMaterial material;
+        material.providerId = QStringLiteral("cursor");
+        material.clientId = client.id;
+        material.capturedAtUtc = QDateTime::currentDateTimeUtc();
+        BridgeCookieRecord cookie;
+        cookie.name = QStringLiteral("WorkosCursorSessionToken");
+        cookie.value = QStringLiteral("bridge-cursor-token");
+        cookie.domain = QStringLiteral(".cursor.com");
+        material.cookies.append(cookie);
+        bridgeStore->saveImportedMaterial(material);
+
+        auto* bridgeService = new BrowserSessionBridgeService(bridgeStore);
+        store.setBrowserSessionBridgeService(bridgeService);
+
+        ProviderFetchContext ctx = store.buildFetchContextForProvider("cursor");
+
+        QVERIFY(ctx.manualCookieHeader.has_value());
+        QVERIFY(ctx.manualCookieHeader->contains(QStringLiteral("bridge-cursor-token")));
+
+        delete bridgeService;
+        delete bridgeStore;
+    }
+
+    void manualCookieOverridesBridge() {
+        SettingsStore settings;
+        settings.setProviderSetting("cursor", "cookieSource", "auto");
+        settings.setProviderSetting("cursor", "manualCookieHeader", "sessionKey=manual-token");
+
+        UsageStore store;
+        store.setSettingsStore(&settings);
+
+        auto* bridgeStore = new BrowserSessionBridgeStore();
+        BridgeClientInfo client;
+        client.id.browserFamily = QStringLiteral("chrome");
+        client.id.profileInstanceId = QStringLiteral("uuid-bridge-test-002");
+        bridgeStore->upsertClient(client);
+
+        BridgeSessionMaterial material;
+        material.providerId = QStringLiteral("cursor");
+        material.clientId = client.id;
+        material.capturedAtUtc = QDateTime::currentDateTimeUtc();
+        BridgeCookieRecord cookie;
+        cookie.name = QStringLiteral("WorkosCursorSessionToken");
+        cookie.value = QStringLiteral("bridge-cursor-token");
+        cookie.domain = QStringLiteral(".cursor.com");
+        material.cookies.append(cookie);
+        bridgeStore->saveImportedMaterial(material);
+
+        auto* bridgeService = new BrowserSessionBridgeService(bridgeStore);
+        store.setBrowserSessionBridgeService(bridgeService);
+
+        ProviderFetchContext ctx = store.buildFetchContextForProvider("cursor");
+
+        QVERIFY(ctx.manualCookieHeader.has_value());
+        QCOMPARE(*ctx.manualCookieHeader, QStringLiteral("sessionKey=manual-token"));
+        QVERIFY(!ctx.manualCookieHeader->contains(QStringLiteral("bridge-cursor-token")));
+
+        delete bridgeService;
+        delete bridgeStore;
+    }
+
+    void bridgeDoesNotWriteSettings() {
+        SettingsStore settings;
+        settings.setProviderSetting("cursor", "cookieSource", "auto");
+
+        UsageStore store;
+        store.setSettingsStore(&settings);
+
+        auto* bridgeStore = new BrowserSessionBridgeStore();
+        BridgeClientInfo client;
+        client.id.browserFamily = QStringLiteral("chrome");
+        client.id.profileInstanceId = QStringLiteral("uuid-bridge-test-003");
+        bridgeStore->upsertClient(client);
+
+        BridgeSessionMaterial material;
+        material.providerId = QStringLiteral("cursor");
+        material.clientId = client.id;
+        material.capturedAtUtc = QDateTime::currentDateTimeUtc();
+        BridgeCookieRecord cookie;
+        cookie.name = QStringLiteral("WorkosCursorSessionToken");
+        cookie.value = QStringLiteral("bridge-cursor-token-secret");
+        cookie.domain = QStringLiteral(".cursor.com");
+        material.cookies.append(cookie);
+        bridgeStore->saveImportedMaterial(material);
+
+        auto* bridgeService = new BrowserSessionBridgeService(bridgeStore);
+        store.setBrowserSessionBridgeService(bridgeService);
+
+        ProviderFetchContext ctx = store.buildFetchContextForProvider("cursor");
+        QVERIFY(ctx.manualCookieHeader.has_value());
+
+        QString storedCookie = settings.providerSetting("cursor", "manualCookieHeader").toString();
+        QVERIFY(!storedCookie.contains(QStringLiteral("bridge-cursor-token-secret")));
+
+        delete bridgeService;
+        delete bridgeStore;
     }
 };
 

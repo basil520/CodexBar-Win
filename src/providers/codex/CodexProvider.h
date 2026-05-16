@@ -38,7 +38,8 @@ public:
         return {
             {"sourceMode", "Data source", "picker", QVariant(QStringLiteral("auto")),
              { {"auto", "Auto"}, {"oauth", "OAuth"}, {"cli", "CLI"}, {"web", "Web Dashboard"} }},
-            {"manualCookieHeader", "Manual cookie header", "secret", QVariant()}
+            {"manualCookieHeader", "Manual cookie header", "secret", QVariant(),
+             {}, "com.codexbarx.cookie.codex", {}, {}, "Stored in Windows Credential Manager", true, true}
         };
     }
     QVector<QString> supportedSourceModes() const override { return {"auto", "oauth", "cli", "web", "api"}; }

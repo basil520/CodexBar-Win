@@ -10,6 +10,7 @@
 #include <QString>
 #include <QVariant>
 #include <QVector>
+#include <optional>
 
 class IProvider;
 
@@ -36,6 +37,10 @@ struct ProviderFetchCommandInput {
     QString codexActiveAccountId;
     QString codexManagedHomePath;
     QString defaultTokenAccountId;
+
+    // Bridge session data (pre-resolved on main thread for worker consumption)
+    std::optional<QString> bridgeCookieHeader;
+    std::optional<ImportedBrowserSession> bridgeImportedSession;
 };
 
 struct CredentialPreloadItem {

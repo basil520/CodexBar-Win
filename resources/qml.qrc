@@ -74,5 +74,9 @@
         <file alias="icons/ProviderIcon-warp.svg">../resources/icons/ProviderIcon-warp.svg</file>
         <file alias="icons/ProviderIcon-windsurf.svg">../resources/icons/ProviderIcon-windsurf.svg</file>
         <file alias="icons/ProviderIcon-zai.svg">../resources/icons/ProviderIcon-zai.svg</file>
+        <file alias="browser-session-bridge/manifest.json">../resources/browser-session-bridge/manifest.json</file>
+        <file alias="browser-session-bridge/service_worker.js">../resources/browser-session-bridge/service_worker.js</file>
+        <file alias="browser-session-bridge/popup.html">../resources/browser-session-bridge/popup.html</file>
+        <file alias="browser-session-bridge/popup.js">../resources/browser-session-bridge/popup.js</file>
     </qresource>
 </RCC>

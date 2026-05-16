@@ -139,6 +139,15 @@ set(CORE_SOURCES
     src/providers/stepfun/StepFunProvider.cpp
     src/providers/venice/VeniceProvider.cpp
 
+    # === Browser Session Bridge ===
+    src/browserbridge/BrowserSessionBridgeCatalog.cpp
+    src/browserbridge/BrowserSessionBridgeProtocol.cpp
+    src/browserbridge/BrowserSessionBridgeMetadataStore.cpp
+    src/browserbridge/BrowserSessionBridgeStore.cpp
+    src/browserbridge/BrowserSessionBridgeServer.cpp
+    src/browserbridge/BrowserSessionBridgeService.cpp
+    src/browserbridge/BrowserSessionBridgeInstallService.cpp
+
     src/network/NetworkManager.cpp
 
     src/app/AppTheme.cpp
@@ -268,6 +277,16 @@ set(CORE_HEADERS
     src/providers/openaiapi/OpenAIAPIProvider.h
     src/providers/stepfun/StepFunProvider.h
     src/providers/venice/VeniceProvider.h
+
+    # === Browser Session Bridge ===
+    src/browserbridge/BrowserSessionBridgeTypes.h
+    src/browserbridge/BrowserSessionBridgeCatalog.h
+    src/browserbridge/BrowserSessionBridgeProtocol.h
+    src/browserbridge/BrowserSessionBridgeMetadataStore.h
+    src/browserbridge/BrowserSessionBridgeStore.h
+    src/browserbridge/BrowserSessionBridgeServer.h
+    src/browserbridge/BrowserSessionBridgeService.h
+    src/browserbridge/BrowserSessionBridgeInstallService.h
 
     src/providers/IProvider.h
     src/providers/IFetchStrategy.h

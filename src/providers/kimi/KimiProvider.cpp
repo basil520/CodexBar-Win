@@ -23,7 +23,7 @@ QVector<ProviderSettingsDescriptor> KimiProvider::settingsDescriptors() const {
         {"cookieSource", "Cookie source", "picker", "auto",
          {{"auto", "Automatic"}, {"manual", "Manual"}}, {}, {}, {}, "Browser or manual cookie", false, false},
         {"manualCookieHeader", "Manual cookie", "secret", QVariant(),
-         {}, {}, "KIMI_AUTH_TOKEN", "kimi-auth=eyJ...", "Paste kimi-auth cookie or JWT token", false, true}
+         {}, "com.codexbarx.cookie.kimi", "KIMI_AUTH_TOKEN", "kimi-auth=eyJ...", "Paste kimi-auth cookie or JWT token", false, true}
     };
 }
 

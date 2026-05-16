@@ -9,6 +9,14 @@
 #include <QHash>
 #include <optional>
 
+struct ImportedBrowserSession {
+    QString providerId;
+    QString bindingId;
+    QString sourceLabel;
+    QString cookieHeader;
+    QString sessionPayload;
+};
+
 struct ProviderFetchContext {
     QString providerId;
     ProviderSourceMode sourceMode = ProviderSourceMode::Auto;
@@ -22,4 +30,5 @@ struct ProviderFetchContext {
     QString accountID;
     TokenAccountCredentials accountCredentials;
     std::optional<QString> manualCookieHeader;
+    std::optional<ImportedBrowserSession> importedBrowserSession;
 };

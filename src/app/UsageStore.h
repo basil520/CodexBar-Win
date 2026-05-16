@@ -35,6 +35,7 @@ class ProviderLoginManager;
 class TokenAccountOperationManager;
 class ProviderUIService;
 class ProviderRefreshCoordinator;
+class BrowserSessionBridgeService;
 struct UsageBackendResult;
 struct ProviderLoginStartPayload;
 
@@ -167,6 +168,7 @@ public:
     ProviderFetchContext buildFetchContextForProvider(const QString& providerId) const;
 
     void setSettingsStore(SettingsStore* s);
+    void setBrowserSessionBridgeService(BrowserSessionBridgeService* service);
 
     // Preload all provider credentials into cache (runs on background thread)
     void preloadCredentials();
@@ -264,6 +266,7 @@ private:
     UsageBackendJobs::ProviderFetchCommandInput buildProviderFetchCommandInput(const QString& providerId) const;
     QVector<UsageBackendJobs::CredentialPreloadItem> buildCredentialPreloadItems() const;
     void applyCredentialCacheUpdates(const QVector<CredentialCacheUpdatePayload>& updates);
+    void onBridgeProviderImported(const QString& providerId);
 
     QTimer m_statusTimer;
     QHash<QString, std::optional<double>> m_lastKnownSessionRemaining;
@@ -310,6 +313,11 @@ private:
 
     // Refresh coordinator (Phase 6 extraction)
     ProviderRefreshCoordinator* m_refreshCoordinator = nullptr;
+
+    // Browser Session Bridge (Phase 2)
+    BrowserSessionBridgeService* m_bridgeService = nullptr;
+    QTimer m_bridgeDebounceTimer;
+    QSet<QString> m_bridgePendingRefreshes;
 
     // Credential cache to avoid blocking main thread with WinCred API calls
     struct CredentialEntry {

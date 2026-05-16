@@ -33,7 +33,7 @@ public:
             {"cookieSource", "Cookie source", "picker", QVariant(QStringLiteral("auto")),
              { {"auto", "Automatic"}, {"manual", "Manual"} }},
             {"manualCookieHeader", "Manual cookie", "secret", QVariant(),
-             {}, {}, "MINIMAX_COOKIE", "HERTZ-SESSION=...", "Paste MiniMax cookie header", false, true}
+             {}, "com.codexbarx.cookie.minimax", "MINIMAX_COOKIE", "HERTZ-SESSION=...", "Paste MiniMax cookie header", false, true}
         };
     }
 

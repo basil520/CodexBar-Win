@@ -115,6 +115,13 @@ FetchContextBuildResult buildFetchContext(const ProviderFetchCommandInput& input
     }
     if (!manualCookie.isEmpty()) {
         ctx.manualCookieHeader = manualCookie;
+    } else if (cookieSource == QLatin1String("auto")) {
+        if (input.bridgeCookieHeader.has_value()) {
+            ctx.manualCookieHeader = input.bridgeCookieHeader.value();
+        }
+        if (input.bridgeImportedSession.has_value()) {
+            ctx.importedBrowserSession = input.bridgeImportedSession;
+        }
     }
 
     QString accountId = addSetting(QStringLiteral("accountID"), QString()).toString().trimmed();

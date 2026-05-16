@@ -21,7 +21,7 @@ QVector<ProviderSettingsDescriptor> OpenCodeProvider::settingsDescriptors() cons
         {"cookieSource", "Cookie source", "picker", "auto",
          {{"auto", "Automatic"}, {"manual", "Manual"}}, {}, {}, {}, "Browser or manual cookie", false, false},
         {"manualCookieHeader", "Manual cookie", "secret", QVariant(),
-         {}, {}, "OPENCODE_COOKIE", "auth=...", "Paste auth cookie from opencode.ai", false, true}
+         {}, "com.codexbarx.cookie.opencode", "OPENCODE_COOKIE", "auth=...", "Paste auth cookie from opencode.ai", false, true}
     };
 }
 
