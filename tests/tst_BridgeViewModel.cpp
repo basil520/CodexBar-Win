@@ -21,6 +21,7 @@ private slots:
     void fullTestSuite();
     void importFailureClearsBusyAndShowsError();
     void codexOldExtensionCapabilityDoesNotAppearImportable();
+    void cookieOldExtensionCapabilityDoesNotAppearImportable();
 
 private:
     void recreate();
@@ -210,6 +211,48 @@ void tst_BridgeViewModel::codexOldExtensionCapabilityDoesNotAppearImportable()
     m_viewModel->requestImport(QStringLiteral("codex"));
     QVERIFY(!m_viewModel->importBusy(QStringLiteral("codex")));
     QVERIFY(m_viewModel->importError(QStringLiteral("codex")).contains(QStringLiteral("Reload"), Qt::CaseInsensitive));
+}
+
+void tst_BridgeViewModel::cookieOldExtensionCapabilityDoesNotAppearImportable()
+{
+    m_store = std::make_unique<BrowserSessionBridgeStore>();
+    m_service = std::make_unique<BrowserSessionBridgeService>(m_store.get());
+    m_viewModel = std::make_unique<BridgeViewModel>(m_service.get(), m_store.get());
+    m_service->start();
+    QVERIFY(QTest::qWaitFor([this]() { return m_viewModel->serverRunning(); }, 1000));
+
+    QWebSocket client;
+    QSignalSpy connectedSpy(&client, QOverload<>::of(&QWebSocket::connected));
+    QVERIFY(connectedSpy.isValid());
+
+    QNetworkRequest req(QUrl(QStringLiteral("ws://127.0.0.1:%1").arg(m_viewModel->serverPort())));
+    req.setRawHeader("Origin", "chrome-extension://cnanalhpjiclhljkpnlbgiaclpbncidk");
+    client.open(req);
+    QVERIFY(QTest::qWaitFor([&connectedSpy]() { return connectedSpy.count() > 0; }, 2000));
+
+    RegisterClientPayload reg;
+    reg.protocolVersion = BRIDGE_PROTOCOL_VERSION;
+    reg.extensionId = QStringLiteral("cnanalhpjiclhljkpnlbgiaclpbncidk");
+    reg.browserFamily = QStringLiteral("edge");
+    reg.browserVersion = QStringLiteral("127.0.0.0");
+    reg.profileInstanceId = QStringLiteral("uuid-vm-old-cookie-query-001");
+    reg.profileAlias = QStringLiteral("Default");
+    reg.supportsCookies = true;
+    reg.supportsLocalStorage = true;
+    reg.supportsCodexUsageSnapshot = true;
+
+    BridgeMessage registerMsg;
+    registerMsg.type = BridgeMessageType::RegisterClient;
+    registerMsg.payload = BridgeProtocol::serializeRegisterClient(reg);
+    client.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(registerMsg)));
+    QVERIFY(QTest::qWaitFor([this]() {
+        return !m_viewModel->connectedClients().isEmpty();
+    }, 2000));
+
+    QVERIFY(m_viewModel->bindingOptions(QStringLiteral("kimi")).isEmpty());
+    m_viewModel->requestImport(QStringLiteral("kimi"));
+    QVERIFY(!m_viewModel->importBusy(QStringLiteral("kimi")));
+    QVERIFY(m_viewModel->importError(QStringLiteral("kimi")).contains(QStringLiteral("Reload"), Qt::CaseInsensitive));
 }
 
 QTEST_MAIN(tst_BridgeViewModel)

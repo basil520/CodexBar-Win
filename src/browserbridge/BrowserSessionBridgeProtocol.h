@@ -37,6 +37,7 @@ struct RegisterClientPayload {
     bool supportsCookies = true;
     bool supportsLocalStorage = false;
     bool supportsCodexUsageSnapshot = false;
+    bool supportsCookieUrlQuery = false;
 };
 
 // register_ack

@@ -130,6 +130,7 @@ RegisterClientPayload parseRegisterClient(const QJsonObject& obj)
     p.supportsCookies = caps[QStringLiteral("cookies")].toBool(true);
     p.supportsLocalStorage = caps[QStringLiteral("localStorage")].toBool(false);
     p.supportsCodexUsageSnapshot = caps[QStringLiteral("codexUsageSnapshot")].toBool(false);
+    p.supportsCookieUrlQuery = caps[QStringLiteral("cookieUrlQuery")].toBool(false);
     return p;
 }
 
@@ -150,6 +151,7 @@ QJsonObject serializeRegisterClient(const RegisterClientPayload& p)
         caps[QStringLiteral("cookies")] = p.supportsCookies;
         caps[QStringLiteral("localStorage")] = p.supportsLocalStorage;
         caps[QStringLiteral("codexUsageSnapshot")] = p.supportsCodexUsageSnapshot;
+        caps[QStringLiteral("cookieUrlQuery")] = p.supportsCookieUrlQuery;
         obj[QStringLiteral("capabilities")] = caps;
     }
     return obj;

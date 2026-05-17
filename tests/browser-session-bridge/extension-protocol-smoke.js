@@ -19,7 +19,8 @@ function buildRegisterClient() {
     capabilities: {
       cookies: true,
       localStorage: true,
-      codexUsageSnapshot: true
+      codexUsageSnapshot: true,
+      cookieUrlQuery: true
     }
   };
 }
@@ -79,6 +80,7 @@ function validateRegisterClient(msg) {
   assert.strictEqual(typeof msg.capabilities.cookies, 'boolean');
   assert.strictEqual(typeof msg.capabilities.localStorage, 'boolean');
   assert.strictEqual(typeof msg.capabilities.codexUsageSnapshot, 'boolean');
+  assert.strictEqual(typeof msg.capabilities.cookieUrlQuery, 'boolean');
 }
 
 function validateImportResult(msg) {
@@ -119,6 +121,7 @@ assert.ok(serviceWorker.includes('chrome.scripting.executeScript'));
 assert.ok(serviceWorker.includes('cookieQueryUrlsForDomain'));
 assert.ok(serviceWorker.includes('chrome.cookies.getAll({ url'));
 assert.ok(serviceWorker.includes('codexUsageSnapshot'));
+assert.ok(serviceWorker.includes('cookieUrlQuery'));
 assert.ok(serviceWorker.includes('extensionBuild'));
 assert.ok(serviceWorker.includes('/backend-api/wham/usage'));
 assert.ok(serviceWorker.includes("credentials: 'include'"));

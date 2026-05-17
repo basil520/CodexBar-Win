@@ -158,7 +158,8 @@ async function sendRegisterClient() {
     capabilities: {
       cookies: true,
       localStorage: true,
-      codexUsageSnapshot: true
+      codexUsageSnapshot: true,
+      cookieUrlQuery: true
     }
   });
 }

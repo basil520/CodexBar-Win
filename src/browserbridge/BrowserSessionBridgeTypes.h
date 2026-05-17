@@ -44,6 +44,7 @@ struct BridgeClientInfo {
     bool supportsCookies = true;
     bool supportsLocalStorage = false;
     bool supportsCodexUsageSnapshot = false;
+    bool supportsCookieUrlQuery = false;
 };
 
 struct BridgeCookieRecord {

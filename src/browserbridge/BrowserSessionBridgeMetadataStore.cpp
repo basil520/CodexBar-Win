@@ -49,6 +49,7 @@ bool BrowserSessionBridgeMetadataStore::load()
             info.supportsCookies = obj[QStringLiteral("supportsCookies")].toBool(true);
             info.supportsLocalStorage = obj[QStringLiteral("supportsLocalStorage")].toBool();
             info.supportsCodexUsageSnapshot = obj[QStringLiteral("supportsCodexUsageSnapshot")].toBool();
+            info.supportsCookieUrlQuery = obj[QStringLiteral("supportsCookieUrlQuery")].toBool();
             m_clients[it.key()] = info;
         }
     }
@@ -100,6 +101,7 @@ bool BrowserSessionBridgeMetadataStore::save() const
             obj[QStringLiteral("supportsCookies")] = info.supportsCookies;
             obj[QStringLiteral("supportsLocalStorage")] = info.supportsLocalStorage;
             obj[QStringLiteral("supportsCodexUsageSnapshot")] = info.supportsCodexUsageSnapshot;
+            obj[QStringLiteral("supportsCookieUrlQuery")] = info.supportsCookieUrlQuery;
             clients[it.key()] = obj;
         }
         root[QStringLiteral("clients")] = clients;

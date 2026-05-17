@@ -62,6 +62,15 @@ bool hasUsableMaterial(const ImportResultPayload& payload, const BridgeProviderS
     return false;
 }
 
+bool requiresCookieUrlQueryCapableClient(const BridgeProviderSpec& spec)
+{
+    if (spec.providerId == QLatin1String("codex")) {
+        return false;
+    }
+    return spec.materialKind == BridgeMaterialKind::Cookies
+        || spec.materialKind == BridgeMaterialKind::Hybrid;
+}
+
 QString emptyMaterialMessage(const BridgeProviderSpec& spec)
 {
     if (spec.providerId == QLatin1String("codex")) {
@@ -73,7 +82,11 @@ QString emptyMaterialMessage(const BridgeProviderSpec& spec)
     if (spec.materialKind == BridgeMaterialKind::Hybrid) {
         return QStringLiteral("No cookies or localStorage session data were returned from the connected browser profile. Make sure the page is signed in and try again.");
     }
-    return QStringLiteral("No cookies were returned from the connected browser profile. Make sure you are signed in with this browser profile and try again.");
+    const QString domains = spec.domains.join(QStringLiteral(", "));
+    return domains.isEmpty()
+        ? QStringLiteral("No cookies were returned from the connected browser profile. Make sure you are signed in with this browser profile and try again.")
+        : QStringLiteral("No cookies were returned for %1 from the connected browser profile. Make sure you are signed in with this browser profile and try again.")
+            .arg(domains);
 }
 
 QString unusableMaterialMessage(const ImportResultPayload& payload, const BridgeProviderSpec& spec)
@@ -87,6 +100,11 @@ QString unusableMaterialMessage(const ImportResultPayload& payload, const Bridge
 QString outdatedCodexExtensionMessage()
 {
     return QStringLiteral("The connected Browser Session Bridge extension is outdated for Codex import. Click Prepare Extension, then reload the unpacked extension in Edge/Chrome and try again.");
+}
+
+QString outdatedCookieExtensionMessage()
+{
+    return QStringLiteral("The connected Browser Session Bridge extension is outdated for cookie import. Click Prepare Extension, then reload the unpacked extension in Edge/Chrome and try again.");
 }
 
 } // namespace
@@ -180,6 +198,7 @@ bool BrowserSessionBridgeService::requestImport(const QString& providerId,
     const QString bindingId = resolveTargetBindingId(providerId, preferredBindingId);
     if (bindingId.isEmpty() || !m_connectedBindingIds.contains(bindingId)) {
         bool hasOutdatedCodexClient = false;
+        bool hasOutdatedCookieClient = false;
         if (providerId == QLatin1String("codex")) {
             for (const auto& connectedId : m_connectedBindingIds) {
                 const auto it = m_knownClients.constFind(connectedId);
@@ -192,9 +211,22 @@ bool BrowserSessionBridgeService::requestImport(const QString& providerId,
                 }
             }
         }
+        if (requiresCookieUrlQueryCapableClient(spec.value())) {
+            for (const auto& connectedId : m_connectedBindingIds) {
+                const auto it = m_knownClients.constFind(connectedId);
+                if (it == m_knownClients.constEnd()) continue;
+                const BridgeClientInfo& client = it.value();
+                if (client.supportsCookies && !client.supportsCookieUrlQuery) {
+                    hasOutdatedCookieClient = true;
+                    break;
+                }
+            }
+        }
         setLastError(hasOutdatedCodexClient
             ? outdatedCodexExtensionMessage()
-            : QStringLiteral("No connected browser profile is available for this provider."));
+            : hasOutdatedCookieClient
+                ? outdatedCookieExtensionMessage()
+                : QStringLiteral("No connected browser profile is available for this provider."));
         return false;
     }
 
@@ -615,6 +647,9 @@ bool BrowserSessionBridgeService::clientSupportsProvider(const BridgeClientInfo&
     }
     if ((spec.materialKind == BridgeMaterialKind::Cookies ||
          spec.materialKind == BridgeMaterialKind::Hybrid) && !client.supportsCookies) {
+        return false;
+    }
+    if (requiresCookieUrlQueryCapableClient(spec) && !client.supportsCookieUrlQuery) {
         return false;
     }
     if ((spec.materialKind == BridgeMaterialKind::LocalStorage ||

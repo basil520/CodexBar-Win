@@ -62,7 +62,7 @@ SettingsGroupBox {
         if (options().length === 0 && root.providerId === "codex")
             return qsTr("Connected extension is outdated for Codex import. Click Prepare Extension, then reload the unpacked extension in Edge/Chrome.")
         if (options().length === 0)
-            return qsTr("No connected browser profile supports this provider yet.")
+            return qsTr("No compatible browser profile supports this provider yet. If the browser is connected, click Prepare Extension and reload the unpacked extension.")
         if (connectedOptionCount() === 0)
             return qsTr("The selected provider has no connected compatible browser profile.")
         return ""

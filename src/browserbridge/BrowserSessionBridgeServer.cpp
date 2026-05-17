@@ -323,6 +323,7 @@ void BrowserSessionBridgeServer::handleRegisterClient(QWebSocket* socket,
     info.supportsCookies = payload.supportsCookies;
     info.supportsLocalStorage = payload.supportsLocalStorage;
     info.supportsCodexUsageSnapshot = payload.supportsCodexUsageSnapshot;
+    info.supportsCookieUrlQuery = payload.supportsCookieUrlQuery;
     info.connectedAt = QDateTime::currentDateTimeUtc();
     info.lastSeenAt = info.connectedAt;
 

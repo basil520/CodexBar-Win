@@ -26,6 +26,7 @@ private slots:
     void codexUsageErrorImportReportsFailure();
     void codexUsageJsonWithoutCookiesPersistsAsSessionPayload();
     void webSocketImportResultPersistsAsynchronously();
+    void cookieProviderRequiresUrlQueryCapableExtension();
 
 private:
     BrowserSessionBridgeStore* m_store = nullptr;
@@ -441,6 +442,41 @@ void tst_BrowserSessionBridgeService::webSocketImportResultPersistsAsynchronousl
     const auto stored = ProviderCredentialStore::read(target);
     QVERIFY(stored.has_value());
     QVERIFY(QString::fromUtf8(stored.value()).contains(QStringLiteral("service-ws-token")));
+}
+
+void tst_BrowserSessionBridgeService::cookieProviderRequiresUrlQueryCapableExtension()
+{
+    QWebSocket client;
+    QSignalSpy connectedSpy(&client, QOverload<>::of(&QWebSocket::connected));
+    QVERIFY(connectedSpy.isValid());
+
+    QNetworkRequest req(QUrl(QStringLiteral("ws://127.0.0.1:%1").arg(m_service->serverPort())));
+    req.setRawHeader("Origin", "chrome-extension://cnanalhpjiclhljkpnlbgiaclpbncidk");
+    client.open(req);
+    QVERIFY(QTest::qWaitFor([&connectedSpy]() { return connectedSpy.count() > 0; }, 2000));
+
+    RegisterClientPayload reg;
+    reg.protocolVersion = BRIDGE_PROTOCOL_VERSION;
+    reg.extensionId = QStringLiteral("cnanalhpjiclhljkpnlbgiaclpbncidk");
+    reg.browserFamily = QStringLiteral("edge");
+    reg.browserVersion = QStringLiteral("127.0.0.0");
+    reg.profileInstanceId = QStringLiteral("uuid-old-cookie-query-001");
+    reg.profileAlias = QStringLiteral("Default");
+    reg.supportsCookies = true;
+    reg.supportsLocalStorage = true;
+    reg.supportsCodexUsageSnapshot = true;
+
+    BridgeMessage registerMsg;
+    registerMsg.type = BridgeMessageType::RegisterClient;
+    registerMsg.payload = BridgeProtocol::serializeRegisterClient(reg);
+    client.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(registerMsg)));
+    QVERIFY(QTest::qWaitFor([this]() {
+        return m_service->connectedClientBindingIds().contains(QStringLiteral("edge:uuid-old-cookie-query-001"));
+    }, 2000));
+
+    QVERIFY(m_service->bindingOptions(QStringLiteral("kimi")).isEmpty());
+    QVERIFY(!m_service->requestImport(QStringLiteral("kimi")));
+    QVERIFY(m_service->lastError().contains(QStringLiteral("Reload"), Qt::CaseInsensitive));
 }
 
 QTEST_MAIN(tst_BrowserSessionBridgeService)

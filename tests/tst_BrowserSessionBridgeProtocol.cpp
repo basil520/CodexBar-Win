@@ -27,10 +27,12 @@ void tst_BrowserSessionBridgeProtocol::roundTripsRegisterClient()
     original.supportsCookies = true;
     original.supportsLocalStorage = true;
     original.supportsCodexUsageSnapshot = true;
+    original.supportsCookieUrlQuery = true;
     original.extensionBuild = QStringLiteral("2026.05.17");
 
     const auto json = BridgeProtocol::serializeRegisterClient(original);
     QCOMPARE(json[QStringLiteral("type")].toString(), QStringLiteral("register_client"));
+    QVERIFY(json[QStringLiteral("capabilities")].toObject()[QStringLiteral("cookieUrlQuery")].toBool());
 
     const auto restored = BridgeProtocol::parseRegisterClient(json);
     QCOMPARE(restored.protocolVersion, original.protocolVersion);
@@ -43,6 +45,7 @@ void tst_BrowserSessionBridgeProtocol::roundTripsRegisterClient()
     QCOMPARE(restored.supportsCookies, original.supportsCookies);
     QCOMPARE(restored.supportsLocalStorage, original.supportsLocalStorage);
     QCOMPARE(restored.supportsCodexUsageSnapshot, original.supportsCodexUsageSnapshot);
+    QCOMPARE(restored.supportsCookieUrlQuery, original.supportsCookieUrlQuery);
     QCOMPARE(restored.extensionBuild, original.extensionBuild);
 }
 
@@ -61,7 +64,8 @@ void tst_BrowserSessionBridgeProtocol::parsesExtensionRegisterClientSample()
         "capabilities": {
             "cookies": true,
             "localStorage": true,
-            "codexUsageSnapshot": true
+            "codexUsageSnapshot": true,
+            "cookieUrlQuery": true
         }
     })json";
 
@@ -76,6 +80,7 @@ void tst_BrowserSessionBridgeProtocol::parsesExtensionRegisterClientSample()
     QVERIFY(payload.supportsCookies);
     QVERIFY(payload.supportsLocalStorage);
     QVERIFY(payload.supportsCodexUsageSnapshot);
+    QVERIFY(payload.supportsCookieUrlQuery);
     QCOMPARE(payload.extensionBuild, QStringLiteral("2026.05.17"));
 }
 
