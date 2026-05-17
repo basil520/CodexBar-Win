@@ -36,7 +36,7 @@ std::optional<RateWindow> parseQuotaWindow(const QJsonObject& obj)
         }
     }
 
-    window.resetDescription = QStringLiteral("%1 / %2 Credits")
+    window.resetDescription = QStringLiteral("%1 / %2 Requests")
         .arg(countText(used)).arg(countText(limit));
 
     return window;
@@ -109,9 +109,28 @@ ProviderFetchResult QianFanWebStrategy::fetchSync(const ProviderFetchContext& ct
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36";
 
-    QJsonObject json = NetworkManager::instance().getJsonSync(
-        QUrl("https://console.bce.baidu.com/api/qianfan/charge/codingPlan/resourceList"),
-        headers, ctx.networkTimeoutMs);
+    const QUrl url("https://console.bce.baidu.com/api/qianfan/charge/codingPlan/resourceList");
+    auto [json, rawData, httpStatus, respHeaders] = NetworkManager::instance().getJsonSyncWithHeaders(
+        url, headers, ctx.networkTimeoutMs);
+
+    if (json.isEmpty()) {
+        const QString contentType = respHeaders.value(QStringLiteral("Content-Type"));
+        const QString preview = QString::fromUtf8(rawData).simplified().left(200);
+        if (httpStatus == 0) {
+            result.errorMessage = QStringLiteral("Network error (HTTP 0). Raw: %1").arg(preview);
+        } else if (httpStatus == 302 || httpStatus == 401) {
+            result.errorMessage = QStringLiteral("Auth failed (HTTP %1). Raw: %2")
+                .arg(httpStatus).arg(preview);
+        } else if (contentType.contains(QStringLiteral("text/html"), Qt::CaseInsensitive)) {
+            result.errorMessage = QStringLiteral("Session expired (HTTP %1, HTML login page). Raw: %2")
+                .arg(httpStatus).arg(preview);
+        } else {
+            result.errorMessage = QStringLiteral("HTTP %1, invalid JSON. Raw: %2")
+                .arg(httpStatus).arg(preview);
+        }
+        result.success = false;
+        return result;
+    }
 
     return parseResponse(json);
 }

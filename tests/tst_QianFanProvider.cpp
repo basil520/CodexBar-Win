@@ -62,16 +62,16 @@ void tst_QianFanProvider::parsesFullQuotaResponse()
 
     // fiveHour: 147/1200 = 12.25%
     QVERIFY(qAbs(r.usage.primary->usedPercent - 12.25) < 0.01);
-    QCOMPARE(r.usage.primary->resetDescription.value(), QStringLiteral("147 / 1,200 Credits"));
+    QCOMPARE(r.usage.primary->resetDescription.value(), QStringLiteral("147 / 1,200 Requests"));
     QVERIFY(r.usage.primary->resetsAt.has_value());
 
     // week: 8049/9000 = 89.433...%
     QVERIFY(qAbs(r.usage.secondary->usedPercent - 89.4333) < 0.01);
-    QCOMPARE(r.usage.secondary->resetDescription.value(), QStringLiteral("8,049 / 9,000 Credits"));
+    QCOMPARE(r.usage.secondary->resetDescription.value(), QStringLiteral("8,049 / 9,000 Requests"));
 
     // month: 13051/18000 = 72.505...%
     QVERIFY(qAbs(r.usage.tertiary->usedPercent - 72.5056) < 0.01);
-    QCOMPARE(r.usage.tertiary->resetDescription.value(), QStringLiteral("13,051 / 18,000 Credits"));
+    QCOMPARE(r.usage.tertiary->resetDescription.value(), QStringLiteral("13,051 / 18,000 Requests"));
 
     QVERIFY(r.usage.identity.has_value());
     QCOMPARE(r.usage.identity->loginMethod.value(), QStringLiteral("LITE"));

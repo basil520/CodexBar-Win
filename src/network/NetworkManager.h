@@ -28,6 +28,17 @@ public:
                             const QHash<QString, QString>& headers = {},
                             int timeoutMs = -1,
                             bool http2Allowed = true);
+    // Returns {jsonBody, httpStatusCode}. httpStatusCode is 0 on network error/timeout.
+    std::pair<QJsonObject, int> getJsonSyncWithStatus(const QUrl& url,
+                                                      const QHash<QString, QString>& headers = {},
+                                                      int timeoutMs = -1,
+                                                      bool http2Allowed = true);
+    // Returns {jsonBody, rawData, httpStatusCode, responseHeaders}. For providers that need Set-Cookie etc.
+    std::tuple<QJsonObject, QByteArray, int, QHash<QString, QString>> getJsonSyncWithHeaders(
+        const QUrl& url,
+        const QHash<QString, QString>& headers = {},
+        int timeoutMs = -1,
+        bool http2Allowed = true);
     QString getStringSync(const QUrl& url,
                           const QHash<QString, QString>& headers = {},
                           int timeoutMs = -1,

@@ -74,30 +74,149 @@ std::mutex& backendMutex()
 
 } // namespace
 
+// --- Sharding helpers ---
+
+QString ProviderCredentialStore::shardTarget(const QString& base, int index)
+{
+    return base + QStringLiteral("__part_") + QString::number(index);
+}
+
+QString ProviderCredentialStore::shardCountTarget(const QString& base)
+{
+    return base + QStringLiteral("__shard_count");
+}
+
+bool ProviderCredentialStore::cleanupShards(ProviderCredentialBackend* b,
+                                            const QString& base)
+{
+    const auto countTarget = shardCountTarget(base);
+    const auto countData = b->read(countTarget);
+    if (countData.has_value()) {
+        bool ok = true;
+        const int numShards = countData.value().toInt();
+        for (int i = 0; i < numShards; ++i) {
+            b->remove(shardTarget(base, i));
+        }
+        ok &= b->remove(countTarget);
+        return ok;
+    }
+    return true;
+}
+
+bool ProviderCredentialStore::writeSharded(ProviderCredentialBackend* b,
+                                           const QString& base,
+                                           const QString& username,
+                                           const QByteArray& data)
+{
+    // Clean up any existing shards or base-target data first
+    cleanupShards(b, base);
+    b->remove(base);
+
+    const int numShards = (data.size() + MAX_SHARD_SIZE - 1) / MAX_SHARD_SIZE;
+
+    for (int i = 0; i < numShards; ++i) {
+        const QByteArray shard = data.mid(i * MAX_SHARD_SIZE, MAX_SHARD_SIZE);
+        if (!b->write(shardTarget(base, i), username, shard)) {
+            // Rollback: remove already-written shards
+            for (int j = 0; j < i; ++j) {
+                b->remove(shardTarget(base, j));
+            }
+            return false;
+        }
+    }
+
+    // Write shard count marker
+    if (!b->write(shardCountTarget(base), username, QByteArray::number(numShards))) {
+        // Rollback: remove all shards
+        for (int i = 0; i < numShards; ++i) {
+            b->remove(shardTarget(base, i));
+        }
+        return false;
+    }
+
+    return true;
+}
+
+std::optional<QByteArray> ProviderCredentialStore::readSharded(ProviderCredentialBackend* b,
+                                                               const QString& base)
+{
+    const auto countData = b->read(shardCountTarget(base));
+    if (!countData.has_value()) {
+        return std::nullopt;
+    }
+
+    const int numShards = countData.value().toInt();
+    if (numShards <= 0) {
+        return std::nullopt;
+    }
+
+    QByteArray result;
+    result.reserve(numShards * MAX_SHARD_SIZE);
+
+    for (int i = 0; i < numShards; ++i) {
+        const auto shard = b->read(shardTarget(base, i));
+        if (!shard.has_value()) {
+            return std::nullopt;
+        }
+        result += shard.value();
+    }
+
+    return result;
+}
+
+bool ProviderCredentialStore::removeSharded(ProviderCredentialBackend* b,
+                                            const QString& base)
+{
+    bool removedAny = cleanupShards(b, base);
+    removedAny |= b->remove(base);
+    return removedAny;
+}
+
+// --- Public API ---
+
 bool ProviderCredentialStore::write(const QString& target,
                                     const QString& username,
                                     const QByteArray& secret)
 {
     std::lock_guard<std::mutex> lock(backendMutex());
-    return backend()->write(target, username, secret);
+    auto* b = backend().get();
+
+    if (secret.size() <= MAX_SHARD_SIZE) {
+        // Small payload: clean up any existing shards first, then write base target
+        cleanupShards(b, target);
+        return b->write(target, username, secret);
+    }
+
+    return writeSharded(b, target, username, secret);
 }
 
 std::optional<QByteArray> ProviderCredentialStore::read(const QString& target)
 {
     std::lock_guard<std::mutex> lock(backendMutex());
-    return backend()->read(target);
+    auto* b = backend().get();
+
+    // Try sharded read first
+    auto sharded = readSharded(b, target);
+    if (sharded.has_value()) {
+        return sharded;
+    }
+
+    // Fallback to base target (backward-compatible for non-sharded data)
+    return b->read(target);
 }
 
 bool ProviderCredentialStore::remove(const QString& target)
 {
     std::lock_guard<std::mutex> lock(backendMutex());
-    return backend()->remove(target);
+    auto* b = backend().get();
+    return removeSharded(b, target);
 }
 
 bool ProviderCredentialStore::exists(const QString& target)
 {
     std::lock_guard<std::mutex> lock(backendMutex());
-    return backend()->exists(target);
+    auto* b = backend().get();
+    return b->exists(target) || b->exists(shardCountTarget(target));
 }
 
 void ProviderCredentialStore::setBackendForTesting(std::shared_ptr<ProviderCredentialBackend> testBackend)

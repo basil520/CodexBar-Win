@@ -282,7 +282,7 @@ std::optional<QByteArray> ProviderCredentialManager::getCachedCredential(
         isMissing = m_missing.contains(target);
     }
 
-    if (!cacheHit && !isMissing && allowReadFromStore) {
+    if ((!cacheHit || cacheExpired) && !isMissing && allowReadFromStore) {
         auto stored = ProviderCredentialStore::read(target);
         QMutexLocker locker(&m_cacheMutex);
         if (stored.has_value()) {

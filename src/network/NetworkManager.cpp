@@ -71,9 +71,7 @@ ReplyResult waitForReplyWithStatus(QNetworkReply* reply, int timeoutMs)
     if (timeoutTimer.isActive()) {
         timeoutTimer.stop();
         result.httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        if (reply->error() == QNetworkReply::NoError) {
-            result.data = reply->readAll();
-        }
+        result.data = reply->readAll();
         // 提取响应头
         for (const QNetworkReply::RawHeaderPair& header : reply->rawHeaderPairs()) {
             result.headers.insert(QString::fromUtf8(header.first), QString::fromUtf8(header.second));
@@ -126,13 +124,39 @@ QJsonObject NetworkManager::getJsonSync(
     int timeoutMs,
     bool http2Allowed)
 {
+    return getJsonSyncWithStatus(url, headers, timeoutMs, http2Allowed).first;
+}
+
+std::pair<QJsonObject, int> NetworkManager::getJsonSyncWithStatus(
+    const QUrl& url,
+    const QHash<QString, QString>& headers,
+    int timeoutMs,
+    bool http2Allowed)
+{
     QNetworkAccessManager* nam = threadLocalNam();
     QNetworkRequest request(url);
     request.setAttribute(QNetworkRequest::Http2AllowedAttribute, http2Allowed);
     applyHeaders(request, headers);
-    return parseJsonObject(waitForReply(
+    auto result = waitForReplyWithStatus(
         nam->get(request),
-        timeoutMs > 0 ? timeoutMs : m_defaultTimeout));
+        timeoutMs > 0 ? timeoutMs : m_defaultTimeout);
+    return {parseJsonObject(result.data), result.httpStatus};
+}
+
+std::tuple<QJsonObject, QByteArray, int, QHash<QString, QString>> NetworkManager::getJsonSyncWithHeaders(
+    const QUrl& url,
+    const QHash<QString, QString>& headers,
+    int timeoutMs,
+    bool http2Allowed)
+{
+    QNetworkAccessManager* nam = threadLocalNam();
+    QNetworkRequest request(url);
+    request.setAttribute(QNetworkRequest::Http2AllowedAttribute, http2Allowed);
+    applyHeaders(request, headers);
+    auto result = waitForReplyWithStatus(
+        nam->get(request),
+        timeoutMs > 0 ? timeoutMs : m_defaultTimeout);
+    return {parseJsonObject(result.data), result.data, result.httpStatus, result.headers};
 }
 
 QString NetworkManager::getStringSync(

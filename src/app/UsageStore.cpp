@@ -616,7 +616,7 @@ ProviderFetchContext UsageStore::buildFetchContextForProvider(const QString& pro
                         }
                         isMissing = m_credentialMissing.contains(descriptor.credentialTarget);
                     }
-                    if (!cacheHit && !isMissing) {
+                    if ((!cacheHit || cacheExpired) && !isMissing) {
                         auto stored = ProviderCredentialStore::read(descriptor.credentialTarget);
                         {
                             QMutexLocker locker(&m_credentialCacheMutex);

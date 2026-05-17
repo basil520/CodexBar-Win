@@ -24,6 +24,19 @@ public:
 
     static void setBackendForTesting(std::shared_ptr<ProviderCredentialBackend> backend);
     static void resetBackendForTesting();
+
+private:
+    static constexpr int MAX_SHARD_SIZE = 2500;
+    static QString shardTarget(const QString& base, int index);
+    static QString shardCountTarget(const QString& base);
+    static bool cleanupShards(ProviderCredentialBackend* backend, const QString& base);
+    static bool writeSharded(ProviderCredentialBackend* backend,
+                             const QString& base,
+                             const QString& username,
+                             const QByteArray& data);
+    static std::optional<QByteArray> readSharded(ProviderCredentialBackend* backend,
+                                                  const QString& base);
+    static bool removeSharded(ProviderCredentialBackend* backend, const QString& base);
 };
 
 class InMemoryCredentialBackend : public ProviderCredentialBackend {
