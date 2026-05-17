@@ -5,6 +5,7 @@
   "description": "Bridge browser sessions to CodexBarX for secure cookie import.",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAozQhmb/0cj7qxgpt5671Y5QSbeMpA6Ll8SAJNRf1Yts067pxJvRk9oUMjab7UCXSom6U9etIRY11oMwaSzIxE1uaUNJY+LFlINW4FybHbhiaEL4IF1FIRTGL9lD7U0uyUzPZ+Lh0bzFJwt+rJeL7YiGg7joMUe3Sl7ZRfhdV9sSjeSJIumd1VQ56CuqDASKr3r65eYQ8CFyh58n1OkJXpRFca3fG0VBmtCvBTaArWTW3f+EHWniLWj+tBDPxnoFsE6Wp0fojCPEDZirFGixmPoGRN1Qnhwg2CqA9IJcc+ePun+lTBWdfXtmRH1XPXD7/hUNJ29k0rgVHVl3jRIiktwIDAQAB",
   "permissions": [
+    "alarms",
     "cookies",
     "storage",
     "tabs",
@@ -91,7 +92,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["runtime.json"],
+      "resources": ["runtime.json", "protocol.js"],
       "matches": []
     }
   ]

@@ -2,16 +2,25 @@
 #include "../src/browserbridge/BrowserSessionBridgeStore.h"
 #include "../src/providers/shared/ProviderCredentialStore.h"
 
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QFile>
+#include <QStandardPaths>
+
 class tst_BrowserSessionBridgeStore : public QObject {
     Q_OBJECT
 
 private slots:
     void initTestCase();
+    void init();
+    void cleanup();
     void cleanupTestCase();
     void savesImportedCookieInCredentialStore();
     void filtersExpiredCookies();
     void usesPreferredBinding();
     void fallsBackWhenPreferredBindingMissing();
+    void savesImportedLocalStorageInCredentialStore();
+    void codexSpecUsesChatGptHybridMaterial();
 
 private:
     std::shared_ptr<InMemoryCredentialBackend> m_backend;
@@ -19,8 +28,21 @@ private:
 
 void tst_BrowserSessionBridgeStore::initTestCase()
 {
+    QStandardPaths::setTestModeEnabled(true);
     m_backend = std::make_shared<InMemoryCredentialBackend>();
     ProviderCredentialStore::setBackendForTesting(m_backend);
+}
+
+void tst_BrowserSessionBridgeStore::init()
+{
+    QFile::remove(BrowserSessionBridgeMetadataStore::metadataFilePath());
+    QFile::remove(BrowserSessionBridgeMetadataStore::metadataFilePath() + QStringLiteral(".tmp"));
+}
+
+void tst_BrowserSessionBridgeStore::cleanup()
+{
+    QFile::remove(BrowserSessionBridgeMetadataStore::metadataFilePath());
+    QFile::remove(BrowserSessionBridgeMetadataStore::metadataFilePath() + QStringLiteral(".tmp"));
 }
 
 void tst_BrowserSessionBridgeStore::cleanupTestCase()
@@ -154,6 +176,51 @@ void tst_BrowserSessionBridgeStore::fallsBackWhenPreferredBindingMissing()
     // Should fall back to the available chrome binding
     QVERIFY(header.has_value());
     QVERIFY(header->contains(QStringLiteral("kimi-auth=kimi-token")));
+}
+
+void tst_BrowserSessionBridgeStore::savesImportedLocalStorageInCredentialStore()
+{
+    BrowserSessionBridgeStore store;
+
+    BridgeSessionMaterial material;
+    material.providerId = QStringLiteral("windsurf");
+    material.clientId.browserFamily = QStringLiteral("chrome");
+    material.clientId.profileInstanceId = QStringLiteral("uuid-ls-001");
+    material.capturedAtUtc = QDateTime::currentDateTimeUtc();
+    material.sourceReason = QStringLiteral("manual_request");
+
+    material.localStorage[QStringLiteral("devin_session_token")] = QStringLiteral("sess-token-abc");
+    material.localStorage[QStringLiteral("devin_auth1_token")] = QStringLiteral("auth1-token-xyz");
+    material.localStorage[QStringLiteral("devin_account_id")] = QStringLiteral("acct-123");
+    material.localStorage[QStringLiteral("devin_primary_org_id")] = QStringLiteral("org-456");
+
+    store.saveImportedMaterial(material);
+
+    // LocalStorage provider should return session payload
+    const auto payload = store.resolvedSessionPayload(QStringLiteral("windsurf"));
+    QVERIFY(payload.has_value());
+
+    // Verify JSON contains all four keys
+    const QJsonDocument doc = QJsonDocument::fromJson(payload->toUtf8());
+    QVERIFY(doc.isObject());
+    const QJsonObject obj = doc.object();
+    QCOMPARE(obj[QStringLiteral("devin_session_token")].toString(), QStringLiteral("sess-token-abc"));
+    QCOMPARE(obj[QStringLiteral("devin_auth1_token")].toString(), QStringLiteral("auth1-token-xyz"));
+    QCOMPARE(obj[QStringLiteral("devin_account_id")].toString(), QStringLiteral("acct-123"));
+    QCOMPARE(obj[QStringLiteral("devin_primary_org_id")].toString(), QStringLiteral("org-456"));
+
+    // LocalStorage-only provider should not return a cookie header
+    const auto header = store.resolvedCookieHeader(QStringLiteral("windsurf"));
+    QVERIFY(!header.has_value());
+}
+
+void tst_BrowserSessionBridgeStore::codexSpecUsesChatGptHybridMaterial()
+{
+    const auto spec = BrowserSessionBridgeCatalog::specForProvider(QStringLiteral("codex"));
+    QVERIFY(spec.has_value());
+    QCOMPARE(spec->materialKind, BridgeMaterialKind::Hybrid);
+    QCOMPARE(spec->domains, QStringList{QStringLiteral("chatgpt.com")});
+    QCOMPARE(spec->localStorageOrigin, QStringLiteral("https://chatgpt.com"));
 }
 
 QTEST_MAIN(tst_BrowserSessionBridgeStore)

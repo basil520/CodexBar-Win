@@ -1217,6 +1217,68 @@ public:
     int requestProviderDetailCalls = 0;
 };
 
+class MockBridgeViewModel : public QObject {
+    Q_OBJECT
+    Q_PROPERTY(bool serverRunning READ serverRunning NOTIFY serverRunningChanged)
+    Q_PROPERTY(int serverPort READ serverPort NOTIFY serverRunningChanged)
+    Q_PROPERTY(QVariantList connectedClients READ connectedClients NOTIFY connectedClientsChanged)
+    Q_PROPERTY(QString extensionInstallPath READ extensionInstallPath CONSTANT)
+    Q_PROPERTY(bool extensionInstalled READ extensionInstalled NOTIFY extensionInstalledChanged)
+    Q_PROPERTY(bool extensionPreparing READ extensionPreparing NOTIFY extensionInstalledChanged)
+    Q_PROPERTY(QString lastError READ lastError NOTIFY lastErrorChanged)
+    Q_PROPERTY(bool installGuideSeen READ installGuideSeen WRITE setInstallGuideSeen NOTIFY installGuideSeenChanged)
+public:
+    bool serverRunning() const { return false; }
+    int serverPort() const { return 0; }
+    QVariantList connectedClients() const { return {}; }
+    QString extensionInstallPath() const { return QStringLiteral("C:/CodexBarX/browser-session-bridge/extension"); }
+    bool extensionInstalled() const { return false; }
+    bool extensionPreparing() const { return false; }
+    QString lastError() const { return {}; }
+    bool installGuideSeen() const { return installGuideSeenValue; }
+    void setInstallGuideSeen(bool seen) {
+        if (installGuideSeenValue == seen) return;
+        installGuideSeenValue = seen;
+        emit installGuideSeenChanged();
+    }
+
+    Q_INVOKABLE bool isProviderSupported(const QString& providerId) const {
+        return providerId == QStringLiteral("codex")
+            || providerId == QStringLiteral("claude")
+            || providerId == QStringLiteral("cursor")
+            || providerId == QStringLiteral("windsurf");
+    }
+    Q_INVOKABLE QStringList supportedProviders() const {
+        return { QStringLiteral("codex"), QStringLiteral("claude"), QStringLiteral("cursor"), QStringLiteral("windsurf") };
+    }
+    Q_INVOKABLE QVariantMap bindingForProvider(const QString&) const { return {}; }
+    Q_INVOKABLE QVariantList bindingOptions(const QString&) const { return {}; }
+    Q_INVOKABLE QStringList availableBindings(const QString&) const { return {}; }
+    Q_INVOKABLE bool autoSync(const QString&) const { return true; }
+    Q_INVOKABLE QString lastImportTime(const QString&) const { return {}; }
+    Q_INVOKABLE bool importBusy(const QString&) const { return false; }
+    Q_INVOKABLE void prepareExtension() {}
+    Q_INVOKABLE void requestImport(const QString&) {}
+    Q_INVOKABLE void setBindingForProvider(const QString&, const QString&) {}
+    Q_INVOKABLE void setAutoSync(const QString&, bool) {}
+    Q_INVOKABLE void openExtensionFolder() const {}
+    Q_INVOKABLE void copyExtensionPath() const {}
+    Q_INVOKABLE void openChromeExtensionsPage() const {}
+    Q_INVOKABLE void openEdgeExtensionsPage() const {}
+
+signals:
+    void serverRunningChanged();
+    void connectedClientsChanged();
+    void extensionInstalledChanged();
+    void installGuideSeenChanged();
+    void providerBindingChanged(const QString& providerId);
+    void lastErrorChanged();
+    void importBusyChanged(const QString& providerId);
+
+private:
+    bool installGuideSeenValue = false;
+};
+
 class MockAppController : public QObject {
     Q_OBJECT
     Q_PROPERTY(bool settingsVisible READ isSettingsVisible CONSTANT)
@@ -1257,6 +1319,7 @@ private:
     MockSettingsProvidersModel mockSettingsProviders;
     MockTrayViewModel mockTray;
     MockUsageDetailsViewModel mockUsageDetails;
+    MockBridgeViewModel mockBridge;
     MockLanguageManager mockLang;
     MockAppController mockAppCtrl;
 
@@ -1270,6 +1333,7 @@ private:
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "SettingsProvidersModel", &mockSettingsProviders);
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "TrayViewModel", &mockTray);
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "UsageDetailsViewModel", &mockUsageDetails);
+        qmlRegisterSingletonInstance("CodexBarX", 1, 0, "BridgeViewModel", &mockBridge);
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "AppController", &mockAppCtrl);
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "LanguageManager", &mockLang);
     }

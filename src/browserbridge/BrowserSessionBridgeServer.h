@@ -28,6 +28,7 @@ public:
     Qt::HANDLE serverThreadId() const;
 
 signals:
+    void serverStateChanged(bool running, quint16 port);
     void clientRegistered(const BridgeClientInfo& client);
     void clientDisconnected(const BridgeClientId& clientId);
     void importResultReceived(const ImportResultPayload& payload, const BridgeClientId& clientId);

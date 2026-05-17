@@ -13,6 +13,14 @@
 #include <QString>
 #include <QFuture>
 #include <QJsonObject>
+#include <optional>
+
+struct CodexWebAuthSession {
+    QString accessToken;
+    QString accountEmail;
+    QString accountId;
+    QString planType;
+};
 
 class CodexProvider : public IProvider {
     Q_OBJECT
@@ -101,6 +109,13 @@ public:
     bool isAvailable(const ProviderFetchContext& ctx) const override;
     ProviderFetchResult fetchSync(const ProviderFetchContext& ctx) override;
     bool shouldFallback(const ProviderFetchResult& result, const ProviderFetchContext& ctx) const override;
+
+    static ProviderFetchResult mapUsageJson(const QJsonObject& json);
+    static ProviderFetchResult mapUsageJson(const QJsonObject& json,
+                                            const QString& fallbackEmail,
+                                            const QString& fallbackPlan = {});
+    static ProviderFetchResult mapImportedSessionPayload(const QString& payload);
+    static std::optional<CodexWebAuthSession> mapAuthSessionJson(const QJsonObject& json);
 
 private:
     static UsageSnapshot parseDashboardHTML(const QString& html);

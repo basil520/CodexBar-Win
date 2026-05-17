@@ -28,6 +28,7 @@ struct BridgeMessage {
 struct RegisterClientPayload {
     int protocolVersion = BRIDGE_PROTOCOL_VERSION;
     QString extensionId;
+    QString extensionBuild;
     QString browserFamily;
     QString browserVersion;
     QString profileInstanceId;
@@ -35,6 +36,7 @@ struct RegisterClientPayload {
     bool incognito = false;
     bool supportsCookies = true;
     bool supportsLocalStorage = false;
+    bool supportsCodexUsageSnapshot = false;
 };
 
 // register_ack
@@ -60,6 +62,9 @@ struct RequestImportPayload {
 struct ImportResultPayload {
     QString requestId;
     QString providerId;
+    bool success = true;
+    QString errorCode;
+    QString errorMessage;
     QDateTime capturedAtUtc;
     QVector<BridgeCookieRecord> cookies;
     QHash<QString, QString> localStorage;
@@ -76,6 +81,9 @@ struct BridgeErrorPayload {
     QString code;
     QString message;
 };
+
+Q_DECLARE_METATYPE(ImportResultPayload)
+Q_DECLARE_METATYPE(SessionDirtyPayload)
 
 namespace BridgeProtocol {
 

@@ -2,6 +2,7 @@
 
 #include "UsageBackendTypes.h"
 
+#include "../browserbridge/BrowserSessionBridgeTypes.h"
 #include "../providers/IFetchStrategy.h"
 #include "../providers/ProviderFetchContext.h"
 
@@ -38,9 +39,7 @@ struct ProviderFetchCommandInput {
     QString codexManagedHomePath;
     QString defaultTokenAccountId;
 
-    // Bridge session data (pre-resolved on main thread for worker consumption)
-    std::optional<QString> bridgeCookieHeader;
-    std::optional<ImportedBrowserSession> bridgeImportedSession;
+    std::optional<BridgeSessionLookupInput> bridgeSessionLookup;
 };
 
 struct CredentialPreloadItem {

@@ -23,7 +23,9 @@ public:
     void removeClient(const BridgeClientId& clientId);
 
     // Provider binding
-    std::optional<BridgeProviderBinding> bindingForProvider(const QString& providerId) const;
+    QHash<QString, BridgeProviderBinding> bindings() const;
+    bool hasBindingForProvider(const QString& providerId) const;
+    const BridgeProviderBinding* bindingForProvider(const QString& providerId) const;
     void setBindingForProvider(const QString& providerId, const BridgeProviderBinding& binding);
 
     // Auto-sync

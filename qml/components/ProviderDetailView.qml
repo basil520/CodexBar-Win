@@ -593,6 +593,11 @@ ScrollView {
                 }
             }
 
+            BrowserSessionCard {
+                visible: BridgeViewModel.isProviderSupported(root.providerId)
+                providerId: root.providerId
+            }
+
             SettingsGroupBox {
                 visible: root.supportsTokenAccounts()
 

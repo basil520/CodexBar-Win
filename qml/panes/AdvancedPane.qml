@@ -89,4 +89,8 @@ SettingsPage {
             }
         }
     }
+
+    BrowserSessionInstallGuide {
+        compact: false
+    }
 }

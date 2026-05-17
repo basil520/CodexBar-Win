@@ -14,6 +14,7 @@ private slots:
     void init();
     void cleanup();
     void acceptsAllowedExtensionOrigin();
+    void rejectsUnknownExtensionOrigin();
     void rejectsUnknownOrigin();
     void keepsSocketWorkOffUiThread();
 
@@ -39,8 +40,6 @@ void tst_BrowserSessionBridgeServer::cleanup()
 
 void tst_BrowserSessionBridgeServer::acceptsAllowedExtensionOrigin()
 {
-    m_server->setAllowedOriginsForTesting({QStringLiteral("127.0.0.1")});
-
     QSignalSpy registeredSpy(m_server, &BrowserSessionBridgeServer::clientRegistered);
     QVERIFY(registeredSpy.isValid());
 
@@ -49,7 +48,7 @@ void tst_BrowserSessionBridgeServer::acceptsAllowedExtensionOrigin()
     QVERIFY(connectedSpy.isValid());
 
     QNetworkRequest req(QUrl(QStringLiteral("ws://127.0.0.1:%1").arg(m_server->serverPort())));
-    req.setRawHeader("Origin", "127.0.0.1");
+    req.setRawHeader("Origin", "chrome-extension://cnanalhpjiclhljkpnlbgiaclpbncidk");
     client.open(req);
     QVERIFY(QTest::qWaitFor([&connectedSpy]() { return connectedSpy.count() > 0; }, 2000));
 
@@ -72,10 +71,20 @@ void tst_BrowserSessionBridgeServer::acceptsAllowedExtensionOrigin()
     QCOMPARE(registeredSpy.count(), 1);
 }
 
+void tst_BrowserSessionBridgeServer::rejectsUnknownExtensionOrigin()
+{
+    QWebSocket client;
+    QSignalSpy disconnectedSpy(&client, &QWebSocket::disconnected);
+    QVERIFY(disconnectedSpy.isValid());
+
+    QNetworkRequest req(QUrl(QStringLiteral("ws://127.0.0.1:%1").arg(m_server->serverPort())));
+    req.setRawHeader("Origin", "chrome-extension://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    client.open(req);
+    QVERIFY(QTest::qWaitFor([&disconnectedSpy]() { return disconnectedSpy.count() > 0; }, 2000));
+}
+
 void tst_BrowserSessionBridgeServer::rejectsUnknownOrigin()
 {
-    m_server->setAllowedOriginsForTesting({QStringLiteral("some-other-origin")});
-
     QSignalSpy errorSpy(m_server, &BrowserSessionBridgeServer::errorOccurred);
     QVERIFY(errorSpy.isValid());
 
@@ -91,14 +100,12 @@ void tst_BrowserSessionBridgeServer::rejectsUnknownOrigin()
 
 void tst_BrowserSessionBridgeServer::keepsSocketWorkOffUiThread()
 {
-    m_server->setAllowedOriginsForTesting({QStringLiteral("127.0.0.1")});
-
     Qt::HANDLE uiThreadId = QThread::currentThreadId();
     Qt::HANDLE serverThreadId = m_server->serverThreadId();
 
     QWebSocket client;
     QNetworkRequest req(QUrl(QStringLiteral("ws://127.0.0.1:%1").arg(m_server->serverPort())));
-    req.setRawHeader("Origin", "127.0.0.1");
+    req.setRawHeader("Origin", "chrome-extension://cnanalhpjiclhljkpnlbgiaclpbncidk");
     client.open(req);
     QSignalSpy connectedSpy(&client, QOverload<>::of(&QWebSocket::connected));
     QVERIFY(QTest::qWaitFor([&connectedSpy]() { return connectedSpy.count() > 0; }, 2000));

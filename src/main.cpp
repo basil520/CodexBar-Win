@@ -83,6 +83,7 @@ static void fileMessageHandler(QtMsgType type, const QMessageLogContext& context
 #include "runtime/ProviderRuntimeManager.h"
 #include "browserbridge/BrowserSessionBridgeStore.h"
 #include "browserbridge/BrowserSessionBridgeService.h"
+#include "app/BridgeViewModel.h"
 
 #ifdef Q_OS_WIN
 static void applyRoundedWindowRegion(QWindow* window, int radius) {
@@ -372,6 +373,8 @@ int main(int argc, char* argv[]) {
     bridgeService->start();
     usageStore->setBrowserSessionBridgeService(bridgeService);
 
+    auto* bridgeViewModel = new BridgeViewModel(bridgeService, bridgeStore, &app);
+
     QObject::connect(usageStore, &UsageStore::codexAccountsChanged, [usageStore]() {
         // Refresh Codex data when accounts change
         usageStore->refreshProvider("codex");
@@ -382,6 +385,7 @@ int main(int argc, char* argv[]) {
 
     qmlRegisterSingletonInstance("CodexBarX", 1, 0, "SettingsStore", settings);
     qmlRegisterSingletonInstance("CodexBarX", 1, 0, "UsageStore", usageStore);
+    qmlRegisterSingletonInstance("CodexBarX", 1, 0, "BridgeViewModel", bridgeViewModel);
     auto* settingsProvidersModel = new SettingsProvidersModel(usageStore, &app);
     qmlRegisterSingletonInstance("CodexBarX", 1, 0, "SettingsProvidersModel", settingsProvidersModel);
     auto* trayViewModel = new TrayViewModel(usageStore, &app);

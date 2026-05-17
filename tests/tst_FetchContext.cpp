@@ -1,6 +1,7 @@
 #include <QtTest/QtTest>
 
 #include "../src/app/SettingsStore.h"
+#include "../src/app/UsageBackendJobs.h"
 #include "../src/app/UsageStore.h"
 #include "../src/providers/ProviderRegistry.h"
 #include "../src/providers/claude/ClaudeProvider.h"
@@ -137,6 +138,45 @@ public:
     }
 
     QVector<QString> supportedSourceModes() const override { return {"api"}; }
+};
+
+class CaptureContextStrategy : public IFetchStrategy {
+public:
+    QString id() const override { return QStringLiteral("capture-context.strategy"); }
+    int kind() const override { return ProviderFetchKind::Web; }
+    bool isAvailable(const ProviderFetchContext&) const override { return true; }
+
+    ProviderFetchResult fetchSync(const ProviderFetchContext& ctx) override {
+        lastContext = ctx;
+        ProviderFetchResult result;
+        result.success = true;
+        result.strategyID = id();
+        result.strategyKind = kind();
+        return result;
+    }
+
+    bool shouldFallback(const ProviderFetchResult&, const ProviderFetchContext&) const override {
+        return false;
+    }
+
+    static ProviderFetchContext lastContext;
+};
+
+ProviderFetchContext CaptureContextStrategy::lastContext;
+
+class CaptureContextProvider : public IProvider {
+public:
+    QString id() const override { return QStringLiteral("cursor"); }
+    QString displayName() const override { return QStringLiteral("Cursor"); }
+    QString sessionLabel() const override { return QStringLiteral("Session"); }
+    QString weeklyLabel() const override { return QStringLiteral("Weekly"); }
+    bool defaultEnabled() const override { return false; }
+
+    QVector<IFetchStrategy*> createStrategies(const ProviderFetchContext&) override {
+        return { new CaptureContextStrategy() };
+    }
+
+    QVector<QString> supportedSourceModes() const override { return { QStringLiteral("web") }; }
 };
 
 class SlowReadCredentialBackend : public ProviderCredentialBackend {
@@ -531,77 +571,101 @@ private slots:
     }
 
     void bridgeCookieInjectedWhenManualMissing() {
-        SettingsStore settings;
-        settings.setProviderSetting("cursor", "cookieSource", "auto");
+        auto backend = std::make_shared<InMemoryCredentialBackend>();
+        ProviderCredentialStore::setBackendForTesting(backend);
+        const QString target = BrowserSessionBridgeStore::credentialTargetFor(
+            QStringLiteral("cursor"), QStringLiteral("chrome:uuid-bridge-test-001"));
+        QVERIFY(ProviderCredentialStore::write(target, QStringLiteral("bridge"),
+                                               QByteArrayLiteral("WorkosCursorSessionToken=bridge-cursor-token")));
 
-        UsageStore store;
-        store.setSettingsStore(&settings);
+        UsageBackendJobs::ProviderFetchCommandInput input;
+        input.providerId = QStringLiteral("cursor");
+        input.providerSettings.insert(QStringLiteral("cookieSource"), QStringLiteral("auto"));
+        input.providerSettings.insert(QStringLiteral("manualCookieHeader"), QString());
+        BridgeSessionLookupInput lookup;
+        lookup.enabled = true;
+        lookup.providerId = QStringLiteral("cursor");
+        lookup.materialKind = BridgeMaterialKind::Cookies;
+        lookup.cookieCredentialTarget = target;
+        input.bridgeSessionLookup = lookup;
 
-        auto* bridgeStore = new BrowserSessionBridgeStore();
-        BridgeClientInfo client;
-        client.id.browserFamily = QStringLiteral("chrome");
-        client.id.profileInstanceId = QStringLiteral("uuid-bridge-test-001");
-        bridgeStore->upsertClient(client);
+        CaptureContextProvider provider;
+        const auto payload = UsageBackendJobs::refreshProvider(&provider, input);
+        QVERIFY(payload.fetchResult.success);
+        QVERIFY(CaptureContextStrategy::lastContext.manualCookieHeader.has_value());
+        QVERIFY(CaptureContextStrategy::lastContext.manualCookieHeader->contains(
+            QStringLiteral("bridge-cursor-token")));
 
-        BridgeSessionMaterial material;
-        material.providerId = QStringLiteral("cursor");
-        material.clientId = client.id;
-        material.capturedAtUtc = QDateTime::currentDateTimeUtc();
-        BridgeCookieRecord cookie;
-        cookie.name = QStringLiteral("WorkosCursorSessionToken");
-        cookie.value = QStringLiteral("bridge-cursor-token");
-        cookie.domain = QStringLiteral(".cursor.com");
-        material.cookies.append(cookie);
-        bridgeStore->saveImportedMaterial(material);
-
-        auto* bridgeService = new BrowserSessionBridgeService(bridgeStore);
-        store.setBrowserSessionBridgeService(bridgeService);
-
-        ProviderFetchContext ctx = store.buildFetchContextForProvider("cursor");
-
-        QVERIFY(ctx.manualCookieHeader.has_value());
-        QVERIFY(ctx.manualCookieHeader->contains(QStringLiteral("bridge-cursor-token")));
-
-        delete bridgeService;
-        delete bridgeStore;
+        ProviderCredentialStore::resetBackendForTesting();
     }
 
     void manualCookieOverridesBridge() {
-        SettingsStore settings;
-        settings.setProviderSetting("cursor", "cookieSource", "auto");
-        settings.setProviderSetting("cursor", "manualCookieHeader", "sessionKey=manual-token");
+        auto backend = std::make_shared<InMemoryCredentialBackend>();
+        ProviderCredentialStore::setBackendForTesting(backend);
+        const QString target = BrowserSessionBridgeStore::credentialTargetFor(
+            QStringLiteral("cursor"), QStringLiteral("chrome:uuid-bridge-test-002"));
+        QVERIFY(ProviderCredentialStore::write(target, QStringLiteral("bridge"),
+                                               QByteArrayLiteral("WorkosCursorSessionToken=bridge-cursor-token")));
 
-        UsageStore store;
-        store.setSettingsStore(&settings);
+        UsageBackendJobs::ProviderFetchCommandInput input;
+        input.providerId = QStringLiteral("cursor");
+        input.providerSettings.insert(QStringLiteral("cookieSource"), QStringLiteral("auto"));
+        input.providerSettings.insert(QStringLiteral("manualCookieHeader"), QStringLiteral("sessionKey=manual-token"));
+        BridgeSessionLookupInput lookup;
+        lookup.enabled = true;
+        lookup.providerId = QStringLiteral("cursor");
+        lookup.materialKind = BridgeMaterialKind::Cookies;
+        lookup.cookieCredentialTarget = target;
+        input.bridgeSessionLookup = lookup;
 
-        auto* bridgeStore = new BrowserSessionBridgeStore();
-        BridgeClientInfo client;
-        client.id.browserFamily = QStringLiteral("chrome");
-        client.id.profileInstanceId = QStringLiteral("uuid-bridge-test-002");
-        bridgeStore->upsertClient(client);
+        CaptureContextProvider provider;
+        const auto payload = UsageBackendJobs::refreshProvider(&provider, input);
+        QVERIFY(payload.fetchResult.success);
+        QVERIFY(CaptureContextStrategy::lastContext.manualCookieHeader.has_value());
+        QCOMPARE(*CaptureContextStrategy::lastContext.manualCookieHeader,
+                 QStringLiteral("sessionKey=manual-token"));
 
-        BridgeSessionMaterial material;
-        material.providerId = QStringLiteral("cursor");
-        material.clientId = client.id;
-        material.capturedAtUtc = QDateTime::currentDateTimeUtc();
-        BridgeCookieRecord cookie;
-        cookie.name = QStringLiteral("WorkosCursorSessionToken");
-        cookie.value = QStringLiteral("bridge-cursor-token");
-        cookie.domain = QStringLiteral(".cursor.com");
-        material.cookies.append(cookie);
-        bridgeStore->saveImportedMaterial(material);
+        ProviderCredentialStore::resetBackendForTesting();
+    }
 
-        auto* bridgeService = new BrowserSessionBridgeService(bridgeStore);
-        store.setBrowserSessionBridgeService(bridgeService);
+    void manualCookieDoesNotBlockHybridBridgeSessionPayload() {
+        auto backend = std::make_shared<InMemoryCredentialBackend>();
+        ProviderCredentialStore::setBackendForTesting(backend);
+        const QString bindingId = QStringLiteral("edge:uuid-hybrid-session-001");
+        const QString cookieTarget = BrowserSessionBridgeStore::credentialTargetFor(
+            QStringLiteral("codex"), bindingId, BridgeMaterialKind::Cookies);
+        const QString sessionTarget = BrowserSessionBridgeStore::credentialTargetFor(
+            QStringLiteral("codex"), bindingId, BridgeMaterialKind::LocalStorage);
+        QVERIFY(ProviderCredentialStore::write(cookieTarget, QStringLiteral("bridge"),
+                                               QByteArrayLiteral("__Secure-next-auth.session-token=bridge-token")));
+        QVERIFY(ProviderCredentialStore::write(sessionTarget, QStringLiteral("bridge"),
+                                               QByteArrayLiteral("{\"codex_usage_json\":\"{\\\"rate_limit\\\":{}}\"}")));
 
-        ProviderFetchContext ctx = store.buildFetchContextForProvider("cursor");
+        UsageBackendJobs::ProviderFetchCommandInput input;
+        input.providerId = QStringLiteral("codex");
+        input.providerSettings.insert(QStringLiteral("cookieSource"), QStringLiteral("auto"));
+        input.providerSettings.insert(QStringLiteral("manualCookieHeader"), QStringLiteral("sessionKey=manual-token"));
+        BridgeSessionLookupInput lookup;
+        lookup.enabled = true;
+        lookup.providerId = QStringLiteral("codex");
+        lookup.materialKind = BridgeMaterialKind::Hybrid;
+        lookup.cookieCredentialTarget = cookieTarget;
+        lookup.localStorageCredentialTarget = sessionTarget;
+        input.bridgeSessionLookup = lookup;
 
-        QVERIFY(ctx.manualCookieHeader.has_value());
-        QCOMPARE(*ctx.manualCookieHeader, QStringLiteral("sessionKey=manual-token"));
-        QVERIFY(!ctx.manualCookieHeader->contains(QStringLiteral("bridge-cursor-token")));
+        CaptureContextProvider provider;
+        const auto payload = UsageBackendJobs::refreshProvider(&provider, input);
+        QVERIFY(payload.fetchResult.success);
+        QVERIFY(CaptureContextStrategy::lastContext.manualCookieHeader.has_value());
+        QCOMPARE(*CaptureContextStrategy::lastContext.manualCookieHeader,
+                 QStringLiteral("sessionKey=manual-token"));
+        QVERIFY(CaptureContextStrategy::lastContext.importedBrowserSession.has_value());
+        QCOMPARE(CaptureContextStrategy::lastContext.importedBrowserSession->providerId,
+                 QStringLiteral("codex"));
+        QVERIFY(CaptureContextStrategy::lastContext.importedBrowserSession->sessionPayload.contains(
+            QStringLiteral("codex_usage_json")));
 
-        delete bridgeService;
-        delete bridgeStore;
+        ProviderCredentialStore::resetBackendForTesting();
     }
 
     void bridgeDoesNotWriteSettings() {
@@ -632,7 +696,7 @@ private slots:
         store.setBrowserSessionBridgeService(bridgeService);
 
         ProviderFetchContext ctx = store.buildFetchContextForProvider("cursor");
-        QVERIFY(ctx.manualCookieHeader.has_value());
+        QVERIFY(!ctx.manualCookieHeader.has_value());
 
         QString storedCookie = settings.providerSetting("cursor", "manualCookieHeader").toString();
         QVERIFY(!storedCookie.contains(QStringLiteral("bridge-cursor-token-secret")));

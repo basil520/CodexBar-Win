@@ -897,6 +897,20 @@ ProviderFetchResult WindsurfWebStrategy::fetchSync(const ProviderFetchContext& c
         return r;
     }
 
+    // Phase 0: try bridge session first
+    if (ctx.importedBrowserSession.has_value() &&
+        !ctx.importedBrowserSession->sessionPayload.isEmpty()) {
+        QString parseError;
+        auto bridgeAuth = parseManualSessionInput(
+            ctx.importedBrowserSession->sessionPayload, &parseError);
+        if (bridgeAuth.has_value()) {
+            ProviderFetchResult r = trySession(*bridgeAuth,
+                QStringLiteral("windsurf-bridge"));
+            if (r.success) return r;
+            if (r.httpStatus > 0 && !isRecoverableHTTPError(r.httpStatus)) return r;
+        }
+    }
+
     // Phase 1: try preferred browser (Chrome) sessions
     QVector<WindsurfDevinSessionInfo> preferredSessions =
         WindsurfDevinSessionImporter::importPreferredSessions(ctx);

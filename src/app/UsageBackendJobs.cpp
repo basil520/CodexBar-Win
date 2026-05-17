@@ -115,12 +115,30 @@ FetchContextBuildResult buildFetchContext(const ProviderFetchCommandInput& input
     }
     if (!manualCookie.isEmpty()) {
         ctx.manualCookieHeader = manualCookie;
-    } else if (cookieSource == QLatin1String("auto")) {
-        if (input.bridgeCookieHeader.has_value()) {
-            ctx.manualCookieHeader = input.bridgeCookieHeader.value();
-        }
-        if (input.bridgeImportedSession.has_value()) {
-            ctx.importedBrowserSession = input.bridgeImportedSession;
+    }
+    if (cookieSource == QLatin1String("auto")) {
+        if (input.bridgeSessionLookup.has_value()) {
+            const auto& lookup = input.bridgeSessionLookup.value();
+            if (manualCookie.isEmpty() &&
+                (lookup.materialKind == BridgeMaterialKind::Cookies ||
+                 lookup.materialKind == BridgeMaterialKind::Hybrid) &&
+                !lookup.cookieCredentialTarget.isEmpty()) {
+                const auto stored = ProviderCredentialStore::read(lookup.cookieCredentialTarget);
+                if (stored.has_value()) {
+                    ctx.manualCookieHeader = QString::fromUtf8(stored.value()).trimmed();
+                }
+            }
+            if ((lookup.materialKind == BridgeMaterialKind::LocalStorage ||
+                 lookup.materialKind == BridgeMaterialKind::Hybrid) &&
+                !lookup.localStorageCredentialTarget.isEmpty()) {
+                const auto stored = ProviderCredentialStore::read(lookup.localStorageCredentialTarget);
+                if (stored.has_value()) {
+                    ImportedBrowserSession session;
+                    session.providerId = lookup.providerId;
+                    session.sessionPayload = QString::fromUtf8(stored.value());
+                    ctx.importedBrowserSession = session;
+                }
+            }
         }
     }
 

@@ -3,6 +3,20 @@
 #include <QFile>
 #include <QStringList>
 
+namespace {
+
+QString readFile(const QString& relativePath)
+{
+    QFile file(QStringLiteral(PROJECT_SOURCE_DIR "/") + relativePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "Failed to open" << relativePath << file.errorString();
+        return {};
+    }
+    return QString::fromUtf8(file.readAll());
+}
+
+} // namespace
+
 class QmlArchitectureTest : public QObject {
     Q_OBJECT
 
@@ -22,6 +36,10 @@ private slots:
     void costHistoryDoesNotDependOnManualTokenUsageExpansion();
     void costHistoryChartUsesSharedHoverDetail();
     void usageStoreLegacyApisAreNotQmlInvokable();
+    void bridgeViewModelDoesNotPerformSynchronousIo();
+    void bridgeQmlDoesNotCallSynchronousBindingScan();
+    void browserSessionCardInvalidatesImportFeedbackBindings();
+    void browserSessionBridgeExtensionUsesCanonicalWireProtocol();
     void providerUiBuildersUseCatalogSnapshot();
     void costUsageScanUsesCostUsageService();
     void openCodeCostScanScopesSqlToRecentSessions();
@@ -576,6 +594,56 @@ void QmlArchitectureTest::usageStoreLegacyApisAreNotQmlInvokable()
                                     .arg(fileName, call)));
         }
     }
+}
+
+void QmlArchitectureTest::bridgeViewModelDoesNotPerformSynchronousIo()
+{
+    const QString source = readFile("src/app/BridgeViewModel.cpp");
+    QVERIFY2(!source.contains("ProviderCredentialStore"),
+             "BridgeViewModel must not access WinCred or credential storage on the UI thread.");
+    QVERIFY2(!source.contains("metadataStore().save()"),
+             "BridgeViewModel invokables must persist metadata asynchronously.");
+    QVERIFY2(!source.contains("ensureExtensionExported()"),
+             "BridgeViewModel must dispatch extension export to a worker instead of running file IO inline.");
+    QVERIFY2(!source.contains("isExtensionExported()"),
+             "QML properties must not perform filesystem existence scans.");
+}
+
+void QmlArchitectureTest::bridgeQmlDoesNotCallSynchronousBindingScan()
+{
+    const QString providerDetail = readFile("qml/components/ProviderDetailView.qml");
+    QVERIFY2(!providerDetail.contains("availableBindings("),
+             "Provider detail UI must use cached binding options instead of synchronous credential exists() scans.");
+}
+
+void QmlArchitectureTest::browserSessionCardInvalidatesImportFeedbackBindings()
+{
+    const QString card = readFile("qml/components/BrowserSessionCard.qml");
+    QVERIFY2(card.contains("visible: root.refreshKey"),
+             "BrowserSessionCard visibility bindings that call BridgeViewModel invokables must depend on refreshKey so import failures repaint immediately.");
+    QVERIFY2(card.contains("text: root.refreshKey"),
+             "BrowserSessionCard text bindings that call BridgeViewModel invokables must depend on refreshKey so import failures repaint immediately.");
+}
+
+void QmlArchitectureTest::browserSessionBridgeExtensionUsesCanonicalWireProtocol()
+{
+    const QString worker = readFile("resources/browser-session-bridge/service_worker.js");
+    const QString protocol = readFile("resources/browser-session-bridge/protocol.js");
+    const QString combined = worker + protocol;
+    QVERIFY(combined.contains("'register_client'") || combined.contains("\"register_client\""));
+    QVERIFY(combined.contains("'register_ack'") || combined.contains("\"register_ack\""));
+    QVERIFY(combined.contains("'request_import'") || combined.contains("\"request_import\""));
+    QVERIFY(combined.contains("'import_result'") || combined.contains("\"import_result\""));
+    QVERIFY2(!worker.contains("'RegisterClient'") && !worker.contains("\"RegisterClient\""),
+             "Extension must not use PascalCase message type names.");
+    QVERIFY2(!worker.contains("'RequestImport'") && !worker.contains("\"RequestImport\""),
+             "Extension must not use PascalCase message type names.");
+    QVERIFY2(!worker.contains("'ImportResult'") && !worker.contains("\"ImportResult\""),
+             "Extension must not use PascalCase message type names.");
+    QVERIFY2(!worker.contains("materialKind === 'Cookies'") && !worker.contains("materialKind === \"Cookies\""),
+             "Extension must compare materialKind against canonical 'cookies'.");
+    QVERIFY2(worker.contains("capabilities"),
+             "register_client payload must send capabilities.cookies/localStorage.");
 }
 
 void QmlArchitectureTest::providerUiBuildersUseCatalogSnapshot()

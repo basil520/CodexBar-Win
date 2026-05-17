@@ -1,5 +1,9 @@
 #include <QtTest/QtTest>
+#include <QElapsedTimer>
+#include <QFile>
+#include <QNetworkRequest>
 #include <QSignalSpy>
+#include <QStandardPaths>
 #include <QWebSocket>
 
 #include "../src/browserbridge/BrowserSessionBridgeService.h"
@@ -11,10 +15,17 @@ class tst_BrowserSessionBridgeService : public QObject {
     Q_OBJECT
 
 private slots:
+    void initTestCase();
     void init();
     void cleanup();
+    void statusQueriesReturnAfterStart();
     void registerImportDisconnectFlow();
     void emitsProviderImportedOnceAfterDebounce();
+    void requestImportSendsRequestToConnectedClient();
+    void emptyCookieImportReportsFailure();
+    void codexUsageErrorImportReportsFailure();
+    void codexUsageJsonWithoutCookiesPersistsAsSessionPayload();
+    void webSocketImportResultPersistsAsynchronously();
 
 private:
     BrowserSessionBridgeStore* m_store = nullptr;
@@ -22,15 +33,22 @@ private:
     std::shared_ptr<InMemoryCredentialBackend> m_backend;
 };
 
+void tst_BrowserSessionBridgeService::initTestCase()
+{
+    QStandardPaths::setTestModeEnabled(true);
+}
+
 void tst_BrowserSessionBridgeService::init()
 {
+    QFile::remove(BrowserSessionBridgeMetadataStore::metadataFilePath());
+    QFile::remove(BrowserSessionBridgeMetadataStore::metadataFilePath() + QStringLiteral(".tmp"));
     m_backend = std::make_shared<InMemoryCredentialBackend>();
     ProviderCredentialStore::setBackendForTesting(m_backend);
     m_store = new BrowserSessionBridgeStore();
     m_service = new BrowserSessionBridgeService(m_store);
     m_service->start();
     QVERIFY(QTest::qWaitFor([this]() {
-        return m_service->connectedClientBindingIds().isEmpty();
+        return m_service->isServerRunning();
     }, 500));
 }
 
@@ -46,6 +64,20 @@ void tst_BrowserSessionBridgeService::cleanup()
         m_store = nullptr;
     }
     ProviderCredentialStore::resetBackendForTesting();
+    QFile::remove(BrowserSessionBridgeMetadataStore::metadataFilePath());
+    QFile::remove(BrowserSessionBridgeMetadataStore::metadataFilePath() + QStringLiteral(".tmp"));
+}
+
+void tst_BrowserSessionBridgeService::statusQueriesReturnAfterStart()
+{
+    QElapsedTimer elapsed;
+    elapsed.start();
+
+    (void)m_service->isServerRunning();
+    (void)m_service->serverPort();
+
+    QVERIFY2(elapsed.elapsed() < 200,
+             "Bridge service status queries must not block the UI thread.");
 }
 
 void tst_BrowserSessionBridgeService::registerImportDisconnectFlow()
@@ -124,6 +156,291 @@ void tst_BrowserSessionBridgeService::emitsProviderImportedOnceAfterDebounce()
     const auto header = m_store->resolvedCookieHeader(QStringLiteral("claude"));
     QVERIFY(header.has_value());
     QVERIFY(header->contains(QStringLiteral("session-2")));
+}
+
+void tst_BrowserSessionBridgeService::requestImportSendsRequestToConnectedClient()
+{
+    QWebSocket client;
+    QSignalSpy connectedSpy(&client, QOverload<>::of(&QWebSocket::connected));
+    QVERIFY(connectedSpy.isValid());
+
+    QNetworkRequest req(QUrl(QStringLiteral("ws://127.0.0.1:%1").arg(m_service->serverPort())));
+    req.setRawHeader("Origin", "chrome-extension://cnanalhpjiclhljkpnlbgiaclpbncidk");
+    client.open(req);
+    QVERIFY(QTest::qWaitFor([&connectedSpy]() { return connectedSpy.count() > 0; }, 2000));
+
+    RegisterClientPayload reg;
+    reg.protocolVersion = BRIDGE_PROTOCOL_VERSION;
+    reg.extensionId = QStringLiteral("cnanalhpjiclhljkpnlbgiaclpbncidk");
+    reg.browserFamily = QStringLiteral("edge");
+    reg.browserVersion = QStringLiteral("127.0.0.0");
+    reg.profileInstanceId = QStringLiteral("uuid-request-send-001");
+    reg.profileAlias = QStringLiteral("Default");
+    reg.supportsCookies = true;
+    reg.supportsLocalStorage = true;
+    reg.supportsCodexUsageSnapshot = true;
+
+    BridgeMessage registerMsg;
+    registerMsg.type = BridgeMessageType::RegisterClient;
+    registerMsg.payload = BridgeProtocol::serializeRegisterClient(reg);
+    client.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(registerMsg)));
+    QVERIFY(QTest::qWaitFor([this]() {
+        return m_service->connectedClientBindingIds().contains(QStringLiteral("edge:uuid-request-send-001"));
+    }, 2000));
+
+    QSignalSpy textSpy(&client, &QWebSocket::textMessageReceived);
+    QVERIFY(textSpy.isValid());
+    QVERIFY(m_service->requestImport(QStringLiteral("codex")));
+
+    QVERIFY(QTest::qWaitFor([&textSpy]() {
+        for (const auto& args : textSpy) {
+            const auto msg = BridgeProtocol::parseMessage(args.at(0).toString().toUtf8());
+            if (msg.has_value() && msg->type == BridgeMessageType::RequestImport) {
+                return true;
+            }
+        }
+        return false;
+    }, 2000));
+
+    bool found = false;
+    for (const auto& args : textSpy) {
+        const auto msg = BridgeProtocol::parseMessage(args.at(0).toString().toUtf8());
+        if (!msg.has_value() || msg->type != BridgeMessageType::RequestImport) continue;
+        const auto payload = BridgeProtocol::parseRequestImport(msg->payload);
+        QCOMPARE(payload.providerId, QStringLiteral("codex"));
+        QCOMPARE(payload.materialKind, BridgeMaterialKind::Hybrid);
+        QVERIFY(payload.domains.contains(QStringLiteral("chatgpt.com")));
+        QCOMPARE(payload.localStorageOrigin, QStringLiteral("https://chatgpt.com"));
+        found = true;
+    }
+    QVERIFY(found);
+}
+
+void tst_BrowserSessionBridgeService::emptyCookieImportReportsFailure()
+{
+    QSignalSpy completedSpy(m_service, &BrowserSessionBridgeService::providerImportCompleted);
+    QVERIFY(completedSpy.isValid());
+
+    QWebSocket client;
+    QSignalSpy connectedSpy(&client, QOverload<>::of(&QWebSocket::connected));
+    QVERIFY(connectedSpy.isValid());
+
+    QNetworkRequest req(QUrl(QStringLiteral("ws://127.0.0.1:%1").arg(m_service->serverPort())));
+    req.setRawHeader("Origin", "chrome-extension://cnanalhpjiclhljkpnlbgiaclpbncidk");
+    client.open(req);
+    QVERIFY(QTest::qWaitFor([&connectedSpy]() { return connectedSpy.count() > 0; }, 2000));
+
+    RegisterClientPayload reg;
+    reg.protocolVersion = BRIDGE_PROTOCOL_VERSION;
+    reg.extensionId = QStringLiteral("cnanalhpjiclhljkpnlbgiaclpbncidk");
+    reg.browserFamily = QStringLiteral("edge");
+    reg.browserVersion = QStringLiteral("127.0.0.0");
+    reg.profileInstanceId = QStringLiteral("uuid-empty-import-001");
+    reg.profileAlias = QStringLiteral("Default");
+    reg.supportsCookies = true;
+    reg.supportsLocalStorage = true;
+    reg.supportsCodexUsageSnapshot = true;
+
+    BridgeMessage registerMsg;
+    registerMsg.type = BridgeMessageType::RegisterClient;
+    registerMsg.payload = BridgeProtocol::serializeRegisterClient(reg);
+    client.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(registerMsg)));
+    QVERIFY(QTest::qWaitFor([this]() {
+        return m_service->connectedClientBindingIds().contains(QStringLiteral("edge:uuid-empty-import-001"));
+    }, 2000));
+
+    ImportResultPayload result;
+    result.requestId = QStringLiteral("req-empty-import");
+    result.providerId = QStringLiteral("codex");
+    result.capturedAtUtc = QDateTime::currentDateTimeUtc();
+
+    BridgeMessage importMsg;
+    importMsg.type = BridgeMessageType::ImportResult;
+    importMsg.payload = BridgeProtocol::serializeImportResult(result);
+    client.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(importMsg)));
+
+    QVERIFY(QTest::qWaitFor([&completedSpy]() { return completedSpy.count() > 0; }, 2000));
+    const auto completedArgs = completedSpy.takeFirst();
+    QCOMPARE(completedArgs.at(0).toString(), QStringLiteral("codex"));
+    QCOMPARE(completedArgs.at(1).toBool(), false);
+    QVERIFY(m_service->lastError().contains(QStringLiteral("usage snapshot"), Qt::CaseInsensitive));
+    QVERIFY(!m_store->resolvedCookieHeader(QStringLiteral("codex")).has_value());
+    const auto binding = m_service->bindingForProvider(QStringLiteral("codex"));
+    QVERIFY(!binding.has_value() || !binding->lastImportedAtUtc.isValid());
+}
+
+void tst_BrowserSessionBridgeService::codexUsageErrorImportReportsFailure()
+{
+    QSignalSpy completedSpy(m_service, &BrowserSessionBridgeService::providerImportCompleted);
+    QVERIFY(completedSpy.isValid());
+
+    QWebSocket client;
+    QSignalSpy connectedSpy(&client, QOverload<>::of(&QWebSocket::connected));
+    QVERIFY(connectedSpy.isValid());
+
+    QNetworkRequest req(QUrl(QStringLiteral("ws://127.0.0.1:%1").arg(m_service->serverPort())));
+    req.setRawHeader("Origin", "chrome-extension://cnanalhpjiclhljkpnlbgiaclpbncidk");
+    client.open(req);
+    QVERIFY(QTest::qWaitFor([&connectedSpy]() { return connectedSpy.count() > 0; }, 2000));
+
+    RegisterClientPayload reg;
+    reg.protocolVersion = BRIDGE_PROTOCOL_VERSION;
+    reg.extensionId = QStringLiteral("cnanalhpjiclhljkpnlbgiaclpbncidk");
+    reg.browserFamily = QStringLiteral("edge");
+    reg.browserVersion = QStringLiteral("127.0.0.0");
+    reg.profileInstanceId = QStringLiteral("uuid-codex-usage-error-001");
+    reg.profileAlias = QStringLiteral("Default");
+    reg.supportsCookies = true;
+    reg.supportsLocalStorage = true;
+    reg.supportsCodexUsageSnapshot = true;
+
+    BridgeMessage registerMsg;
+    registerMsg.type = BridgeMessageType::RegisterClient;
+    registerMsg.payload = BridgeProtocol::serializeRegisterClient(reg);
+    client.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(registerMsg)));
+    QVERIFY(QTest::qWaitFor([this]() {
+        return m_service->connectedClientBindingIds().contains(QStringLiteral("edge:uuid-codex-usage-error-001"));
+    }, 2000));
+
+    ImportResultPayload result;
+    result.requestId = QStringLiteral("req-codex-usage-error");
+    result.providerId = QStringLiteral("codex");
+    result.capturedAtUtc = QDateTime::currentDateTimeUtc();
+    result.localStorage[QStringLiteral("codex_usage_error")] =
+        QStringLiteral("codex_usage_http_401 at backend-api/wham/usage");
+
+    BridgeMessage importMsg;
+    importMsg.type = BridgeMessageType::ImportResult;
+    importMsg.payload = BridgeProtocol::serializeImportResult(result);
+    client.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(importMsg)));
+
+    QVERIFY(QTest::qWaitFor([&completedSpy]() { return completedSpy.count() > 0; }, 2000));
+    const auto completedArgs = completedSpy.takeFirst();
+    QCOMPARE(completedArgs.at(0).toString(), QStringLiteral("codex"));
+    QCOMPARE(completedArgs.at(1).toBool(), false);
+    QVERIFY(completedArgs.at(2).toString().contains(QStringLiteral("codex_usage_http_401")));
+    const QString diagnosticTarget = BrowserSessionBridgeStore::credentialTargetFor(
+        QStringLiteral("codex"),
+        QStringLiteral("edge:uuid-codex-usage-error-001"),
+        BridgeMaterialKind::LocalStorage);
+    QVERIFY(QTest::qWaitFor([&diagnosticTarget]() {
+        return ProviderCredentialStore::read(diagnosticTarget).has_value();
+    }, 2000));
+    const auto diagnostic = ProviderCredentialStore::read(diagnosticTarget);
+    QVERIFY(diagnostic.has_value());
+    QVERIFY(QString::fromUtf8(diagnostic.value()).contains(QStringLiteral("codex_usage_http_401")));
+    const auto binding = m_service->bindingForProvider(QStringLiteral("codex"));
+    QVERIFY(!binding.has_value() || !binding->lastImportedAtUtc.isValid());
+}
+
+void tst_BrowserSessionBridgeService::codexUsageJsonWithoutCookiesPersistsAsSessionPayload()
+{
+    QSignalSpy importedSpy(m_service, &BrowserSessionBridgeService::providerSessionImported);
+    QVERIFY(importedSpy.isValid());
+
+    QWebSocket client;
+    QSignalSpy connectedSpy(&client, QOverload<>::of(&QWebSocket::connected));
+    QVERIFY(connectedSpy.isValid());
+
+    QNetworkRequest req(QUrl(QStringLiteral("ws://127.0.0.1:%1").arg(m_service->serverPort())));
+    req.setRawHeader("Origin", "chrome-extension://cnanalhpjiclhljkpnlbgiaclpbncidk");
+    client.open(req);
+    QVERIFY(QTest::qWaitFor([&connectedSpy]() { return connectedSpy.count() > 0; }, 2000));
+
+    RegisterClientPayload reg;
+    reg.protocolVersion = BRIDGE_PROTOCOL_VERSION;
+    reg.extensionId = QStringLiteral("cnanalhpjiclhljkpnlbgiaclpbncidk");
+    reg.browserFamily = QStringLiteral("edge");
+    reg.browserVersion = QStringLiteral("127.0.0.0");
+    reg.profileInstanceId = QStringLiteral("uuid-codex-usage-json-001");
+    reg.profileAlias = QStringLiteral("Default");
+    reg.supportsCookies = true;
+    reg.supportsLocalStorage = true;
+    reg.supportsCodexUsageSnapshot = true;
+
+    BridgeMessage registerMsg;
+    registerMsg.type = BridgeMessageType::RegisterClient;
+    registerMsg.payload = BridgeProtocol::serializeRegisterClient(reg);
+    client.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(registerMsg)));
+    QVERIFY(QTest::qWaitFor([this]() {
+        return m_service->connectedClientBindingIds().contains(QStringLiteral("edge:uuid-codex-usage-json-001"));
+    }, 2000));
+
+    ImportResultPayload result;
+    result.requestId = QStringLiteral("req-codex-usage-json");
+    result.providerId = QStringLiteral("codex");
+    result.capturedAtUtc = QDateTime::currentDateTimeUtc();
+    result.localStorage[QStringLiteral("codex_usage_json")] =
+        QStringLiteral(R"({"rate_limit":{"primary_window":{"used_percent":12,"limit_window_seconds":18000}},"email":"bridge@example.com"})");
+
+    BridgeMessage importMsg;
+    importMsg.type = BridgeMessageType::ImportResult;
+    importMsg.payload = BridgeProtocol::serializeImportResult(result);
+    client.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(importMsg)));
+
+    QVERIFY(QTest::qWaitFor([&importedSpy]() { return importedSpy.count() > 0; }, 4000));
+    BrowserSessionBridgeStore persistedStore;
+    const auto payload = persistedStore.resolvedSessionPayload(QStringLiteral("codex"));
+    QVERIFY(payload.has_value());
+    QVERIFY(payload->contains(QStringLiteral("codex_usage_json")));
+    const auto binding = m_service->bindingForProvider(QStringLiteral("codex"));
+    QVERIFY(binding.has_value());
+    QVERIFY(binding->lastImportedAtUtc.isValid());
+}
+
+void tst_BrowserSessionBridgeService::webSocketImportResultPersistsAsynchronously()
+{
+    QSignalSpy importedSpy(m_service, &BrowserSessionBridgeService::providerSessionImported);
+    QVERIFY(importedSpy.isValid());
+
+    QWebSocket client;
+    QSignalSpy connectedSpy(&client, QOverload<>::of(&QWebSocket::connected));
+    QVERIFY(connectedSpy.isValid());
+
+    QNetworkRequest req(QUrl(QStringLiteral("ws://127.0.0.1:%1").arg(m_service->serverPort())));
+    req.setRawHeader("Origin", "chrome-extension://cnanalhpjiclhljkpnlbgiaclpbncidk");
+    client.open(req);
+    QVERIFY(QTest::qWaitFor([&connectedSpy]() { return connectedSpy.count() > 0; }, 2000));
+
+    RegisterClientPayload reg;
+    reg.protocolVersion = BRIDGE_PROTOCOL_VERSION;
+    reg.extensionId = QStringLiteral("cnanalhpjiclhljkpnlbgiaclpbncidk");
+    reg.browserFamily = QStringLiteral("chrome");
+    reg.browserVersion = QStringLiteral("127.0.0.0");
+    reg.profileInstanceId = QStringLiteral("uuid-service-ws-001");
+    reg.profileAlias = QStringLiteral("Default");
+    reg.supportsCookies = true;
+    reg.supportsLocalStorage = true;
+
+    BridgeMessage registerMsg;
+    registerMsg.type = BridgeMessageType::RegisterClient;
+    registerMsg.payload = BridgeProtocol::serializeRegisterClient(reg);
+    client.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(registerMsg)));
+    QVERIFY(QTest::qWaitFor([this]() {
+        return m_service->connectedClientBindingIds().contains(QStringLiteral("chrome:uuid-service-ws-001"));
+    }, 2000));
+
+    ImportResultPayload result;
+    result.requestId = QStringLiteral("req-service-ws");
+    result.providerId = QStringLiteral("cursor");
+    result.capturedAtUtc = QDateTime::currentDateTimeUtc();
+    BridgeCookieRecord cookie;
+    cookie.name = QStringLiteral("WorkosCursorSessionToken");
+    cookie.value = QStringLiteral("service-ws-token");
+    cookie.domain = QStringLiteral(".cursor.com");
+    result.cookies.append(cookie);
+
+    BridgeMessage importMsg;
+    importMsg.type = BridgeMessageType::ImportResult;
+    importMsg.payload = BridgeProtocol::serializeImportResult(result);
+    client.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(importMsg)));
+
+    QVERIFY(QTest::qWaitFor([&importedSpy]() { return importedSpy.count() > 0; }, 4000));
+    const QString target = BrowserSessionBridgeStore::credentialTargetFor(
+        QStringLiteral("cursor"), QStringLiteral("chrome:uuid-service-ws-001"));
+    const auto stored = ProviderCredentialStore::read(target);
+    QVERIFY(stored.has_value());
+    QVERIFY(QString::fromUtf8(stored.value()).contains(QStringLiteral("service-ws-token")));
 }
 
 QTEST_MAIN(tst_BrowserSessionBridgeService)

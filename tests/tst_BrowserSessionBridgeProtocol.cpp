@@ -6,6 +6,9 @@ class tst_BrowserSessionBridgeProtocol : public QObject {
 
 private slots:
     void roundTripsRegisterClient();
+    void parsesExtensionRegisterClientSample();
+    void parsesExtensionSessionCookieWithoutExpiry();
+    void serializesRequestImportWithCanonicalMaterialKind();
     void rejectsUnknownProtocolVersion();
     void roundTripsImportResultWithCookies();
     void roundTripsLocalStoragePayload();
@@ -23,6 +26,8 @@ void tst_BrowserSessionBridgeProtocol::roundTripsRegisterClient()
     original.incognito = false;
     original.supportsCookies = true;
     original.supportsLocalStorage = true;
+    original.supportsCodexUsageSnapshot = true;
+    original.extensionBuild = QStringLiteral("2026.05.17");
 
     const auto json = BridgeProtocol::serializeRegisterClient(original);
     QCOMPARE(json[QStringLiteral("type")].toString(), QStringLiteral("register_client"));
@@ -37,6 +42,95 @@ void tst_BrowserSessionBridgeProtocol::roundTripsRegisterClient()
     QCOMPARE(restored.incognito, original.incognito);
     QCOMPARE(restored.supportsCookies, original.supportsCookies);
     QCOMPARE(restored.supportsLocalStorage, original.supportsLocalStorage);
+    QCOMPARE(restored.supportsCodexUsageSnapshot, original.supportsCodexUsageSnapshot);
+    QCOMPARE(restored.extensionBuild, original.extensionBuild);
+}
+
+void tst_BrowserSessionBridgeProtocol::parsesExtensionRegisterClientSample()
+{
+    const QByteArray sample = R"json({
+        "type": "register_client",
+        "protocolVersion": 1,
+        "extensionId": "cnanalhpjiclhljkpnlbgiaclpbncidk",
+        "browserFamily": "chrome",
+        "browserVersion": "127.0.0.0",
+        "profileInstanceId": "profile-uuid-001",
+        "profileAlias": "Default",
+        "incognito": false,
+        "extensionBuild": "2026.05.17",
+        "capabilities": {
+            "cookies": true,
+            "localStorage": true,
+            "codexUsageSnapshot": true
+        }
+    })json";
+
+    const auto msg = BridgeProtocol::parseMessage(sample);
+    QVERIFY(msg.has_value());
+    QCOMPARE(msg->type, BridgeMessageType::RegisterClient);
+
+    const auto payload = BridgeProtocol::parseRegisterClient(msg->payload);
+    QCOMPARE(payload.extensionId, QStringLiteral("cnanalhpjiclhljkpnlbgiaclpbncidk"));
+    QCOMPARE(payload.browserFamily, QStringLiteral("chrome"));
+    QCOMPARE(payload.profileInstanceId, QStringLiteral("profile-uuid-001"));
+    QVERIFY(payload.supportsCookies);
+    QVERIFY(payload.supportsLocalStorage);
+    QVERIFY(payload.supportsCodexUsageSnapshot);
+    QCOMPARE(payload.extensionBuild, QStringLiteral("2026.05.17"));
+}
+
+void tst_BrowserSessionBridgeProtocol::parsesExtensionSessionCookieWithoutExpiry()
+{
+    const QByteArray sample = R"json({
+        "type": "import_result",
+        "requestId": "req-session-cookie",
+        "providerId": "codex",
+        "success": true,
+        "cookies": [
+            {
+                "name": "__Secure-next-auth.session-token",
+                "value": "session-cookie-value",
+                "domain": ".chatgpt.com",
+                "path": "/",
+                "secure": true,
+                "httpOnly": true,
+                "session": true,
+                "expirationDate": null
+            }
+        ],
+        "localStorage": {},
+        "capturedAtUtc": "2026-05-16T10:20:30Z"
+    })json";
+
+    const auto msg = BridgeProtocol::parseMessage(sample);
+    QVERIFY(msg.has_value());
+    QCOMPARE(msg->type, BridgeMessageType::ImportResult);
+
+    const auto payload = BridgeProtocol::parseImportResult(msg->payload);
+    QCOMPARE(payload.providerId, QStringLiteral("codex"));
+    QCOMPARE(payload.cookies.size(), 1);
+    QCOMPARE(payload.cookies[0].name, QStringLiteral("__Secure-next-auth.session-token"));
+    QVERIFY(payload.cookies[0].session);
+    QVERIFY2(!payload.cookies[0].expirationDateUtc.has_value(),
+             "Session cookies with expirationDate:null must not be treated as expired 1970 cookies.");
+}
+
+void tst_BrowserSessionBridgeProtocol::serializesRequestImportWithCanonicalMaterialKind()
+{
+    RequestImportPayload cookies;
+    cookies.requestId = QStringLiteral("req-cookies");
+    cookies.providerId = QStringLiteral("cursor");
+    cookies.materialKind = BridgeMaterialKind::Cookies;
+    const auto cookiesJson = BridgeProtocol::serializeRequestImport(cookies);
+    QCOMPARE(cookiesJson[QStringLiteral("type")].toString(), QStringLiteral("request_import"));
+    QCOMPARE(cookiesJson[QStringLiteral("materialKind")].toString(), QStringLiteral("cookies"));
+
+    RequestImportPayload storage;
+    storage.requestId = QStringLiteral("req-storage");
+    storage.providerId = QStringLiteral("windsurf");
+    storage.materialKind = BridgeMaterialKind::LocalStorage;
+    const auto storageJson = BridgeProtocol::serializeRequestImport(storage);
+    QCOMPARE(storageJson[QStringLiteral("materialKind")].toString(), QStringLiteral("localStorage"));
 }
 
 void tst_BrowserSessionBridgeProtocol::rejectsUnknownProtocolVersion()

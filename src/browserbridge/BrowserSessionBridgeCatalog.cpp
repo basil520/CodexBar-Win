@@ -15,8 +15,10 @@ QVector<BridgeProviderSpec> BrowserSessionBridgeCatalog::specs()
           QStringLiteral("__Secure-wos-session"),
           QStringLiteral("__Secure-authjs.session-token")}},
 
-        {QStringLiteral("codex"), BridgeMaterialKind::Cookies,
-         {QStringLiteral("chatgpt.com"), QStringLiteral("chat.openai.com")},
+        {QStringLiteral("codex"), BridgeMaterialKind::Hybrid,
+         {QStringLiteral("chatgpt.com")},
+         {},
+         QStringLiteral("https://chatgpt.com"),
          {}},
 
         {QStringLiteral("claude"), BridgeMaterialKind::Cookies,

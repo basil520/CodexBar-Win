@@ -31,7 +31,7 @@ void BrowserSessionBridgeStore::saveImportedMaterial(const BridgeSessionMaterial
     if (!spec.has_value()) return;
 
     const auto bindingId = material.clientId.toBindingId();
-    const auto target = secureTargetName(material.providerId, bindingId);
+    const auto target = credentialTargetFor(material.providerId, bindingId);
 
     if (spec->materialKind == BridgeMaterialKind::Cookies ||
         spec->materialKind == BridgeMaterialKind::Hybrid) {
@@ -57,10 +57,17 @@ void BrowserSessionBridgeStore::saveImportedMaterial(const BridgeSessionMaterial
                  it != material.localStorage.constEnd(); ++it) {
                 payload[it.key()] = it.value();
             }
-            const auto lsTarget = secureTargetName(material.providerId, bindingId)
-                                  .append(QStringLiteral("/ls"));
+            const auto lsTarget = credentialTargetFor(material.providerId, bindingId,
+                                                      BridgeMaterialKind::LocalStorage);
             ProviderCredentialStore::write(lsTarget, QStringLiteral("bridge"),
                                            QJsonDocument(payload).toJson(QJsonDocument::Compact));
+
+            // Write a marker at the base target so preferredOrFirstBinding()
+            // can discover this binding via exists() checks
+            if (spec->materialKind == BridgeMaterialKind::LocalStorage) {
+                ProviderCredentialStore::write(target, QStringLiteral("bridge"),
+                                               QByteArrayLiteral("ls"));
+            }
         }
     }
 
@@ -86,7 +93,7 @@ std::optional<QString> BrowserSessionBridgeStore::resolvedCookieHeader(
     const auto bindingOpt = preferredOrFirstBinding(providerId, preferredBindingId);
     if (!bindingOpt.has_value()) return std::nullopt;
 
-    const auto target = secureTargetName(providerId, bindingOpt.value());
+    const auto target = credentialTargetFor(providerId, bindingOpt.value());
     const auto data = ProviderCredentialStore::read(target);
     if (!data.has_value()) return std::nullopt;
     return QString::fromUtf8(data.value());
@@ -105,7 +112,8 @@ std::optional<QString> BrowserSessionBridgeStore::resolvedSessionPayload(
     const auto bindingOpt = preferredOrFirstBinding(providerId, preferredBindingId);
     if (!bindingOpt.has_value()) return std::nullopt;
 
-    const auto lsTarget = secureTargetName(providerId, bindingOpt.value()).append(QStringLiteral("/ls"));
+    const auto lsTarget = credentialTargetFor(providerId, bindingOpt.value(),
+                                              BridgeMaterialKind::LocalStorage);
     const auto data = ProviderCredentialStore::read(lsTarget);
     if (!data.has_value()) return std::nullopt;
     return QString::fromUtf8(data.value());
@@ -119,8 +127,9 @@ QStringList BrowserSessionBridgeStore::availableBindingIds(const QString& provid
     for (auto it = m_clients.constBegin(); it != m_clients.constEnd(); ++it) {
         const auto& client = it.value();
         const auto bindingId = it.key();
-        const auto target = secureTargetName(providerId, bindingId);
-        if (ProviderCredentialStore::exists(target)) {
+        const auto target = credentialTargetFor(providerId, bindingId);
+        const auto lsTarget = credentialTargetFor(providerId, bindingId, BridgeMaterialKind::LocalStorage);
+        if (ProviderCredentialStore::exists(target) || ProviderCredentialStore::exists(lsTarget)) {
             result.append(bindingId);
         }
     }
@@ -140,7 +149,17 @@ const BrowserSessionBridgeMetadataStore& BrowserSessionBridgeStore::metadataStor
 QString BrowserSessionBridgeStore::secureTargetName(
     const QString& providerId, const QString& bindingId) const
 {
-    return QStringLiteral("CodexBarX/bridge/session/%1/%2").arg(providerId, bindingId);
+    return credentialTargetFor(providerId, bindingId);
+}
+
+QString BrowserSessionBridgeStore::credentialTargetFor(
+    const QString& providerId, const QString& bindingId, BridgeMaterialKind kind)
+{
+    QString target = QStringLiteral("CodexBarX/bridge/session/%1/%2").arg(providerId, bindingId);
+    if (kind == BridgeMaterialKind::LocalStorage) {
+        target += QStringLiteral("/ls");
+    }
+    return target;
 }
 
 std::optional<QString> BrowserSessionBridgeStore::preferredOrFirstBinding(
@@ -148,16 +167,19 @@ std::optional<QString> BrowserSessionBridgeStore::preferredOrFirstBinding(
     const QString& preferredBindingId) const
 {
     if (!preferredBindingId.isEmpty()) {
-        const auto target = secureTargetName(providerId, preferredBindingId);
-        if (ProviderCredentialStore::exists(target))
+        const auto target = credentialTargetFor(providerId, preferredBindingId);
+        const auto lsTarget = credentialTargetFor(providerId, preferredBindingId, BridgeMaterialKind::LocalStorage);
+        if (ProviderCredentialStore::exists(target) || ProviderCredentialStore::exists(lsTarget))
             return preferredBindingId;
     }
 
     // Fall back to metadata preferred binding
     const auto binding = m_metadata.bindingForProvider(providerId);
-    if (binding.has_value() && !binding->preferredBindingId.isEmpty()) {
-        const auto target = secureTargetName(providerId, binding->preferredBindingId);
-        if (ProviderCredentialStore::exists(target))
+    if (binding && !binding->preferredBindingId.isEmpty()) {
+        const auto target = credentialTargetFor(providerId, binding->preferredBindingId);
+        const auto lsTarget = credentialTargetFor(providerId, binding->preferredBindingId,
+                                                  BridgeMaterialKind::LocalStorage);
+        if (ProviderCredentialStore::exists(target) || ProviderCredentialStore::exists(lsTarget))
             return binding->preferredBindingId;
     }
 

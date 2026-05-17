@@ -277,6 +277,7 @@ target_compile_definitions(tst_QmlSmoke PRIVATE ${COMMON_DEFINES})
 target_link_libraries(tst_QmlSmoke PRIVATE Qt6::Core Qt6::Test Qt6::Quick Qt6::Qml)
 target_sources(tst_QmlSmoke PRIVATE ${CMAKE_SOURCE_DIR}/resources/qml.qrc)
 add_wincodexbar_test(tst_QmlSmoke tst_QmlSmoke)
+set_tests_properties(tst_QmlSmoke PROPERTIES RESOURCE_LOCK gpu_gui)
 
 # QML architecture guards
 add_executable(tst_QmlArchitecture
@@ -570,3 +571,19 @@ target_include_directories(tst_BrowserSessionBridgeInstallService PRIVATE ${COMM
 target_compile_definitions(tst_BrowserSessionBridgeInstallService PRIVATE ${COMMON_DEFINES})
 target_link_libraries(tst_BrowserSessionBridgeInstallService PRIVATE codexbar_core Qt6::Core Qt6::Test)
 add_wincodexbar_test(tst_BrowserSessionBridgeInstallService tst_BrowserSessionBridgeInstallService)
+
+# Windsurf Bridge integration (Phase 4)
+add_executable(tst_WindsurfBridge tst_WindsurfBridge.cpp)
+target_include_directories(tst_WindsurfBridge PRIVATE ${COMMON_INCLUDE})
+target_compile_definitions(tst_WindsurfBridge PRIVATE
+    ${COMMON_DEFINES}
+    PROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
+)
+target_link_libraries(tst_WindsurfBridge PRIVATE codexbar_core Qt6::Core Qt6::Test)
+add_wincodexbar_test(tst_WindsurfBridge tst_WindsurfBridge)
+
+add_executable(tst_BridgeViewModel tst_BridgeViewModel.cpp)
+target_include_directories(tst_BridgeViewModel PRIVATE ${COMMON_INCLUDE})
+target_compile_definitions(tst_BridgeViewModel PRIVATE ${COMMON_DEFINES})
+target_link_libraries(tst_BridgeViewModel PRIVATE codexbar_core Qt6::Core Qt6::Test)
+add_wincodexbar_test(tst_BridgeViewModel tst_BridgeViewModel)

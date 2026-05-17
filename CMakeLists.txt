@@ -141,6 +141,7 @@ set(CORE_SOURCES
 
     # === Browser Session Bridge ===
     src/browserbridge/BrowserSessionBridgeCatalog.cpp
+    src/browserbridge/BrowserSessionBridgeConstants.cpp
     src/browserbridge/BrowserSessionBridgeProtocol.cpp
     src/browserbridge/BrowserSessionBridgeMetadataStore.cpp
     src/browserbridge/BrowserSessionBridgeStore.cpp
@@ -156,6 +157,7 @@ set(CORE_SOURCES
     src/app/CostUsageService.cpp
     src/app/SettingsStore.cpp
     src/app/SettingsProvidersModel.cpp
+    src/app/BridgeViewModel.cpp
     src/app/UsageStore.cpp
     src/app/TrayProviderListModel.cpp
     src/app/TrayViewModel.cpp
@@ -281,6 +283,7 @@ set(CORE_HEADERS
     # === Browser Session Bridge ===
     src/browserbridge/BrowserSessionBridgeTypes.h
     src/browserbridge/BrowserSessionBridgeCatalog.h
+    src/browserbridge/BrowserSessionBridgeConstants.h
     src/browserbridge/BrowserSessionBridgeProtocol.h
     src/browserbridge/BrowserSessionBridgeMetadataStore.h
     src/browserbridge/BrowserSessionBridgeStore.h
@@ -316,6 +319,7 @@ set(CORE_HEADERS
     src/app/CostUsageService.h
     src/app/SettingsStore.h
     src/app/SettingsProvidersModel.h
+    src/app/BridgeViewModel.h
     src/app/UsageStore.h
     src/app/TrayProviderListModel.h
     src/app/TrayViewModel.h

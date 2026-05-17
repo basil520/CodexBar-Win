@@ -1,16 +1,22 @@
 #include "BrowserSessionBridgeServer.h"
 
+#include "BrowserSessionBridgeConstants.h"
+
 #include <QWebSocketServer>
 #include <QWebSocket>
 #include <QTimer>
 #include <QHostAddress>
-
-static const QString DEFAULT_ALLOWED_ORIGIN = QStringLiteral("codexbarx-browser-session-bridge");
+#include <QMetaType>
 
 BrowserSessionBridgeServer::BrowserSessionBridgeServer(QObject* parent)
     : QObject(parent)
 {
-    m_allowedOrigins.append(DEFAULT_ALLOWED_ORIGIN);
+    qRegisterMetaType<BridgeClientId>("BridgeClientId");
+    qRegisterMetaType<BridgeClientInfo>("BridgeClientInfo");
+    qRegisterMetaType<ImportResultPayload>("ImportResultPayload");
+    qRegisterMetaType<SessionDirtyPayload>("SessionDirtyPayload");
+
+    m_allowedOrigins = BrowserSessionBridgeConstants::allowedOrigins();
     moveToThread(&m_thread);
     m_thread.start();
 }
@@ -38,6 +44,10 @@ void BrowserSessionBridgeServer::stop()
 
 bool BrowserSessionBridgeServer::isRunning() const
 {
+    if (QThread::currentThread() == thread()) {
+        return m_server && m_server->isListening();
+    }
+
     bool result = false;
     QMetaObject::invokeMethod(
         const_cast<BrowserSessionBridgeServer*>(this),
@@ -48,6 +58,10 @@ bool BrowserSessionBridgeServer::isRunning() const
 
 quint16 BrowserSessionBridgeServer::serverPort() const
 {
+    if (QThread::currentThread() == thread()) {
+        return m_server ? m_server->serverPort() : 0;
+    }
+
     quint16 result = 0;
     QMetaObject::invokeMethod(
         const_cast<BrowserSessionBridgeServer*>(this),
@@ -65,6 +79,10 @@ void BrowserSessionBridgeServer::setAllowedOriginsForTesting(const QStringList& 
 
 Qt::HANDLE BrowserSessionBridgeServer::serverThreadId() const
 {
+    if (QThread::currentThread() == thread()) {
+        return QThread::currentThreadId();
+    }
+
     Qt::HANDLE id = nullptr;
     QMetaObject::invokeMethod(
         const_cast<BrowserSessionBridgeServer*>(this),
@@ -148,6 +166,7 @@ void BrowserSessionBridgeServer::doStart()
         emit errorOccurred(QStringLiteral("Failed to bind to any port in range 18765-18770"));
         m_server->deleteLater();
         m_server = nullptr;
+        emit serverStateChanged(false, 0);
         return;
     }
 
@@ -155,6 +174,7 @@ void BrowserSessionBridgeServer::doStart()
     m_heartbeatTimer->setInterval(15000); // 15s
     connect(m_heartbeatTimer, &QTimer::timeout, this, &BrowserSessionBridgeServer::onHeartbeatTimer);
     m_heartbeatTimer->start();
+    emit serverStateChanged(true, port);
 }
 
 void BrowserSessionBridgeServer::doStop()
@@ -177,6 +197,8 @@ void BrowserSessionBridgeServer::doStop()
         m_server->deleteLater();
         m_server = nullptr;
     }
+
+    emit serverStateChanged(false, 0);
 }
 
 void BrowserSessionBridgeServer::onNewConnection()
@@ -295,10 +317,12 @@ void BrowserSessionBridgeServer::handleRegisterClient(QWebSocket* socket,
     info.id.profileInstanceId = payload.profileInstanceId;
     info.id.incognito = payload.incognito;
     info.extensionId = payload.extensionId;
+    info.extensionBuild = payload.extensionBuild;
     info.browserVersion = payload.browserVersion;
     info.profileAlias = payload.profileAlias;
     info.supportsCookies = payload.supportsCookies;
     info.supportsLocalStorage = payload.supportsLocalStorage;
+    info.supportsCodexUsageSnapshot = payload.supportsCodexUsageSnapshot;
     info.connectedAt = QDateTime::currentDateTimeUtc();
     info.lastSeenAt = info.connectedAt;
 
@@ -358,10 +382,8 @@ void BrowserSessionBridgeServer::closeClient(QWebSocket* socket, const QString& 
 bool BrowserSessionBridgeServer::validateOrigin(const QString& origin) const
 {
     if (origin.isEmpty()) return false;
-    // Browser extensions connect with origin chrome-extension://<id>
-    if (origin.startsWith(QStringLiteral("chrome-extension://"))) return true;
     for (const auto& allowed : m_allowedOrigins) {
-        if (origin.contains(allowed)) return true;
+        if (origin == allowed || origin == allowed + QLatin1Char('/')) return true;
     }
     return false;
 }

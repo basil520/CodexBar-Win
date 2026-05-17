@@ -24,6 +24,9 @@
         <file alias="qml/components/CopyIconButton.qml">../qml/components/CopyIconButton.qml</file>
         <file alias="qml/components/ProviderSwitcher.qml">../qml/components/ProviderSwitcher.qml</file>
         <file alias="qml/components/ProviderDetailCard.qml">../qml/components/ProviderDetailCard.qml</file>
+        <file alias="qml/components/BrowserSessionCard.qml">../qml/components/BrowserSessionCard.qml</file>
+        <file alias="qml/components/BrowserSessionInstallGuide.qml">../qml/components/BrowserSessionInstallGuide.qml</file>
+        <file alias="qml/components/BrowserSessionBindingDialog.qml">../qml/components/BrowserSessionBindingDialog.qml</file>
         <file alias="qml/components/CodexAccountSwitcher.qml">../qml/components/CodexAccountSwitcher.qml</file>
         <file alias="qml/components/TokenAccountSwitcher.qml">../qml/components/TokenAccountSwitcher.qml</file>
         <file alias="qml/components/TrayMenuActions.qml">../qml/components/TrayMenuActions.qml</file>
@@ -75,8 +78,10 @@
         <file alias="icons/ProviderIcon-windsurf.svg">../resources/icons/ProviderIcon-windsurf.svg</file>
         <file alias="icons/ProviderIcon-zai.svg">../resources/icons/ProviderIcon-zai.svg</file>
         <file alias="browser-session-bridge/manifest.json">../resources/browser-session-bridge/manifest.json</file>
+        <file alias="browser-session-bridge/protocol.js">../resources/browser-session-bridge/protocol.js</file>
         <file alias="browser-session-bridge/service_worker.js">../resources/browser-session-bridge/service_worker.js</file>
         <file alias="browser-session-bridge/popup.html">../resources/browser-session-bridge/popup.html</file>
         <file alias="browser-session-bridge/popup.js">../resources/browser-session-bridge/popup.js</file>
+        <file alias="browser-session-bridge/content_scripts/storage_probe.js">../resources/browser-session-bridge/content_scripts/storage_probe.js</file>
     </qresource>
 </RCC>

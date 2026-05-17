@@ -310,6 +310,40 @@ void applyCodexCredits(ProviderFetchResult& result, const QJsonObject& credits)
     result.usage.providerCost = cost;
 }
 
+QString codexWebAuthorityRejectionDetail(const CodexDashboardAuthorityDecision& decision)
+{
+    switch (decision.reasonDetail.reason) {
+    case CodexDashboardDecisionReason::WrongEmail:
+        return QString("expected %1, got %2")
+            .arg(decision.reasonDetail.expectedEmail, decision.reasonDetail.actualEmail);
+    case CodexDashboardDecisionReason::MissingDashboardSignedInEmail:
+        return "dashboard did not expose signed-in email";
+    default:
+        return "policy rejected";
+    }
+}
+
+QString firstNonEmptyString(std::initializer_list<QString> values)
+{
+    for (const auto& value : values) {
+        QString trimmed = value.trimmed();
+        if (!trimmed.isEmpty()) return trimmed;
+    }
+    return {};
+}
+
+QString nestedStringValue(const QJsonObject& root,
+                          const QString& objectKey,
+                          std::initializer_list<QString> keys)
+{
+    const QJsonObject child = root.value(objectKey).toObject();
+    for (const auto& key : keys) {
+        const QString value = child.value(key).toString().trimmed();
+        if (!value.isEmpty()) return value;
+    }
+    return {};
+}
+
 QJsonObject selectCodexRateLimitSnapshot(const QJsonObject& rateLimitsResult)
 {
     QJsonObject byLimitId = rateLimitsResult.value("rateLimitsByLimitId").toObject();
@@ -750,6 +784,151 @@ bool CodexWebDashboardStrategy::shouldFallback(const ProviderFetchResult& result
     return !result.success;
 }
 
+ProviderFetchResult CodexWebDashboardStrategy::mapUsageJson(const QJsonObject& json) {
+    return mapUsageJson(json, QString(), QString());
+}
+
+ProviderFetchResult CodexWebDashboardStrategy::mapUsageJson(const QJsonObject& json,
+                                                            const QString& fallbackEmail,
+                                                            const QString& fallbackPlan) {
+    ProviderFetchResult result;
+    result.strategyID = "codex.web";
+    result.strategyKind = ProviderFetchKind::WebDashboard;
+    result.sourceLabel = "web";
+
+    if (json.isEmpty()) {
+        result.success = false;
+        result.errorMessage = "empty or invalid response from Codex web usage API";
+        return result;
+    }
+
+    if (json.contains("error")) {
+        QJsonValue errorValue = json.value("error");
+        QString errorMessage;
+        if (errorValue.isObject()) {
+            errorMessage = errorValue.toObject().value("message").toString().trimmed();
+        } else {
+            errorMessage = errorValue.toString().trimmed();
+        }
+        if (errorMessage.isEmpty()) errorMessage = json.value("detail").toString().trimmed();
+        if (errorMessage.isEmpty()) errorMessage = "Codex web usage API returned an error";
+        result.success = false;
+        result.errorMessage = errorMessage;
+        return result;
+    }
+
+    CodexUsageResponse response = CodexUsageResponse::fromJson(json);
+    QString email = CodexIdentityResolver::normalizeEmail(firstNonEmptyString({
+        json.value("email").toString(),
+        fallbackEmail
+    }));
+    QString plan = firstNonEmptyString({
+        json.value("plan_type").toString(),
+        fallbackPlan
+    });
+    result.usage = response.toUsageSnapshot(email, plan);
+    applyCodexCredits(result, json.value("credits").toObject());
+
+    if (!result.usage.primary.has_value() && !result.usage.secondary.has_value()) {
+        result.success = false;
+        result.errorMessage = "no rate limit data in Codex web usage response";
+        return result;
+    }
+
+    result.success = true;
+    return result;
+}
+
+ProviderFetchResult CodexWebDashboardStrategy::mapImportedSessionPayload(const QString& payload) {
+    ProviderFetchResult result;
+    result.strategyID = "codex.web";
+    result.strategyKind = ProviderFetchKind::WebDashboard;
+    result.sourceLabel = "web";
+
+    QJsonParseError payloadError;
+    const QJsonDocument payloadDoc = QJsonDocument::fromJson(payload.toUtf8(), &payloadError);
+    if (payloadError.error != QJsonParseError::NoError || !payloadDoc.isObject()) {
+        result.success = false;
+        result.errorMessage = QStringLiteral("imported browser session payload is not valid JSON");
+        return result;
+    }
+
+    const QJsonObject payloadObject = payloadDoc.object();
+    const QString usageText = payloadObject.value(QStringLiteral("codex_usage_json")).toString().trimmed();
+    if (usageText.isEmpty()) {
+        QString usageError = payloadObject.value(QStringLiteral("codex_usage_error")).toString().trimmed();
+        result.success = false;
+        result.errorMessage = usageError.isEmpty()
+            ? QStringLiteral("imported browser session does not include Codex usage JSON")
+            : QStringLiteral("imported browser session Codex usage fetch failed: %1").arg(usageError);
+        return result;
+    }
+
+    QJsonParseError usageError;
+    const QJsonDocument usageDoc = QJsonDocument::fromJson(usageText.toUtf8(), &usageError);
+    if (usageError.error != QJsonParseError::NoError || !usageDoc.isObject()) {
+        result.success = false;
+        result.errorMessage = QStringLiteral("imported Codex usage JSON is invalid");
+        return result;
+    }
+
+    return mapUsageJson(usageDoc.object());
+}
+
+std::optional<CodexWebAuthSession> CodexWebDashboardStrategy::mapAuthSessionJson(const QJsonObject& json) {
+    CodexWebAuthSession session;
+    session.accessToken = firstNonEmptyString({
+        json.value(QStringLiteral("accessToken")).toString(),
+        json.value(QStringLiteral("access_token")).toString()
+    });
+    if (session.accessToken.isEmpty()) {
+        return std::nullopt;
+    }
+
+    session.accountEmail = CodexIdentityResolver::normalizeEmail(firstNonEmptyString({
+        json.value(QStringLiteral("email")).toString(),
+        nestedStringValue(json, QStringLiteral("user"), {
+            QStringLiteral("email"),
+            QStringLiteral("accountEmail")
+        }),
+        nestedStringValue(json, QStringLiteral("account"), {
+            QStringLiteral("email"),
+            QStringLiteral("accountEmail")
+        })
+    }));
+
+    session.accountId = firstNonEmptyString({
+        json.value(QStringLiteral("account_id")).toString(),
+        json.value(QStringLiteral("accountId")).toString(),
+        json.value(QStringLiteral("current_account_id")).toString(),
+        json.value(QStringLiteral("currentAccountId")).toString(),
+        nestedStringValue(json, QStringLiteral("account"), {
+            QStringLiteral("id"),
+            QStringLiteral("account_id"),
+            QStringLiteral("accountId")
+        }),
+        nestedStringValue(json, QStringLiteral("user"), {
+            QStringLiteral("account_id"),
+            QStringLiteral("accountId")
+        })
+    });
+
+    session.planType = firstNonEmptyString({
+        json.value(QStringLiteral("plan_type")).toString(),
+        json.value(QStringLiteral("planType")).toString(),
+        nestedStringValue(json, QStringLiteral("user"), {
+            QStringLiteral("plan_type"),
+            QStringLiteral("planType")
+        }),
+        nestedStringValue(json, QStringLiteral("account"), {
+            QStringLiteral("plan_type"),
+            QStringLiteral("planType")
+        })
+    });
+
+    return session;
+}
+
 UsageSnapshot CodexWebDashboardStrategy::parseDashboardHTML(const QString& html) {
     UsageSnapshot snap;
     snap.updatedAt = QDateTime::currentDateTime();
@@ -871,6 +1050,61 @@ ProviderFetchResult CodexWebDashboardStrategy::fetchSync(const ProviderFetchCont
     result.strategyKind = ProviderFetchKind::WebDashboard;
     result.sourceLabel = "web";
 
+    auto authorizeAndAttach = [&](ProviderFetchResult& webResult,
+                                  const QString& signedInEmail,
+                                  const QString& cacheHtml) -> bool {
+        qDebug() << "[CodexWeb] Signed-in email:" << signedInEmail;
+
+        auto authInput = CodexDashboardAuthorityContext::makeLiveWebInput(
+            signedInEmail, ctx, std::nullopt);
+        auto decision = CodexDashboardAuthority::evaluate(authInput);
+
+        qDebug() << "[CodexWeb] Authority disposition:" << static_cast<int>(decision.disposition)
+                 << "reason:" << static_cast<int>(decision.reason);
+
+        if (decision.disposition == CodexDashboardDisposition::FailClosed) {
+            webResult.success = false;
+            webResult.errorMessage = "Web dashboard authority rejected: "
+                + codexWebAuthorityRejectionDetail(decision);
+            return false;
+        }
+
+        auto attachEmail = CodexDashboardAuthorityContext::attachmentEmail(authInput);
+        if (attachEmail.has_value()) {
+            if (!webResult.usage.identity.has_value()) {
+                webResult.usage.identity = ProviderIdentitySnapshot();
+            }
+            webResult.usage.identity->providerID = UsageProvider::codex;
+            webResult.usage.identity->accountEmail = *attachEmail;
+
+            if (!cacheHtml.isEmpty()) {
+                CodexDashboardCache::save({*attachEmail, cacheHtml, QDateTime::currentDateTime()});
+            }
+        }
+
+        return true;
+    };
+
+    QString importedBridgeError;
+    if (ctx.importedBrowserSession.has_value()
+        && (ctx.importedBrowserSession->providerId.isEmpty()
+            || ctx.importedBrowserSession->providerId == QLatin1String("codex"))
+        && !ctx.importedBrowserSession->sessionPayload.trimmed().isEmpty()) {
+        ProviderFetchResult importedResult = mapImportedSessionPayload(
+            ctx.importedBrowserSession->sessionPayload);
+        if (importedResult.success) {
+            // The bridge payload comes from a user-selected browser profile, so
+            // it must not fall back into the HTML/dashboard authority proof path.
+            return importedResult;
+        }
+
+        importedBridgeError = importedResult.errorMessage;
+        qDebug() << "[CodexWeb] Imported bridge usage payload unavailable:" << importedBridgeError;
+        result.success = false;
+        result.errorMessage = importedBridgeError;
+        return result;
+    }
+
     QString cookieHeader;
     if (ctx.manualCookieHeader.has_value() && !ctx.manualCookieHeader->isEmpty()) {
         cookieHeader = *ctx.manualCookieHeader;
@@ -891,6 +1125,79 @@ ProviderFetchResult CodexWebDashboardStrategy::fetchSync(const ProviderFetchCont
                               "To get the cookie: open https://chatgpt.com/codex/settings/usage in your browser, "
                               "press F12 > Application > Cookies, copy all cookies as a header string.";
         return result;
+    }
+
+    ProviderFetchResult backendUsageResult;
+    bool hasBackendUsageResult = false;
+    QString backendUsageError;
+    {
+        QHash<QString, QString> sessionHeaders;
+        sessionHeaders["Cookie"] = cookieHeader;
+        sessionHeaders["Accept"] = "application/json";
+        sessionHeaders["Referer"] = "https://chatgpt.com/codex/settings/usage";
+        sessionHeaders["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+        sessionHeaders["Accept-Language"] = "en-US,en;q=0.9";
+
+        qDebug() << "[CodexWeb] Fetching web auth session...";
+        QJsonObject sessionJson = NetworkManager::instance().getJsonSync(
+            QUrl("https://chatgpt.com/api/auth/session"),
+            sessionHeaders,
+            ctx.networkTimeoutMs
+        );
+
+        const auto authSession = mapAuthSessionJson(sessionJson);
+        if (authSession.has_value()) {
+            QHash<QString, QString> usageHeaders;
+            usageHeaders["Authorization"] = "Bearer " + authSession->accessToken;
+            usageHeaders["Accept"] = "application/json";
+            usageHeaders["Referer"] = "https://chatgpt.com/codex/settings/usage";
+            usageHeaders["Origin"] = "https://chatgpt.com";
+            usageHeaders["User-Agent"] = "codex-cli";
+            usageHeaders["Accept-Language"] = "en-US,en;q=0.9";
+            if (!authSession->accountId.isEmpty()) {
+                usageHeaders["ChatGPT-Account-Id"] = authSession->accountId;
+            }
+
+            qDebug() << "[CodexWeb] Fetching backend usage API with session access token...";
+            QJsonObject usageJson = NetworkManager::instance().getJsonSync(
+                QUrl("https://chatgpt.com/backend-api/wham/usage"),
+                usageHeaders,
+                ctx.networkTimeoutMs
+            );
+
+            ProviderFetchResult apiResult = mapUsageJson(
+                usageJson, authSession->accountEmail, authSession->planType);
+            if (!apiResult.success) {
+                backendUsageError = apiResult.errorMessage;
+                qDebug() << "[CodexWeb] Backend usage API unavailable:" << apiResult.errorMessage;
+            } else {
+                QString signedInEmail;
+                if (apiResult.usage.identity.has_value() &&
+                    apiResult.usage.identity->accountEmail.has_value()) {
+                    signedInEmail = *apiResult.usage.identity->accountEmail;
+                }
+
+                if (!signedInEmail.isEmpty()) {
+                    if (!authorizeAndAttach(apiResult, signedInEmail, QString())) {
+                        return apiResult;
+                    }
+
+                    auto dashboardResult = OpenAIDashboardFetcher::fetchViaWeb(
+                        cookieHeader, QString(), ctx.networkTimeoutMs);
+                    if (dashboardResult.success) {
+                        apiResult.dashboard = dashboardResult.data.toJson();
+                    }
+                    return apiResult;
+                }
+
+                qDebug() << "[CodexWeb] Backend usage API did not expose email; fetching dashboard HTML for authority proof.";
+                backendUsageResult = apiResult;
+                hasBackendUsageResult = true;
+            }
+        } else {
+            backendUsageError = QStringLiteral("web auth session did not expose accessToken");
+            qDebug() << "[CodexWeb] Web auth session unavailable:" << backendUsageError;
+        }
     }
 
     // Try to get expected email for cache lookup
@@ -930,55 +1237,30 @@ ProviderFetchResult CodexWebDashboardStrategy::fetchSync(const ProviderFetchCont
         return result;
     }
 
-    UsageSnapshot snap = parseDashboardHTML(html);
+    UsageSnapshot snap = hasBackendUsageResult
+        ? backendUsageResult.usage
+        : parseDashboardHTML(html);
     if (!snap.primary.has_value() && !snap.secondary.has_value()) {
         result.success = false;
-        result.errorMessage = "Could not parse usage data from web dashboard. Response preview: "
-                            + html.left(300).replace('\n', ' ');
+        result.errorMessage = "Could not parse usage data from web dashboard.";
+        if (!importedBridgeError.isEmpty()) {
+            result.errorMessage += " Imported bridge usage: " + importedBridgeError + ".";
+        }
+        if (!backendUsageError.isEmpty()) {
+            result.errorMessage += " Backend usage API: " + backendUsageError + ".";
+        }
+        result.errorMessage += " Response preview: " + html.left(300).replace('\n', ' ');
         return result;
     }
 
     QString signedInEmail = parseSignedInEmail(html);
-    qDebug() << "[CodexWeb] Signed-in email:" << signedInEmail;
 
-    auto authInput = CodexDashboardAuthorityContext::makeLiveWebInput(
-        signedInEmail, ctx, std::nullopt);
-    auto decision = CodexDashboardAuthority::evaluate(authInput);
-
-    qDebug() << "[CodexWeb] Authority disposition:" << static_cast<int>(decision.disposition)
-             << "reason:" << static_cast<int>(decision.reason);
-
-    if (decision.disposition == CodexDashboardDisposition::FailClosed) {
-        result.success = false;
-        QString detail;
-        switch (decision.reasonDetail.reason) {
-        case CodexDashboardDecisionReason::WrongEmail:
-            detail = QString("expected %1, got %2")
-                .arg(decision.reasonDetail.expectedEmail, decision.reasonDetail.actualEmail);
-            break;
-        case CodexDashboardDecisionReason::MissingDashboardSignedInEmail:
-            detail = "dashboard did not expose signed-in email";
-            break;
-        default:
-            detail = "policy rejected";
-            break;
-        }
-        result.errorMessage = "Web dashboard authority rejected: " + detail;
-        return result;
-    }
-
-    auto attachEmail = CodexDashboardAuthorityContext::attachmentEmail(authInput);
-    if (attachEmail.has_value()) {
-        snap.identity = ProviderIdentitySnapshot();
-        snap.identity->providerID = UsageProvider::codex;
-        snap.identity->accountEmail = *attachEmail;
-
-        // Cache the dashboard HTML for this account
-        CodexDashboardCache::save({*attachEmail, html, QDateTime::currentDateTime()});
-    }
-
+    result = hasBackendUsageResult ? backendUsageResult : result;
     result.usage = snap;
     result.success = true;
+    if (!authorizeAndAttach(result, signedInEmail, html)) {
+        return result;
+    }
 
     // Fetch full dashboard data (credit events + usage breakdown) via OpenAIDashboardFetcher
     auto dashboardResult = OpenAIDashboardFetcher::fetchViaWeb(cookieHeader, QString(), ctx.networkTimeoutMs);

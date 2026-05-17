@@ -39,6 +39,7 @@ bool BrowserSessionBridgeMetadataStore::load()
             info.id.profileInstanceId = obj[QStringLiteral("profileInstanceId")].toString();
             info.id.incognito = obj[QStringLiteral("incognito")].toBool();
             info.extensionId = obj[QStringLiteral("extensionId")].toString();
+            info.extensionBuild = obj[QStringLiteral("extensionBuild")].toString();
             info.profileAlias = obj[QStringLiteral("profileAlias")].toString();
             info.browserVersion = obj[QStringLiteral("browserVersion")].toString();
             info.connectedAt = QDateTime::fromString(
@@ -47,6 +48,7 @@ bool BrowserSessionBridgeMetadataStore::load()
                 obj[QStringLiteral("lastSeenAtUtc")].toString(), Qt::ISODate);
             info.supportsCookies = obj[QStringLiteral("supportsCookies")].toBool(true);
             info.supportsLocalStorage = obj[QStringLiteral("supportsLocalStorage")].toBool();
+            info.supportsCodexUsageSnapshot = obj[QStringLiteral("supportsCodexUsageSnapshot")].toBool();
             m_clients[it.key()] = info;
         }
     }
@@ -88,6 +90,7 @@ bool BrowserSessionBridgeMetadataStore::save() const
             obj[QStringLiteral("profileInstanceId")] = info.id.profileInstanceId;
             obj[QStringLiteral("incognito")] = info.id.incognito;
             obj[QStringLiteral("extensionId")] = info.extensionId;
+            obj[QStringLiteral("extensionBuild")] = info.extensionBuild;
             obj[QStringLiteral("profileAlias")] = info.profileAlias;
             obj[QStringLiteral("browserVersion")] = info.browserVersion;
             if (info.connectedAt.isValid())
@@ -96,6 +99,7 @@ bool BrowserSessionBridgeMetadataStore::save() const
                 obj[QStringLiteral("lastSeenAtUtc")] = info.lastSeenAt.toString(Qt::ISODate);
             obj[QStringLiteral("supportsCookies")] = info.supportsCookies;
             obj[QStringLiteral("supportsLocalStorage")] = info.supportsLocalStorage;
+            obj[QStringLiteral("supportsCodexUsageSnapshot")] = info.supportsCodexUsageSnapshot;
             clients[it.key()] = obj;
         }
         root[QStringLiteral("clients")] = clients;
@@ -138,6 +142,11 @@ QHash<QString, BridgeClientInfo> BrowserSessionBridgeMetadataStore::clients() co
     return m_clients;
 }
 
+QHash<QString, BridgeProviderBinding> BrowserSessionBridgeMetadataStore::bindings() const
+{
+    return m_bindings;
+}
+
 void BrowserSessionBridgeMetadataStore::upsertClient(const BridgeClientInfo& client)
 {
     m_clients[client.id.toBindingId()] = client;
@@ -148,11 +157,16 @@ void BrowserSessionBridgeMetadataStore::removeClient(const BridgeClientId& clien
     m_clients.remove(clientId.toBindingId());
 }
 
-std::optional<BridgeProviderBinding> BrowserSessionBridgeMetadataStore::bindingForProvider(const QString& providerId) const
+bool BrowserSessionBridgeMetadataStore::hasBindingForProvider(const QString& providerId) const
+{
+    return m_bindings.contains(providerId);
+}
+
+const BridgeProviderBinding* BrowserSessionBridgeMetadataStore::bindingForProvider(const QString& providerId) const
 {
     auto it = m_bindings.constFind(providerId);
-    if (it == m_bindings.constEnd()) return std::nullopt;
-    return it.value();
+    if (it == m_bindings.constEnd()) return nullptr;
+    return &it.value();
 }
 
 void BrowserSessionBridgeMetadataStore::setBindingForProvider(const QString& providerId, const BridgeProviderBinding& binding)

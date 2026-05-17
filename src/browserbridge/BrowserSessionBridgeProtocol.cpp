@@ -38,8 +38,10 @@ BridgeCookieRecord jsonToCookie(const QJsonObject& o)
     c.httpOnly = o[QStringLiteral("httpOnly")].toBool();
     c.hostOnly = o[QStringLiteral("hostOnly")].toBool();
     c.session = o[QStringLiteral("session")].toBool();
-    if (o.contains(QStringLiteral("expirationDate")))
-        c.expirationDateUtc = QDateTime::fromSecsSinceEpoch(o[QStringLiteral("expirationDate")].toInteger());
+    const auto expiration = o[QStringLiteral("expirationDate")];
+    if (!expiration.isNull() && !expiration.isUndefined()) {
+        c.expirationDateUtc = QDateTime::fromSecsSinceEpoch(expiration.toInteger());
+    }
     c.partitionKey = o[QStringLiteral("partitionKey")].toString();
     return c;
 }
@@ -118,6 +120,7 @@ RegisterClientPayload parseRegisterClient(const QJsonObject& obj)
     RegisterClientPayload p;
     p.protocolVersion = obj[QStringLiteral("protocolVersion")].toInt(BRIDGE_PROTOCOL_VERSION);
     p.extensionId = obj[QStringLiteral("extensionId")].toString();
+    p.extensionBuild = obj[QStringLiteral("extensionBuild")].toString();
     p.browserFamily = obj[QStringLiteral("browserFamily")].toString();
     p.browserVersion = obj[QStringLiteral("browserVersion")].toString();
     p.profileInstanceId = obj[QStringLiteral("profileInstanceId")].toString();
@@ -126,6 +129,7 @@ RegisterClientPayload parseRegisterClient(const QJsonObject& obj)
     const auto caps = obj[QStringLiteral("capabilities")].toObject();
     p.supportsCookies = caps[QStringLiteral("cookies")].toBool(true);
     p.supportsLocalStorage = caps[QStringLiteral("localStorage")].toBool(false);
+    p.supportsCodexUsageSnapshot = caps[QStringLiteral("codexUsageSnapshot")].toBool(false);
     return p;
 }
 
@@ -135,6 +139,7 @@ QJsonObject serializeRegisterClient(const RegisterClientPayload& p)
     obj[QStringLiteral("type")] = QStringLiteral("register_client");
     obj[QStringLiteral("protocolVersion")] = p.protocolVersion;
     obj[QStringLiteral("extensionId")] = p.extensionId;
+    obj[QStringLiteral("extensionBuild")] = p.extensionBuild;
     obj[QStringLiteral("browserFamily")] = p.browserFamily;
     obj[QStringLiteral("browserVersion")] = p.browserVersion;
     obj[QStringLiteral("profileInstanceId")] = p.profileInstanceId;
@@ -144,6 +149,7 @@ QJsonObject serializeRegisterClient(const RegisterClientPayload& p)
         QJsonObject caps;
         caps[QStringLiteral("cookies")] = p.supportsCookies;
         caps[QStringLiteral("localStorage")] = p.supportsLocalStorage;
+        caps[QStringLiteral("codexUsageSnapshot")] = p.supportsCodexUsageSnapshot;
         obj[QStringLiteral("capabilities")] = caps;
     }
     return obj;
@@ -233,6 +239,9 @@ ImportResultPayload parseImportResult(const QJsonObject& obj)
     ImportResultPayload p;
     p.requestId = obj[QStringLiteral("requestId")].toString();
     p.providerId = obj[QStringLiteral("providerId")].toString();
+    p.success = obj[QStringLiteral("success")].toBool(true);
+    p.errorCode = obj[QStringLiteral("errorCode")].toString();
+    p.errorMessage = obj[QStringLiteral("errorMessage")].toString();
     p.capturedAtUtc = QDateTime::fromString(
         obj[QStringLiteral("capturedAtUtc")].toString(), Qt::ISODate);
     {
@@ -254,6 +263,11 @@ QJsonObject serializeImportResult(const ImportResultPayload& p)
     obj[QStringLiteral("type")] = QStringLiteral("import_result");
     obj[QStringLiteral("requestId")] = p.requestId;
     obj[QStringLiteral("providerId")] = p.providerId;
+    obj[QStringLiteral("success")] = p.success;
+    if (!p.errorCode.isEmpty())
+        obj[QStringLiteral("errorCode")] = p.errorCode;
+    if (!p.errorMessage.isEmpty())
+        obj[QStringLiteral("errorMessage")] = p.errorMessage;
     obj[QStringLiteral("capturedAtUtc")] = p.capturedAtUtc.toString(Qt::ISODate);
     {
         QJsonArray arr;

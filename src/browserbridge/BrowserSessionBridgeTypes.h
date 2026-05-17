@@ -2,9 +2,16 @@
 
 #include <QDateTime>
 #include <QHash>
+#include <QMetaType>
 #include <QString>
 #include <QVector>
 #include <optional>
+
+enum class BridgeMaterialKind {
+    Cookies,
+    LocalStorage,
+    Hybrid
+};
 
 struct BridgeClientId {
     QString browserFamily;      // chrome / edge / brave / opera / vivaldi
@@ -29,12 +36,14 @@ inline size_t qHash(const BridgeClientId& id, size_t seed = 0) {
 struct BridgeClientInfo {
     BridgeClientId id;
     QString extensionId;
+    QString extensionBuild;
     QString profileAlias;
     QString browserVersion;
     QDateTime connectedAt;
     QDateTime lastSeenAt;
     bool supportsCookies = true;
     bool supportsLocalStorage = false;
+    bool supportsCodexUsageSnapshot = false;
 };
 
 struct BridgeCookieRecord {
@@ -61,3 +70,26 @@ struct BridgeSessionMaterial {
     QString sourceReason;       // startup, manual_request, cookie_changed, page_probe
     int schemaVersion = 1;
 };
+
+struct BridgeSessionLookupInput {
+    bool enabled = false;
+    QString providerId;
+    BridgeMaterialKind materialKind = BridgeMaterialKind::Cookies;
+    QString cookieCredentialTarget;
+    QString localStorageCredentialTarget;
+};
+
+struct BridgeBindingOption {
+    QString bindingId;
+    QString label;
+    QString browserFamily;
+    bool connected = false;
+    bool hasMaterial = false;
+};
+
+Q_DECLARE_METATYPE(BridgeClientId)
+Q_DECLARE_METATYPE(BridgeClientInfo)
+Q_DECLARE_METATYPE(BridgeCookieRecord)
+Q_DECLARE_METATYPE(BridgeSessionMaterial)
+Q_DECLARE_METATYPE(BridgeSessionLookupInput)
+Q_DECLARE_METATYPE(BridgeBindingOption)

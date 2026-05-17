@@ -5,12 +5,6 @@
 #include <QVector>
 #include <optional>
 
-enum class BridgeMaterialKind {
-    Cookies,
-    LocalStorage,
-    Hybrid
-};
-
 struct BridgeProviderSpec {
     QString providerId;
     BridgeMaterialKind materialKind = BridgeMaterialKind::Cookies;

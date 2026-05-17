@@ -32,6 +32,7 @@ private slots:
         QVERIFY(QFile::exists(path + "/service_worker.js"));
         QVERIFY(QFile::exists(path + "/popup.html"));
         QVERIFY(QFile::exists(path + "/popup.js"));
+        QVERIFY(QFile::exists(path + "/content_scripts/storage_probe.js"));
         QVERIFY(QFile::exists(path + "/runtime.json"));
     }
 

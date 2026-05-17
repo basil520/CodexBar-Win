@@ -1,5 +1,7 @@
 #include "BrowserSessionBridgeInstallService.h"
 
+#include "BrowserSessionBridgeConstants.h"
+
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
@@ -35,9 +37,11 @@ bool BrowserSessionBridgeInstallService::isExtensionExported() const
     const QString base = extensionBasePath();
     const QStringList requiredFiles = {
         QStringLiteral("manifest.json"),
+        QStringLiteral("protocol.js"),
         QStringLiteral("service_worker.js"),
         QStringLiteral("popup.html"),
         QStringLiteral("popup.js"),
+        QStringLiteral("content_scripts/storage_probe.js"),
     };
     for (const QString& name : requiredFiles) {
         if (!QFile::exists(base + QLatin1Char('/') + name)) {
@@ -69,12 +73,23 @@ bool BrowserSessionBridgeInstallService::ensureExtensionExported()
         }
     }
 
-    // Export manifest, service worker, popup
+    // Ensure content_scripts subdirectory exists
+    const QString contentScriptsDir = base + QStringLiteral("/content_scripts");
+    QDir csDir(contentScriptsDir);
+    if (!csDir.exists()) {
+        if (!csDir.mkpath(QStringLiteral("."))) {
+            return false;
+        }
+    }
+
+    // Export manifest, service worker, popup, content scripts
     const QVector<QPair<QString, QString>> files = {
         { QStringLiteral(":/browser-session-bridge/manifest.json"), base + QStringLiteral("/manifest.json") },
+        { QStringLiteral(":/browser-session-bridge/protocol.js"), base + QStringLiteral("/protocol.js") },
         { QStringLiteral(":/browser-session-bridge/service_worker.js"), base + QStringLiteral("/service_worker.js") },
         { QStringLiteral(":/browser-session-bridge/popup.html"), base + QStringLiteral("/popup.html") },
         { QStringLiteral(":/browser-session-bridge/popup.js"), base + QStringLiteral("/popup.js") },
+        { QStringLiteral(":/browser-session-bridge/content_scripts/storage_probe.js"), base + QStringLiteral("/content_scripts/storage_probe.js") },
     };
     for (const auto& pair : files) {
         if (!exportFileFromQrc(pair.first, pair.second)) {
@@ -102,11 +117,13 @@ bool BrowserSessionBridgeInstallService::exportFileFromQrc(const QString& qrcPat
     if (!src.open(QIODevice::ReadOnly)) {
         // Fallback for test environments where QRC is not linked:
         // try filesystem paths relative to the application directory.
-        const QString fileName = QFileInfo(qrcPath).fileName();
+        // Strip the ":/browser-session-bridge/" prefix to get the relative path
+        const QString relativePath = qrcPath.mid(qrcPath.lastIndexOf(QLatin1String("browser-session-bridge/"))
+                                                  + qstrlen("browser-session-bridge/"));
         const QStringList candidates = {
-            QCoreApplication::applicationDirPath() + QStringLiteral("/../../../resources/browser-session-bridge/") + fileName,
-            QCoreApplication::applicationDirPath() + QStringLiteral("/../../resources/browser-session-bridge/") + fileName,
-            QCoreApplication::applicationDirPath() + QStringLiteral("/../resources/browser-session-bridge/") + fileName,
+            QCoreApplication::applicationDirPath() + QStringLiteral("/../../../resources/browser-session-bridge/") + relativePath,
+            QCoreApplication::applicationDirPath() + QStringLiteral("/../../resources/browser-session-bridge/") + relativePath,
+            QCoreApplication::applicationDirPath() + QStringLiteral("/../resources/browser-session-bridge/") + relativePath,
         };
         bool opened = false;
         for (const QString& path : candidates) {
@@ -207,7 +224,7 @@ bool BrowserSessionBridgeInstallService::writeRuntimeConfig(const QString& destD
     obj[QStringLiteral("serverPort")] = DEFAULT_SERVER_PORT;
     obj[QStringLiteral("protocolVersion")] = BRIDGE_PROTOCOL_VERSION;
     obj[QStringLiteral("allowedOrigins")] = QJsonArray::fromStringList(
-        QStringList { QStringLiteral("codexbarx-browser-session-bridge") }
+        BrowserSessionBridgeConstants::allowedOrigins()
     );
 
     const QByteArray data = QJsonDocument(obj).toJson(QJsonDocument::Indented);

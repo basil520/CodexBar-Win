@@ -561,29 +561,8 @@ UsageStore::buildProviderFetchCommandInput(const QString& providerId) const
     }
     input.defaultTokenAccountId = TokenAccountStore::instance()->defaultAccountId(providerId);
 
-    // Bridge session injection for worker thread
     if (m_bridgeService) {
-        const auto spec = BrowserSessionBridgeCatalog::specForProvider(providerId);
-        if (spec.has_value()) {
-            if (spec->materialKind == BridgeMaterialKind::Cookies ||
-                spec->materialKind == BridgeMaterialKind::Hybrid) {
-                const auto header = m_bridgeService->store()->resolvedCookieHeader(providerId);
-                if (header.has_value()) {
-                    input.bridgeCookieHeader = header.value();
-                }
-            }
-            if (providerId == QLatin1String("windsurf") &&
-                (spec->materialKind == BridgeMaterialKind::LocalStorage ||
-                 spec->materialKind == BridgeMaterialKind::Hybrid)) {
-                const auto payload = m_bridgeService->store()->resolvedSessionPayload(providerId);
-                if (payload.has_value()) {
-                    ImportedBrowserSession session;
-                    session.providerId = providerId;
-                    session.sessionPayload = payload.value();
-                    input.bridgeImportedSession = session;
-                }
-            }
-        }
+        input.bridgeSessionLookup = m_bridgeService->sessionLookupForProvider(providerId);
     }
 
     return input;
@@ -686,28 +665,6 @@ ProviderFetchContext UsageStore::buildFetchContextForProvider(const QString& pro
     }
     if (!manualCookie.isEmpty()) {
         ctx.manualCookieHeader = manualCookie;
-    } else if (cookieSource == QLatin1String("auto") && m_bridgeService) {
-        const auto spec = BrowserSessionBridgeCatalog::specForProvider(providerId);
-        if (spec.has_value()) {
-            if (spec->materialKind == BridgeMaterialKind::Cookies ||
-                spec->materialKind == BridgeMaterialKind::Hybrid) {
-                const auto header = m_bridgeService->store()->resolvedCookieHeader(providerId);
-                if (header.has_value()) {
-                    ctx.manualCookieHeader = header.value();
-                }
-            }
-            if (providerId == QLatin1String("windsurf") &&
-                (spec->materialKind == BridgeMaterialKind::LocalStorage ||
-                 spec->materialKind == BridgeMaterialKind::Hybrid)) {
-                const auto payload = m_bridgeService->store()->resolvedSessionPayload(providerId);
-                if (payload.has_value()) {
-                    ImportedBrowserSession session;
-                    session.providerId = providerId;
-                    session.sessionPayload = payload.value();
-                    ctx.importedBrowserSession = session;
-                }
-            }
-        }
     }
 
     QString accountId = addSetting("accountID", "").toString().trimmed();

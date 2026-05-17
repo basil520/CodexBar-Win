@@ -19,6 +19,10 @@ public:
 
     void saveImportedMaterial(const BridgeSessionMaterial& material);
 
+    static QString credentialTargetFor(const QString& providerId,
+                                       const QString& bindingId,
+                                       BridgeMaterialKind kind = BridgeMaterialKind::Cookies);
+
     std::optional<QString> resolvedCookieHeader(
         const QString& providerId,
         const QString& preferredBindingId = QString()) const;
