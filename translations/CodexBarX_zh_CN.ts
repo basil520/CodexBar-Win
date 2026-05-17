@@ -97,6 +97,16 @@
         <translation>轮询 statuspage 风格端点以获取提供商健康状态。</translation>
     </message>
     <message>
+        <location filename="../qml/panes/AdvancedPane.qml" line="65"/>
+        <source>Cookies Import</source>
+        <translation>Cookies 导入</translation>
+    </message>
+    <message>
+        <location filename="../qml/panes/AdvancedPane.qml" line="66"/>
+        <source>Enable Browser Session Bridge import UI and extension connections.</source>
+        <translation>启用 Browser Session Bridge 导入界面和扩展连接。</translation>
+    </message>
+    <message>
         <location filename="../qml/panes/AdvancedPane.qml" line="67"/>
         <source>Show debug menus and keep more diagnostic information visible.</source>
         <translation>显示调试菜单，并展示更多诊断信息。</translation>
@@ -414,6 +424,16 @@
         <location filename="../qml/panes/DisplayPane.qml" line="43"/>
         <source>Show additional provider-specific credit and usage fields.</source>
         <translation>显示额外的提供商专属积分和用量字段。</translation>
+    </message>
+    <message>
+        <location filename="../qml/panes/DisplayPane.qml" line="52"/>
+        <source>Claude Peak Hours</source>
+        <translation>Claude 高峰时段</translation>
+    </message>
+    <message>
+        <location filename="../qml/panes/DisplayPane.qml" line="53"/>
+        <source>Show peak hours indicator for Claude usage pricing.</source>
+        <translation>显示 Claude 用量定价的高峰时段指示。</translation>
     </message>
     <message>
         <location filename="../qml/panes/DisplayPane.qml" line="22"/>

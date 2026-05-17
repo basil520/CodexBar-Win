@@ -8,6 +8,7 @@ private slots:
     void roundTripsRegisterClient();
     void parsesExtensionRegisterClientSample();
     void parsesExtensionSessionCookieWithoutExpiry();
+    void parsesExtensionCookieWithFractionalExpiry();
     void serializesRequestImportWithCanonicalMaterialKind();
     void rejectsUnknownProtocolVersion();
     void roundTripsImportResultWithCookies();
@@ -123,6 +124,38 @@ void tst_BrowserSessionBridgeProtocol::parsesExtensionSessionCookieWithoutExpiry
     QVERIFY(payload.cookies[0].session);
     QVERIFY2(!payload.cookies[0].expirationDateUtc.has_value(),
              "Session cookies with expirationDate:null must not be treated as expired 1970 cookies.");
+}
+
+void tst_BrowserSessionBridgeProtocol::parsesExtensionCookieWithFractionalExpiry()
+{
+    const QByteArray sample = R"json({
+        "type": "import_result",
+        "requestId": "req-fractional-expiry",
+        "providerId": "opencodego",
+        "success": true,
+        "cookies": [
+            {
+                "name": "auth",
+                "value": "opencode-auth-cookie",
+                "domain": "opencode.ai",
+                "path": "/",
+                "secure": true,
+                "httpOnly": true,
+                "session": false,
+                "expirationDate": 1800000000.123
+            }
+        ],
+        "localStorage": {},
+        "capturedAtUtc": "2026-05-17T07:20:30Z"
+    })json";
+
+    const auto msg = BridgeProtocol::parseMessage(sample);
+    QVERIFY(msg.has_value());
+    const auto payload = BridgeProtocol::parseImportResult(msg->payload);
+
+    QCOMPARE(payload.cookies.size(), 1);
+    QVERIFY(payload.cookies[0].expirationDateUtc.has_value());
+    QCOMPARE(payload.cookies[0].expirationDateUtc->toSecsSinceEpoch(), qint64(1800000000));
 }
 
 void tst_BrowserSessionBridgeProtocol::serializesRequestImportWithCanonicalMaterialKind()

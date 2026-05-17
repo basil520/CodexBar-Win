@@ -59,6 +59,15 @@ SettingsPage {
                 SettingsStore.statusChecksEnabled = checked
             }
         }
+
+        SettingsToggleRow {
+            title: qsTr("Cookies Import")
+            subtitle: qsTr("Enable Browser Session Bridge import UI and extension connections.")
+            checked: SettingsStore.browserSessionBridgeEnabled
+            onToggled: function(checked) {
+                SettingsStore.browserSessionBridgeEnabled = checked
+            }
+        }
     }
 
     SettingsGroupBox {
@@ -90,7 +99,12 @@ SettingsPage {
         }
     }
 
-    BrowserSessionInstallGuide {
-        compact: false
+    Loader {
+        Layout.fillWidth: true
+        active: SettingsStore.browserSessionBridgeEnabled
+        visible: active
+        sourceComponent: BrowserSessionInstallGuide {
+            compact: false
+        }
     }
 }

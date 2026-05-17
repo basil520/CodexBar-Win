@@ -1,11 +1,15 @@
 #include <QtTest/QtTest>
 #include <QElapsedTimer>
 #include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QNetworkRequest>
 #include <QSignalSpy>
 #include <QStandardPaths>
 #include <QWebSocket>
 
+#include "../src/browserbridge/BrowserSessionBridgeCatalog.h"
 #include "../src/browserbridge/BrowserSessionBridgeService.h"
 #include "../src/browserbridge/BrowserSessionBridgeStore.h"
 #include "../src/browserbridge/BrowserSessionBridgeProtocol.h"
@@ -29,6 +33,8 @@ private slots:
     void cookieProviderRequiresAllUrlsCookiePermission();
     void preferredBindingIsNotSilentlyReplacedByAnotherProfile();
     void hybridDiagnosticsOnlyDoesNotCountAsImportedMaterial();
+    void opencodeGoFractionalExpiryCookiePersists();
+    void allCookieCapableProvidersAcceptFractionalExpiryCookies();
     void credentialWriteFailureReportsImportFailure();
     void kimiRefreshTokenOnlyDoesNotCountAsImportedMaterial();
 
@@ -616,6 +622,189 @@ void tst_BrowserSessionBridgeService::hybridDiagnosticsOnlyDoesNotCountAsImporte
     QVERIFY(completedArgs.at(2).toString().contains(QStringLiteral("diagnostics"), Qt::CaseInsensitive));
     const auto binding = m_service->bindingForProvider(QStringLiteral("kimi"));
     QVERIFY(!binding.has_value() || !binding->lastImportedAtUtc.isValid());
+}
+
+void tst_BrowserSessionBridgeService::opencodeGoFractionalExpiryCookiePersists()
+{
+    QSignalSpy importedSpy(m_service, &BrowserSessionBridgeService::providerSessionImported);
+    QVERIFY(importedSpy.isValid());
+
+    QWebSocket client;
+    QSignalSpy connectedSpy(&client, QOverload<>::of(&QWebSocket::connected));
+    QVERIFY(connectedSpy.isValid());
+
+    QNetworkRequest req(QUrl(QStringLiteral("ws://127.0.0.1:%1").arg(m_service->serverPort())));
+    req.setRawHeader("Origin", "chrome-extension://cnanalhpjiclhljkpnlbgiaclpbncidk");
+    client.open(req);
+    QVERIFY(QTest::qWaitFor([&connectedSpy]() { return connectedSpy.count() > 0; }, 2000));
+
+    RegisterClientPayload reg;
+    reg.protocolVersion = BRIDGE_PROTOCOL_VERSION;
+    reg.extensionId = QStringLiteral("cnanalhpjiclhljkpnlbgiaclpbncidk");
+    reg.browserFamily = QStringLiteral("edge");
+    reg.browserVersion = QStringLiteral("127.0.0.0");
+    reg.profileInstanceId = QStringLiteral("uuid-opencodego-fractional-expiry");
+    reg.profileAlias = QStringLiteral("Default");
+    reg.supportsCookies = true;
+    reg.supportsLocalStorage = true;
+    reg.supportsCodexUsageSnapshot = true;
+    reg.supportsCookieUrlQuery = true;
+    reg.supportsAllUrlsCookiePermission = true;
+
+    BridgeMessage registerMsg;
+    registerMsg.type = BridgeMessageType::RegisterClient;
+    registerMsg.payload = BridgeProtocol::serializeRegisterClient(reg);
+    client.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(registerMsg)));
+    QVERIFY(QTest::qWaitFor([this]() {
+        return m_service->connectedClientBindingIds().contains(
+            QStringLiteral("edge:uuid-opencodego-fractional-expiry"));
+    }, 2000));
+
+    const QByteArray importJson = R"json({
+        "type": "import_result",
+        "requestId": "req-opencodego-fractional-expiry",
+        "providerId": "opencodego",
+        "success": true,
+        "cookies": [
+            {
+                "name": "auth",
+                "value": "opencodego-auth-token",
+                "domain": "opencode.ai",
+                "path": "/",
+                "secure": true,
+                "httpOnly": true,
+                "session": false,
+                "expirationDate": 1800000000.123
+            },
+            {
+                "name": "oc_locale",
+                "value": "zh",
+                "domain": "opencode.ai",
+                "path": "/",
+                "secure": true,
+                "httpOnly": false,
+                "session": true
+            }
+        ],
+        "localStorage": {
+            "cookie_query_diagnostics": "{\"requestedCookieNames\":[],\"domains\":{\"opencode.ai\":{\"matchedCookieNames\":[\"auth\",\"oc_locale\"],\"matchedCount\":2}}}"
+        },
+        "capturedAtUtc": "2026-05-17T07:20:30Z"
+    })json";
+    client.sendTextMessage(QString::fromUtf8(importJson));
+
+    QVERIFY(QTest::qWaitFor([&importedSpy]() { return importedSpy.count() > 0; }, 4000));
+
+    const QString target = BrowserSessionBridgeStore::credentialTargetFor(
+        QStringLiteral("opencodego"),
+        QStringLiteral("edge:uuid-opencodego-fractional-expiry"));
+    const auto stored = ProviderCredentialStore::read(target);
+    QVERIFY(stored.has_value());
+    const QString header = QString::fromUtf8(stored.value());
+    QVERIFY(header.contains(QStringLiteral("auth=opencodego-auth-token")));
+    QVERIFY(header.contains(QStringLiteral("oc_locale=zh")));
+}
+
+void tst_BrowserSessionBridgeService::allCookieCapableProvidersAcceptFractionalExpiryCookies()
+{
+    QWebSocket client;
+    QSignalSpy connectedSpy(&client, QOverload<>::of(&QWebSocket::connected));
+    QVERIFY(connectedSpy.isValid());
+
+    QNetworkRequest req(QUrl(QStringLiteral("ws://127.0.0.1:%1").arg(m_service->serverPort())));
+    req.setRawHeader("Origin", "chrome-extension://cnanalhpjiclhljkpnlbgiaclpbncidk");
+    client.open(req);
+    QVERIFY(QTest::qWaitFor([&connectedSpy]() { return connectedSpy.count() > 0; }, 2000));
+
+    RegisterClientPayload reg;
+    reg.protocolVersion = BRIDGE_PROTOCOL_VERSION;
+    reg.extensionId = QStringLiteral("cnanalhpjiclhljkpnlbgiaclpbncidk");
+    reg.browserFamily = QStringLiteral("edge");
+    reg.browserVersion = QStringLiteral("127.0.0.0");
+    reg.profileInstanceId = QStringLiteral("uuid-all-cookie-fractional-expiry");
+    reg.profileAlias = QStringLiteral("Default");
+    reg.supportsCookies = true;
+    reg.supportsLocalStorage = true;
+    reg.supportsCodexUsageSnapshot = true;
+    reg.supportsCookieUrlQuery = true;
+    reg.supportsAllUrlsCookiePermission = true;
+
+    BridgeMessage registerMsg;
+    registerMsg.type = BridgeMessageType::RegisterClient;
+    registerMsg.payload = BridgeProtocol::serializeRegisterClient(reg);
+    client.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(registerMsg)));
+    QVERIFY(QTest::qWaitFor([this]() {
+        return m_service->connectedClientBindingIds().contains(
+            QStringLiteral("edge:uuid-all-cookie-fractional-expiry"));
+    }, 2000));
+
+    QSignalSpy completedSpy(m_service, &BrowserSessionBridgeService::providerImportCompleted);
+    QVERIFY(completedSpy.isValid());
+
+    const QString bindingId = QStringLiteral("edge:uuid-all-cookie-fractional-expiry");
+    const auto specs = BrowserSessionBridgeCatalog::specs();
+    for (const auto& spec : specs) {
+        if (spec.materialKind != BridgeMaterialKind::Cookies &&
+            spec.materialKind != BridgeMaterialKind::Hybrid) {
+            continue;
+        }
+
+        const QString cookieName = spec.cookieNames.isEmpty()
+            ? QStringLiteral("bridge_fractional_expiry")
+            : spec.cookieNames.first();
+        const QString cookieValue = QStringLiteral("token-") + spec.providerId;
+        const QString cookieDomain = spec.domains.isEmpty()
+            ? spec.providerId + QStringLiteral(".example")
+            : spec.domains.first();
+
+        QJsonObject cookie;
+        cookie[QStringLiteral("name")] = cookieName;
+        cookie[QStringLiteral("value")] = cookieValue;
+        cookie[QStringLiteral("domain")] = cookieDomain;
+        cookie[QStringLiteral("path")] = QStringLiteral("/");
+        cookie[QStringLiteral("secure")] = true;
+        cookie[QStringLiteral("httpOnly")] = true;
+        cookie[QStringLiteral("session")] = false;
+        cookie[QStringLiteral("expirationDate")] = 1800000000.987;
+
+        QJsonObject localStorage;
+        if (spec.providerId == QLatin1String("codex")) {
+            localStorage[QStringLiteral("codex_usage_json")] =
+                QStringLiteral(R"({"rate_limit":{"primary_window":{"used_percent":1}}})");
+        }
+
+        QJsonObject result;
+        result[QStringLiteral("type")] = QStringLiteral("import_result");
+        result[QStringLiteral("requestId")] =
+            QStringLiteral("req-fractional-%1").arg(spec.providerId);
+        result[QStringLiteral("providerId")] = spec.providerId;
+        result[QStringLiteral("success")] = true;
+        result[QStringLiteral("cookies")] = QJsonArray{cookie};
+        result[QStringLiteral("localStorage")] = localStorage;
+        result[QStringLiteral("capturedAtUtc")] = QStringLiteral("2026-05-17T07:20:30Z");
+
+        completedSpy.clear();
+        client.sendTextMessage(QString::fromUtf8(
+            QJsonDocument(result).toJson(QJsonDocument::Compact)));
+
+        QVERIFY2(QTest::qWaitFor([&completedSpy]() { return completedSpy.count() > 0; }, 4000),
+                 qPrintable(QStringLiteral("No import completion for %1").arg(spec.providerId)));
+        const auto args = completedSpy.takeFirst();
+        QCOMPARE(args.at(0).toString(), spec.providerId);
+        QVERIFY2(args.at(1).toBool(),
+                 qPrintable(QStringLiteral("%1 import failed: %2")
+                    .arg(spec.providerId, args.at(2).toString())));
+
+        const QString target = BrowserSessionBridgeStore::credentialTargetFor(
+            spec.providerId, bindingId, BridgeMaterialKind::Cookies);
+        const auto stored = ProviderCredentialStore::read(target);
+        QVERIFY2(stored.has_value(),
+                 qPrintable(QStringLiteral("No stored cookie header for %1").arg(spec.providerId)));
+        const QString header = QString::fromUtf8(stored.value());
+        QVERIFY2(header.contains(cookieName + QStringLiteral("=") + cookieValue),
+                 qPrintable(QStringLiteral("Stored cookie header for %1 did not contain imported cookie")
+                    .arg(spec.providerId)));
+    }
 }
 
 void tst_BrowserSessionBridgeService::credentialWriteFailureReportsImportFailure()

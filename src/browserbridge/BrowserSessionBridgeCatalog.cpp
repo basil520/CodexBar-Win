@@ -37,11 +37,11 @@ QVector<BridgeProviderSpec> BrowserSessionBridgeCatalog::specs()
 
         {QStringLiteral("opencode"), BridgeMaterialKind::Cookies,
          {QStringLiteral("opencode.ai"), QStringLiteral("app.opencode.ai")},
-         {QStringLiteral("auth"), QStringLiteral("__Host-auth")}},
+         {}},
 
         {QStringLiteral("opencodego"), BridgeMaterialKind::Cookies,
          {QStringLiteral("opencode.ai"), QStringLiteral("app.opencode.ai")},
-         {QStringLiteral("auth"), QStringLiteral("__Host-auth")}},
+         {}},
 
         {QStringLiteral("amp"), BridgeMaterialKind::Cookies,
          {QStringLiteral("ampcode.com"), QStringLiteral("www.ampcode.com")},

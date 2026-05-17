@@ -40,6 +40,9 @@ private slots:
     void bridgeQmlDoesNotCallSynchronousBindingScan();
     void browserSessionCardInvalidatesImportFeedbackBindings();
     void browserSessionCardDoesNotDisplayRawStaleBindingIds();
+    void browserSessionBridgeUiHonorsGlobalSetting();
+    void claudePeakHoursLivesInDisplayPane();
+    void usageStoreDoesNotInjectBridgeLookupWhenDisabled();
     void browserSessionBridgeExtensionUsesCanonicalWireProtocol();
     void providerUiBuildersUseCatalogSnapshot();
     void costUsageScanUsesCostUsageService();
@@ -631,6 +634,54 @@ void QmlArchitectureTest::browserSessionCardDoesNotDisplayRawStaleBindingIds()
     const QString card = readFile("qml/components/BrowserSessionCard.qml");
     QVERIFY2(!card.contains("return id"),
              "BrowserSessionCard must not display raw stale binding ids such as edge:<uuid>; show Auto or an unavailable-profile label instead.");
+}
+
+void QmlArchitectureTest::browserSessionBridgeUiHonorsGlobalSetting()
+{
+    const QString advanced = readFile("qml/panes/AdvancedPane.qml");
+    const QString providerDetail = readFile("qml/components/ProviderDetailView.qml");
+
+    QVERIFY2(advanced.contains(QStringLiteral("SettingsStore.browserSessionBridgeEnabled")),
+             "AdvancedPane must expose a global Browser Session Bridge/Cookies import setting.");
+    QVERIFY2(advanced.contains(QStringLiteral("active: SettingsStore.browserSessionBridgeEnabled")),
+             "AdvancedPane must not instantiate Bridge install UI while Cookies import is disabled.");
+    QVERIFY2(providerDetail.contains(QStringLiteral("SettingsStore.browserSessionBridgeEnabled")),
+             "ProviderDetailView must hide Browser Session Bridge UI behind the global Cookies import setting.");
+    QVERIFY2(providerDetail.contains(QStringLiteral("active: SettingsStore.browserSessionBridgeEnabled")),
+             "ProviderDetailView must not instantiate BrowserSessionCard while Cookies import is disabled.");
+}
+
+void QmlArchitectureTest::claudePeakHoursLivesInDisplayPane()
+{
+    const QString general = readFile("qml/panes/GeneralPane.qml");
+    const QString display = readFile("qml/panes/DisplayPane.qml");
+
+    QVERIFY2(!general.contains(QStringLiteral("Claude Peak Hours")),
+             "Claude Peak Hours is a display preference and must not remain in GeneralPane.");
+    QVERIFY2(!general.contains(QStringLiteral("claudePeakHoursEnabled")),
+             "GeneralPane must not bind claudePeakHoursEnabled after moving the setting to DisplayPane.");
+    QVERIFY2(display.contains(QStringLiteral("Claude Peak Hours")),
+             "DisplayPane must show the Claude Peak Hours setting.");
+    QVERIFY2(display.contains(QStringLiteral("SettingsStore.claudePeakHoursEnabled")),
+             "DisplayPane must bind the existing claudePeakHoursEnabled setting.");
+}
+
+void QmlArchitectureTest::usageStoreDoesNotInjectBridgeLookupWhenDisabled()
+{
+    const QString usageStore = readFile("src/app/UsageStore.cpp");
+    const QString lookupCall = QStringLiteral("input.bridgeSessionLookup = m_bridgeService->sessionLookupForProvider(providerId);");
+    const int lookupIndex = usageStore.indexOf(lookupCall);
+    QVERIFY2(lookupIndex >= 0, "UsageStore must still support Browser Session Bridge lookup when enabled.");
+
+    const int guardIndex = usageStore.lastIndexOf(QStringLiteral("if (m_bridgeService"), lookupIndex);
+    QVERIFY2(guardIndex >= 0,
+             "UsageStore must guard Browser Session Bridge lookup before calling sessionLookupForProvider().");
+
+    const QString guardedRegion = usageStore.mid(guardIndex, lookupIndex - guardIndex + lookupCall.size());
+    QVERIFY2(guardedRegion.contains(QStringLiteral("m_settingsStore")),
+             "The Browser Session Bridge lookup guard must read the global SettingsStore value.");
+    QVERIFY2(guardedRegion.contains(QStringLiteral("browserSessionBridgeEnabled()")),
+             "UsageStore must guard Browser Session Bridge lookup with SettingsStore::browserSessionBridgeEnabled().");
 }
 
 void QmlArchitectureTest::browserSessionBridgeExtensionUsesCanonicalWireProtocol()

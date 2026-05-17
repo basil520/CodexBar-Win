@@ -621,9 +621,14 @@ ScrollView {
                 }
             }
 
-            BrowserSessionCard {
-                visible: BridgeViewModel.isProviderSupported(root.providerId)
-                providerId: root.providerId
+            Loader {
+                Layout.fillWidth: true
+                active: SettingsStore.browserSessionBridgeEnabled
+                    && BridgeViewModel.isProviderSupported(root.providerId)
+                visible: active
+                sourceComponent: BrowserSessionCard {
+                    providerId: root.providerId
+                }
             }
 
             SettingsGroupBox {

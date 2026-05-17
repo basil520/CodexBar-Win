@@ -19,6 +19,7 @@ public:
     ~BrowserSessionBridgeService() override;
 
     void start();
+    void pause();
     void stop();
 
     BrowserSessionBridgeStore* store() const;

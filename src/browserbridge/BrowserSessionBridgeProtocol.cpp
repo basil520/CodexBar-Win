@@ -40,7 +40,8 @@ BridgeCookieRecord jsonToCookie(const QJsonObject& o)
     c.session = o[QStringLiteral("session")].toBool();
     const auto expiration = o[QStringLiteral("expirationDate")];
     if (!expiration.isNull() && !expiration.isUndefined()) {
-        c.expirationDateUtc = QDateTime::fromSecsSinceEpoch(expiration.toInteger());
+        const qint64 seconds = static_cast<qint64>(expiration.toDouble());
+        c.expirationDateUtc = QDateTime::fromSecsSinceEpoch(seconds, Qt::UTC);
     }
     c.partitionKey = o[QStringLiteral("partitionKey")].toString();
     return c;

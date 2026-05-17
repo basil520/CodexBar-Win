@@ -9,6 +9,7 @@ struct ProviderFetchContext;
 namespace OpenCodeUtils {
 
 QString extractAuthCookie(const QString& raw);
+QString normalizeCookieHeader(const QString& raw);
 QString resolveCookieHeader(const ProviderFetchContext& ctx);
 QString fetchWorkspaceID(const QString& cookieHeader, int timeoutMs);
 bool looksSignedOut(const QString& text);

@@ -97,6 +97,16 @@
         <translation></translation>
     </message>
     <message>
+        <location filename="../qml/panes/AdvancedPane.qml" line="65"/>
+        <source>Cookies Import</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../qml/panes/AdvancedPane.qml" line="66"/>
+        <source>Enable Browser Session Bridge import UI and extension connections.</source>
+        <translation></translation>
+    </message>
+    <message>
         <location filename="../qml/panes/AdvancedPane.qml" line="66"/>
         <source>Debug Mode</source>
         <translation></translation>
@@ -423,6 +433,16 @@
     <message>
         <location filename="../qml/panes/DisplayPane.qml" line="43"/>
         <source>Show additional provider-specific credit and usage fields.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../qml/panes/DisplayPane.qml" line="52"/>
+        <source>Claude Peak Hours</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../qml/panes/DisplayPane.qml" line="53"/>
+        <source>Show peak hours indicator for Claude usage pricing.</source>
         <translation></translation>
     </message>
 </context>

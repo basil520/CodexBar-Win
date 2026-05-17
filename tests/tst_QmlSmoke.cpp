@@ -16,6 +16,8 @@ class MockSettingsStore : public QObject {
     Q_PROPERTY(bool showOptionalCreditsAndExtraUsage READ showOptionalCreditsAndExtraUsage CONSTANT)
     Q_PROPERTY(bool statusChecksEnabled READ statusChecksEnabled CONSTANT)
     Q_PROPERTY(bool sessionQuotaNotificationsEnabled READ sessionQuotaNotificationsEnabled CONSTANT)
+    Q_PROPERTY(bool claudePeakHoursEnabled READ claudePeakHoursEnabled CONSTANT)
+    Q_PROPERTY(bool browserSessionBridgeEnabled READ browserSessionBridgeEnabled CONSTANT)
     Q_PROPERTY(int refreshFrequency READ refreshFrequency CONSTANT)
     Q_PROPERTY(QString language READ language CONSTANT)
 public:
@@ -26,6 +28,8 @@ public:
     bool showOptionalCreditsAndExtraUsage() const { return true; }
     bool statusChecksEnabled() const { return true; }
     bool sessionQuotaNotificationsEnabled() const { return false; }
+    bool claudePeakHoursEnabled() const { return true; }
+    bool browserSessionBridgeEnabled() const { return true; }
     int refreshFrequency() const { return 15; }
     QString language() const { return "en"; }
     bool launchAtLogin() const { return false; }

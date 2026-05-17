@@ -234,24 +234,44 @@ BrowserSessionBridgeService::~BrowserSessionBridgeService()
 
 void BrowserSessionBridgeService::start()
 {
-    if (m_server) return;
+    if (!m_server) {
+        m_server = new BrowserSessionBridgeServer();
 
-    m_server = new BrowserSessionBridgeServer();
+        connect(m_server, &BrowserSessionBridgeServer::serverStateChanged,
+                this, &BrowserSessionBridgeService::onServerStateChanged);
+        connect(m_server, &BrowserSessionBridgeServer::clientRegistered,
+                this, &BrowserSessionBridgeService::onClientRegistered);
+        connect(m_server, &BrowserSessionBridgeServer::clientDisconnected,
+                this, &BrowserSessionBridgeService::onClientDisconnected);
+        connect(m_server, &BrowserSessionBridgeServer::importResultReceived,
+                this, &BrowserSessionBridgeService::onImportResultReceived);
+        connect(m_server, &BrowserSessionBridgeServer::sessionDirtyReceived,
+                this, &BrowserSessionBridgeService::onSessionDirtyReceived);
+        connect(m_server, &BrowserSessionBridgeServer::errorOccurred,
+                this, &BrowserSessionBridgeService::onServerError);
+    }
 
-    connect(m_server, &BrowserSessionBridgeServer::serverStateChanged,
-            this, &BrowserSessionBridgeService::onServerStateChanged);
-    connect(m_server, &BrowserSessionBridgeServer::clientRegistered,
-            this, &BrowserSessionBridgeService::onClientRegistered);
-    connect(m_server, &BrowserSessionBridgeServer::clientDisconnected,
-            this, &BrowserSessionBridgeService::onClientDisconnected);
-    connect(m_server, &BrowserSessionBridgeServer::importResultReceived,
-            this, &BrowserSessionBridgeService::onImportResultReceived);
-    connect(m_server, &BrowserSessionBridgeServer::sessionDirtyReceived,
-            this, &BrowserSessionBridgeService::onSessionDirtyReceived);
-    connect(m_server, &BrowserSessionBridgeServer::errorOccurred,
-            this, &BrowserSessionBridgeService::onServerError);
+    if (m_serverRunning) return;
 
     m_server->start();
+}
+
+void BrowserSessionBridgeService::pause()
+{
+    if (!m_server) {
+        onServerStateChanged(false, 0);
+        return;
+    }
+
+    if (!m_connectedBindingIds.isEmpty()) {
+        m_connectedBindingIds.clear();
+        emit clientConnectionStateChanged();
+    }
+
+    // Runtime toggles must not block the UI thread; the destructor still uses
+    // stop() for synchronous cleanup.
+    QMetaObject::invokeMethod(m_server, "doStop", Qt::QueuedConnection);
+    onServerStateChanged(false, 0);
 }
 
 void BrowserSessionBridgeService::stop()

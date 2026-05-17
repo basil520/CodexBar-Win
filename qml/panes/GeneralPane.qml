@@ -77,14 +77,5 @@ SettingsPage {
                 SettingsStore.sessionQuotaNotificationsEnabled = checked
             }
         }
-
-        SettingsToggleRow {
-            title: qsTr("Claude Peak Hours")
-            subtitle: qsTr("Show peak hours indicator for Claude usage pricing.")
-            checked: SettingsStore.claudePeakHoursEnabled
-            onToggled: function(checked) {
-                SettingsStore.claudePeakHoursEnabled = checked
-            }
-        }
     }
 }

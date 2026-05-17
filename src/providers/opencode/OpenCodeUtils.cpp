@@ -12,9 +12,12 @@
 
 namespace OpenCodeUtils {
 
-QString extractAuthCookie(const QString& raw) {
+QString normalizeCookieHeader(const QString& raw) {
     QString trimmed = raw.trimmed();
     if (trimmed.isEmpty()) return {};
+    if (trimmed.startsWith(QStringLiteral("Cookie:"), Qt::CaseInsensitive)) {
+        trimmed = trimmed.mid(QStringLiteral("Cookie:").size()).trimmed();
+    }
 
     QStringList result;
     for (const auto& pair : trimmed.split(';', Qt::SkipEmptyParts)) {
@@ -23,25 +26,28 @@ QString extractAuthCookie(const QString& raw) {
         if (eq <= 0) continue;
         QString name = p.left(eq).trimmed();
         QString value = p.mid(eq + 1).trimmed();
-        if (name == "auth" || name == "__Host-auth") {
-            result.append(name + "=" + value);
-        }
+        if (name.isEmpty()) continue;
+        result.append(name + "=" + value);
     }
     return result.join("; ");
+}
+
+QString extractAuthCookie(const QString& raw) {
+    return normalizeCookieHeader(raw);
 }
 
 QString resolveCookieHeader(const ProviderFetchContext& ctx) {
     // 1. Manual cookie header
     if (ctx.manualCookieHeader.has_value() && !ctx.manualCookieHeader->isEmpty()) {
-        QString filtered = extractAuthCookie(*ctx.manualCookieHeader);
-        if (!filtered.isEmpty()) return filtered;
+        QString normalized = normalizeCookieHeader(*ctx.manualCookieHeader);
+        if (!normalized.isEmpty()) return normalized;
     }
 
     // 2. Environment variable
     for (const auto& key : {"OPENCODE_COOKIE", "OPENCODE_AUTH", "opencode_cookie"}) {
         if (ctx.env.contains(key)) {
-            QString filtered = extractAuthCookie(ctx.env[key]);
-            if (!filtered.isEmpty()) return filtered;
+            QString normalized = normalizeCookieHeader(ctx.env[key]);
+            if (!normalized.isEmpty()) return normalized;
         }
     }
 
@@ -53,9 +59,8 @@ QString resolveCookieHeader(const ProviderFetchContext& ctx) {
         QStringList parts;
         for (const auto& cookie : cookies) {
             QString name = QString::fromUtf8(cookie.name());
-            if (name == "auth" || name == "__Host-auth") {
-                parts.append(name + "=" + QString::fromUtf8(cookie.value()));
-            }
+            if (name.isEmpty()) continue;
+            parts.append(name + "=" + QString::fromUtf8(cookie.value()));
         }
         if (!parts.isEmpty()) return parts.join("; ");
     }

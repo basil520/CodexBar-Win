@@ -25,6 +25,7 @@ SettingsStore::SettingsStore(QObject* parent)
     m_showOptionalCreditsAndExtraUsage = m_settings.value("showOptionalCreditsAndExtraUsage", true).toBool();
     m_sessionQuotaNotificationsEnabled = m_settings.value("sessionQuotaNotificationsEnabled", true).toBool();
     m_claudePeakHoursEnabled = m_settings.value("claudePeakHoursEnabled", true).toBool();
+    m_browserSessionBridgeEnabled = m_settings.value("browserSessionBridgeEnabled", true).toBool();
     m_language = m_settings.value("language", "en").toString();
     loadConfig();
 
@@ -148,6 +149,14 @@ void SettingsStore::setClaudePeakHoursEnabled(bool enable) {
     }
 }
 
+void SettingsStore::setBrowserSessionBridgeEnabled(bool enable) {
+    if (m_browserSessionBridgeEnabled != enable) {
+        m_browserSessionBridgeEnabled = enable;
+        m_settings.setValue("browserSessionBridgeEnabled", enable);
+        emit browserSessionBridgeEnabledChanged();
+    }
+}
+
 void SettingsStore::setLanguage(const QString& lang) {
     if (m_language != lang) {
         m_language = lang;
@@ -267,6 +276,7 @@ void SettingsStore::resetToDefaults() {
     setShowOptionalCreditsAndExtraUsage(true);
     setSessionQuotaNotificationsEnabled(true);
     setClaudePeakHoursEnabled(true);
+    setBrowserSessionBridgeEnabled(true);
     setLanguage("en");
     m_providerSettings.clear();
     m_providerOrder.clear();

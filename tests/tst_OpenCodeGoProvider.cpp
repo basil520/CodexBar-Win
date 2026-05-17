@@ -1,5 +1,7 @@
 #include <QtTest/QtTest>
 #include "../src/providers/opencode/OpenCodeGoProvider.h"
+#include "../src/providers/opencode/OpenCodeUtils.h"
+#include "../src/providers/ProviderFetchContext.h"
 #include "../src/models/UsageSnapshot.h"
 #include "../src/models/RateWindow.h"
 
@@ -67,6 +69,20 @@ private slots:
         auto snap = OpenCodeGoWebStrategy::parseUsage(json);
         QVERIFY(snap.identity.has_value());
         QCOMPARE(snap.identity->providerID.value(), UsageProvider::opencodego);
+    }
+
+    void preservesFullImportedCookieHeader() {
+        ProviderFetchContext ctx;
+        ctx.providerId = QStringLiteral("opencodego");
+        ctx.manualCookieHeader = QStringLiteral(
+            "auth=; __Secure-better-auth.session_token=go-session; "
+            "opencode-workspace=wrk_123; other=value");
+
+        const QString header = OpenCodeUtils::resolveCookieHeader(ctx);
+
+        QVERIFY(header.contains(QStringLiteral("__Secure-better-auth.session_token=go-session")));
+        QVERIFY(header.contains(QStringLiteral("opencode-workspace=wrk_123")));
+        QVERIFY(header.contains(QStringLiteral("other=value")));
     }
 };
 

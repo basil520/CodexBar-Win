@@ -561,7 +561,7 @@ UsageStore::buildProviderFetchCommandInput(const QString& providerId) const
     }
     input.defaultTokenAccountId = TokenAccountStore::instance()->defaultAccountId(providerId);
 
-    if (m_bridgeService) {
+    if (m_bridgeService && (!m_settingsStore || m_settingsStore->browserSessionBridgeEnabled())) {
         input.bridgeSessionLookup = m_bridgeService->sessionLookupForProvider(providerId);
     }
 

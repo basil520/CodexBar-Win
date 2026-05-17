@@ -370,7 +370,17 @@ int main(int argc, char* argv[]) {
     // Browser Session Bridge (Phase 2)
     auto* bridgeStore = new BrowserSessionBridgeStore(&app);
     auto* bridgeService = new BrowserSessionBridgeService(bridgeStore, &app);
-    bridgeService->start();
+    if (settings->browserSessionBridgeEnabled()) {
+        bridgeService->start();
+    }
+    QObject::connect(settings, &SettingsStore::browserSessionBridgeEnabledChanged,
+                     bridgeService, [settings, bridgeService]() {
+        if (settings->browserSessionBridgeEnabled()) {
+            bridgeService->start();
+        } else {
+            bridgeService->pause();
+        }
+    });
     usageStore->setBrowserSessionBridgeService(bridgeService);
 
     auto* bridgeViewModel = new BridgeViewModel(bridgeService, bridgeStore, &app);

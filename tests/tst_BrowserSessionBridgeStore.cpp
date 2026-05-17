@@ -24,6 +24,7 @@ private slots:
     void doesNotUpdateBindingWhenCredentialWriteFails();
     void codexSpecUsesChatGptHybridMaterial();
     void kimiSpecUsesHybridLocalStorageMaterial();
+    void opencodeSpecsRequestAllCookies();
     void mimoSpecIncludesXiaomiEntryDomains();
 
 private:
@@ -289,6 +290,19 @@ void tst_BrowserSessionBridgeStore::kimiSpecUsesHybridLocalStorageMaterial()
     QCOMPARE(spec->localStorageOrigin, QStringLiteral("https://www.kimi.com"));
     QVERIFY(spec->localStorageKeys.contains(QStringLiteral("access_token")));
     QVERIFY(spec->localStorageKeys.contains(QStringLiteral("refresh_token")));
+}
+
+void tst_BrowserSessionBridgeStore::opencodeSpecsRequestAllCookies()
+{
+    for (const QString& providerId : {QStringLiteral("opencode"), QStringLiteral("opencodego")}) {
+        const auto spec = BrowserSessionBridgeCatalog::specForProvider(providerId);
+        QVERIFY(spec.has_value());
+        QCOMPARE(spec->materialKind, BridgeMaterialKind::Cookies);
+        QVERIFY(spec->domains.contains(QStringLiteral("opencode.ai")));
+        QVERIFY(spec->domains.contains(QStringLiteral("app.opencode.ai")));
+        QVERIFY2(spec->cookieNames.isEmpty(),
+                 qPrintable(providerId + QStringLiteral(" must request all cookies, not only auth/__Host-auth")));
+    }
 }
 
 void tst_BrowserSessionBridgeStore::mimoSpecIncludesXiaomiEntryDomains()
