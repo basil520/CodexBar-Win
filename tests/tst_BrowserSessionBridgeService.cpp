@@ -26,12 +26,24 @@ private slots:
     void codexUsageErrorImportReportsFailure();
     void codexUsageJsonWithoutCookiesPersistsAsSessionPayload();
     void webSocketImportResultPersistsAsynchronously();
-    void cookieProviderRequiresUrlQueryCapableExtension();
+    void cookieProviderRequiresAllUrlsCookiePermission();
+    void preferredBindingIsNotSilentlyReplacedByAnotherProfile();
+    void hybridDiagnosticsOnlyDoesNotCountAsImportedMaterial();
+    void credentialWriteFailureReportsImportFailure();
+    void kimiRefreshTokenOnlyDoesNotCountAsImportedMaterial();
 
 private:
     BrowserSessionBridgeStore* m_store = nullptr;
     BrowserSessionBridgeService* m_service = nullptr;
     std::shared_ptr<InMemoryCredentialBackend> m_backend;
+};
+
+class FailingCredentialBackend : public ProviderCredentialBackend {
+public:
+    bool write(const QString&, const QString&, const QByteArray&) override { return false; }
+    std::optional<QByteArray> read(const QString&) override { return std::nullopt; }
+    bool remove(const QString&) override { return false; }
+    bool exists(const QString&) override { return false; }
 };
 
 void tst_BrowserSessionBridgeService::initTestCase()
@@ -180,6 +192,8 @@ void tst_BrowserSessionBridgeService::requestImportSendsRequestToConnectedClient
     reg.supportsCookies = true;
     reg.supportsLocalStorage = true;
     reg.supportsCodexUsageSnapshot = true;
+    reg.supportsCookieUrlQuery = true;
+    reg.supportsAllUrlsCookiePermission = true;
 
     BridgeMessage registerMsg;
     registerMsg.type = BridgeMessageType::RegisterClient;
@@ -444,7 +458,7 @@ void tst_BrowserSessionBridgeService::webSocketImportResultPersistsAsynchronousl
     QVERIFY(QString::fromUtf8(stored.value()).contains(QStringLiteral("service-ws-token")));
 }
 
-void tst_BrowserSessionBridgeService::cookieProviderRequiresUrlQueryCapableExtension()
+void tst_BrowserSessionBridgeService::cookieProviderRequiresAllUrlsCookiePermission()
 {
     QWebSocket client;
     QSignalSpy connectedSpy(&client, QOverload<>::of(&QWebSocket::connected));
@@ -465,6 +479,7 @@ void tst_BrowserSessionBridgeService::cookieProviderRequiresUrlQueryCapableExten
     reg.supportsCookies = true;
     reg.supportsLocalStorage = true;
     reg.supportsCodexUsageSnapshot = true;
+    reg.supportsCookieUrlQuery = true;
 
     BridgeMessage registerMsg;
     registerMsg.type = BridgeMessageType::RegisterClient;
@@ -477,6 +492,242 @@ void tst_BrowserSessionBridgeService::cookieProviderRequiresUrlQueryCapableExten
     QVERIFY(m_service->bindingOptions(QStringLiteral("kimi")).isEmpty());
     QVERIFY(!m_service->requestImport(QStringLiteral("kimi")));
     QVERIFY(m_service->lastError().contains(QStringLiteral("Reload"), Qt::CaseInsensitive));
+}
+
+void tst_BrowserSessionBridgeService::preferredBindingIsNotSilentlyReplacedByAnotherProfile()
+{
+    QWebSocket oldClient;
+    QSignalSpy oldConnectedSpy(&oldClient, QOverload<>::of(&QWebSocket::connected));
+    QVERIFY(oldConnectedSpy.isValid());
+    QNetworkRequest oldReq(QUrl(QStringLiteral("ws://127.0.0.1:%1").arg(m_service->serverPort())));
+    oldReq.setRawHeader("Origin", "chrome-extension://cnanalhpjiclhljkpnlbgiaclpbncidk");
+    oldClient.open(oldReq);
+    QVERIFY(QTest::qWaitFor([&oldConnectedSpy]() { return oldConnectedSpy.count() > 0; }, 2000));
+
+    RegisterClientPayload oldReg;
+    oldReg.protocolVersion = BRIDGE_PROTOCOL_VERSION;
+    oldReg.extensionId = QStringLiteral("cnanalhpjiclhljkpnlbgiaclpbncidk");
+    oldReg.browserFamily = QStringLiteral("edge");
+    oldReg.browserVersion = QStringLiteral("127.0.0.0");
+    oldReg.profileInstanceId = QStringLiteral("uuid-stale-selected-profile");
+    oldReg.profileAlias = QStringLiteral("Default");
+    oldReg.supportsCookies = true;
+    oldReg.supportsLocalStorage = true;
+    oldReg.supportsCodexUsageSnapshot = true;
+    oldReg.supportsCookieUrlQuery = false;
+
+    BridgeMessage oldRegisterMsg;
+    oldRegisterMsg.type = BridgeMessageType::RegisterClient;
+    oldRegisterMsg.payload = BridgeProtocol::serializeRegisterClient(oldReg);
+    oldClient.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(oldRegisterMsg)));
+    QVERIFY(QTest::qWaitFor([this]() {
+        return m_service->connectedClientBindingIds().contains(
+            QStringLiteral("edge:uuid-stale-selected-profile"));
+    }, 2000));
+
+    QWebSocket newClient;
+    QSignalSpy newConnectedSpy(&newClient, QOverload<>::of(&QWebSocket::connected));
+    QVERIFY(newConnectedSpy.isValid());
+    QNetworkRequest newReq(QUrl(QStringLiteral("ws://127.0.0.1:%1").arg(m_service->serverPort())));
+    newReq.setRawHeader("Origin", "chrome-extension://cnanalhpjiclhljkpnlbgiaclpbncidk");
+    newClient.open(newReq);
+    QVERIFY(QTest::qWaitFor([&newConnectedSpy]() { return newConnectedSpy.count() > 0; }, 2000));
+
+    RegisterClientPayload newReg = oldReg;
+    newReg.profileInstanceId = QStringLiteral("uuid-new-compatible-profile");
+    newReg.supportsCookieUrlQuery = true;
+    newReg.supportsAllUrlsCookiePermission = true;
+
+    BridgeMessage newRegisterMsg;
+    newRegisterMsg.type = BridgeMessageType::RegisterClient;
+    newRegisterMsg.payload = BridgeProtocol::serializeRegisterClient(newReg);
+    newClient.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(newRegisterMsg)));
+    QVERIFY(QTest::qWaitFor([this]() {
+        return m_service->connectedClientBindingIds().contains(
+            QStringLiteral("edge:uuid-new-compatible-profile"));
+    }, 2000));
+
+    QSignalSpy newTextSpy(&newClient, &QWebSocket::textMessageReceived);
+    QVERIFY(newTextSpy.isValid());
+    m_service->setProviderBindingAsync(
+        QStringLiteral("mimo"),
+        QStringLiteral("edge:uuid-stale-selected-profile"));
+
+    QVERIFY(!m_service->requestImport(QStringLiteral("mimo")));
+    QVERIFY(m_service->lastError().contains(QStringLiteral("selected"), Qt::CaseInsensitive));
+    QTest::qWait(100);
+    for (const auto& args : newTextSpy) {
+        const auto msg = BridgeProtocol::parseMessage(args.at(0).toString().toUtf8());
+        QVERIFY(!msg.has_value() || msg->type != BridgeMessageType::RequestImport);
+    }
+}
+
+void tst_BrowserSessionBridgeService::hybridDiagnosticsOnlyDoesNotCountAsImportedMaterial()
+{
+    QSignalSpy completedSpy(m_service, &BrowserSessionBridgeService::providerImportCompleted);
+    QVERIFY(completedSpy.isValid());
+
+    QWebSocket client;
+    QSignalSpy connectedSpy(&client, QOverload<>::of(&QWebSocket::connected));
+    QVERIFY(connectedSpy.isValid());
+
+    QNetworkRequest req(QUrl(QStringLiteral("ws://127.0.0.1:%1").arg(m_service->serverPort())));
+    req.setRawHeader("Origin", "chrome-extension://cnanalhpjiclhljkpnlbgiaclpbncidk");
+    client.open(req);
+    QVERIFY(QTest::qWaitFor([&connectedSpy]() { return connectedSpy.count() > 0; }, 2000));
+
+    RegisterClientPayload reg;
+    reg.protocolVersion = BRIDGE_PROTOCOL_VERSION;
+    reg.extensionId = QStringLiteral("cnanalhpjiclhljkpnlbgiaclpbncidk");
+    reg.browserFamily = QStringLiteral("edge");
+    reg.browserVersion = QStringLiteral("127.0.0.0");
+    reg.profileInstanceId = QStringLiteral("uuid-kimi-diag-only");
+    reg.profileAlias = QStringLiteral("Default");
+    reg.supportsCookies = true;
+    reg.supportsLocalStorage = true;
+    reg.supportsCodexUsageSnapshot = true;
+    reg.supportsCookieUrlQuery = true;
+    reg.supportsAllUrlsCookiePermission = true;
+
+    BridgeMessage registerMsg;
+    registerMsg.type = BridgeMessageType::RegisterClient;
+    registerMsg.payload = BridgeProtocol::serializeRegisterClient(reg);
+    client.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(registerMsg)));
+    QVERIFY(QTest::qWaitFor([this]() {
+        return m_service->connectedClientBindingIds().contains(QStringLiteral("edge:uuid-kimi-diag-only"));
+    }, 2000));
+
+    ImportResultPayload result;
+    result.requestId = QStringLiteral("req-kimi-diag-only");
+    result.providerId = QStringLiteral("kimi");
+    result.capturedAtUtc = QDateTime::currentDateTimeUtc();
+    result.localStorage[QStringLiteral("cookie_query_diagnostics")] =
+        QStringLiteral(R"({"domains":{"kimi.com":{"matchedCount":0}}})");
+
+    BridgeMessage importMsg;
+    importMsg.type = BridgeMessageType::ImportResult;
+    importMsg.payload = BridgeProtocol::serializeImportResult(result);
+    client.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(importMsg)));
+
+    QVERIFY(QTest::qWaitFor([&completedSpy]() { return completedSpy.count() > 0; }, 2000));
+    const auto completedArgs = completedSpy.takeFirst();
+    QCOMPARE(completedArgs.at(0).toString(), QStringLiteral("kimi"));
+    QCOMPARE(completedArgs.at(1).toBool(), false);
+    QVERIFY(completedArgs.at(2).toString().contains(QStringLiteral("diagnostics"), Qt::CaseInsensitive));
+    const auto binding = m_service->bindingForProvider(QStringLiteral("kimi"));
+    QVERIFY(!binding.has_value() || !binding->lastImportedAtUtc.isValid());
+}
+
+void tst_BrowserSessionBridgeService::credentialWriteFailureReportsImportFailure()
+{
+    QSignalSpy completedSpy(m_service, &BrowserSessionBridgeService::providerImportCompleted);
+    QVERIFY(completedSpy.isValid());
+
+    QWebSocket client;
+    QSignalSpy connectedSpy(&client, QOverload<>::of(&QWebSocket::connected));
+    QVERIFY(connectedSpy.isValid());
+
+    QNetworkRequest req(QUrl(QStringLiteral("ws://127.0.0.1:%1").arg(m_service->serverPort())));
+    req.setRawHeader("Origin", "chrome-extension://cnanalhpjiclhljkpnlbgiaclpbncidk");
+    client.open(req);
+    QVERIFY(QTest::qWaitFor([&connectedSpy]() { return connectedSpy.count() > 0; }, 2000));
+
+    RegisterClientPayload reg;
+    reg.protocolVersion = BRIDGE_PROTOCOL_VERSION;
+    reg.extensionId = QStringLiteral("cnanalhpjiclhljkpnlbgiaclpbncidk");
+    reg.browserFamily = QStringLiteral("edge");
+    reg.browserVersion = QStringLiteral("127.0.0.0");
+    reg.profileInstanceId = QStringLiteral("uuid-kimi-write-failure");
+    reg.profileAlias = QStringLiteral("Default");
+    reg.supportsCookies = true;
+    reg.supportsLocalStorage = true;
+    reg.supportsCodexUsageSnapshot = true;
+    reg.supportsCookieUrlQuery = true;
+    reg.supportsAllUrlsCookiePermission = true;
+
+    BridgeMessage registerMsg;
+    registerMsg.type = BridgeMessageType::RegisterClient;
+    registerMsg.payload = BridgeProtocol::serializeRegisterClient(reg);
+    client.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(registerMsg)));
+    QVERIFY(QTest::qWaitFor([this]() {
+        return m_service->connectedClientBindingIds().contains(QStringLiteral("edge:uuid-kimi-write-failure"));
+    }, 2000));
+
+    ProviderCredentialStore::setBackendForTesting(std::make_shared<FailingCredentialBackend>());
+
+    ImportResultPayload result;
+    result.requestId = QStringLiteral("req-kimi-write-failure");
+    result.providerId = QStringLiteral("kimi");
+    result.capturedAtUtc = QDateTime::currentDateTimeUtc();
+    result.localStorage[QStringLiteral("access_token")] = QStringLiteral("kimi-access-token");
+
+    BridgeMessage importMsg;
+    importMsg.type = BridgeMessageType::ImportResult;
+    importMsg.payload = BridgeProtocol::serializeImportResult(result);
+    client.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(importMsg)));
+
+    QVERIFY(QTest::qWaitFor([&completedSpy]() { return completedSpy.count() > 0; }, 2000));
+    const auto completedArgs = completedSpy.takeFirst();
+    QCOMPARE(completedArgs.at(0).toString(), QStringLiteral("kimi"));
+    QCOMPARE(completedArgs.at(1).toBool(), false);
+    QVERIFY(completedArgs.at(2).toString().contains(QStringLiteral("persist"), Qt::CaseInsensitive));
+    const auto binding = m_service->bindingForProvider(QStringLiteral("kimi"));
+    QVERIFY(!binding.has_value() || !binding->lastImportedAtUtc.isValid());
+
+    ProviderCredentialStore::setBackendForTesting(m_backend);
+}
+
+void tst_BrowserSessionBridgeService::kimiRefreshTokenOnlyDoesNotCountAsImportedMaterial()
+{
+    QSignalSpy completedSpy(m_service, &BrowserSessionBridgeService::providerImportCompleted);
+    QVERIFY(completedSpy.isValid());
+
+    QWebSocket client;
+    QSignalSpy connectedSpy(&client, QOverload<>::of(&QWebSocket::connected));
+    QVERIFY(connectedSpy.isValid());
+
+    QNetworkRequest req(QUrl(QStringLiteral("ws://127.0.0.1:%1").arg(m_service->serverPort())));
+    req.setRawHeader("Origin", "chrome-extension://cnanalhpjiclhljkpnlbgiaclpbncidk");
+    client.open(req);
+    QVERIFY(QTest::qWaitFor([&connectedSpy]() { return connectedSpy.count() > 0; }, 2000));
+
+    RegisterClientPayload reg;
+    reg.protocolVersion = BRIDGE_PROTOCOL_VERSION;
+    reg.extensionId = QStringLiteral("cnanalhpjiclhljkpnlbgiaclpbncidk");
+    reg.browserFamily = QStringLiteral("edge");
+    reg.browserVersion = QStringLiteral("127.0.0.0");
+    reg.profileInstanceId = QStringLiteral("uuid-kimi-refresh-only");
+    reg.profileAlias = QStringLiteral("Default");
+    reg.supportsCookies = true;
+    reg.supportsLocalStorage = true;
+    reg.supportsCodexUsageSnapshot = true;
+    reg.supportsCookieUrlQuery = true;
+    reg.supportsAllUrlsCookiePermission = true;
+
+    BridgeMessage registerMsg;
+    registerMsg.type = BridgeMessageType::RegisterClient;
+    registerMsg.payload = BridgeProtocol::serializeRegisterClient(reg);
+    client.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(registerMsg)));
+    QVERIFY(QTest::qWaitFor([this]() {
+        return m_service->connectedClientBindingIds().contains(QStringLiteral("edge:uuid-kimi-refresh-only"));
+    }, 2000));
+
+    ImportResultPayload result;
+    result.requestId = QStringLiteral("req-kimi-refresh-only");
+    result.providerId = QStringLiteral("kimi");
+    result.capturedAtUtc = QDateTime::currentDateTimeUtc();
+    result.localStorage[QStringLiteral("refresh_token")] = QStringLiteral("refresh-token-only");
+
+    BridgeMessage importMsg;
+    importMsg.type = BridgeMessageType::ImportResult;
+    importMsg.payload = BridgeProtocol::serializeImportResult(result);
+    client.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(importMsg)));
+
+    QVERIFY(QTest::qWaitFor([&completedSpy]() { return completedSpy.count() > 0; }, 2000));
+    const auto completedArgs = completedSpy.takeFirst();
+    QCOMPARE(completedArgs.at(0).toString(), QStringLiteral("kimi"));
+    QCOMPARE(completedArgs.at(1).toBool(), false);
+    QVERIFY(completedArgs.at(2).toString().contains(QStringLiteral("access token"), Qt::CaseInsensitive));
 }
 
 QTEST_MAIN(tst_BrowserSessionBridgeService)

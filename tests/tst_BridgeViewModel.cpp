@@ -137,6 +137,8 @@ void tst_BridgeViewModel::importFailureClearsBusyAndShowsError()
     reg.supportsCookies = true;
     reg.supportsLocalStorage = true;
     reg.supportsCodexUsageSnapshot = true;
+    reg.supportsCookieUrlQuery = true;
+    reg.supportsAllUrlsCookiePermission = true;
 
     BridgeMessage registerMsg;
     registerMsg.type = BridgeMessageType::RegisterClient;

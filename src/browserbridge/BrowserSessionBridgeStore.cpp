@@ -4,6 +4,30 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+namespace {
+
+bool isBridgeDiagnosticKey(const QString& key)
+{
+    return key == QLatin1String("cookie_query_diagnostics")
+        || key == QLatin1String("cookie_query_error")
+        || key == QLatin1String("localStorage_error")
+        || key.endsWith(QLatin1String("_diagnostics"))
+        || key.endsWith(QLatin1String("_error"));
+}
+
+bool shouldPersistLocalStorageKey(const BridgeProviderSpec& spec, const QString& key)
+{
+    if (isBridgeDiagnosticKey(key)) {
+        return false;
+    }
+    if (!spec.localStorageKeys.isEmpty()) {
+        return spec.localStorageKeys.contains(key);
+    }
+    return true;
+}
+
+} // namespace
+
 BrowserSessionBridgeStore::BrowserSessionBridgeStore(QObject* parent)
     : QObject(parent)
 {
@@ -25,13 +49,14 @@ void BrowserSessionBridgeStore::removeClient(const BridgeClientId& clientId)
     m_metadata.save();
 }
 
-void BrowserSessionBridgeStore::saveImportedMaterial(const BridgeSessionMaterial& material)
+bool BrowserSessionBridgeStore::saveImportedMaterial(const BridgeSessionMaterial& material)
 {
     const auto spec = BrowserSessionBridgeCatalog::specForProvider(material.providerId);
-    if (!spec.has_value()) return;
+    if (!spec.has_value()) return false;
 
     const auto bindingId = material.clientId.toBindingId();
     const auto target = credentialTargetFor(material.providerId, bindingId);
+    bool wroteCredential = false;
 
     if (spec->materialKind == BridgeMaterialKind::Cookies ||
         spec->materialKind == BridgeMaterialKind::Hybrid) {
@@ -45,7 +70,10 @@ void BrowserSessionBridgeStore::saveImportedMaterial(const BridgeSessionMaterial
             header += cookie.name + QStringLiteral("=") + cookie.value;
         }
         if (!header.isEmpty()) {
-            ProviderCredentialStore::write(target, QStringLiteral("bridge"), header.toUtf8());
+            if (!ProviderCredentialStore::write(target, QStringLiteral("bridge"), header.toUtf8())) {
+                return false;
+            }
+            wroteCredential = true;
         }
     }
 
@@ -55,20 +83,34 @@ void BrowserSessionBridgeStore::saveImportedMaterial(const BridgeSessionMaterial
             QJsonObject payload;
             for (auto it = material.localStorage.constBegin();
                  it != material.localStorage.constEnd(); ++it) {
+                if (!shouldPersistLocalStorageKey(spec.value(), it.key())) continue;
                 payload[it.key()] = it.value();
             }
+            if (payload.isEmpty()) {
+                if (!wroteCredential) return false;
+            } else {
             const auto lsTarget = credentialTargetFor(material.providerId, bindingId,
                                                       BridgeMaterialKind::LocalStorage);
-            ProviderCredentialStore::write(lsTarget, QStringLiteral("bridge"),
-                                           QJsonDocument(payload).toJson(QJsonDocument::Compact));
+            if (!ProviderCredentialStore::write(lsTarget, QStringLiteral("bridge"),
+                                                QJsonDocument(payload).toJson(QJsonDocument::Compact))) {
+                return false;
+            }
+            wroteCredential = true;
 
             // Write a marker at the base target so preferredOrFirstBinding()
             // can discover this binding via exists() checks
             if (spec->materialKind == BridgeMaterialKind::LocalStorage) {
-                ProviderCredentialStore::write(target, QStringLiteral("bridge"),
-                                               QByteArrayLiteral("ls"));
+                if (!ProviderCredentialStore::write(target, QStringLiteral("bridge"),
+                                                    QByteArrayLiteral("ls"))) {
+                    return false;
+                }
+            }
             }
         }
+    }
+
+    if (!wroteCredential) {
+        return false;
     }
 
     // Update metadata binding
@@ -77,7 +119,7 @@ void BrowserSessionBridgeStore::saveImportedMaterial(const BridgeSessionMaterial
     binding.autoSync = m_metadata.autoSyncForProvider(material.providerId);
     binding.lastImportedAtUtc = material.capturedAtUtc;
     m_metadata.setBindingForProvider(material.providerId, binding);
-    m_metadata.save();
+    return m_metadata.save();
 }
 
 std::optional<QString> BrowserSessionBridgeStore::resolvedCookieHeader(

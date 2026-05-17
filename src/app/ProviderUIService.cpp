@@ -809,6 +809,9 @@ QVariantMap ProviderUIService::providerUsageSnapshot(const QString& providerId, 
         metric["usedPercent"] = rw.usedPercent;
         metric["remaining"] = remaining;
         metric["displayIsUsed"] = showUsedPercent;
+        if (rw.resetDescription.has_value()) {
+            metric["resetDescription"] = rw.resetDescription.value();
+        }
         if (rw.resetsAt.has_value() && rw.resetsAt.value().isValid()) {
             metric["resetsAt"] = rw.resetsAt.value().toString(Qt::ISODate);
         }
@@ -827,6 +830,9 @@ QVariantMap ProviderUIService::providerUsageSnapshot(const QString& providerId, 
     }
     if (snap.tertiary.has_value()) {
         result["tertiary"] = metricMap(*snap.tertiary);
+    }
+    if (snap.identity.has_value() && snap.identity->loginMethod.has_value()) {
+        result["loginMethod"] = snap.identity->loginMethod.value();
     }
     return result;
 }

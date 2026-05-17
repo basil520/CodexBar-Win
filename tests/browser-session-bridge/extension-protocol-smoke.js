@@ -20,7 +20,8 @@ function buildRegisterClient() {
       cookies: true,
       localStorage: true,
       codexUsageSnapshot: true,
-      cookieUrlQuery: true
+      cookieUrlQuery: true,
+      allUrlsCookiePermission: true
     }
   };
 }
@@ -81,6 +82,7 @@ function validateRegisterClient(msg) {
   assert.strictEqual(typeof msg.capabilities.localStorage, 'boolean');
   assert.strictEqual(typeof msg.capabilities.codexUsageSnapshot, 'boolean');
   assert.strictEqual(typeof msg.capabilities.cookieUrlQuery, 'boolean');
+  assert.strictEqual(typeof msg.capabilities.allUrlsCookiePermission, 'boolean');
 }
 
 function validateImportResult(msg) {
@@ -116,12 +118,20 @@ const serviceWorker = fs.readFileSync(
   path.join(__dirname, '..', '..', 'resources', 'browser-session-bridge', 'service_worker.js'),
   'utf8'
 );
+const manifest = JSON.parse(fs.readFileSync(
+  path.join(__dirname, '..', '..', 'resources', 'browser-session-bridge', 'manifest.json'),
+  'utf8'
+));
+assert.deepStrictEqual(manifest.host_permissions, ['<all_urls>']);
 assert.ok(serviceWorker.includes('fetchCodexUsageSnapshot'));
 assert.ok(serviceWorker.includes('chrome.scripting.executeScript'));
 assert.ok(serviceWorker.includes('cookieQueryUrlsForDomain'));
+assert.ok(serviceWorker.includes('cookie_query_diagnostics'));
+assert.ok(serviceWorker.includes('handleHybridImport'));
 assert.ok(serviceWorker.includes('chrome.cookies.getAll({ url'));
 assert.ok(serviceWorker.includes('codexUsageSnapshot'));
 assert.ok(serviceWorker.includes('cookieUrlQuery'));
+assert.ok(serviceWorker.includes('allUrlsCookiePermission'));
 assert.ok(serviceWorker.includes('extensionBuild'));
 assert.ok(serviceWorker.includes('/backend-api/wham/usage'));
 assert.ok(serviceWorker.includes("credentials: 'include'"));

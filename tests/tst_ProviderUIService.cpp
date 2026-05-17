@@ -7,6 +7,7 @@ class tst_ProviderUIService : public QObject {
 
 private slots:
     void snapshotDataBuildsFullCardMapAndCachesUntilInvalidated();
+    void providerUsageSnapshotCarriesIdentitySummary();
 };
 
 void tst_ProviderUIService::snapshotDataBuildsFullCardMapAndCachesUntilInvalidated()
@@ -49,6 +50,21 @@ void tst_ProviderUIService::snapshotDataBuildsFullCardMapAndCachesUntilInvalidat
     const QVariantMap rebuiltMap = service.snapshotData(QStringLiteral("demo"), second);
     QCOMPARE(rebuiltMap.value(QStringLiteral("primaryUsed")).toDouble(), 90.0);
     QCOMPARE(rebuiltMap.value(QStringLiteral("primaryRemaining")).toDouble(), 10.0);
+}
+
+void tst_ProviderUIService::providerUsageSnapshotCarriesIdentitySummary()
+{
+    ProviderUIService service;
+
+    UsageSnapshot snap;
+    snap.updatedAt = QDateTime::fromMSecsSinceEpoch(1000, Qt::UTC);
+    ProviderIdentitySnapshot identity;
+    identity.loginMethod = QStringLiteral("Balance: $25.51");
+    snap.identity = identity;
+
+    const QVariantMap map = service.providerUsageSnapshot(QStringLiteral("mimo"), snap);
+
+    QCOMPARE(map.value(QStringLiteral("loginMethod")).toString(), QStringLiteral("Balance: $25.51"));
 }
 
 QTEST_MAIN(tst_ProviderUIService)

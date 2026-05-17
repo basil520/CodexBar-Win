@@ -17,6 +17,8 @@ private slots:
     void extractTokenFromCookieHeader();
     void extractTokenFromCurlCookieHeader();
     void extractTokenFromCurlAuthHeader();
+    void importedBrowserSessionAccessTokenMakesWebStrategyAvailable();
+    void importedBrowserSessionRefreshTokenOnlyIsNotAvailable();
     void decodeJWTPayload();
     void isValidJWT();
     void parseKimiNumber();
@@ -82,6 +84,30 @@ void tst_KimiProvider::extractTokenFromCurlAuthHeader() {
     auto token = KimiTokenResolver::extractKimiAuthToken(curl);
     QVERIFY(token.has_value());
     QCOMPARE(token.value(), QString("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.sig"));
+}
+
+void tst_KimiProvider::importedBrowserSessionAccessTokenMakesWebStrategyAvailable() {
+    ProviderFetchContext ctx;
+    ctx.providerId = QStringLiteral("kimi");
+    ImportedBrowserSession session;
+    session.providerId = QStringLiteral("kimi");
+    session.sessionPayload = QStringLiteral(R"({"access_token":"opaque-kimi-access-token","refresh_token":"refresh-token"})");
+    ctx.importedBrowserSession = session;
+
+    KimiWebStrategy strategy;
+    QVERIFY(strategy.isAvailable(ctx));
+}
+
+void tst_KimiProvider::importedBrowserSessionRefreshTokenOnlyIsNotAvailable() {
+    ProviderFetchContext ctx;
+    ctx.providerId = QStringLiteral("kimi");
+    ImportedBrowserSession session;
+    session.providerId = QStringLiteral("kimi");
+    session.sessionPayload = QStringLiteral(R"({"refresh_token":"refresh-token-only"})");
+    ctx.importedBrowserSession = session;
+
+    KimiWebStrategy strategy;
+    QVERIFY(!strategy.isAvailable(ctx));
 }
 
 void tst_KimiProvider::decodeJWTPayload() {

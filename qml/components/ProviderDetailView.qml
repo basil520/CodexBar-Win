@@ -90,6 +90,12 @@ ScrollView {
                 || usageSnapshot.tertiary !== undefined)
     }
 
+    function hasUsageSummary() {
+        return usageSnapshot !== null
+            && usageSnapshot.loginMethod !== undefined
+            && usageSnapshot.loginMethod !== ""
+    }
+
     function tokenAccountConfig() {
         return descriptor && descriptor.tokenAccount ? descriptor.tokenAccount : ({})
     }
@@ -241,13 +247,35 @@ ScrollView {
             }
 
             SettingsGroupBox {
-                visible: root.hasUsage()
+                visible: root.hasUsage() || root.hasUsageSummary()
 
                 ColumnLayout {
                     Layout.fillWidth: true
                     spacing: 10
 
                     SectionTitle { text: qsTr("Usage") }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 10
+                        visible: root.hasUsageSummary()
+
+                        Label {
+                            Layout.preferredWidth: 116
+                            text: qsTr("Account")
+                            color: AppTheme.textSecondary
+                            font.pixelSize: AppTheme.fontSizeSm
+                            elide: Text.ElideRight
+                        }
+
+                        Label {
+                            Layout.fillWidth: true
+                            text: root.usageSnapshot ? root.usageSnapshot.loginMethod : ""
+                            color: AppTheme.textPrimary
+                            font.pixelSize: AppTheme.fontSizeSm
+                            elide: Text.ElideRight
+                        }
+                    }
 
                     UsageMetricRow {
                         label: root.isDetailProvider ? qsTr("Balance") : (root.descriptor ? root.descriptor.sessionLabel : qsTr("Session"))
@@ -906,13 +934,15 @@ ScrollView {
     }
 
     component UsageMetricRow: RowLayout {
+        id: usageMetricRow
         property string label: ""
         property var metric: null
         property color tintColor: AppTheme.accentColor
         property double percent: metric && metric.percent !== undefined ? metric.percent : 0
+        property string detail: metric && metric.resetDescription !== undefined ? metric.resetDescription : ""
 
         Layout.fillWidth: true
-        Layout.preferredHeight: 36
+        Layout.preferredHeight: detail !== "" ? 48 : 36
         spacing: 10
         visible: metric !== null && metric !== undefined
 
@@ -924,10 +954,24 @@ ScrollView {
             elide: Text.ElideRight
         }
 
-        UsageProgressBar {
+        ColumnLayout {
             Layout.fillWidth: true
-            value: parent.percent
-            tintColor: parent.tintColor
+            spacing: 3
+
+            UsageProgressBar {
+                Layout.fillWidth: true
+                value: usageMetricRow.percent
+                tintColor: usageMetricRow.tintColor
+            }
+
+            Label {
+                Layout.fillWidth: true
+                visible: usageMetricRow.detail !== ""
+                text: usageMetricRow.detail
+                color: AppTheme.textSecondary
+                font.pixelSize: AppTheme.fontSizeXs
+                elide: Text.ElideRight
+            }
         }
 
         Label {

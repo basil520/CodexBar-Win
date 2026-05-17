@@ -8,7 +8,7 @@ const RECONNECT_INITIAL_DELAY_MS = 1000;
 const RECONNECT_MAX_DELAY_MS = 30000;
 const PING_INTERVAL_MS = 15000;
 const PONG_TIMEOUT_MS = 30000;
-const EXTENSION_BUILD = '2026.05.17-cookie-url-query';
+const EXTENSION_BUILD = '2026.05.17-all-urls-cookie-permission';
 
 let socket = null;
 let reconnectTimer = null;
@@ -159,7 +159,8 @@ async function sendRegisterClient() {
       cookies: true,
       localStorage: true,
       codexUsageSnapshot: true,
-      cookieUrlQuery: true
+      cookieUrlQuery: true,
+      allUrlsCookiePermission: true
     }
   });
 }
@@ -204,8 +205,7 @@ async function handleRequestImport(payload) {
   } else if (materialKind === BridgeProtocol.material.localStorage) {
     await handleLocalStorageImport(requestId, providerId, payload.origin, payload.localStorageKeys || []);
   } else if (materialKind === BridgeProtocol.material.hybrid) {
-    await handleCookieImport(requestId, providerId, payload.domains || [], payload.cookieNames || []);
-    await handleLocalStorageImport(requestId, providerId, payload.origin, payload.localStorageKeys || []);
+    await handleHybridImport(requestId, providerId, payload);
   } else {
     sendImportResult(requestId, providerId, [], 'unsupported_material_kind', {});
   }
@@ -214,10 +214,20 @@ async function handleRequestImport(payload) {
 async function collectCookies(domains, cookieNames) {
   const cookies = [];
   const seen = new Set();
+  const diagnostics = {
+    requestedDomains: domains,
+    requestedCookieNames: cookieNames,
+    domains: {}
+  };
   for (const domain of domains) {
-    const all = await queryCookiesForDomain(domain);
+    const all = await queryCookiesForDomain(domain, diagnostics);
     for (const c of all) {
-      if (cookieNames.length > 0 && !cookieNames.includes(c.name)) continue;
+      const host = normalizeCookieDomain(domain);
+      const domainDiagnostics = diagnostics.domains[host] || (diagnostics.domains[host] = {});
+      if (cookieNames.length > 0 && !cookieNames.includes(c.name)) {
+        domainDiagnostics.filteredOutCount = (domainDiagnostics.filteredOutCount || 0) + 1;
+        continue;
+      }
       const dedupeKey = [
         c.storeId || '',
         c.domain || '',
@@ -246,9 +256,14 @@ async function collectCookies(domains, cookieNames) {
         cookieRecord.partitionKey = c.partitionKey;
       }
       cookies.push(cookieRecord);
+      domainDiagnostics.matchedCount = (domainDiagnostics.matchedCount || 0) + 1;
+      const names = new Set(domainDiagnostics.matchedCookieNames || []);
+      names.add(c.name);
+      domainDiagnostics.matchedCookieNames = Array.from(names).sort();
     }
   }
-  return cookies;
+  diagnostics.totalMatchedCount = cookies.length;
+  return { cookies, diagnostics };
 }
 
 function normalizeCookieDomain(domain) {
@@ -263,27 +278,51 @@ function normalizeCookieDomain(domain) {
 
 function cookieQueryUrlsForDomain(domain) {
   const host = normalizeCookieDomain(domain);
-  return host ? [`https://${host}/`] : [];
+  return host ? [`https://${host}/`, `http://${host}/`] : [];
 }
 
-async function queryCookiesForDomain(domain) {
+function recordCookieQueryDiagnostics(diagnostics, host, label, count, error) {
+  if (!diagnostics || !host) return;
+  const domainDiagnostics = diagnostics.domains[host] || (diagnostics.domains[host] = {});
+  const queries = domainDiagnostics.queries || (domainDiagnostics.queries = []);
+  const entry = { label, count };
+  if (error) entry.error = sanitizeBridgeError(error);
+  queries.push(entry);
+}
+
+function cookieDiagnosticsLocalStorage(diagnostics) {
+  if (!diagnostics) return {};
+  try {
+    return { cookie_query_diagnostics: JSON.stringify(diagnostics) };
+  } catch (err) {
+    return { cookie_query_diagnostics: '{"error":"diagnostics_serialize_failed"}' };
+  }
+}
+
+async function queryCookiesForDomain(domain, diagnostics) {
   const host = normalizeCookieDomain(domain);
   if (!host) return [];
 
   const output = [];
   for (const query of [{ domain: host }, { domain: `.${host}` }]) {
+    const label = query.domain.startsWith('.') ? `domain:${query.domain}` : `domain:${query.domain}`;
     try {
       const found = await chrome.cookies.getAll(query);
       output.push(...found);
+      recordCookieQueryDiagnostics(diagnostics, host, label, found.length);
     } catch (err) {
+      recordCookieQueryDiagnostics(diagnostics, host, label, 0, err);
       console.warn('[Bridge] Cookie query failed:', query, err);
     }
   }
   for (const url of cookieQueryUrlsForDomain(host)) {
+    const label = `url:${url}`;
     try {
       const found = await chrome.cookies.getAll({ url });
       output.push(...found);
+      recordCookieQueryDiagnostics(diagnostics, host, label, found.length);
     } catch (err) {
+      recordCookieQueryDiagnostics(diagnostics, host, label, 0, err);
       console.warn('[Bridge] Cookie URL query failed:', url, err);
     }
   }
@@ -292,8 +331,14 @@ async function queryCookiesForDomain(domain) {
 
 async function handleCookieImport(requestId, providerId, domains, cookieNames) {
   try {
-    const cookies = await collectCookies(domains, cookieNames);
-    sendImportResult(requestId, providerId, cookies, null, {});
+    const result = await collectCookies(domains, cookieNames);
+    sendImportResult(
+      requestId,
+      providerId,
+      result.cookies,
+      null,
+      cookieDiagnosticsLocalStorage(result.diagnostics)
+    );
   } catch (err) {
     sendImportResult(requestId, providerId, [], err.message || 'cookie_fetch_failed', {});
   }
@@ -303,7 +348,9 @@ async function handleCodexImport(requestId, payload) {
   const localStorageData = {};
   let cookies = [];
   try {
-    cookies = await collectCookies(payload.domains || [], payload.cookieNames || []);
+    const cookieResult = await collectCookies(payload.domains || [], payload.cookieNames || []);
+    cookies = cookieResult.cookies;
+    localStorageData.codex_cookie_diagnostics = JSON.stringify(cookieResult.diagnostics);
   } catch (err) {
     localStorageData.codex_cookie_error = sanitizeBridgeError(err);
   }
@@ -465,6 +512,50 @@ function sanitizeBridgeError(error) {
 }
 
 async function handleLocalStorageImport(requestId, providerId, origin, localStorageKeys) {
+  try {
+    const localStorageData = await readLocalStorage(origin, localStorageKeys);
+    sendImportResult(requestId, providerId, [], null, localStorageData || {});
+  } catch (err) {
+    sendImportResult(requestId, providerId, [], err.message || 'localstorage_fetch_failed', {});
+  }
+}
+
+async function handleHybridImport(requestId, providerId, payload) {
+  let cookies = [];
+  const localStorageData = {};
+  let cookieError = '';
+  let localStorageError = '';
+
+  try {
+    const cookieResult = await collectCookies(payload.domains || [], payload.cookieNames || []);
+    cookies = cookieResult.cookies;
+    Object.assign(localStorageData, cookieDiagnosticsLocalStorage(cookieResult.diagnostics));
+  } catch (err) {
+    cookieError = sanitizeBridgeError(err);
+    localStorageData.cookie_query_error = cookieError;
+  }
+
+  try {
+    const storage = await readLocalStorage(payload.origin, payload.localStorageKeys || []);
+    Object.assign(localStorageData, storage || {});
+  } catch (err) {
+    localStorageError = sanitizeBridgeError(err);
+    localStorageData.localStorage_error = localStorageError;
+  }
+
+  if (cookies.length === 0 && localStorageError) {
+    sendImportResult(requestId, providerId, [], 'localstorage_fetch_failed', localStorageData, localStorageError);
+    return;
+  }
+  if (cookies.length === 0 && cookieError && Object.keys(localStorageData).length === 1) {
+    sendImportResult(requestId, providerId, [], 'cookie_fetch_failed', localStorageData, cookieError);
+    return;
+  }
+
+  sendImportResult(requestId, providerId, cookies, null, localStorageData);
+}
+
+async function readLocalStorage(origin, localStorageKeys) {
   let tabId = null;
   let createdTab = false;
   try {
@@ -492,9 +583,7 @@ async function handleLocalStorageImport(requestId, providerId, origin, localStor
     });
 
     const localStorageData = (results && results.length > 0) ? results[0].result : {};
-    sendImportResult(requestId, providerId, [], null, localStorageData || {});
-  } catch (err) {
-    sendImportResult(requestId, providerId, [], err.message || 'localstorage_fetch_failed', {});
+    return localStorageData || {};
   } finally {
     if (createdTab && tabId !== null) {
       chrome.tabs.remove(tabId).catch(() => {});

@@ -488,6 +488,12 @@ target_compile_definitions(tst_KimiProvider PRIVATE ${COMMON_DEFINES})
 target_link_libraries(tst_KimiProvider PRIVATE codexbar_core Qt6::Core Qt6::Test)
 add_wincodexbar_test(tst_KimiProvider tst_KimiProvider)
 
+add_executable(tst_MiMoProvider tst_MiMoProvider.cpp)
+target_include_directories(tst_MiMoProvider PRIVATE ${COMMON_INCLUDE})
+target_compile_definitions(tst_MiMoProvider PRIVATE ${COMMON_DEFINES})
+target_link_libraries(tst_MiMoProvider PRIVATE codexbar_core Qt6::Core Qt6::Test)
+add_wincodexbar_test(tst_MiMoProvider tst_MiMoProvider)
+
 # ClaudeStatusProbe unit tests
 add_executable(tst_ClaudeStatusProbe tst_ClaudeStatusProbe.cpp)
 target_include_directories(tst_ClaudeStatusProbe PRIVATE ${COMMON_INCLUDE})

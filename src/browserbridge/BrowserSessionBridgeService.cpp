@@ -24,6 +24,65 @@ bool hasUsableCookie(const ImportResultPayload& payload)
     return false;
 }
 
+bool isDiagnosticLocalStorageKey(const QString& key)
+{
+    return key == QLatin1String("cookie_query_diagnostics")
+        || key == QLatin1String("cookie_query_error")
+        || key == QLatin1String("localStorage_error")
+        || key.endsWith(QLatin1String("_diagnostics"))
+        || key.endsWith(QLatin1String("_error"));
+}
+
+bool hasUsableLocalStorage(const ImportResultPayload& payload, const BridgeProviderSpec& spec)
+{
+    for (auto it = payload.localStorage.constBegin(); it != payload.localStorage.constEnd(); ++it) {
+        if (it.value().trimmed().isEmpty()) continue;
+        if (isDiagnosticLocalStorageKey(it.key())) continue;
+        if (!spec.localStorageKeys.isEmpty() && !spec.localStorageKeys.contains(it.key())) continue;
+        return true;
+    }
+    return false;
+}
+
+QString firstLocalStorageValue(const ImportResultPayload& payload, std::initializer_list<const char*> keys)
+{
+    for (const char* key : keys) {
+        const QString value = payload.localStorage.value(QLatin1String(key)).trimmed();
+        if (!value.isEmpty()) return value;
+    }
+    return {};
+}
+
+bool hasKimiUsableLocalStorage(const ImportResultPayload& payload)
+{
+    if (!firstLocalStorageValue(payload, {
+            "access_token",
+            "anonymous_access_token",
+            "kimi_auth_token",
+            "kimi-auth"
+        }).isEmpty()) {
+        return true;
+    }
+
+    const QString volcanoTokenInfo = payload.localStorage.value(
+        QStringLiteral("volcano-token-info")).trimmed();
+    if (volcanoTokenInfo.isEmpty()) return false;
+
+    QJsonParseError error;
+    const QJsonDocument doc = QJsonDocument::fromJson(volcanoTokenInfo.toUtf8(), &error);
+    if (error.error != QJsonParseError::NoError || !doc.isObject()) return false;
+
+    const QJsonObject obj = doc.object();
+    for (const QString& key : {
+             QStringLiteral("access_token"),
+             QStringLiteral("accessToken"),
+             QStringLiteral("token")
+         }) {
+        if (!obj.value(key).toString().trimmed().isEmpty()) return true;
+    }
+    return false;
+}
+
 QString codexUsageMaterialError(const ImportResultPayload& payload)
 {
     const QString bridgeError = payload.localStorage.value(QStringLiteral("codex_usage_error")).trimmed();
@@ -50,14 +109,17 @@ bool hasUsableMaterial(const ImportResultPayload& payload, const BridgeProviderS
     if (spec.providerId == QLatin1String("codex")) {
         return codexUsageMaterialError(payload).isEmpty();
     }
+    if (spec.providerId == QLatin1String("kimi")) {
+        return hasUsableCookie(payload) || hasKimiUsableLocalStorage(payload);
+    }
 
     switch (spec.materialKind) {
     case BridgeMaterialKind::Cookies:
         return hasUsableCookie(payload);
     case BridgeMaterialKind::LocalStorage:
-        return !payload.localStorage.isEmpty();
+        return hasUsableLocalStorage(payload, spec);
     case BridgeMaterialKind::Hybrid:
-        return hasUsableCookie(payload) || !payload.localStorage.isEmpty();
+        return hasUsableCookie(payload) || hasUsableLocalStorage(payload, spec);
     }
     return false;
 }
@@ -71,10 +133,19 @@ bool requiresCookieUrlQueryCapableClient(const BridgeProviderSpec& spec)
         || spec.materialKind == BridgeMaterialKind::Hybrid;
 }
 
+bool requiresAllUrlsCookiePermission(const BridgeProviderSpec& spec)
+{
+    return spec.materialKind == BridgeMaterialKind::Cookies
+        || spec.materialKind == BridgeMaterialKind::Hybrid;
+}
+
 QString emptyMaterialMessage(const BridgeProviderSpec& spec)
 {
     if (spec.providerId == QLatin1String("codex")) {
         return QStringLiteral("No Codex usage snapshot was returned from the connected browser profile. Prepare the extension again, reload it in the browser, make sure chatgpt.com is signed in, and try again.");
+    }
+    if (spec.providerId == QLatin1String("kimi")) {
+        return QStringLiteral("No Kimi access token or kimi-auth cookie was returned from the connected browser profile. Make sure www.kimi.com is signed in, then try importing again.");
     }
     if (spec.materialKind == BridgeMaterialKind::LocalStorage) {
         return QStringLiteral("No localStorage session data was returned from the connected browser profile. Make sure the page is signed in and try again.");
@@ -89,12 +160,30 @@ QString emptyMaterialMessage(const BridgeProviderSpec& spec)
             .arg(domains);
 }
 
+QString cookieDiagnosticsMessage(const ImportResultPayload& payload)
+{
+    const QString diagnostics = payload.localStorage.value(
+        QStringLiteral("cookie_query_diagnostics")).trimmed();
+    if (diagnostics.isEmpty()) return QString();
+
+    QString compact = diagnostics.simplified();
+    if (compact.size() > 420) {
+        compact = compact.left(420) + QStringLiteral("...");
+    }
+    return QStringLiteral(" Cookie query diagnostics: %1").arg(compact);
+}
+
 QString unusableMaterialMessage(const ImportResultPayload& payload, const BridgeProviderSpec& spec)
 {
     if (spec.providerId == QLatin1String("codex")) {
         return codexUsageMaterialError(payload);
     }
-    return emptyMaterialMessage(spec);
+    return emptyMaterialMessage(spec) + cookieDiagnosticsMessage(payload);
+}
+
+QString selectedProfileUnavailableMessage()
+{
+    return QStringLiteral("The selected browser profile is not connected or is outdated for this provider. Choose Auto or another connected profile, or click Prepare Extension and reload the unpacked extension in Edge/Chrome.");
 }
 
 QString outdatedCodexExtensionMessage()
@@ -104,7 +193,7 @@ QString outdatedCodexExtensionMessage()
 
 QString outdatedCookieExtensionMessage()
 {
-    return QStringLiteral("The connected Browser Session Bridge extension is outdated for cookie import. Click Prepare Extension, then reload the unpacked extension in Edge/Chrome and try again.");
+    return QStringLiteral("The connected Browser Session Bridge extension is outdated for cookie import. Click Prepare Extension, then reload the unpacked extension in Edge/Chrome so it can use the updated all-sites cookie permission.");
 }
 
 } // namespace
@@ -195,7 +284,19 @@ bool BrowserSessionBridgeService::requestImport(const QString& providerId,
         return false;
     }
 
+    QString selectedBindingId = preferredBindingId.trimmed();
+    if (selectedBindingId.isEmpty()) {
+        const auto binding = m_providerBindings.constFind(providerId);
+        if (binding != m_providerBindings.constEnd()) {
+            selectedBindingId = binding->preferredBindingId.trimmed();
+        }
+    }
+
     const QString bindingId = resolveTargetBindingId(providerId, preferredBindingId);
+    if (!selectedBindingId.isEmpty() && bindingId != selectedBindingId) {
+        setLastError(selectedProfileUnavailableMessage());
+        return false;
+    }
     if (bindingId.isEmpty() || !m_connectedBindingIds.contains(bindingId)) {
         bool hasOutdatedCodexClient = false;
         bool hasOutdatedCookieClient = false;
@@ -217,6 +318,17 @@ bool BrowserSessionBridgeService::requestImport(const QString& providerId,
                 if (it == m_knownClients.constEnd()) continue;
                 const BridgeClientInfo& client = it.value();
                 if (client.supportsCookies && !client.supportsCookieUrlQuery) {
+                    hasOutdatedCookieClient = true;
+                    break;
+                }
+            }
+        }
+        if (requiresAllUrlsCookiePermission(spec.value())) {
+            for (const auto& connectedId : m_connectedBindingIds) {
+                const auto it = m_knownClients.constFind(connectedId);
+                if (it == m_knownClients.constEnd()) continue;
+                const BridgeClientInfo& client = it.value();
+                if (client.supportsCookies && !client.supportsAllUrlsCookiePermission) {
                     hasOutdatedCookieClient = true;
                     break;
                 }
@@ -482,8 +594,14 @@ void BrowserSessionBridgeService::onImportResultReceived(const ImportResultPaylo
 
     postIoTask([this, material]() {
         BrowserSessionBridgeStore store;
-        store.saveImportedMaterial(material);
-        QMetaObject::invokeMethod(this, [this, material]() {
+        const bool persisted = store.saveImportedMaterial(material);
+        QMetaObject::invokeMethod(this, [this, material, persisted]() {
+            if (!persisted) {
+                const QString message = QStringLiteral("Failed to persist imported browser session. Windows Credential Manager may have rejected the session payload; try importing again after reloading the extension.");
+                setLastError(message);
+                emit providerImportCompleted(material.providerId, false, message);
+                return;
+            }
             BridgeProviderBinding binding = m_providerBindings.value(material.providerId);
             binding.preferredBindingId = material.clientId.toBindingId();
             binding.lastImportedAtUtc = material.capturedAtUtc;
@@ -650,6 +768,9 @@ bool BrowserSessionBridgeService::clientSupportsProvider(const BridgeClientInfo&
         return false;
     }
     if (requiresCookieUrlQueryCapableClient(spec) && !client.supportsCookieUrlQuery) {
+        return false;
+    }
+    if (requiresAllUrlsCookiePermission(spec) && !client.supportsAllUrlsCookiePermission) {
         return false;
     }
     if ((spec.materialKind == BridgeMaterialKind::LocalStorage ||

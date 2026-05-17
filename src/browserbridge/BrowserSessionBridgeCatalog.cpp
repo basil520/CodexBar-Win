@@ -25,9 +25,15 @@ QVector<BridgeProviderSpec> BrowserSessionBridgeCatalog::specs()
          {QStringLiteral("claude.ai")},
          {QStringLiteral("sessionKey")}},
 
-        {QStringLiteral("kimi"), BridgeMaterialKind::Cookies,
-         {QStringLiteral("kimi.com"), QStringLiteral("www.kimi.com")},
-         {QStringLiteral("kimi-auth")}},
+        {QStringLiteral("kimi"), BridgeMaterialKind::Hybrid,
+         {QStringLiteral("kimi.com"), QStringLiteral("www.kimi.com"),
+          QStringLiteral("auth.kimi.com"), QStringLiteral("kimi.moonshot.cn"),
+          QStringLiteral("login.moonshot.cn"), QStringLiteral("login.moonshot.ai")},
+         {QStringLiteral("kimi-auth")},
+         QStringLiteral("https://www.kimi.com"),
+         {QStringLiteral("access_token"), QStringLiteral("refresh_token"),
+          QStringLiteral("anonymous_access_token"), QStringLiteral("anonymous_refresh_token"),
+          QStringLiteral("volcano-token-info")}},
 
         {QStringLiteral("opencode"), BridgeMaterialKind::Cookies,
          {QStringLiteral("opencode.ai"), QStringLiteral("app.opencode.ai")},
@@ -77,7 +83,9 @@ QVector<BridgeProviderSpec> BrowserSessionBridgeCatalog::specs()
          {}},
 
         {QStringLiteral("mimo"), BridgeMaterialKind::Cookies,
-         {QStringLiteral("xiaomimimo.com"), QStringLiteral("platform.xiaomimimo.com")},
+         {QStringLiteral("xiaomimimo.com"), QStringLiteral("platform.xiaomimimo.com"),
+          QStringLiteral("aistudio.xiaomimimo.com"), QStringLiteral("mimo.xiaomi.com"),
+          QStringLiteral("xiaomi.com")},
          {}},
 
         {QStringLiteral("manus"), BridgeMaterialKind::Cookies,

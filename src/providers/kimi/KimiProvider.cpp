@@ -11,6 +11,57 @@
 #include <QDateTime>
 #include <utility>
 
+namespace {
+
+QString firstNonEmptyJsonString(const QJsonObject& obj, std::initializer_list<const char*> keys)
+{
+    for (const char* key : keys) {
+        const QString value = obj.value(QLatin1String(key)).toString().trimmed();
+        if (!value.isEmpty()) return value;
+    }
+    return {};
+}
+
+std::optional<QString> extractImportedKimiAccessToken(const ImportedBrowserSession& session)
+{
+    if (!session.cookieHeader.trimmed().isEmpty()) {
+        auto cookieToken = KimiTokenResolver::extractKimiAuthToken(session.cookieHeader);
+        if (cookieToken.has_value()) return cookieToken;
+    }
+
+    QJsonParseError error;
+    const QJsonDocument doc = QJsonDocument::fromJson(session.sessionPayload.toUtf8(), &error);
+    if (error.error != QJsonParseError::NoError || !doc.isObject()) {
+        return std::nullopt;
+    }
+
+    const QJsonObject obj = doc.object();
+    const QString direct = firstNonEmptyJsonString(obj, {
+        "access_token",
+        "anonymous_access_token",
+        "kimi_auth_token",
+        "kimi-auth"
+    });
+    if (!direct.isEmpty()) return direct;
+
+    const QString volcanoTokenInfo = obj.value(QStringLiteral("volcano-token-info")).toString().trimmed();
+    if (!volcanoTokenInfo.isEmpty()) {
+        const QJsonDocument nested = QJsonDocument::fromJson(volcanoTokenInfo.toUtf8(), &error);
+        if (error.error == QJsonParseError::NoError && nested.isObject()) {
+            const QString nestedToken = firstNonEmptyJsonString(nested.object(), {
+                "access_token",
+                "accessToken",
+                "token"
+            });
+            if (!nestedToken.isEmpty()) return nestedToken;
+        }
+    }
+
+    return std::nullopt;
+}
+
+} // namespace
+
 KimiProvider::KimiProvider(QObject* parent) : IProvider(parent) {}
 
 QVector<IFetchStrategy*> KimiProvider::createStrategies(const ProviderFetchContext& ctx) {
@@ -58,8 +109,16 @@ std::optional<QString> KimiWebStrategy::resolveAuthToken(const ProviderFetchCont
         }
     }
 
-    // 3. Browser cookie import
-    QStringList domains = {"kimi.com", "www.kimi.com"};
+    // 3. Browser Session Bridge localStorage import from the signed-in Kimi page.
+    if (ctx.importedBrowserSession.has_value() &&
+        ctx.importedBrowserSession->providerId == QLatin1String("kimi")) {
+        auto token = extractImportedKimiAccessToken(ctx.importedBrowserSession.value());
+        if (token.has_value()) return token;
+    }
+
+    // 4. Legacy browser cookie import
+    QStringList domains = {"kimi.com", "www.kimi.com", "auth.kimi.com",
+                           "kimi.moonshot.cn", "login.moonshot.cn", "login.moonshot.ai"};
     for (auto browser : CookieImporter::importOrder()) {
         if (!CookieImporter::isBrowserInstalled(browser)) continue;
         QVector<QNetworkCookie> cookies = CookieImporter::importCookies(browser, domains);

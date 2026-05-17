@@ -17,7 +17,7 @@ public:
     void upsertClient(const BridgeClientInfo& client);
     void removeClient(const BridgeClientId& clientId);
 
-    void saveImportedMaterial(const BridgeSessionMaterial& material);
+    bool saveImportedMaterial(const BridgeSessionMaterial& material);
 
     static QString credentialTargetFor(const QString& providerId,
                                        const QString& bindingId,

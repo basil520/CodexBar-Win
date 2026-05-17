@@ -311,6 +311,11 @@ void BrowserSessionBridgeServer::handleRegisterClient(QWebSocket* socket,
         socket->close(QWebSocketProtocol::CloseCodePolicyViolated);
         return;
     }
+    if (payload.browserFamily.trimmed().isEmpty() || payload.profileInstanceId.trimmed().isEmpty()) {
+        emit errorOccurred(QStringLiteral("Rejected Browser Session Bridge client with missing browser/profile identity."));
+        socket->close(QWebSocketProtocol::CloseCodePolicyViolated);
+        return;
+    }
 
     BridgeClientInfo info;
     info.id.browserFamily = payload.browserFamily;
@@ -324,6 +329,7 @@ void BrowserSessionBridgeServer::handleRegisterClient(QWebSocket* socket,
     info.supportsLocalStorage = payload.supportsLocalStorage;
     info.supportsCodexUsageSnapshot = payload.supportsCodexUsageSnapshot;
     info.supportsCookieUrlQuery = payload.supportsCookieUrlQuery;
+    info.supportsAllUrlsCookiePermission = payload.supportsAllUrlsCookiePermission;
     info.connectedAt = QDateTime::currentDateTimeUtc();
     info.lastSeenAt = info.connectedAt;
 

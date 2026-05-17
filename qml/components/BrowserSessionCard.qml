@@ -31,7 +31,7 @@ SettingsGroupBox {
         for (var i = 0; i < opts.length; i++) {
             if (opts[i].bindingId === id) return opts[i].label
         }
-        return id
+        return qsTr("Unavailable profile")
     }
 
     function canImport() {

@@ -28,11 +28,13 @@ void tst_BrowserSessionBridgeProtocol::roundTripsRegisterClient()
     original.supportsLocalStorage = true;
     original.supportsCodexUsageSnapshot = true;
     original.supportsCookieUrlQuery = true;
+    original.supportsAllUrlsCookiePermission = true;
     original.extensionBuild = QStringLiteral("2026.05.17");
 
     const auto json = BridgeProtocol::serializeRegisterClient(original);
     QCOMPARE(json[QStringLiteral("type")].toString(), QStringLiteral("register_client"));
     QVERIFY(json[QStringLiteral("capabilities")].toObject()[QStringLiteral("cookieUrlQuery")].toBool());
+    QVERIFY(json[QStringLiteral("capabilities")].toObject()[QStringLiteral("allUrlsCookiePermission")].toBool());
 
     const auto restored = BridgeProtocol::parseRegisterClient(json);
     QCOMPARE(restored.protocolVersion, original.protocolVersion);
@@ -46,6 +48,7 @@ void tst_BrowserSessionBridgeProtocol::roundTripsRegisterClient()
     QCOMPARE(restored.supportsLocalStorage, original.supportsLocalStorage);
     QCOMPARE(restored.supportsCodexUsageSnapshot, original.supportsCodexUsageSnapshot);
     QCOMPARE(restored.supportsCookieUrlQuery, original.supportsCookieUrlQuery);
+    QCOMPARE(restored.supportsAllUrlsCookiePermission, original.supportsAllUrlsCookiePermission);
     QCOMPARE(restored.extensionBuild, original.extensionBuild);
 }
 
@@ -65,7 +68,8 @@ void tst_BrowserSessionBridgeProtocol::parsesExtensionRegisterClientSample()
             "cookies": true,
             "localStorage": true,
             "codexUsageSnapshot": true,
-            "cookieUrlQuery": true
+            "cookieUrlQuery": true,
+            "allUrlsCookiePermission": true
         }
     })json";
 
@@ -81,6 +85,7 @@ void tst_BrowserSessionBridgeProtocol::parsesExtensionRegisterClientSample()
     QVERIFY(payload.supportsLocalStorage);
     QVERIFY(payload.supportsCodexUsageSnapshot);
     QVERIFY(payload.supportsCookieUrlQuery);
+    QVERIFY(payload.supportsAllUrlsCookiePermission);
     QCOMPARE(payload.extensionBuild, QStringLiteral("2026.05.17"));
 }
 

@@ -20,10 +20,22 @@ private slots:
     void usesPreferredBinding();
     void fallsBackWhenPreferredBindingMissing();
     void savesImportedLocalStorageInCredentialStore();
+    void filtersBridgeDiagnosticsFromPersistedLocalStorage();
+    void doesNotUpdateBindingWhenCredentialWriteFails();
     void codexSpecUsesChatGptHybridMaterial();
+    void kimiSpecUsesHybridLocalStorageMaterial();
+    void mimoSpecIncludesXiaomiEntryDomains();
 
 private:
     std::shared_ptr<InMemoryCredentialBackend> m_backend;
+};
+
+class FailingCredentialBackend : public ProviderCredentialBackend {
+public:
+    bool write(const QString&, const QString&, const QByteArray&) override { return false; }
+    std::optional<QByteArray> read(const QString&) override { return std::nullopt; }
+    bool remove(const QString&) override { return false; }
+    bool exists(const QString&) override { return false; }
 };
 
 void tst_BrowserSessionBridgeStore::initTestCase()
@@ -70,7 +82,7 @@ void tst_BrowserSessionBridgeStore::savesImportedCookieInCredentialStore()
     cookie.httpOnly = true;
     material.cookies.append(cookie);
 
-    store.saveImportedMaterial(material);
+    QVERIFY(store.saveImportedMaterial(material));
 
     // Cookie value should be in credential store
     const auto header = store.resolvedCookieHeader(QStringLiteral("cursor"));
@@ -108,7 +120,7 @@ void tst_BrowserSessionBridgeStore::filtersExpiredCookies()
     valid.expirationDateUtc = QDateTime::currentDateTimeUtc().addSecs(3600); // 1 hour from now
     material.cookies.append(valid);
 
-    store.saveImportedMaterial(material);
+    QVERIFY(store.saveImportedMaterial(material));
 
     const auto header = store.resolvedCookieHeader(QStringLiteral("codex"));
     QVERIFY(header.has_value());
@@ -131,7 +143,7 @@ void tst_BrowserSessionBridgeStore::usesPreferredBinding()
     c1.value = QStringLiteral("chrome-session");
     c1.domain = QStringLiteral(".claude.ai");
     mat1.cookies.append(c1);
-    store.saveImportedMaterial(mat1);
+    QVERIFY(store.saveImportedMaterial(mat1));
 
     // Save material for edge:uuid-020
     BridgeSessionMaterial mat2;
@@ -144,7 +156,7 @@ void tst_BrowserSessionBridgeStore::usesPreferredBinding()
     c2.value = QStringLiteral("edge-session");
     c2.domain = QStringLiteral(".claude.ai");
     mat2.cookies.append(c2);
-    store.saveImportedMaterial(mat2);
+    QVERIFY(store.saveImportedMaterial(mat2));
 
     // Request with preferredBindingId = edge:uuid-020
     const auto header = store.resolvedCookieHeader(
@@ -168,7 +180,7 @@ void tst_BrowserSessionBridgeStore::fallsBackWhenPreferredBindingMissing()
     c.value = QStringLiteral("kimi-token");
     c.domain = QStringLiteral(".kimi.com");
     mat.cookies.append(c);
-    store.saveImportedMaterial(mat);
+    QVERIFY(store.saveImportedMaterial(mat));
 
     // Request with non-existent preferred binding
     const auto header = store.resolvedCookieHeader(
@@ -194,7 +206,7 @@ void tst_BrowserSessionBridgeStore::savesImportedLocalStorageInCredentialStore()
     material.localStorage[QStringLiteral("devin_account_id")] = QStringLiteral("acct-123");
     material.localStorage[QStringLiteral("devin_primary_org_id")] = QStringLiteral("org-456");
 
-    store.saveImportedMaterial(material);
+    QVERIFY(store.saveImportedMaterial(material));
 
     // LocalStorage provider should return session payload
     const auto payload = store.resolvedSessionPayload(QStringLiteral("windsurf"));
@@ -214,6 +226,50 @@ void tst_BrowserSessionBridgeStore::savesImportedLocalStorageInCredentialStore()
     QVERIFY(!header.has_value());
 }
 
+void tst_BrowserSessionBridgeStore::filtersBridgeDiagnosticsFromPersistedLocalStorage()
+{
+    BrowserSessionBridgeStore store;
+
+    BridgeSessionMaterial material;
+    material.providerId = QStringLiteral("kimi");
+    material.clientId.browserFamily = QStringLiteral("edge");
+    material.clientId.profileInstanceId = QStringLiteral("uuid-kimi-filter-001");
+    material.capturedAtUtc = QDateTime::currentDateTimeUtc();
+    material.localStorage[QStringLiteral("access_token")] = QStringLiteral("kimi-access-token");
+    material.localStorage[QStringLiteral("refresh_token")] = QStringLiteral("kimi-refresh-token");
+    material.localStorage[QStringLiteral("cookie_query_diagnostics")] =
+        QStringLiteral(R"({"domains":{"kimi.com":{"matchedCount":0}}})");
+
+    QVERIFY(store.saveImportedMaterial(material));
+
+    const auto payload = store.resolvedSessionPayload(QStringLiteral("kimi"));
+    QVERIFY(payload.has_value());
+    const QJsonDocument doc = QJsonDocument::fromJson(payload->toUtf8());
+    QVERIFY(doc.isObject());
+    const QJsonObject obj = doc.object();
+    QCOMPARE(obj[QStringLiteral("access_token")].toString(), QStringLiteral("kimi-access-token"));
+    QVERIFY(!obj.contains(QStringLiteral("cookie_query_diagnostics")));
+}
+
+void tst_BrowserSessionBridgeStore::doesNotUpdateBindingWhenCredentialWriteFails()
+{
+    ProviderCredentialStore::setBackendForTesting(std::make_shared<FailingCredentialBackend>());
+
+    BrowserSessionBridgeStore store;
+    BridgeSessionMaterial material;
+    material.providerId = QStringLiteral("kimi");
+    material.clientId.browserFamily = QStringLiteral("edge");
+    material.clientId.profileInstanceId = QStringLiteral("uuid-kimi-write-fail");
+    material.capturedAtUtc = QDateTime::currentDateTimeUtc();
+    material.localStorage[QStringLiteral("access_token")] = QStringLiteral("kimi-access-token");
+
+    QVERIFY(!store.saveImportedMaterial(material));
+    const auto binding = store.metadataStore().bindingForProvider(QStringLiteral("kimi"));
+    QVERIFY(binding == nullptr || !binding->lastImportedAtUtc.isValid());
+
+    ProviderCredentialStore::setBackendForTesting(m_backend);
+}
+
 void tst_BrowserSessionBridgeStore::codexSpecUsesChatGptHybridMaterial()
 {
     const auto spec = BrowserSessionBridgeCatalog::specForProvider(QStringLiteral("codex"));
@@ -221,6 +277,30 @@ void tst_BrowserSessionBridgeStore::codexSpecUsesChatGptHybridMaterial()
     QCOMPARE(spec->materialKind, BridgeMaterialKind::Hybrid);
     QCOMPARE(spec->domains, QStringList{QStringLiteral("chatgpt.com")});
     QCOMPARE(spec->localStorageOrigin, QStringLiteral("https://chatgpt.com"));
+}
+
+void tst_BrowserSessionBridgeStore::kimiSpecUsesHybridLocalStorageMaterial()
+{
+    const auto spec = BrowserSessionBridgeCatalog::specForProvider(QStringLiteral("kimi"));
+    QVERIFY(spec.has_value());
+    QCOMPARE(spec->materialKind, BridgeMaterialKind::Hybrid);
+    QVERIFY(spec->domains.contains(QStringLiteral("kimi.com")));
+    QVERIFY(spec->domains.contains(QStringLiteral("auth.kimi.com")));
+    QCOMPARE(spec->localStorageOrigin, QStringLiteral("https://www.kimi.com"));
+    QVERIFY(spec->localStorageKeys.contains(QStringLiteral("access_token")));
+    QVERIFY(spec->localStorageKeys.contains(QStringLiteral("refresh_token")));
+}
+
+void tst_BrowserSessionBridgeStore::mimoSpecIncludesXiaomiEntryDomains()
+{
+    const auto spec = BrowserSessionBridgeCatalog::specForProvider(QStringLiteral("mimo"));
+    QVERIFY(spec.has_value());
+    QCOMPARE(spec->materialKind, BridgeMaterialKind::Cookies);
+    QVERIFY(spec->domains.contains(QStringLiteral("xiaomimimo.com")));
+    QVERIFY(spec->domains.contains(QStringLiteral("platform.xiaomimimo.com")));
+    QVERIFY(spec->domains.contains(QStringLiteral("aistudio.xiaomimimo.com")));
+    QVERIFY(spec->domains.contains(QStringLiteral("mimo.xiaomi.com")));
+    QVERIFY(spec->domains.contains(QStringLiteral("xiaomi.com")));
 }
 
 QTEST_MAIN(tst_BrowserSessionBridgeStore)

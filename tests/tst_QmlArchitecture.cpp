@@ -39,6 +39,7 @@ private slots:
     void bridgeViewModelDoesNotPerformSynchronousIo();
     void bridgeQmlDoesNotCallSynchronousBindingScan();
     void browserSessionCardInvalidatesImportFeedbackBindings();
+    void browserSessionCardDoesNotDisplayRawStaleBindingIds();
     void browserSessionBridgeExtensionUsesCanonicalWireProtocol();
     void providerUiBuildersUseCatalogSnapshot();
     void costUsageScanUsesCostUsageService();
@@ -623,6 +624,13 @@ void QmlArchitectureTest::browserSessionCardInvalidatesImportFeedbackBindings()
              "BrowserSessionCard visibility bindings that call BridgeViewModel invokables must depend on refreshKey so import failures repaint immediately.");
     QVERIFY2(card.contains("text: root.refreshKey"),
              "BrowserSessionCard text bindings that call BridgeViewModel invokables must depend on refreshKey so import failures repaint immediately.");
+}
+
+void QmlArchitectureTest::browserSessionCardDoesNotDisplayRawStaleBindingIds()
+{
+    const QString card = readFile("qml/components/BrowserSessionCard.qml");
+    QVERIFY2(!card.contains("return id"),
+             "BrowserSessionCard must not display raw stale binding ids such as edge:<uuid>; show Auto or an unavailable-profile label instead.");
 }
 
 void QmlArchitectureTest::browserSessionBridgeExtensionUsesCanonicalWireProtocol()
