@@ -72,6 +72,7 @@
         <file alias="icons/ProviderIcon-opencodego.svg">../resources/icons/ProviderIcon-opencodego.svg</file>
         <file alias="icons/ProviderIcon-openrouter.svg">../resources/icons/ProviderIcon-openrouter.svg</file>
         <file alias="icons/ProviderIcon-perplexity.svg">../resources/icons/ProviderIcon-perplexity.svg</file>
+        <file alias="icons/ProviderIcon-qianfan.svg">../resources/icons/ProviderIcon-BaiduQianFan.svg</file>
         <file alias="icons/ProviderIcon-synthetic.svg">../resources/icons/ProviderIcon-synthetic.svg</file>
         <file alias="icons/ProviderIcon-vertexai.svg">../resources/icons/ProviderIcon-vertexai.svg</file>
         <file alias="icons/ProviderIcon-warp.svg">../resources/icons/ProviderIcon-warp.svg</file>

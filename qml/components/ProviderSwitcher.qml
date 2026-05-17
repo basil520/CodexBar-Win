@@ -25,7 +25,8 @@ Rectangle {
         "alibaba": "#F97316", "augment": "#14B8A6", "amp": "#D946EF",
         "factory": "#84CC16", "jetbrains": "#F000F0", "vertexai": "#4285F4",
         "deepseek": "#4D6BFE", "codebuff": "#44FF00", "windsurf": "#34E8BB",
-        "antigravity": "#10B981", "synthetic": "#6366F1", "opencodego": "#3B82F6"
+        "antigravity": "#10B981", "synthetic": "#6366F1", "opencodego": "#3B82F6",
+        "qianfan": "#2932E1"
     })
 
     function brandColorFor(providerId) {

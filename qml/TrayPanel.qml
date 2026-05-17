@@ -457,7 +457,8 @@ Rectangle {
                                         text: {
                                             var names = {
                                                 "codex": "Codex", "claude": "Claude",
-                                                "opencodego": "OpenCode Go"
+                                                "opencodego": "OpenCode Go",
+                                                "qianfan": "QianFan"
                                             }
                                             return names[modelData.providerId] || modelData.providerId
                                         }
@@ -1402,7 +1403,8 @@ Rectangle {
         "windsurf": "#34E8BB",
         "antigravity": "#10B981",
         "synthetic": "#6366F1",
-        "opencodego": "#3B82F6"
+        "opencodego": "#3B82F6",
+        "qianfan": "#2932E1"
     }
 
     function brandColorFor(providerId) {

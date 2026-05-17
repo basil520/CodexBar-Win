@@ -31,7 +31,7 @@ Rectangle {
             "augment": "#14B8A6", "amp": "#D946EF", "factory": "#84CC16",
             "jetbrains": "#F000F0", "vertexai": "#4285F4", "windsurf": "#34E8BB",
             "minimax": "#EC4899", "synthetic": "#6366F1", "antigravity": "#10B981",
-            "opencodego": "#3B82F6"
+            "opencodego": "#3B82F6", "qianfan": "#2932E1"
         }
         return colors[pid] || "#4A90D9"
     }

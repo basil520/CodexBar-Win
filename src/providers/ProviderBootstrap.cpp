@@ -35,6 +35,7 @@
 #include "openaiapi/OpenAIAPIProvider.h"
 #include "openrouter/OpenRouterProvider.h"
 #include "perplexity/PerplexityProvider.h"
+#include "qianfan/QianFanProvider.h"
 #include "stepfun/StepFunProvider.h"
 #include "synthetic/SyntheticProvider.h"
 #include "venice/VeniceProvider.h"

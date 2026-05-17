@@ -278,7 +278,8 @@ Rectangle {
             "vertexai": "#4285F4",
             "deepseek": "#4D6BFE",
             "antigravity": "#10B981",
-            "synthetic": "#6366F1"
+            "synthetic": "#6366F1",
+            "qianfan": "#2932E1"
         }
         return colors[providerId] || "#4A90D9"
     }

@@ -136,6 +136,7 @@ set(CORE_SOURCES
     src/providers/manus/ManusProvider.cpp
     src/providers/mimo/MiMoProvider.cpp
     src/providers/openaiapi/OpenAIAPIProvider.cpp
+    src/providers/qianfan/QianFanProvider.cpp
     src/providers/stepfun/StepFunProvider.cpp
     src/providers/venice/VeniceProvider.cpp
 
@@ -277,6 +278,7 @@ set(CORE_HEADERS
     src/providers/manus/ManusProvider.h
     src/providers/mimo/MiMoProvider.h
     src/providers/openaiapi/OpenAIAPIProvider.h
+    src/providers/qianfan/QianFanProvider.h
     src/providers/stepfun/StepFunProvider.h
     src/providers/venice/VeniceProvider.h
 

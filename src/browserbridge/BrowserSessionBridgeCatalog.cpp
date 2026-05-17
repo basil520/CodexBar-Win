@@ -63,6 +63,11 @@ QVector<BridgeProviderSpec> BrowserSessionBridgeCatalog::specs()
          {QStringLiteral("perplexity.ai"), QStringLiteral("www.perplexity.ai")},
          {}},
 
+        {QStringLiteral("qianfan"), BridgeMaterialKind::Cookies,
+         {QStringLiteral("console.bce.baidu.com"), QStringLiteral("bce.baidu.com"),
+          QStringLiteral("login.bce.baidu.com")},
+         {}},
+
         {QStringLiteral("minimax"), BridgeMaterialKind::Cookies,
          {QStringLiteral("platform.minimax.io"), QStringLiteral("platform.minimaxi.com"),
           QStringLiteral("minimax.io"), QStringLiteral("minimaxi.com")},
