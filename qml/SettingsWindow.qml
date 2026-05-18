@@ -14,10 +14,9 @@ Rectangle {
     property int rev: LanguageManager.translationRevision
     property bool providersPaneLoaded: false
     readonly property bool glassEffectActive: SettingsStore.glassEffectEnabled
-    readonly property real glassOpacity: Math.min(0.85, Math.max(0.25, SettingsStore.glassEffectOpacity / 100))
-    readonly property color windowBackgroundColor: glassEffectActive ? colorWithAlpha(AppTheme.bgPrimary, glassOpacity) : AppTheme.bgPrimary
-    readonly property color titleBarBackgroundColor: glassEffectActive ? "transparent" : AppTheme.bgTitleBar
-    readonly property color sidebarBackgroundColor: glassEffectActive ? colorWithAlpha(AppTheme.bgSecondary, Math.max(0.22, glassOpacity * 0.88)) : AppTheme.bgSecondary
+    readonly property color windowBackgroundColor: AppTheme.surfaceWindow
+    readonly property color titleBarBackgroundColor: glassEffectActive ? "transparent" : AppTheme.surfaceTitleBar
+    readonly property color sidebarBackgroundColor: AppTheme.surfacePane
     property var tabs: {
         settingsWindow.rev
         var items = [
@@ -31,10 +30,6 @@ Rectangle {
         return items
     }
 
-    function colorWithAlpha(color, alpha) {
-        return Qt.rgba(color.r, color.g, color.b, alpha)
-    }
-
     Components.AcrylicBackdrop {
         anchors.fill: parent
         tint: AppTheme.bgPrimary
@@ -44,7 +39,7 @@ Rectangle {
         anchors.fill: parent
         color: "transparent"
         border.width: 1
-        border.color: AppTheme.borderColor
+        border.color: AppTheme.surfaceBorder
         z: 20
     }
 
@@ -63,7 +58,7 @@ Rectangle {
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
                 height: 1
-                color: AppTheme.borderColor
+                color: AppTheme.surfaceBorder
             }
 
             RowLayout {
@@ -81,7 +76,7 @@ Rectangle {
                     Label {
                         anchors.centerIn: parent
                         text: "C"
-                        color: AppTheme.textPrimary
+                        color: AppTheme.textOnAccent
                         font.pixelSize: 11
                         font.bold: true
                     }
@@ -139,7 +134,7 @@ Rectangle {
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
                     width: 1
-                    color: AppTheme.borderColor
+                    color: AppTheme.surfaceBorder
                 }
 
                 ColumnLayout {
@@ -165,7 +160,7 @@ Rectangle {
                     Rectangle {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 1
-                        color: AppTheme.borderColor
+                        color: AppTheme.surfaceBorder
                     }
 
                     ListView {
@@ -185,8 +180,8 @@ Rectangle {
                             height: 38
                             radius: 6
                             color: tabList.currentIndex === index
-                                ? AppTheme.bgSelected
-                                : (tabMouse.containsMouse ? AppTheme.bgHover : "transparent")
+                                ? AppTheme.surfaceSelected
+                                : (tabMouse.containsMouse ? AppTheme.surfaceHover : "transparent")
 
                             Rectangle {
                                 anchors.left: parent.left
@@ -210,12 +205,12 @@ Rectangle {
                                     radius: 5
                                     color: tabList.currentIndex === index
                                         ? AppTheme.accentColor
-                                        : AppTheme.bgCard
+                                        : AppTheme.surfaceControl
 
                                     Label {
                                         anchors.centerIn: parent
                                         text: modelData.icon
-                                        color: tabList.currentIndex === index ? "white" : AppTheme.textSecondary
+                                        color: tabList.currentIndex === index ? AppTheme.textOnAccent : AppTheme.textSecondary
                                         font.pixelSize: 11
                                         font.bold: true
                                     }
@@ -367,7 +362,7 @@ Rectangle {
         Layout.preferredHeight: 30
         radius: 5
         color: mouseArea.containsMouse
-            ? (danger ? AppTheme.statusOutage : AppTheme.bgHover)
+            ? (danger ? AppTheme.statusOutage : AppTheme.surfaceHover)
             : "transparent"
 
         Label {

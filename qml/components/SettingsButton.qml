@@ -20,7 +20,7 @@ Button {
         font: root.font
         color: {
             if (!root.enabled) return AppTheme.textDisabled
-            if (root.primary) return "white"
+            if (root.primary) return AppTheme.textOnAccent
             if (root.danger) return AppTheme.statusOutage
             return AppTheme.textPrimary
         }
@@ -32,14 +32,15 @@ Button {
     background: Rectangle {
         radius: 6
         color: {
-            if (!root.enabled) return Qt.rgba(AppTheme.bgHover.r, AppTheme.bgHover.g, AppTheme.bgHover.b, 0.35)
+            if (!root.enabled) return AppTheme.withAlpha(AppTheme.surfaceHover, 0.35)
             if (root.primary) return root.down ? AppTheme.accentHover : AppTheme.accentColor
-            if (root.hovered || root.down) return AppTheme.bgHover
+            if (root.down) return AppTheme.surfacePressed
+            if (root.hovered) return AppTheme.surfaceHover
             return "transparent"
         }
         border.width: root.primary ? 0 : 1
         border.color: root.danger
             ? Qt.rgba(AppTheme.statusOutage.r, AppTheme.statusOutage.g, AppTheme.statusOutage.b, 0.55)
-            : AppTheme.borderColor
+            : AppTheme.surfaceBorder
     }
 }

@@ -13,14 +13,13 @@ Rectangle {
     radius: glassEffectActive ? 0 : 12
     clip: !glassEffectActive
     antialiasing: true
-    border.color: AppTheme.bgSelected
+    border.color: AppTheme.surfaceBorder
     border.width: 1
 
     readonly property bool glassEffectActive: SettingsStore.glassEffectEnabled
-    readonly property real glassOpacity: Math.min(0.85, Math.max(0.25, SettingsStore.glassEffectOpacity / 100))
-    readonly property color windowBackgroundColor: glassEffectActive ? colorWithAlpha(AppTheme.bgPrimary, glassOpacity) : AppTheme.bgPrimary
-    readonly property color titleBarBackgroundColor: glassEffectActive ? "transparent" : AppTheme.bgTitleBar
-    readonly property color cardBackgroundColor: glassEffectActive ? colorWithAlpha(AppTheme.bgCard, Math.min(0.78, glassOpacity + 0.08)) : AppTheme.bgCard
+    readonly property color windowBackgroundColor: AppTheme.surfaceWindow
+    readonly property color titleBarBackgroundColor: glassEffectActive ? "transparent" : AppTheme.surfaceTitleBar
+    readonly property color cardBackgroundColor: AppTheme.surfaceCard
 
     property var costData: TrayViewModel.costData
     property var displayCostData: TrayViewModel.displayCostData
@@ -40,10 +39,6 @@ Rectangle {
 
     // Phase 3: Codex accounts (derived from codexAccountState)
     property var codexAccounts: root.codexAccountState && root.codexAccountState.accounts ? root.codexAccountState.accounts : []
-
-    function colorWithAlpha(color, alpha) {
-        return Qt.rgba(color.r, color.g, color.b, alpha)
-    }
 
     Components.AcrylicBackdrop {
         anchors.fill: parent
@@ -104,7 +99,7 @@ Rectangle {
         anchors.margins: -1
         radius: 13
         color: "transparent"
-        border.color: root.titleBarBackgroundColor
+        border.color: AppTheme.surfaceBorder
         border.width: 1
         z: -1
     }
@@ -127,7 +122,7 @@ Rectangle {
                 anchors.bottom: parent.bottom
                 width: parent.width
                 height: 1
-                color: AppTheme.borderColor
+                color: AppTheme.surfaceBorder
             }
 
             RowLayout {
@@ -144,7 +139,7 @@ Rectangle {
                 Item { Layout.fillWidth: true }
                 Text {
                     text: TrayViewModel.providerCount + " " + qsTr("providers")
-                    color: "#666"
+                    color: AppTheme.textTertiary
                     font.pixelSize: 11
                 }
             }
@@ -219,7 +214,7 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 36
                     radius: 8
-                    color: costMouse.containsMouse ? "#252545" : "#1f1f38"
+                    color: costMouse.containsMouse ? AppTheme.surfaceHover : AppTheme.surfacePane
 
                     Behavior on color { ColorAnimation { duration: 150 } }
 
@@ -263,8 +258,8 @@ Rectangle {
                             Layout.preferredHeight: 8
                             Layout.alignment: Qt.AlignVCenter
                             radius: 4
-                            color: TrayViewModel.costUsageRefreshing ? "#FFC107"
-                                 : displayCostData.hasData ? "#4CAF50" : "#555"
+                            color: TrayViewModel.costUsageRefreshing ? AppTheme.statusDegraded
+                                 : displayCostData.hasData ? AppTheme.statusOk : AppTheme.statusUnknown
 
                             SequentialAnimation on opacity {
                                 running: TrayViewModel.costUsageRefreshing
@@ -275,7 +270,7 @@ Rectangle {
                         }
                         Text {
                             text: qsTr("Details")
-                            color: detailsMouse.containsMouse ? "#aaa" : "#666"
+                            color: detailsMouse.containsMouse ? AppTheme.textSecondary : AppTheme.textTertiary
                             font.pixelSize: 10
 
                             MouseArea {
@@ -314,7 +309,7 @@ Rectangle {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 56
                         radius: 8
-                        color: AppTheme.bgChart
+                        color: AppTheme.surfaceChart
 
                         RowLayout {
                             anchors.fill: parent
@@ -331,13 +326,13 @@ Rectangle {
                                 title: qsTr("Today")
                                 value: "$" + formatCost(displayCostData.sessionCostUSD)
                                 detail: fmtNum(displayCostData.sessionTokens) + " " + qsTr("tokens")
-                                valueColor: "#4CAF50"
+                                valueColor: AppTheme.statusOk
                             }
 
                             Rectangle {
                                 Layout.preferredWidth: 1
                                 Layout.fillHeight: true
-                                color: AppTheme.borderColor
+                                color: AppTheme.surfaceBorder
                             }
 
                             CostMetricCell {
@@ -347,7 +342,7 @@ Rectangle {
                                 title: qsTr("30 days")
                                 value: "$" + formatCost(displayCostData.last30DaysCostUSD)
                                 detail: fmtNum(displayCostData.last30DaysTokens) + " " + qsTr("tokens")
-                                valueColor: "#2196F3"
+                                valueColor: AppTheme.accentColor
                             }
                         }
                     }
@@ -357,7 +352,7 @@ Rectangle {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 60
                         radius: 8
-                        color: AppTheme.bgChart
+                        color: AppTheme.surfaceChart
                         clip: true
 
                         Row {
@@ -387,13 +382,13 @@ Rectangle {
                                     }
                                     y: Math.max(0, (parent ? parent.height : 44) - height)
                                     radius: 1
-                                    color: index % 7 === 0 ? "#2196F3" : "#3a3a6a"
+                                    color: index % 7 === 0 ? AppTheme.accentColor : AppTheme.surfaceSelected
 
                                     Rectangle {
                                         anchors.bottom: parent.bottom
                                         width: parent.width
                                         height: 1
-                                        color: AppTheme.borderColor
+                                        color: AppTheme.surfaceBorder
                                     }
                                 }
                             }
@@ -413,11 +408,11 @@ Rectangle {
                     RowLayout {
                         Layout.fillWidth: true
                         spacing: 6
-                        Rectangle { width: 10; height: 10; radius: 5; color: "#2196F3" }
-                        Text { text: qsTr("Mon"); color: "#888"; font.pixelSize: 9 }
-                        Rectangle { width: 1; height: 10; color: AppTheme.borderColor }
-                        Rectangle { width: 10; height: 10; radius: 5; color: AppTheme.bgSelected }
-                        Text { text: qsTr("other day"); color: "#888"; font.pixelSize: 9 }
+                        Rectangle { width: 10; height: 10; radius: 5; color: AppTheme.accentColor }
+                        Text { text: qsTr("Mon"); color: AppTheme.textTertiary; font.pixelSize: 9 }
+                        Rectangle { width: 1; height: 10; color: AppTheme.surfaceBorder }
+                        Rectangle { width: 10; height: 10; radius: 5; color: AppTheme.surfaceSelected }
+                        Text { text: qsTr("other day"); color: AppTheme.textTertiary; font.pixelSize: 9 }
                     }
 
                     // Per-provider breakdown
@@ -433,7 +428,7 @@ Rectangle {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 28
                                 radius: 6
-                                color: providerMouse.containsMouse ? "#252545" : "#1c1c32"
+                                color: providerMouse.containsMouse ? AppTheme.surfaceHover : AppTheme.surfaceControl
 
                                 Behavior on color { ColorAnimation { duration: 150 } }
 
@@ -554,8 +549,8 @@ Rectangle {
                 width: providerList.width - 24
                 height: cardContent.height + 24
                 radius: 10
-                color: mouseArea.containsMouse ? "#252545" : "#202038"
-                border.color: mouseArea.containsMouse ? "#4a4a7a" : "#2a2a4a"
+                color: mouseArea.containsMouse ? AppTheme.surfaceHover : root.cardBackgroundColor
+                border.color: mouseArea.containsMouse ? AppTheme.surfaceAccentBorder : AppTheme.surfaceBorder
                 border.width: 1
 
                 property string providerId: model.providerId || ""
@@ -691,7 +686,7 @@ Rectangle {
                             Layout.fillWidth: true
                             height: 6
                             radius: 3
-                            color: AppTheme.borderColor
+                            color: AppTheme.surfaceBorder
                             Rectangle {
                                 width: Math.max(0, parent.width * (cardDelegate.isDetailProvider ? snap.primaryRemaining : snap.primaryUsed) / 100)
                                 height: parent.height
@@ -704,16 +699,16 @@ Rectangle {
                                 x: Math.max(0, Math.min(parent.width - 3, parent.width * (snap.primaryPacePercent || 0) / 100 - 1))
                                 width: 3
                                 height: parent.height
-                                color: (snap.primaryPaceOnTop !== false) ? "#4CAF50" : "#F44336"
+                                color: (snap.primaryPaceOnTop !== false) ? AppTheme.statusOk : AppTheme.statusOutage
                                 radius: 1
                                 Behavior on x { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
                             }
                         }
                         Text {
                             text: (snap.primaryDisplayPercent !== undefined ? snap.primaryDisplayPercent : snap.primaryRemaining).toFixed(0) + "%"
-                            color: snap.primaryRemaining > 50 ? "#4CAF50"
-                                 : snap.primaryRemaining > 20 ? "#FFC107"
-                                 : "#F44336"
+                            color: snap.primaryRemaining > 50 ? AppTheme.statusOk
+                                 : snap.primaryRemaining > 20 ? AppTheme.statusDegraded
+                                 : AppTheme.statusOutage
                             font.pixelSize: 11
                             font.bold: true
                             Layout.preferredWidth: 50
@@ -786,7 +781,7 @@ Rectangle {
                             Layout.fillWidth: true
                             height: 6
                             radius: 3
-                            color: AppTheme.borderColor
+                            color: AppTheme.surfaceBorder
                             Rectangle {
                                 width: Math.max(0, parent.width * snap.secondaryUsed / 100)
                                 height: parent.height
@@ -799,16 +794,16 @@ Rectangle {
                                 x: Math.max(0, Math.min(parent.width - 3, parent.width * (snap.secondaryPacePercent || 0) / 100 - 1))
                                 width: 3
                                 height: parent.height
-                                color: (snap.secondaryPaceOnTop !== false) ? "#4CAF50" : "#F44336"
+                                color: (snap.secondaryPaceOnTop !== false) ? AppTheme.statusOk : AppTheme.statusOutage
                                 radius: 1
                                 Behavior on x { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
                             }
                         }
                         Text {
                             text: (snap.secondaryDisplayPercent !== undefined ? snap.secondaryDisplayPercent : snap.secondaryRemaining).toFixed(0) + "%"
-                            color: snap.secondaryRemaining > 50 ? "#2196F3"
-                                 : snap.secondaryRemaining > 20 ? "#FFC107"
-                                 : "#F44336"
+                            color: snap.secondaryRemaining > 50 ? AppTheme.accentColor
+                                 : snap.secondaryRemaining > 20 ? AppTheme.statusDegraded
+                                 : AppTheme.statusOutage
                             font.pixelSize: 11
                             font.bold: true
                             Layout.preferredWidth: 50
@@ -866,7 +861,7 @@ Rectangle {
                             Layout.fillWidth: true
                             height: 6
                             radius: 3
-                            color: AppTheme.borderColor
+                            color: AppTheme.surfaceBorder
                             Rectangle {
                                 width: Math.max(0, parent.width * (snap.tertiaryUsed || 0) / 100)
                                 height: parent.height
@@ -879,9 +874,9 @@ Rectangle {
                             text: (snap.tertiaryDisplayPercent !== undefined
                                 ? snap.tertiaryDisplayPercent
                                 : (snap.tertiaryRemaining !== undefined ? snap.tertiaryRemaining : 100)).toFixed(0) + "%"
-                            color: snap.tertiaryRemaining > 50 ? "#9C27B0"
-                                 : snap.tertiaryRemaining > 20 ? "#FFC107"
-                                 : "#F44336"
+                            color: snap.tertiaryRemaining > 50 ? AppTheme.accentColor
+                                 : snap.tertiaryRemaining > 20 ? AppTheme.statusDegraded
+                                 : AppTheme.statusOutage
                             font.pixelSize: 11
                             font.bold: true
                             Layout.preferredWidth: 50
@@ -927,9 +922,9 @@ Rectangle {
 
                             Text {
                                 text: "$" + (snap.creditsRemaining || 0).toFixed(2) + " left"
-                                color: (snap.creditsRemaining || 0) > 10 ? "#4CAF50"
-                                     : (snap.creditsRemaining || 0) > 2 ? "#FFC107"
-                                     : "#F44336"
+                                color: (snap.creditsRemaining || 0) > 10 ? AppTheme.statusOk
+                                     : (snap.creditsRemaining || 0) > 2 ? AppTheme.statusDegraded
+                                     : AppTheme.statusOutage
                                 font.pixelSize: 13
                                 font.bold: true
                             }
@@ -941,7 +936,7 @@ Rectangle {
                         Layout.fillWidth: true
                         visible: cardDelegate.providerId === "codex" && snap.creditsError !== undefined && snap.creditsError !== ""
                         text: snap.creditsError || ""
-                        color: "#FF9800"
+                        color: AppTheme.statusDegraded
                         font.pixelSize: 10
                         elide: Text.ElideRight
                         maximumLineCount: 1
@@ -963,12 +958,12 @@ Rectangle {
                             Layout.fillWidth: true
                             height: 6
                             radius: 3
-                            color: AppTheme.borderColor
+                            color: AppTheme.surfaceBorder
                             Rectangle {
                                 width: Math.max(0, parent.width * Math.min(100, (snap.providerCostUsed || 0) / Math.max(1, snap.providerCostLimit || 1) * 100) / 100)
                                 height: parent.height
                                 radius: 3
-                                color: "#FF9800"
+                                color: AppTheme.statusDegraded
                                 Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
                             }
                         }
@@ -1014,7 +1009,7 @@ Rectangle {
                         Rectangle {
                             Layout.fillWidth: true
                             height: 1
-                            color: AppTheme.borderColor
+                            color: AppTheme.surfaceBorder
                         }
 
                         // Zai MCP details
@@ -1058,7 +1053,7 @@ Rectangle {
                             Text {
                                 visible: !!snap.openRouterUsage && snap.openRouterUsage.keyQuotaStatus === 1
                                 text: qsTr("No limit set for the API key")
-                                color: "#FFC107"
+                                color: AppTheme.statusDegraded
                                 font.pixelSize: 10
                             }
                             Text {
@@ -1101,7 +1096,7 @@ Rectangle {
                             Rectangle {
                                 Layout.fillWidth: true
                                 height: 1
-                                color: AppTheme.borderColor
+                                color: AppTheme.surfaceBorder
                                 visible: parent.hasDashboard
                             }
 
@@ -1136,7 +1131,7 @@ Rectangle {
                                         }
                                         Text {
                                             text: "$" + (modelData.amount || 0).toFixed(2)
-                                            color: modelData.amount >= 0 ? "#4CAF50" : "#F44336"
+                                            color: modelData.amount >= 0 ? AppTheme.statusOk : AppTheme.statusOutage
                                             font.pixelSize: 9
                                             horizontalAlignment: Text.AlignRight
                                         }
@@ -1187,7 +1182,7 @@ Rectangle {
                                 Layout.fillWidth: true
                                 visible: parent.hasDashboard && parent.dashboard.purchaseURL
                                 text: "<a href=\"" + (parent.dashboard.purchaseURL || "") + "\">" + qsTr("Purchase credits") + "</a>"
-                                color: "#64B5F6"
+                                color: AppTheme.accentColor
                                 font.pixelSize: 10
                                 textFormat: Text.RichText
                                 onLinkActivated: Qt.openUrlExternally(link)
@@ -1314,7 +1309,7 @@ Rectangle {
             Rectangle {
                 anchors.top: parent.top
                 width: parent.width; height: 1
-                color: AppTheme.borderColor
+                color: AppTheme.surfaceBorder
             }
 
             RowLayout {
@@ -1345,8 +1340,8 @@ Rectangle {
                 }
                 ActionButton {
                     text: qsTr("Quit")
-                    textColor: "#e06060"
-                    hoverColor: "#4a3030"
+                    textColor: AppTheme.statusOutage
+                    hoverColor: AppTheme.withAlpha(AppTheme.statusOutage, 0.18)
                     Layout.fillWidth: true
                     Layout.preferredHeight: 28
                     onClicked: AppController.quitApp()
@@ -1383,42 +1378,8 @@ Rectangle {
         }
     }
 
-    property var brandColors: {
-        "codex": "#49A3B0",
-        "claude": "#CC7C5E",
-        "cursor": "#5B8DFA",
-        "gemini": "#8860D0",
-        "copilot": "#2DA44E",
-        "zai": "#E85A6A",
-        "opencode": "#E44D26",
-        "warp": "#00BCD4",
-        "mistral": "#F77F00",
-        "openrouter": "#FF6B6B",
-        "ollama": "#E6EF6C",
-        "kilo": "#7C3AED",
-        "kiro": "#F59E0B",
-        "kimik2": "#06B6D4",
-        "minimax": "#EC4899",
-        "perplexity": "#22C55E",
-        "kimi": "#8B5CF6",
-        "abacus": "#6366F1",
-        "alibaba": "#F97316",
-        "augment": "#14B8A6",
-        "amp": "#D946EF",
-        "factory": "#84CC16",
-        "jetbrains": "#F000F0",
-        "vertexai": "#4285F4",
-        "deepseek": "#4D6BFE",
-        "codebuff": "#44FF00",
-        "windsurf": "#34E8BB",
-        "antigravity": "#10B981",
-        "synthetic": "#6366F1",
-        "opencodego": "#3B82F6",
-        "qianfan": "#2932E1"
-    }
-
     function brandColorFor(providerId) {
-        return brandColors[providerId] || "#4A90D9"
+        return AppTheme.providerBrandColor(providerId)
     }
 
     function timeAgo(ms) {
@@ -1435,7 +1396,7 @@ Rectangle {
         property string title: ""
         property string value: ""
         property string detail: ""
-        property color valueColor: "#aaa"
+        property color valueColor: AppTheme.textSecondary
 
         implicitHeight: cellColumn.implicitHeight
         clip: true
@@ -1450,7 +1411,7 @@ Rectangle {
             Text {
                 width: parent.width
                 text: metricCell.title
-                color: "#888"
+                color: AppTheme.textTertiary
                 font.pixelSize: 10
                 elide: Text.ElideRight
             }
@@ -1469,7 +1430,7 @@ Rectangle {
             Text {
                 width: parent.width
                 text: metricCell.detail
-                color: "#666"
+                color: AppTheme.textTertiary
                 font.pixelSize: 10
                 elide: Text.ElideRight
             }
@@ -1478,8 +1439,8 @@ Rectangle {
 
     component ActionButton: Rectangle {
         property string text: ""
-        property color textColor: "#aaa"
-        property color hoverColor: "#3a3a5c"
+        property color textColor: AppTheme.textSecondary
+        property color hoverColor: AppTheme.surfaceHover
         signal clicked()
 
         radius: 6

@@ -17,7 +17,7 @@ Rectangle {
     property int dataRevision: 0
     property bool ready: false
 
-    color: AppTheme.bgChart
+    color: AppTheme.surfaceChart
     radius: 8
     height: 130
     implicitHeight: 130
@@ -81,8 +81,8 @@ Rectangle {
                     width: seriesLabel.width + 12
                     height: 20
                     radius: 4
-                    color: isSelected ? AppTheme.bgSelected : "transparent"
-                    border.color: isSelected ? AppTheme.borderAccent : "transparent"
+                    color: isSelected ? AppTheme.surfaceSelected : "transparent"
+                    border.color: isSelected ? AppTheme.surfaceAccentBorder : "transparent"
 
                     Text {
                         id: seriesLabel
@@ -123,7 +123,7 @@ Rectangle {
                 onPaint: {
                     var ctx = getContext("2d");
                     ctx.reset();
-                    ctx.fillStyle = AppTheme.bgChart;
+                    ctx.fillStyle = AppTheme.surfaceChart;
                     ctx.fillRect(0, 0, width, height);
 
                     if (chartPoints.length === 0) {
@@ -141,12 +141,12 @@ Rectangle {
                         var pct = chartPoints[i].usedPercent;
                         var barHeight = Math.max(1, (pct / 100.0) * (height - 20));
 
-                        ctx.fillStyle = AppTheme.bgTrack;
+                        ctx.fillStyle = AppTheme.surfaceTrack;
                         ctx.fillRect(startX + i * (barWidth + 2), height - 10, barWidth, -(height - 20));
 
-                        ctx.fillStyle = "#4CAF50";
-                        if (pct > 80) ctx.fillStyle = "#F44336";
-                        else if (pct > 60) ctx.fillStyle = "#FFC107";
+                        ctx.fillStyle = AppTheme.statusOk;
+                        if (pct > 80) ctx.fillStyle = AppTheme.statusOutage;
+                        else if (pct > 60) ctx.fillStyle = AppTheme.statusDegraded;
                         ctx.fillRect(startX + i * (barWidth + 2), height - 10, barWidth, -barHeight);
                     }
 

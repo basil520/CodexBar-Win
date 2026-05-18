@@ -5,13 +5,10 @@ import ".."
 
 Rectangle {
     id: root
-    color: SettingsStore.glassEffectEnabled
-        ? Qt.rgba(AppTheme.bgCard.r, AppTheme.bgCard.g, AppTheme.bgCard.b,
-                  Math.min(0.72, Math.max(0.18, SettingsStore.glassEffectOpacity / 100 + 0.04)))
-        : AppTheme.bgCard
+    color: AppTheme.surfaceCard
     radius: AppTheme.radiusMd
     border.width: 1
-    border.color: AppTheme.borderColor
+    border.color: AppTheme.surfaceBorder
     Layout.fillWidth: true
     implicitHeight: groupLayout.implicitHeight + 28
     default property alias content: groupLayout.data

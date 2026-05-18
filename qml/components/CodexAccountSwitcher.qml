@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 
 import CodexBarX 1.0
+import ".."
 
 Rectangle {
     id: root
@@ -16,7 +17,7 @@ Rectangle {
     implicitHeight: accounts.length > 1 ? bodyLayout.implicitHeight + 4 : 0
     height: implicitHeight
     radius: AppTheme.radiusMd
-    color: AppTheme.bgSecondary
+    color: AppTheme.surfacePane
     visible: accounts.length > 1
     clip: false
 
@@ -54,7 +55,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 26
             radius: 6
-            color: headerMouse.containsMouse ? AppTheme.bgHover : "transparent"
+            color: headerMouse.containsMouse ? AppTheme.surfaceHover : "transparent"
 
             RowLayout {
                 anchors.fill: parent
@@ -77,7 +78,7 @@ Rectangle {
                     Text {
                         anchors.centerIn: parent
                         text: root.activeAccountInitial()
-                        color: AppTheme.textPrimary
+                        color: AppTheme.textOnAccent
                         font.pixelSize: 9
                         font.bold: true
                     }
@@ -153,7 +154,7 @@ Rectangle {
                                 return name ? name.charAt(0).toUpperCase() :
                                             (email ? email.charAt(0).toUpperCase() : "A")
                             }
-                            color: AppTheme.textPrimary
+                        color: AppTheme.textOnAccent
                             font.pixelSize: 14
                             font.bold: true
                         }
@@ -186,8 +187,8 @@ Rectangle {
                         width: tooltipText.implicitWidth + 12
                         height: tooltipText.implicitHeight + 8
                         radius: 4
-                        color: AppTheme.bgPrimary
-                        border.color: AppTheme.borderColor
+                        color: AppTheme.surfacePopup
+                        border.color: AppTheme.surfaceBorder
                         border.width: 1
                         z: 9999
 
@@ -216,7 +217,7 @@ Rectangle {
     Rectangle {
         anchors.fill: parent
         radius: parent.radius
-        color: AppTheme.bgPrimary
+        color: AppTheme.surfaceControl
         opacity: root.isSwitching ? 0.4 : 0
         visible: opacity > 0
         Behavior on opacity {

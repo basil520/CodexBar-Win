@@ -23,8 +23,8 @@ Rectangle {
     height: 46
     radius: 7
     color: {
-        if (root.isSelected) return AppTheme.bgSelected
-        if (rowMouse.containsMouse) return AppTheme.bgHover
+        if (root.isSelected) return AppTheme.surfaceSelected
+        if (rowMouse.containsMouse) return AppTheme.surfaceHover
         return "transparent"
     }
 
@@ -123,7 +123,7 @@ Rectangle {
                 Label {
                     anchors.centerIn: parent
                     text: root.providerName.length > 0 ? root.providerName.charAt(0).toUpperCase() : "?"
-                    color: AppTheme.textPrimary
+                    color: AppTheme.textOnAccent
                     font.pixelSize: 10
                     font.bold: true
                 }

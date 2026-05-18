@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
+import ".."
 
 Rectangle {
     id: root
@@ -9,7 +10,7 @@ Rectangle {
     readonly property int hoveredIndex: chartHover.hoveredIndex
     readonly property bool hasData: points.length > 0
 
-    color: AppTheme.bgChart
+    color: AppTheme.surfaceChart
     radius: 8
     implicitWidth: 276
     implicitHeight: hasData ? 130 + legendArea.implicitHeight + 8 + (legendArea.visible ? 12 : 0) : 40
@@ -91,7 +92,7 @@ Rectangle {
                     var barH = Math.max(total > 0 ? 1 : 0, (total / dailyMax) * plotH)
 
                     // Track background
-                    ctx.fillStyle = AppTheme.bgTrack
+                    ctx.fillStyle = AppTheme.surfaceTrack
                     ctx.fillRect(x, plotBottom - plotH, barW, plotH)
 
                     // Stack segments from bottom up
@@ -106,7 +107,7 @@ Rectangle {
 
                     // Hover overlay
                     if (chartHover.hoveredIndex === i) {
-                        ctx.fillStyle = "rgba(255,255,255,0.12)"
+                        ctx.fillStyle = AppTheme.withAlpha(AppTheme.textOnAccent, 0.12)
                         ctx.fillRect(x, plotBottom - plotH, barW, plotH)
                     }
                 }

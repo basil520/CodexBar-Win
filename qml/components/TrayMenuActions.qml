@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 
 import CodexBarX 1.0
+import ".."
 
 ColumnLayout {
     id: root
@@ -56,8 +57,8 @@ ColumnLayout {
         TrayMenuButton {
             text: qsTr("Copy Error")
             visible: root.currentError !== ""
-            textColor: "#e06060"
-            hoverColor: "#4a3030"
+            textColor: AppTheme.statusOutage
+            hoverColor: AppTheme.withAlpha(AppTheme.statusOutage, 0.18)
             onClicked: AppController.copyWithFeedback(root.currentError)
         }
     }
@@ -68,7 +69,7 @@ ColumnLayout {
         Layout.leftMargin: 12
         Layout.rightMargin: 12
         Layout.preferredHeight: 1
-        color: AppTheme.borderColor
+        color: AppTheme.surfaceBorder
         visible: {
             var url = ""
             if (currentSnapshot.statusURL !== undefined && currentSnapshot.statusURL)
@@ -100,7 +101,7 @@ ColumnLayout {
         Layout.leftMargin: 12
         Layout.rightMargin: 12
         Layout.preferredHeight: 1
-        color: AppTheme.borderColor
+        color: AppTheme.surfaceBorder
         visible: root.currentProviderID === "kilo" || root.currentProviderID === "ollama"
     }
 
@@ -108,7 +109,7 @@ ColumnLayout {
     component TrayMenuButton: Rectangle {
         property string text: ""
         property color textColor: AppTheme.textSecondary
-        property color hoverColor: AppTheme.bgHover
+        property color hoverColor: AppTheme.surfaceHover
 
         signal clicked()
 

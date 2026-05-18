@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import ".."
 
 Rectangle {
     id: root
@@ -9,8 +10,8 @@ Rectangle {
     width: 28
     height: 28
     radius: AppTheme.radiusSm
-    color: copyMouse.pressed ? AppTheme.bgPressed
-        : (copyMouse.containsMouse ? AppTheme.bgHover : "transparent")
+    color: copyMouse.pressed ? AppTheme.surfacePressed
+        : (copyMouse.containsMouse ? AppTheme.surfaceHover : "transparent")
 
     Behavior on color {
         ColorAnimation { duration: 80; easing.type: Easing.OutQuad }

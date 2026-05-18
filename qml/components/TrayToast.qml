@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
+import ".."
 
 Rectangle {
     id: root
@@ -18,9 +19,9 @@ Rectangle {
     width: Math.min(parent.width - 24, messageText.implicitWidth + 40)
     height: messageText.implicitHeight + 16
     radius: 8
-    color: AppTheme.bgTertiary
+    color: AppTheme.surfacePopup
     border.width: 1
-    border.color: toastType === typeError ? AppTheme.statusOutage : AppTheme.borderColor
+    border.color: toastType === typeError ? AppTheme.statusOutage : AppTheme.surfaceBorder
     z: 100
     opacity: 0
     y: anchors.bottomMargin + 20
@@ -64,17 +65,17 @@ Rectangle {
                     default: return "ℹ"
                 }
             }
-            color: root.toastType === root.typeError ? "#F44336"
-                 : root.toastType === root.typeSuccess ? "#4CAF50"
-                 : root.toastType === root.typeWarning ? "#FFC107"
-                 : "#aaaaaa"
+            color: root.toastType === root.typeError ? AppTheme.statusOutage
+                 : root.toastType === root.typeSuccess ? AppTheme.statusOk
+                 : root.toastType === root.typeWarning ? AppTheme.statusDegraded
+                 : AppTheme.textSecondary
             font.pixelSize: 14
         }
 
         Text {
             id: messageText
             text: root.message
-            color: root.toastType === root.typeError ? "#F44336" : "#ffffff"
+            color: root.toastType === root.typeError ? AppTheme.statusOutage : AppTheme.textPrimary
             font.pixelSize: 11
             wrapMode: Text.WordWrap
             maximumLineCount: 2

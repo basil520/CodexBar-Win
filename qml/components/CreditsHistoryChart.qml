@@ -2,17 +2,18 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 
 import CodexBarX 1.0
+import ".."
 
 Rectangle {
     id: root
 
     property var points: []
-    property color barColor: "#49A3B0"
+    property color barColor: AppTheme.accentColor
 
     readonly property int hoveredIndex: chartHover.hoveredIndex
     readonly property bool hasData: points.length > 0
 
-    color: AppTheme.bgChart
+    color: AppTheme.surfaceChart
     radius: 8
     implicitWidth: 276
     implicitHeight: hasData ? 130 : 40
@@ -62,17 +63,17 @@ Rectangle {
                     var pct = (points[i].creditsUsed || 0) / maxVal
                     var barH = Math.max(pct > 0 ? 1 : 0, pct * plotH)
 
-                    ctx.fillStyle = AppTheme.bgTrack
+                    ctx.fillStyle = AppTheme.surfaceTrack
                     ctx.fillRect(x, plotBottom - plotH, barW, plotH)
                     ctx.fillStyle = root.barColor
                     ctx.fillRect(x, plotBottom - barH, barW, barH)
 
                     if (points[i].isPeak === true) {
-                        ctx.fillStyle = "#FFC107"
+                        ctx.fillStyle = AppTheme.statusDegraded
                         ctx.fillRect(x, plotBottom - barH - 1, barW, 3)
                     }
                     if (chartHover.hoveredIndex === i) {
-                        ctx.fillStyle = "rgba(255,255,255,0.12)"
+                        ctx.fillStyle = AppTheme.withAlpha(AppTheme.textOnAccent, 0.12)
                         ctx.fillRect(x, plotBottom - plotH, barW, plotH)
                     }
                 }

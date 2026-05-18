@@ -9,9 +9,9 @@ Rectangle {
     property var branding: null
     property var paceData: null
 
-    color: AppTheme.bgCard
+    color: AppTheme.surfaceCard
     radius: 8
-    border.color: AppTheme.borderColor
+    border.color: AppTheme.surfaceBorder
     border.width: 1
 
     implicitWidth: 260
@@ -45,7 +45,7 @@ Rectangle {
             Layout.fillWidth: true
             percentValue: snapshot && snapshot.primary ? snapshot.primary.usedPercent : 0
             label: qsTr("Session")
-            barColor: "#4CAF50"
+            barColor: AppTheme.statusOk
             pacePercent: paceData && paceData.primaryPacePercent !== undefined ? paceData.primaryPacePercent : -1
             paceOnTop: paceData && paceData.primaryPaceOnTop !== undefined ? paceData.primaryPaceOnTop : true
         }
@@ -54,7 +54,7 @@ Rectangle {
             Layout.fillWidth: true
             percentValue: snapshot && snapshot.secondary ? snapshot.secondary.usedPercent : 0
             label: qsTr("Weekly")
-            barColor: "#2196F3"
+            barColor: AppTheme.accentColor
             pacePercent: paceData && paceData.secondaryPacePercent !== undefined ? paceData.secondaryPacePercent : -1
             paceOnTop: paceData && paceData.secondaryPaceOnTop !== undefined ? paceData.secondaryPaceOnTop : true
         }
@@ -85,9 +85,9 @@ Rectangle {
     }
 
     function percentColor(pct) {
-        if (pct === undefined || pct === null) return "#888"
-        if (pct > 50) return "#4CAF50"
-        if (pct > 20) return "#FFC107"
-        return "#F44336"
+        if (pct === undefined || pct === null) return AppTheme.textTertiary
+        if (pct > 50) return AppTheme.statusOk
+        if (pct > 20) return AppTheme.statusDegraded
+        return AppTheme.statusOutage
     }
 }

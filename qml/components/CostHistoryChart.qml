@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 
 import CodexBarX 1.0
+import ".."
 
 Rectangle {
     id: root
@@ -14,26 +15,14 @@ Rectangle {
     readonly property int hoveredIndex: chartHover.hoveredIndex
     readonly property bool hasData: points.length > 0
 
-    color: AppTheme.bgChart
+    color: AppTheme.surfaceChart
     radius: 8
     implicitWidth: 276
     implicitHeight: hasData ? 130 : 40
     clip: true
 
     function brandColorFor(pid) {
-        var colors = {
-            "codex": "#49A3B0", "claude": "#CC7C5E", "cursor": "#5B8DFA",
-            "gemini": "#8860D0", "copilot": "#2DA44E", "zai": "#E85A6A",
-            "opencode": "#E44D26", "warp": "#00BCD4", "mistral": "#F77F00",
-            "openrouter": "#FF6B6B", "ollama": "#E6EF6C", "kilo": "#7C3AED",
-            "deepseek": "#4D6BFE", "codebuff": "#44FF00", "perplexity": "#22C55E",
-            "kimi": "#8B5CF6", "abacus": "#6366F1", "alibaba": "#F97316",
-            "augment": "#14B8A6", "amp": "#D946EF", "factory": "#84CC16",
-            "jetbrains": "#F000F0", "vertexai": "#4285F4", "windsurf": "#34E8BB",
-            "minimax": "#EC4899", "synthetic": "#6366F1", "antigravity": "#10B981",
-            "opencodego": "#3B82F6", "qianfan": "#2932E1"
-        }
-        return colors[pid] || "#4A90D9"
+        return AppTheme.providerBrandColor(pid)
     }
 
     function formatDetailDate(dateStr) {
@@ -119,7 +108,7 @@ Rectangle {
                     var barH = Math.max(pct > 0 ? 1 : 0, pct * plotH)
 
                     // Bar background track
-                    ctx.fillStyle = AppTheme.bgTrack
+                    ctx.fillStyle = AppTheme.surfaceTrack
                     ctx.fillRect(x, plotBottom - plotH, barW, plotH)
 
                     // Bar fill
@@ -128,13 +117,13 @@ Rectangle {
 
                     // Peak marker (yellow cap for highest bar)
                     if (points[i].isPeak === true) {
-                        ctx.fillStyle = "#FFC107"
+                        ctx.fillStyle = AppTheme.statusDegraded
                         ctx.fillRect(x, plotBottom - barH - 1, barW, 3)
                     }
 
                     // Hover overlay
                     if (chartHover.hoveredIndex === i) {
-                        ctx.fillStyle = "rgba(255,255,255,0.12)"
+                        ctx.fillStyle = AppTheme.withAlpha(AppTheme.textOnAccent, 0.12)
                         ctx.fillRect(x, plotBottom - plotH, barW, plotH)
                     }
                 }

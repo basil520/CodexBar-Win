@@ -6,7 +6,7 @@ import ".."
 
 Rectangle {
     id: root
-    color: AppTheme.bgSecondary
+    color: AppTheme.surfacePane
     radius: 8
 
     property var accounts: []
@@ -58,12 +58,12 @@ Rectangle {
                 onClicked: root.addAccount()
 
                 background: Rectangle {
-                    color: parent.enabled ? AppTheme.accentColor : AppTheme.bgTertiary
+                    color: parent.enabled ? AppTheme.accentColor : AppTheme.surfaceControl
                     radius: 4
                 }
                 contentItem: Text {
                     text: parent.text
-                    color: parent.enabled ? AppTheme.textPrimary : AppTheme.textSecondary
+                    color: parent.enabled ? AppTheme.textOnAccent : AppTheme.textSecondary
                     font.pixelSize: 12
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
@@ -112,9 +112,9 @@ Rectangle {
                         Layout.preferredWidth: Math.max(110, codeLabel.implicitWidth + 18)
                         Layout.preferredHeight: 30
                         radius: 5
-                        color: AppTheme.bgPrimary
+                        color: AppTheme.surfaceControl
                         border.width: 1
-                        border.color: AppTheme.borderColor
+                        border.color: AppTheme.surfaceBorder
                         visible: root.userCode !== ""
 
                         Label {
@@ -161,7 +161,7 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 1
-            color: AppTheme.borderColor
+            color: AppTheme.surfaceBorder
         }
 
         ListView {
@@ -175,9 +175,11 @@ Rectangle {
             delegate: Rectangle {
                 width: accountList.width
                 height: 72
-                color: modelData.isActive ? AppTheme.bgTertiary : "transparent"
+                color: modelData.isActive
+                    ? AppTheme.surfaceSelected
+                    : "transparent"
                 radius: 6
-                border.color: modelData.isActive ? AppTheme.accentColor : AppTheme.borderColor
+                border.color: modelData.isActive ? AppTheme.surfaceAccentBorder : AppTheme.surfaceBorder
                 border.width: modelData.isActive ? 2 : 1
 
                 MouseArea {
@@ -207,7 +209,7 @@ Rectangle {
                         Label {
                             anchors.centerIn: parent
                             text: modelData.isLive ? "S" : (modelData.email ? modelData.email.charAt(0).toUpperCase() : "A")
-                            color: AppTheme.textPrimary
+                            color: AppTheme.textOnAccent
                             font.pixelSize: 16
                             font.bold: true
                         }
@@ -243,7 +245,7 @@ Rectangle {
                                     id: liveLabel
                                     anchors.centerIn: parent
                                     text: qsTr("System")
-                                    color: AppTheme.textPrimary
+                                    color: AppTheme.textOnAccent
                                     font.pixelSize: 10
                                 }
                             }
@@ -260,7 +262,7 @@ Rectangle {
                                     id: activeLabel
                                     anchors.centerIn: parent
                                     text: qsTr("Active")
-                                    color: AppTheme.textPrimary
+                                    color: AppTheme.textOnAccent
                                     font.pixelSize: 10
                                 }
                             }
@@ -298,7 +300,7 @@ Rectangle {
                             onClicked: root.setActiveAccount(modelData.id)
 
                             background: Rectangle {
-                                color: parent.hovered ? AppTheme.bgTertiary : "transparent"
+                                color: parent.hovered ? AppTheme.surfaceHover : "transparent"
                                 radius: 4
                             }
                             contentItem: Text {
@@ -324,7 +326,7 @@ Rectangle {
                             onClicked: root.reauthenticateAccount(modelData.id)
 
                             background: Rectangle {
-                                color: parent.hovered ? AppTheme.bgTertiary : "transparent"
+                                color: parent.hovered ? AppTheme.surfaceHover : "transparent"
                                 radius: 4
                             }
                             contentItem: Text {
@@ -353,7 +355,7 @@ Rectangle {
 
                             background: Rectangle {
                                 color: root.isPromoting && root.promotingAccountID === modelData.id
-                                    ? AppTheme.bgTertiary
+                                    ? AppTheme.surfaceHover
                                     : (parent.hovered ? AppTheme.statusOk : "transparent")
                                 radius: 4
                             }
@@ -363,7 +365,7 @@ Rectangle {
                                     : qsTr("Promote")
                                 color: root.isPromoting && root.promotingAccountID === modelData.id
                                     ? AppTheme.textSecondary
-                                    : (parent.hovered ? AppTheme.textPrimary : AppTheme.statusOk)
+                                    : (parent.hovered ? AppTheme.textOnAccent : AppTheme.statusOk)
                                 font.pixelSize: 11
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
@@ -398,7 +400,7 @@ Rectangle {
                                 text: qsTr("Remove")
                                 color: root.isRemoving && root.removingAccountID === modelData.id
                                     ? AppTheme.textSecondary
-                                    : (parent.hovered ? AppTheme.textPrimary : AppTheme.statusOutage)
+                                    : (parent.hovered ? AppTheme.textOnAccent : AppTheme.statusOutage)
                                 font.pixelSize: 11
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter

@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
+import ".."
 
 Rectangle {
     id: root
@@ -8,13 +9,13 @@ Rectangle {
     property string secondaryText: ""
     property string tertiaryText: ""
     property bool floating: false
-    property color accentColor: "#4A90D9"
+    property color accentColor: AppTheme.accentColor
 
     readonly property bool hasContent: primaryText !== ""
 
     visible: hasContent
-    color: floating ? "#25253e" : "transparent"
-    border.color: floating ? "#3b3b5d" : "transparent"
+    color: floating ? AppTheme.surfacePopup : "transparent"
+    border.color: floating ? AppTheme.surfaceBorder : "transparent"
     border.width: floating ? 1 : 0
     radius: floating ? 6 : 0
     implicitWidth: floating ? Math.min(220, Math.max(132, detailLayout.implicitWidth + 18)) : detailLayout.implicitWidth
@@ -48,7 +49,7 @@ Rectangle {
         Text {
             Layout.fillWidth: true
             text: root.primaryText
-            color: "#ddd"
+            color: AppTheme.textPrimary
             font.pixelSize: 11
             font.bold: root.floating
             elide: Text.ElideRight
@@ -57,7 +58,7 @@ Rectangle {
         Text {
             Layout.fillWidth: true
             text: root.secondaryText
-            color: "#aaa"
+            color: AppTheme.textSecondary
             font.pixelSize: 10
             visible: root.secondaryText !== ""
             elide: Text.ElideRight
@@ -66,7 +67,7 @@ Rectangle {
         Text {
             Layout.fillWidth: true
             text: root.tertiaryText
-            color: "#888"
+            color: AppTheme.textTertiary
             font.pixelSize: 9
             visible: root.tertiaryText !== ""
             elide: Text.ElideRight

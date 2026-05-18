@@ -3,17 +3,18 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 import CodexBarX 1.0
+import ".."
 
 Rectangle {
     id: root
 
     property var storageItems: []
     property var cleanupItems: []
-    property color barColor: "#4A90D9"
+    property color barColor: AppTheme.accentColor
 
     readonly property bool hasData: storageItems.length > 0
 
-    color: AppTheme.bgChart
+    color: AppTheme.surfaceChart
     radius: 8
     implicitWidth: 276
     implicitHeight: contentColumn.implicitHeight + 16
@@ -162,7 +163,7 @@ Rectangle {
                         Layout.fillWidth: true
                         height: 6
                         radius: 3
-                        color: AppTheme.bgTrack
+                        color: AppTheme.surfaceTrack
 
                         Rectangle {
                             width: Math.max(2, parent.width * Math.min(1, itemData.fraction || 0))
@@ -193,7 +194,7 @@ Rectangle {
             Rectangle {
                 Layout.fillWidth: true
                 height: 1
-                color: AppTheme.bgTrack
+                color: AppTheme.surfaceTrack
             }
 
             Text {

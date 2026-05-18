@@ -7,7 +7,7 @@ import "../components"
 
 Rectangle {
     id: root
-    color: SettingsStore.glassEffectEnabled ? "transparent" : AppTheme.bgPrimary
+    color: SettingsStore.glassEffectEnabled ? "transparent" : AppTheme.surfaceWindow
 
     property var providers: []
     property int providerCount: 0
@@ -51,14 +51,14 @@ Rectangle {
         Rectangle {
             Layout.preferredWidth: 268
             Layout.fillHeight: true
-            color: AppTheme.bgPrimary
+            color: SettingsStore.glassEffectEnabled ? "transparent" : AppTheme.surfaceWindow
 
             Rectangle {
                 anchors.right: parent.right
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 width: 1
-                color: AppTheme.borderColor
+                color: AppTheme.surfaceBorder
             }
 
             ColumnLayout {
@@ -84,7 +84,7 @@ Rectangle {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 1
-                    color: AppTheme.borderColor
+                    color: AppTheme.surfaceBorder
                 }
 
                 ListView {
@@ -124,7 +124,7 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            color: AppTheme.bgPrimary
+            color: SettingsStore.glassEffectEnabled ? "transparent" : AppTheme.surfaceWindow
 
             ProviderDetailView {
                 anchors.fill: parent

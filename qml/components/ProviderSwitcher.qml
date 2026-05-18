@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import ".."
 
 Rectangle {
     id: root
@@ -10,27 +11,13 @@ Rectangle {
 
     width: parent ? parent.width - 24 : 276
     radius: AppTheme.radiusMd
-    color: AppTheme.bgSecondary
+    color: AppTheme.surfacePane
     visible: providerList.length > 0
     implicitHeight: 44
     height: implicitHeight
 
-    property var brandColors: ({
-        "codex": "#49A3B0", "claude": "#CC7C5E", "cursor": "#5B8DFA",
-        "gemini": "#8860D0", "copilot": "#2DA44E", "zai": "#E85A6A",
-        "opencode": "#E44D26", "warp": "#00BCD4", "mistral": "#F77F00",
-        "openrouter": "#FF6B6B", "ollama": "#E6EF6C", "kilo": "#7C3AED",
-        "kiro": "#F59E0B", "kimik2": "#06B6D4", "minimax": "#EC4899",
-        "perplexity": "#22C55E", "kimi": "#8B5CF6", "abacus": "#6366F1",
-        "alibaba": "#F97316", "augment": "#14B8A6", "amp": "#D946EF",
-        "factory": "#84CC16", "jetbrains": "#F000F0", "vertexai": "#4285F4",
-        "deepseek": "#4D6BFE", "codebuff": "#44FF00", "windsurf": "#34E8BB",
-        "antigravity": "#10B981", "synthetic": "#6366F1", "opencodego": "#3B82F6",
-        "qianfan": "#2932E1"
-    })
-
     function brandColorFor(providerId) {
-        return brandColors[providerId] || "#4A90D9"
+        return AppTheme.providerBrandColor(providerId)
     }
 
     Flickable {
@@ -72,7 +59,7 @@ Rectangle {
 
                     color: {
                         if (isSelected) return AppTheme.accentColor;
-                        if (btnHover.hovered) return AppTheme.bgHover;
+                        if (btnHover.hovered) return AppTheme.surfaceHover;
                         return "transparent";
                     }
 
@@ -97,7 +84,7 @@ Rectangle {
 
                             Rectangle {
                                 anchors.fill: parent
-                                color: AppTheme.bgTertiary
+                                color: AppTheme.surfaceControl
                                 radius: 3
                                 visible: parent.status !== Image.Ready && !!modelData.iconSource
                                 Text {
@@ -128,7 +115,7 @@ Rectangle {
                         anchors.rightMargin: 8
                         height: 3
                         radius: 1.5
-                        color: AppTheme.borderColor
+                        color: AppTheme.surfaceBorder
                         visible: !btn.isSelected && modelData.hasUsage === true && modelData.weeklyRemaining !== undefined && modelData.weeklyRemaining !== null
 
                         Rectangle {
@@ -169,7 +156,7 @@ Rectangle {
         radius: parent.radius
         visible: flicker.contentWidth > flicker.width && flicker.contentX > 0
         gradient: Gradient {
-            GradientStop { position: 0.0; color: AppTheme.bgSecondary }
+            GradientStop { position: 0.0; color: AppTheme.surfacePane }
             GradientStop { position: 1.0; color: "transparent" }
         }
     }
@@ -184,14 +171,14 @@ Rectangle {
         visible: flicker.contentWidth > flicker.width && flicker.contentX < flicker.contentWidth - flicker.width
         gradient: Gradient {
             GradientStop { position: 0.0; color: "transparent" }
-            GradientStop { position: 1.0; color: AppTheme.bgSecondary }
+            GradientStop { position: 1.0; color: AppTheme.surfacePane }
         }
     }
 
     Rectangle {
         anchors.fill: parent
         radius: parent.radius
-        color: AppTheme.bgPrimary
+        color: AppTheme.surfaceControl
         opacity: root.isSwitching ? 0.3 : 0
         visible: opacity > 0
         Behavior on opacity {

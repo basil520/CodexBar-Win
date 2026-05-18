@@ -3,10 +3,11 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 import CodexBarX 1.0
+import ".."
 
 Rectangle {
     id: root
-    color: SettingsStore.glassEffectEnabled ? "transparent" : AppTheme.bgPrimary
+    color: SettingsStore.glassEffectEnabled ? "transparent" : AppTheme.surfaceWindow
 
     property var costData: UsageDetailsViewModel.costData
     property var providerRows: UsageDetailsViewModel.providerRows
@@ -72,8 +73,8 @@ Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 166
                 radius: AppTheme.radiusMd
-                color: AppTheme.bgCard
-                border.color: AppTheme.borderColor
+                color: AppTheme.surfaceCard
+                border.color: AppTheme.surfaceBorder
                 border.width: 1
                 clip: true
 
@@ -143,8 +144,8 @@ Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 48
                 radius: AppTheme.radiusSm
-                color: AppTheme.bgSecondary
-                border.color: AppTheme.borderColor
+                color: AppTheme.surfacePane
+                border.color: AppTheme.surfaceBorder
                 border.width: 1
 
                 RowLayout {
@@ -250,38 +251,7 @@ Rectangle {
     }
 
     function brandColorFor(providerId) {
-        var colors = {
-            "codex": "#49A3B0",
-            "claude": "#CC7C5E",
-            "cursor": "#5B8DFA",
-            "gemini": "#8860D0",
-            "copilot": "#2DA44E",
-            "zai": "#E85A6A",
-            "opencode": "#E44D26",
-            "opencodego": "#3B82F6",
-            "warp": "#00BCD4",
-            "mistral": "#F77F00",
-            "openrouter": "#FF6B6B",
-            "ollama": "#E6EF6C",
-            "kilo": "#7C3AED",
-            "kiro": "#F59E0B",
-            "kimik2": "#06B6D4",
-            "minimax": "#EC4899",
-            "perplexity": "#22C55E",
-            "kimi": "#8B5CF6",
-            "abacus": "#6366F1",
-            "alibaba": "#F97316",
-            "augment": "#14B8A6",
-            "amp": "#D946EF",
-            "factory": "#84CC16",
-            "jetbrains": "#F000F0",
-            "vertexai": "#4285F4",
-            "deepseek": "#4D6BFE",
-            "antigravity": "#10B981",
-            "synthetic": "#6366F1",
-            "qianfan": "#2932E1"
-        }
-        return colors[providerId] || "#4A90D9"
+        return AppTheme.providerBrandColor(providerId)
     }
 
     component SummaryMetric: Item {
@@ -371,9 +341,9 @@ Rectangle {
         Layout.maximumWidth: desiredWidth
         Layout.preferredHeight: 30
         radius: AppTheme.radiusSm
-        color: !enabled ? AppTheme.bgSecondary : (buttonMouse.containsMouse ? AppTheme.bgHover : AppTheme.bgCard)
+        color: !enabled ? AppTheme.surfacePane : (buttonMouse.containsMouse ? AppTheme.surfaceHover : AppTheme.surfaceCard)
         border.width: 1
-        border.color: enabled ? AppTheme.borderAccent : AppTheme.borderColor
+        border.color: enabled ? AppTheme.surfaceAccentBorder : AppTheme.surfaceBorder
         opacity: enabled ? 1 : 0.58
 
         Label {
@@ -414,7 +384,7 @@ Rectangle {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             height: 1
-            color: AppTheme.borderColor
+            color: AppTheme.surfaceBorder
         }
 
         Row {
@@ -467,8 +437,8 @@ Rectangle {
 
         Layout.preferredHeight: contentColumn.implicitHeight + 24
         radius: AppTheme.radiusMd
-        color: AppTheme.bgCard
-        border.color: AppTheme.borderColor
+        color: AppTheme.surfaceCard
+        border.color: AppTheme.surfaceBorder
         border.width: 1
         opacity: card.provider.enabled === false ? 0.64 : 1
         clip: true
@@ -587,7 +557,7 @@ Rectangle {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 1
-                    color: AppTheme.borderColor
+                    color: AppTheme.surfaceBorder
                 }
 
                 Label {

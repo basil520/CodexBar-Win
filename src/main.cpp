@@ -919,14 +919,10 @@ int main(int argc, char* argv[]) {
     appController->win32WorkAreaForTray = win32WorkAreaForTray;
 
     QQuickView settingsView(&qmlEngine, nullptr);
-    auto updateSettingsTitle = [&settingsView]() {
-        settingsView.setTitle(QCoreApplication::translate("App", "CodexBar Settings"));
-    };
-    updateSettingsTitle();
-    QObject::connect(&langMgr, &LanguageManager::retranslate, &settingsView, updateSettingsTitle);
+    settingsView.setTitle(QString());
     settingsView.setMinimumSize(QSize(820, 560));
     settingsView.setResizeMode(QQuickView::SizeRootObjectToView);
-    settingsView.setFlags(Qt::Window | Qt::FramelessWindowHint);
+    settingsView.setFlags(Qt::Window | Qt::FramelessWindowHint | Qt::CustomizeWindowHint);
     prepareGlassView(settingsView);
 
     // Set height to fit screen and center position
@@ -978,11 +974,11 @@ int main(int argc, char* argv[]) {
                      });
 
     QQuickView usageView(&qmlEngine, nullptr);
-    usageView.setTitle(QCoreApplication::translate("App", "Usage Details"));
+    usageView.setTitle(QString());
     usageView.resize(800, 600);
     usageView.setMinimumSize(QSize(720, 480));
     usageView.setResizeMode(QQuickView::SizeRootObjectToView);
-    usageView.setFlags(Qt::Window | Qt::FramelessWindowHint);
+    usageView.setFlags(Qt::Window | Qt::FramelessWindowHint | Qt::CustomizeWindowHint);
     prepareGlassView(usageView);
 
     QObject::connect(&usageView, &QQuickView::statusChanged, &usageView, [&usageView](QQuickView::Status status) {

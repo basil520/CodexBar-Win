@@ -8,7 +8,9 @@ Rectangle {
     color: "transparent"
 
     property color tint: AppTheme.bgPrimary
-    readonly property real materialOpacity: Math.min(0.85, Math.max(0.10, SettingsStore.glassEffectOpacity / 100))
+    readonly property real materialOpacity: AppTheme.glassMaterialOpacity
+    readonly property color tintScrim: Qt.rgba(root.tint.r, root.tint.g, root.tint.b,
+                                              Math.min(0.54, Math.max(0.28, root.materialOpacity * 0.62)))
 
     // Inherit radius from parent so the acrylic layers are clipped to
     // the rounded shape instead of painting into the corner areas.
@@ -17,15 +19,20 @@ Rectangle {
 
     Rectangle {
         anchors.fill: parent
-        color: Qt.rgba(255, 255, 255, 0.018 + (1.0 - root.materialOpacity) * 0.035)
+        color: AppTheme.surfaceWindow
+    }
+
+    Rectangle {
+        anchors.fill: parent
+        color: root.tintScrim
     }
 
     Rectangle {
         anchors.fill: parent
         gradient: Gradient {
-            GradientStop { position: 0.0; color: Qt.rgba(255, 255, 255, 0.10) }
-            GradientStop { position: 0.22; color: Qt.rgba(255, 255, 255, 0.025) }
-            GradientStop { position: 1.0; color: Qt.rgba(0, 0, 0, 0.02) }
+            GradientStop { position: 0.0; color: Qt.rgba(root.tint.r, root.tint.g, root.tint.b, 0.18) }
+            GradientStop { position: 0.25; color: Qt.rgba(255, 255, 255, 0.035) }
+            GradientStop { position: 1.0; color: Qt.rgba(0, 0, 0, 0.035) }
         }
     }
 
@@ -60,6 +67,6 @@ Rectangle {
         anchors.fill: parent
         color: "transparent"
         border.width: 1
-        border.color: Qt.rgba(255, 255, 255, 0.075)
+        border.color: AppTheme.surfaceBorder
     }
 }

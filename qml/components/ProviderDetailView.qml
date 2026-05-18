@@ -137,8 +137,6 @@ ScrollView {
             spacing: 12
 
             SettingsGroupBox {
-                color: AppTheme.bgCard
-
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 12
@@ -348,12 +346,14 @@ ScrollView {
                         color: Qt.rgba(root.statusColor(root.connectionState).r,
                                        root.statusColor(root.connectionState).g,
                                        root.statusColor(root.connectionState).b,
-                                       root.connectionState === "testing" ? 0.10 : 0.13)
+                                       root.glassEffectActive
+                                           ? (root.connectionState === "testing" ? 0.06 : 0.08)
+                                           : (root.connectionState === "testing" ? 0.10 : 0.13))
                         border.width: 1
                         border.color: Qt.rgba(root.statusColor(root.connectionState).r,
                                               root.statusColor(root.connectionState).g,
                                               root.statusColor(root.connectionState).b,
-                                              0.42)
+                                              root.glassEffectActive ? 0.28 : 0.42)
 
                         ColumnLayout {
                             id: connectionPanel
@@ -531,8 +531,8 @@ ScrollView {
 
                                         background: Rectangle {
                                             radius: 6
-                                            color: AppTheme.bgPrimary
-                                            border.color: parent.activeFocus ? AppTheme.borderAccent : AppTheme.borderColor
+                                            color: AppTheme.surfaceControl
+                                            border.color: parent.activeFocus ? AppTheme.surfaceAccentBorder : AppTheme.surfaceBorder
                                             border.width: 1
                                         }
 
@@ -555,8 +555,8 @@ ScrollView {
 
                                         background: Rectangle {
                                             radius: 6
-                                            color: AppTheme.bgPrimary
-                                            border.color: parent.activeFocus ? AppTheme.borderAccent : AppTheme.borderColor
+                                            color: AppTheme.surfaceControl
+                                            border.color: parent.activeFocus ? AppTheme.surfaceAccentBorder : AppTheme.surfaceBorder
                                             border.width: 1
                                         }
 
@@ -612,7 +612,7 @@ ScrollView {
                             Rectangle {
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 1
-                                color: AppTheme.borderColor
+                                color: AppTheme.surfaceBorder
                                 opacity: 0.55
                                 visible: index < (root.descriptor.settingsFields.length - 1)
                             }
@@ -757,7 +757,9 @@ ScrollView {
                         Rectangle {
                             Layout.fillWidth: true
                             height: 36
-                            color: AppTheme.bgTertiary
+                            color: root.glassEffectActive
+                                ? root.colorWithAlpha(AppTheme.bgTertiary, Math.max(0.35, root.glassOpacity * 0.65))
+                                : AppTheme.bgTertiary
                             radius: 6
 
                             RowLayout {
@@ -781,7 +783,7 @@ ScrollView {
                                         : 0
                                     tintColor: {
                                         var r = model.modelData ? (model.modelData.remainingPercent || 100) : 100
-                                        return r < 20 ? "#F44336" : AppTheme.accentColor
+                                        return r < 20 ? AppTheme.statusOutage : AppTheme.accentColor
                                     }
                                 }
 
@@ -859,7 +861,7 @@ ScrollView {
                         Rectangle {
                             Layout.fillWidth: true
                             height: 1
-                            color: AppTheme.borderColor
+                            color: AppTheme.surfaceBorder
                         }
 
                         Label {

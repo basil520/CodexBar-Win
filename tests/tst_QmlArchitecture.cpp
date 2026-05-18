@@ -45,6 +45,12 @@ private slots:
     void topLevelWindowsUseAcrylicBackdropLayer();
     void nativeGlassExtendsDwmIntoClientArea();
     void claudePeakHoursLivesInDisplayPane();
+    void appThemeExposesSharedGlassMaterialTokens();
+    void acrylicBackdropUsesThemeTintScrim();
+    void qmlSurfacesUseSharedMaterialHelpers();
+    void paneFilesUsingQmlThemeHelpersImportParentThemeSingleton();
+    void highRiskQmlDoesNotUseLegacyHardcodedSurfaceColors();
+    void framelessGlassWindowsDoNotExposeNativeCaptionText();
     void usageStoreDoesNotInjectBridgeLookupWhenDisabled();
     void browserSessionBridgeExtensionUsesCanonicalWireProtocol();
     void providerUiBuildersUseCatalogSnapshot();
@@ -709,6 +715,146 @@ void QmlArchitectureTest::claudePeakHoursLivesInDisplayPane()
              "DisplayPane must show the Claude Peak Hours setting.");
     QVERIFY2(display.contains(QStringLiteral("SettingsStore.claudePeakHoursEnabled")),
              "DisplayPane must bind the existing claudePeakHoursEnabled setting.");
+}
+
+void QmlArchitectureTest::appThemeExposesSharedGlassMaterialTokens()
+{
+    const QString theme = readFile("qml/AppTheme.qml");
+    const QStringList requiredTokens = {
+        QStringLiteral("property color surfaceWindow"),
+        QStringLiteral("property color surfacePane"),
+        QStringLiteral("property color surfaceCard"),
+        QStringLiteral("property color surfaceControl"),
+        QStringLiteral("property color surfacePopup"),
+        QStringLiteral("property color surfaceChart"),
+        QStringLiteral("property color surfaceHover"),
+        QStringLiteral("property color surfacePressed"),
+        QStringLiteral("property color surfaceBorder"),
+        QStringLiteral("property color textOnAccent"),
+        QStringLiteral("function withAlpha("),
+        QStringLiteral("function providerBrandColor("),
+    };
+
+    for (const QString& token : requiredTokens) {
+        QVERIFY2(theme.contains(token),
+                 qPrintable(QStringLiteral("AppTheme.qml must expose shared glass/theme material token: %1").arg(token)));
+    }
+}
+
+void QmlArchitectureTest::acrylicBackdropUsesThemeTintScrim()
+{
+    const QString backdrop = readFile("qml/components/AcrylicBackdrop.qml");
+    QVERIFY2(backdrop.contains(QStringLiteral("root.tint.r")),
+             "AcrylicBackdrop must actually use the provided theme tint color as a scrim.");
+    QVERIFY2(backdrop.contains(QStringLiteral("AppTheme.surfaceWindow")),
+             "AcrylicBackdrop must align its base material with AppTheme.surfaceWindow.");
+    QVERIFY2(!backdrop.contains(QStringLiteral("Qt.rgba(255, 255, 255, 0.018")),
+             "AcrylicBackdrop must not use a white wash as the primary acrylic layer.");
+}
+
+void QmlArchitectureTest::qmlSurfacesUseSharedMaterialHelpers()
+{
+    const QStringList files = {
+        QStringLiteral("qml/SettingsWindow.qml"),
+        QStringLiteral("qml/UsageWindow.qml"),
+        QStringLiteral("qml/TrayPanel.qml"),
+        QStringLiteral("qml/components/SettingsGroupBox.qml"),
+        QStringLiteral("qml/components/SettingsComboBox.qml"),
+        QStringLiteral("qml/components/SecretInput.qml"),
+        QStringLiteral("qml/components/ProviderSwitcher.qml"),
+        QStringLiteral("qml/components/ProviderDetailCard.qml"),
+        QStringLiteral("qml/components/ChartHoverDetail.qml"),
+        QStringLiteral("qml/components/DeleteConfirmationDialog.qml"),
+        QStringLiteral("qml/components/BrowserSessionBindingDialog.qml"),
+        QStringLiteral("qml/panes/TokenUsagePane.qml"),
+    };
+
+    for (const QString& path : files) {
+        const QString contents = readFile(path);
+        QVERIFY2(contents.contains(QStringLiteral("AppTheme.surface")),
+                 qPrintable(path + QStringLiteral(" must use AppTheme surface tokens instead of local material math.")));
+        QVERIFY2(!contents.contains(QStringLiteral("glassEffectOpacity / 100")),
+                 qPrintable(path + QStringLiteral(" must not compute glass opacity locally; use AppTheme surface tokens.")));
+        QVERIFY2(!contents.contains(QStringLiteral("function colorWithAlpha")),
+                 qPrintable(path + QStringLiteral(" must not define local colorWithAlpha helpers; use AppTheme.withAlpha().")));
+    }
+}
+
+void QmlArchitectureTest::paneFilesUsingQmlThemeHelpersImportParentThemeSingleton()
+{
+    const QStringList paneFiles = {
+        QStringLiteral("qml/panes/ProvidersPane.qml"),
+        QStringLiteral("qml/panes/TokenUsagePane.qml"),
+        QStringLiteral("qml/panes/DebugPane.qml"),
+    };
+
+    for (const QString& path : paneFiles) {
+        const QString contents = readFile(path);
+        const bool usesQmlThemeHelpers =
+            contents.contains(QStringLiteral("AppTheme.surface"))
+            || contents.contains(QStringLiteral("AppTheme.withAlpha"))
+            || contents.contains(QStringLiteral("AppTheme.providerBrandColor"))
+            || contents.contains(QStringLiteral("AppTheme.textOnAccent"));
+        if (!usesQmlThemeHelpers) {
+            continue;
+        }
+
+        QVERIFY2(contents.contains(QStringLiteral("import \"..\"")),
+                 qPrintable(path + QStringLiteral(" must import the parent qml directory so AppTheme resolves to AppTheme.qml, not the C++ AppTheme singleton.")));
+    }
+}
+
+void QmlArchitectureTest::highRiskQmlDoesNotUseLegacyHardcodedSurfaceColors()
+{
+    const QStringList files = {
+        QStringLiteral("qml/TrayPanel.qml"),
+        QStringLiteral("qml/components/ProviderDetailCard.qml"),
+        QStringLiteral("qml/components/ChartHoverDetail.qml"),
+        QStringLiteral("qml/components/SettingsButton.qml"),
+        QStringLiteral("qml/components/SettingsSwitch.qml"),
+        QStringLiteral("qml/components/DeleteConfirmationDialog.qml"),
+    };
+    const QStringList forbiddenColors = {
+        QStringLiteral("#252545"),
+        QStringLiteral("#1f1f38"),
+        QStringLiteral("#1c1c32"),
+        QStringLiteral("#202038"),
+        QStringLiteral("#2a2a4a"),
+        QStringLiteral("#3a3a5c"),
+        QStringLiteral("#3a3a6a"),
+        QStringLiteral("#4a4a7a"),
+        QStringLiteral("#25253e"),
+        QStringLiteral("#3b3b5d"),
+        QStringLiteral("#ddd"),
+        QStringLiteral("#aaa"),
+        QStringLiteral("#888"),
+        QStringLiteral("#666"),
+        QStringLiteral("#555"),
+        QStringLiteral("#eef0ff"),
+    };
+
+    for (const QString& path : files) {
+        const QString contents = readFile(path);
+        for (const QString& color : forbiddenColors) {
+            QVERIFY2(!contents.contains(color),
+                     qPrintable(path + QStringLiteral(" must use theme tokens instead of legacy hardcoded surface/text color ") + color));
+        }
+    }
+}
+
+void QmlArchitectureTest::framelessGlassWindowsDoNotExposeNativeCaptionText()
+{
+    const QString main = readFile("src/main.cpp");
+    QVERIFY2(!main.contains(QStringLiteral("settingsView.setTitle(QCoreApplication::translate(\"App\", \"CodexBar Settings\"))")),
+             "SettingsWindow has a custom QML title bar; setting a native title can leak a Windows caption into the acrylic client area.");
+    QVERIFY2(!main.contains(QStringLiteral("usageView.setTitle(QCoreApplication::translate(\"App\", \"Usage Details\"))")),
+             "UsageWindow has a custom QML title bar; setting a native title can leak a Windows caption into the acrylic client area.");
+
+    const QString expectedFlags = QStringLiteral("Qt::Window | Qt::FramelessWindowHint | Qt::CustomizeWindowHint");
+    QVERIFY2(main.contains(QStringLiteral("settingsView.setFlags(")) && main.contains(expectedFlags),
+             "SettingsWindow must explicitly customize its frameless native flags to avoid a native caption layer.");
+    QVERIFY2(main.contains(QStringLiteral("usageView.setFlags(")) && main.contains(expectedFlags),
+             "UsageWindow must explicitly customize its frameless native flags to avoid a native caption layer.");
 }
 
 void QmlArchitectureTest::usageStoreDoesNotInjectBridgeLookupWhenDisabled()

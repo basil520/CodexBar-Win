@@ -95,9 +95,9 @@ ColumnLayout {
             enabled: !root.busy
             background: Rectangle {
                 radius: 6
-                color: AppTheme.bgPrimary
+                color: AppTheme.surfaceControl
                 border.width: 1
-                border.color: parent.activeFocus ? AppTheme.borderAccent : AppTheme.borderColor
+                border.color: parent.activeFocus ? AppTheme.surfaceAccentBorder : AppTheme.surfaceBorder
             }
         }
 
@@ -122,9 +122,9 @@ ColumnLayout {
             enabled: !root.busy
             background: Rectangle {
                 radius: 6
-                color: AppTheme.bgPrimary
+                color: AppTheme.surfaceControl
                 border.width: 1
-                border.color: parent.activeFocus ? AppTheme.borderAccent : AppTheme.borderColor
+                border.color: parent.activeFocus ? AppTheme.surfaceAccentBorder : AppTheme.surfaceBorder
             }
         }
 
@@ -159,9 +159,9 @@ ColumnLayout {
             Layout.fillWidth: true
             implicitHeight: accountRow.implicitHeight + 16
             radius: 7
-            color: AppTheme.bgPrimary
+            color: AppTheme.surfaceControl
             border.width: 1
-            border.color: AppTheme.borderColor
+            border.color: AppTheme.surfaceBorder
 
             RowLayout {
                 id: accountRow

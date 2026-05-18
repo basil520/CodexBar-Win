@@ -19,10 +19,12 @@ Rectangle {
     property bool isRefreshing: false
     property bool embedded: false
 
-    color: root.embedded ? "transparent" : AppTheme.bgCard
+    readonly property bool glassEffectActive: SettingsStore.glassEffectEnabled
+
+    color: root.embedded ? "transparent" : AppTheme.surfaceCard
     implicitHeight: cardContent.implicitHeight + (root.embedded ? 0 : 24)
     radius: root.embedded ? 0 : 10
-    border.color: AppTheme.borderColor
+    border.color: AppTheme.surfaceBorder
     border.width: root.embedded ? 0 : 1
 
     property bool isDetailProvider: providerId === "deepseek"
@@ -75,12 +77,12 @@ Rectangle {
                 width: 8
                 height: 8
                 radius: 4
-                color: parent.peakStatus.isPeak ? "#FFC107" : "#4CAF50"
+                color: parent.peakStatus.isPeak ? AppTheme.statusDegraded : AppTheme.statusOk
                 anchors.verticalCenter: parent.verticalCenter
             }
             Text {
                 text: parent.peakStatus.label
-                color: parent.peakStatus.isPeak ? "#FFC107" : "#888"
+                color: parent.peakStatus.isPeak ? AppTheme.statusDegraded : AppTheme.textTertiary
                 font.pixelSize: 9
                 anchors.verticalCenter: parent.verticalCenter
             }
@@ -89,7 +91,7 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             height: 1
-            color: AppTheme.bgTrack
+            color: AppTheme.surfaceTrack
             visible: root.embedded
         }
 
@@ -161,7 +163,7 @@ Rectangle {
                 Layout.fillWidth: true
                 height: 6
                 radius: 3
-                color: AppTheme.bgTrack
+                color: AppTheme.surfaceTrack
                 Rectangle {
                     width: Math.max(0, parent.width * (root.isDetailProvider ? snap.primaryRemaining : snap.primaryUsed) / 100)
                     height: parent.height
@@ -174,16 +176,16 @@ Rectangle {
                     x: Math.max(0, Math.min(parent.width - 3, parent.width * (snap.primaryPacePercent || 0) / 100 - 1))
                     width: 3
                     height: parent.height
-                    color: (snap.primaryPaceOnTop !== false) ? "#4CAF50" : "#F44336"
+                    color: (snap.primaryPaceOnTop !== false) ? AppTheme.statusOk : AppTheme.statusOutage
                     radius: 1
                     Behavior on x { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
                 }
             }
             Text {
                 text: (snap.primaryDisplayPercent !== undefined ? snap.primaryDisplayPercent : snap.primaryRemaining).toFixed(0) + "%"
-                color: snap.primaryRemaining > 50 ? "#4CAF50"
-                     : snap.primaryRemaining > 20 ? "#FFC107"
-                     : "#F44336"
+                color: snap.primaryRemaining > 50 ? AppTheme.statusOk
+                     : snap.primaryRemaining > 20 ? AppTheme.statusDegraded
+                     : AppTheme.statusOutage
                 font.pixelSize: 11
                 font.bold: true
                 Layout.preferredWidth: 50
@@ -256,7 +258,7 @@ Rectangle {
                 Layout.fillWidth: true
                 height: 6
                 radius: 3
-                color: AppTheme.bgTrack
+                color: AppTheme.surfaceTrack
                 Rectangle {
                     width: Math.max(0, parent.width * snap.secondaryUsed / 100)
                     height: parent.height
@@ -269,16 +271,16 @@ Rectangle {
                     x: Math.max(0, Math.min(parent.width - 3, parent.width * (snap.secondaryPacePercent || 0) / 100 - 1))
                     width: 3
                     height: parent.height
-                    color: (snap.secondaryPaceOnTop !== false) ? "#4CAF50" : "#F44336"
+                    color: (snap.secondaryPaceOnTop !== false) ? AppTheme.statusOk : AppTheme.statusOutage
                     radius: 1
                     Behavior on x { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
                 }
             }
             Text {
                 text: (snap.secondaryDisplayPercent !== undefined ? snap.secondaryDisplayPercent : snap.secondaryRemaining).toFixed(0) + "%"
-                color: snap.secondaryRemaining > 50 ? "#2196F3"
-                     : snap.secondaryRemaining > 20 ? "#FFC107"
-                     : "#F44336"
+                color: snap.secondaryRemaining > 50 ? AppTheme.accentColor
+                     : snap.secondaryRemaining > 20 ? AppTheme.statusDegraded
+                     : AppTheme.statusOutage
                 font.pixelSize: 11
                 font.bold: true
                 Layout.preferredWidth: 50
@@ -336,7 +338,7 @@ Rectangle {
                 Layout.fillWidth: true
                 height: 6
                 radius: 3
-                color: AppTheme.bgTrack
+                color: AppTheme.surfaceTrack
                 Rectangle {
                     width: Math.max(0, parent.width * (snap.tertiaryUsed || 0) / 100)
                     height: parent.height
@@ -349,9 +351,9 @@ Rectangle {
                 text: (snap.tertiaryDisplayPercent !== undefined
                     ? snap.tertiaryDisplayPercent
                     : (snap.tertiaryRemaining !== undefined ? snap.tertiaryRemaining : 100)).toFixed(0) + "%"
-                color: snap.tertiaryRemaining > 50 ? "#9C27B0"
-                     : snap.tertiaryRemaining > 20 ? "#FFC107"
-                     : "#F44336"
+                color: snap.tertiaryRemaining > 50 ? AppTheme.accentColor
+                     : snap.tertiaryRemaining > 20 ? AppTheme.statusDegraded
+                     : AppTheme.statusOutage
                 font.pixelSize: 11
                 font.bold: true
                 Layout.preferredWidth: 50
@@ -396,7 +398,7 @@ Rectangle {
                         Layout.fillWidth: true
                         height: 6
                         radius: 3
-                        color: AppTheme.bgTrack
+                        color: AppTheme.surfaceTrack
                         Rectangle {
                             width: Math.max(0, parent.width * (window.usedPercent || 0) / 100)
                             height: parent.height
@@ -407,9 +409,9 @@ Rectangle {
                     }
                     Text {
                         text: (window.remainingPercent !== undefined ? window.remainingPercent : 100).toFixed(0) + "%"
-                        color: window.remainingPercent > 50 ? "#4CAF50"
-                             : window.remainingPercent > 20 ? "#FFC107"
-                             : "#F44336"
+                        color: window.remainingPercent > 50 ? AppTheme.statusOk
+                             : window.remainingPercent > 20 ? AppTheme.statusDegraded
+                             : AppTheme.statusOutage
                         font.pixelSize: 11
                         font.bold: true
                         Layout.preferredWidth: 50
@@ -437,7 +439,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 28
             visible: root.providerId === "codex" && snap.hasCredits === true
-            color: AppTheme.bgCard
+            color: AppTheme.surfaceCard
             radius: 6
 
             RowLayout {
@@ -457,9 +459,9 @@ Rectangle {
 
                 Text {
                     text: "$" + (snap.creditsRemaining || 0).toFixed(2) + " left"
-                    color: (snap.creditsRemaining || 0) > 10 ? "#4CAF50"
-                         : (snap.creditsRemaining || 0) > 2 ? "#FFC107"
-                         : "#F44336"
+                    color: (snap.creditsRemaining || 0) > 10 ? AppTheme.statusOk
+                         : (snap.creditsRemaining || 0) > 2 ? AppTheme.statusDegraded
+                         : AppTheme.statusOutage
                     font.pixelSize: 13
                     font.bold: true
                 }
@@ -471,7 +473,7 @@ Rectangle {
             Layout.fillWidth: true
             visible: root.providerId === "codex" && snap.creditsError !== undefined && snap.creditsError !== ""
             text: snap.creditsError || ""
-            color: "#FF9800"
+            color: AppTheme.statusDegraded
             font.pixelSize: 10
             elide: Text.ElideRight
             maximumLineCount: 1
@@ -493,12 +495,12 @@ Rectangle {
                 Layout.fillWidth: true
                 height: 6
                 radius: 3
-                color: AppTheme.bgTrack
+                color: AppTheme.surfaceTrack
                 Rectangle {
                     width: Math.max(0, parent.width * Math.min(100, (snap.providerCostUsed || 0) / Math.max(1, snap.providerCostLimit || 1) * 100) / 100)
                     height: parent.height
                     radius: 3
-                    color: "#FF9800"
+                    color: AppTheme.statusDegraded
                     Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
                 }
             }
@@ -544,7 +546,7 @@ Rectangle {
             Rectangle {
                 Layout.fillWidth: true
                 height: 1
-                color: AppTheme.bgTrack
+                color: AppTheme.surfaceTrack
             }
 
             // Zai MCP details
@@ -587,7 +589,7 @@ Rectangle {
                 Text {
                     visible: !!snap.openRouterUsage && snap.openRouterUsage.keyQuotaStatus === 1
                     text: qsTr("No limit set for the API key")
-                    color: "#FFC107"
+                    color: AppTheme.statusDegraded
                     font.pixelSize: 10
                 }
                 Text {
@@ -673,7 +675,7 @@ Rectangle {
                 Rectangle {
                     Layout.fillWidth: true
                     height: 1
-                    color: AppTheme.bgTrack
+                    color: AppTheme.surfaceTrack
                     visible: parent.hasDash
                 }
 
@@ -708,7 +710,7 @@ Rectangle {
                             }
                             Text {
                                 text: "$" + (modelData.amount || 0).toFixed(2)
-                                color: modelData.amount >= 0 ? "#4CAF50" : "#F44336"
+                                color: modelData.amount >= 0 ? AppTheme.statusOk : AppTheme.statusOutage
                                 font.pixelSize: 9
                                 horizontalAlignment: Text.AlignRight
                             }
@@ -759,7 +761,7 @@ Rectangle {
                     Layout.fillWidth: true
                     visible: parent.hasDash && parent.dash.purchaseURL
                     text: "<a href=\"" + (parent.dash.purchaseURL || "") + "\">" + qsTr("Purchase credits") + "</a>"
-                    color: "#64B5F6"
+                    color: AppTheme.accentColor
                     font.pixelSize: 10
                     textFormat: Text.RichText
                     onLinkActivated: Qt.openUrlExternally(link)
@@ -818,28 +820,14 @@ Rectangle {
         return Math.floor(ago / 86400000) + qsTr("d ago")
     }
 
-    property var brandColors: {
-        "codex": "#49A3B0", "claude": "#CC7C5E", "cursor": "#5B8DFA",
-        "gemini": "#8860D0", "copilot": "#2DA44E", "zai": "#E85A6A",
-        "opencode": "#E44D26", "warp": "#00BCD4", "mistral": "#F77F00",
-        "openrouter": "#FF6B6B", "ollama": "#E6EF6C", "kilo": "#7C3AED",
-        "kiro": "#F59E0B", "kimik2": "#06B6D4", "minimax": "#EC4899",
-        "perplexity": "#22C55E", "kimi": "#8B5CF6", "abacus": "#6366F1",
-        "alibaba": "#F97316", "augment": "#14B8A6", "amp": "#D946EF",
-        "factory": "#84CC16", "jetbrains": "#F000F0", "vertexai": "#4285F4",
-        "deepseek": "#4D6BFE", "codebuff": "#44FF00", "windsurf": "#34E8BB",
-        "antigravity": "#10B981", "synthetic": "#6366F1", "opencodego": "#3B82F6",
-        "qianfan": "#2932E1"
-    }
-
     function brandColorFor(providerId) {
-        return brandColors[providerId] || "#4A90D9"
+        return AppTheme.providerBrandColor(providerId)
     }
 
     component ActionButton: Rectangle {
         property string text: ""
         property color textColor: AppTheme.textSecondary
-        property color hoverColor: AppTheme.bgSelected
+        property color hoverColor: AppTheme.surfaceSelected
         signal clicked()
 
         radius: 6

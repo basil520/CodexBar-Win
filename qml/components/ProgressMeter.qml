@@ -1,15 +1,16 @@
-﻿import QtQuick 2.15
+import QtQuick 2.15
+import ".."
 
 Rectangle {
     id: root
     property double percentValue: 0
     property string label: ""
-    property color barColor: "#4CAF50"
+    property color barColor: AppTheme.statusOk
     property double pacePercent: -1
     property bool paceOnTop: true
 
     height: 16
-    color: AppTheme.bgTrack
+    color: AppTheme.surfaceTrack
     radius: 3
 
     Rectangle {
@@ -28,7 +29,7 @@ Rectangle {
         x: Math.max(0, Math.min(parent.width - width, parent.width * root.pacePercent / 100 - 1))
         width: 3
         height: parent.height
-        color: root.paceOnTop ? "#4CAF50" : "#F44336"
+        color: root.paceOnTop ? AppTheme.statusOk : AppTheme.statusOutage
         radius: 1
 
         Behavior on x {

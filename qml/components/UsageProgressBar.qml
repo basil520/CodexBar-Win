@@ -10,7 +10,7 @@ Rectangle {
 
     height: AppTheme.progressBarHeight
     radius: height / 2
-    color: AppTheme.bgHover
+    color: AppTheme.surfaceTrack
     Layout.fillWidth: true
     Layout.minimumWidth: 120
 

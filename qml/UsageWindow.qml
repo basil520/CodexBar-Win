@@ -16,13 +16,8 @@ Rectangle {
     property int rev: LanguageManager.translationRevision
     readonly property bool contentActive: Window.window !== null && Window.window.visible
     readonly property bool glassEffectActive: SettingsStore.glassEffectEnabled
-    readonly property real glassOpacity: Math.min(0.85, Math.max(0.25, SettingsStore.glassEffectOpacity / 100))
-    readonly property color windowBackgroundColor: glassEffectActive ? colorWithAlpha(AppTheme.bgPrimary, glassOpacity) : AppTheme.bgPrimary
-    readonly property color titleBarBackgroundColor: glassEffectActive ? colorWithAlpha(AppTheme.bgTitleBar, Math.max(0.18, glassOpacity * 0.76)) : AppTheme.bgTitleBar
-
-    function colorWithAlpha(color, alpha) {
-        return Qt.rgba(color.r, color.g, color.b, alpha)
-    }
+    readonly property color windowBackgroundColor: AppTheme.surfaceWindow
+    readonly property color titleBarBackgroundColor: glassEffectActive ? "transparent" : AppTheme.surfaceTitleBar
 
     Components.AcrylicBackdrop {
         anchors.fill: parent
@@ -33,7 +28,7 @@ Rectangle {
         anchors.fill: parent
         color: "transparent"
         border.width: 1
-        border.color: AppTheme.borderColor
+        border.color: AppTheme.surfaceBorder
         z: 20
     }
 
@@ -52,7 +47,7 @@ Rectangle {
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
                 height: 1
-                color: AppTheme.borderColor
+                color: AppTheme.surfaceBorder
             }
 
             RowLayout {
@@ -70,7 +65,7 @@ Rectangle {
                     Label {
                         anchors.centerIn: parent
                         text: "U"
-                        color: AppTheme.textPrimary
+                        color: AppTheme.textOnAccent
                         font.pixelSize: 11
                         font.bold: true
                     }
@@ -140,7 +135,7 @@ Rectangle {
         Layout.preferredHeight: 30
         radius: 5
         color: mouseArea.containsMouse
-            ? (danger ? AppTheme.statusOutage : AppTheme.bgHover)
+            ? (danger ? AppTheme.statusOutage : AppTheme.surfaceHover)
             : "transparent"
 
         Label {

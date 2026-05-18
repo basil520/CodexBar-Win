@@ -54,9 +54,9 @@ ComboBox {
 
     background: Rectangle {
         radius: 6
-        color: AppTheme.bgPrimary
+        color: AppTheme.surfaceControl
         border.width: 1
-        border.color: root.activeFocus ? AppTheme.borderAccent : AppTheme.borderColor
+        border.color: root.activeFocus ? AppTheme.surfaceAccentBorder : AppTheme.surfaceBorder
     }
 
     delegate: ItemDelegate {
@@ -73,7 +73,7 @@ ComboBox {
         }
 
         background: Rectangle {
-            color: highlighted ? AppTheme.bgHover : "transparent"
+            color: highlighted ? AppTheme.surfaceHover : "transparent"
         }
     }
 
@@ -92,9 +92,9 @@ ComboBox {
 
         background: Rectangle {
             radius: 6
-            color: AppTheme.bgCard
+            color: AppTheme.surfacePopup
             border.width: 1
-            border.color: AppTheme.borderColor
+            border.color: AppTheme.surfaceBorder
         }
     }
 }

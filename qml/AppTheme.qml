@@ -23,6 +23,7 @@ QtObject {
     property color textTertiary: AppThemeCpp.textTertiary
     property color textDisabled: AppThemeCpp.textDisabled
     property color textInverse: AppThemeCpp.textInverse
+    property color textOnAccent: "#ffffff"
 
     property color statusOk: AppThemeCpp.statusOk
     property color statusDegraded: AppThemeCpp.statusDegraded
@@ -31,6 +32,46 @@ QtObject {
 
     property color accentColor: AppThemeCpp.accentColor
     property color accentHover: AppThemeCpp.accentHover
+
+    readonly property bool glassActive: SettingsStore.glassEffectEnabled
+    readonly property real glassMaterialOpacity: Math.min(0.85, Math.max(0.25, SettingsStore.glassEffectOpacity / 100))
+
+    property color surfaceWindow: glassActive ? withAlpha(bgPrimary, glassMaterialOpacity) : bgPrimary
+    property color surfaceTitleBar: glassActive ? withAlpha(bgTitleBar, Math.min(0.84, Math.max(0.34, glassMaterialOpacity + 0.12))) : bgTitleBar
+    property color surfacePane: glassActive ? withAlpha(bgSecondary, Math.min(0.84, Math.max(0.38, glassMaterialOpacity + 0.18))) : bgSecondary
+    property color surfaceCard: glassActive ? withAlpha(bgCard, Math.min(0.88, Math.max(0.42, glassMaterialOpacity + 0.20))) : bgCard
+    property color surfaceElevated: glassActive ? withAlpha(bgCard, Math.min(0.94, Math.max(0.52, glassMaterialOpacity + 0.30))) : bgCard
+    property color surfaceControl: glassActive ? withAlpha(bgPrimary, Math.min(0.88, Math.max(0.48, glassMaterialOpacity + 0.24))) : bgPrimary
+    property color surfacePopup: glassActive ? withAlpha(bgCard, Math.min(0.96, Math.max(0.62, glassMaterialOpacity + 0.32))) : bgCard
+    property color surfaceChart: glassActive ? withAlpha(bgChart, Math.min(0.90, Math.max(0.46, glassMaterialOpacity + 0.24))) : bgChart
+    property color surfaceHover: glassActive ? withAlpha(bgHover, Math.min(0.76, Math.max(0.36, glassMaterialOpacity + 0.18))) : bgHover
+    property color surfacePressed: glassActive ? withAlpha(bgPressed, Math.min(0.82, Math.max(0.42, glassMaterialOpacity + 0.22))) : bgPressed
+    property color surfaceSelected: glassActive ? withAlpha(bgSelected, Math.min(0.86, Math.max(0.44, glassMaterialOpacity + 0.24))) : bgSelected
+    property color surfaceTrack: glassActive ? withAlpha(bgTrack, Math.min(0.84, Math.max(0.36, glassMaterialOpacity + 0.16))) : bgTrack
+    property color surfaceBorder: glassActive ? withAlpha(borderColor, Math.min(0.74, Math.max(0.38, glassMaterialOpacity + 0.12))) : borderColor
+    property color surfaceAccentBorder: glassActive ? withAlpha(borderAccent, Math.min(0.86, Math.max(0.58, glassMaterialOpacity + 0.18))) : borderAccent
+
+    property var providerBrandColors: ({
+        "codex": "#49A3B0", "claude": "#CC7C5E", "cursor": "#5B8DFA",
+        "gemini": "#8860D0", "copilot": "#2DA44E", "zai": "#E85A6A",
+        "opencode": "#E44D26", "warp": "#00BCD4", "mistral": "#F77F00",
+        "openrouter": "#FF6B6B", "ollama": "#E6EF6C", "kilo": "#7C3AED",
+        "kiro": "#F59E0B", "kimik2": "#06B6D4", "minimax": "#EC4899",
+        "perplexity": "#22C55E", "kimi": "#8B5CF6", "abacus": "#6366F1",
+        "alibaba": "#F97316", "augment": "#14B8A6", "amp": "#D946EF",
+        "factory": "#84CC16", "jetbrains": "#F000F0", "vertexai": "#4285F4",
+        "deepseek": "#4D6BFE", "codebuff": "#44FF00", "windsurf": "#34E8BB",
+        "antigravity": "#10B981", "synthetic": "#6366F1", "opencodego": "#3B82F6",
+        "qianfan": "#2932E1"
+    })
+
+    function withAlpha(color, alpha) {
+        return Qt.rgba(color.r, color.g, color.b, alpha)
+    }
+
+    function providerBrandColor(providerId) {
+        return providerBrandColors[providerId] || accentColor
+    }
 
     property int spacingXs: 4
     property int spacingSm: 8

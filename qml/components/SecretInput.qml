@@ -41,8 +41,8 @@ RowLayout {
 
         background: Rectangle {
             radius: AppTheme.radiusSm
-            color: AppTheme.bgPrimary
-            border.color: parent.activeFocus ? AppTheme.borderAccent : AppTheme.borderColor
+            color: AppTheme.surfaceControl
+            border.color: parent.activeFocus ? AppTheme.surfaceAccentBorder : AppTheme.surfaceBorder
             border.width: 1
         }
 

@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 
 import CodexBarX 1.0
+import ".."
 
 Rectangle {
     id: root
@@ -36,7 +37,7 @@ Rectangle {
     Rectangle {
         id: overlay
         anchors.fill: parent
-        color: "#000000"
+        color: AppTheme.withAlpha(AppTheme.bgPrimary, 0.92)
         opacity: 0
 
         Behavior on opacity {
@@ -52,8 +53,8 @@ Rectangle {
         height: dialogContent.implicitHeight + 32
         anchors.centerIn: parent
         radius: AppTheme.radiusLg
-        color: AppTheme.bgPrimary
-        border.color: AppTheme.borderColor
+        color: AppTheme.surfacePopup
+        border.color: AppTheme.surfaceBorder
         border.width: 1
         opacity: 0
 
@@ -97,7 +98,7 @@ Rectangle {
                 Layout.preferredHeight: previewText.implicitHeight + 16
                 visible: root.itemLabel !== ""
                 radius: 6
-                color: AppTheme.bgSecondary
+                color: AppTheme.surfacePane
                 ColumnLayout {
                     anchors.centerIn: parent
                     spacing: 2
@@ -130,8 +131,8 @@ Rectangle {
                     Layout.preferredWidth: cancelBtnText.implicitWidth + 24
                     Layout.preferredHeight: 28
                     radius: 6
-                    color: cancelMouse.containsMouse ? AppTheme.bgHover : "transparent"
-                    border.color: AppTheme.borderColor
+                    color: cancelMouse.containsMouse ? AppTheme.surfaceHover : "transparent"
+                    border.color: AppTheme.surfaceBorder
                     border.width: 1
                     Text {
                         id: cancelBtnText
@@ -153,7 +154,9 @@ Rectangle {
                     Layout.preferredWidth: confirmBtnText.implicitWidth + 24
                     Layout.preferredHeight: 28
                     radius: 6
-                    color: confirmMouse.containsMouse ? "#5a4040" : "#4a3030"
+                    color: confirmMouse.containsMouse
+                        ? AppTheme.withAlpha(AppTheme.statusOutage, 0.28)
+                        : AppTheme.withAlpha(AppTheme.statusOutage, 0.18)
                     Text {
                         id: confirmBtnText
                         anchors.centerIn: parent

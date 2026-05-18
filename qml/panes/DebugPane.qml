@@ -194,7 +194,7 @@ SettingsPage {
                         }
                         Label {
                             text: modelData.available ? (modelData.success ? "OK" : "FAIL") : "N/A"
-                            color: modelData.available ? (modelData.success ? "#4CAF50" : "#F44336") : "#888"
+                            color: modelData.available ? (modelData.success ? AppTheme.statusOk : AppTheme.statusOutage) : AppTheme.textTertiary
                             font.pixelSize: AppTheme.fontSizeSm
                             font.bold: true
                             Layout.preferredWidth: 40

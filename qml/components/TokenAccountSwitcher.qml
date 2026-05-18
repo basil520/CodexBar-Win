@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 
 import CodexBarX 1.0
+import ".."
 
 Rectangle {
     id: root
@@ -15,7 +16,7 @@ Rectangle {
     width: parent ? parent.width : 276
     height: visible ? buttonRow.implicitHeight + 8 : 0
     radius: AppTheme.radiusMd
-    color: AppTheme.bgSecondary
+    color: AppTheme.surfacePane
     visible: accounts.length > 1
 
     property int rowCount: accounts.length <= 3 ? 1 : 2
@@ -44,7 +45,7 @@ Rectangle {
 
                 color: {
                     if (isSelected) return AppTheme.accentColor
-                    if (btnHover.hovered) return AppTheme.bgHover
+                    if (btnHover.hovered) return AppTheme.surfaceHover
                     return "transparent"
                 }
 
@@ -56,7 +57,7 @@ Rectangle {
                     anchors.centerIn: parent
                     text: modelData.displayName || modelData.accountId || "Account"
                     font.pixelSize: AppTheme.fontSizeSm
-                    color: btn.isSelected ? "#ffffff" : AppTheme.textSecondary
+                    color: btn.isSelected ? AppTheme.textOnAccent : AppTheme.textSecondary
                     elide: Text.ElideRight
                     maximumLineCount: 1
                 }
@@ -81,7 +82,7 @@ Rectangle {
     Rectangle {
         anchors.fill: parent
         radius: parent.radius
-        color: AppTheme.bgPrimary
+        color: AppTheme.surfaceControl
         opacity: root.isSwitching ? 0.4 : 0
         visible: opacity > 0
         Behavior on opacity {

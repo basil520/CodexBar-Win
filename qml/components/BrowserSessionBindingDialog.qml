@@ -20,9 +20,9 @@ Dialog {
 
     background: Rectangle {
         radius: AppTheme.radiusMd
-        color: AppTheme.bgCard
+        color: AppTheme.surfacePopup
         border.width: 1
-        border.color: AppTheme.borderColor
+        border.color: AppTheme.surfaceBorder
     }
 
     contentItem: ColumnLayout {

@@ -12,9 +12,9 @@ Rectangle {
     opacity: enabled ? 1.0 : 0.45
     color: checked
         ? Qt.rgba(AppTheme.accentColor.r, AppTheme.accentColor.g, AppTheme.accentColor.b, 0.95)
-        : AppTheme.bgHover
+        : AppTheme.surfaceHover
     border.width: 1
-    border.color: checked ? AppTheme.accentHover : AppTheme.borderColor
+    border.color: checked ? AppTheme.surfaceAccentBorder : AppTheme.surfaceBorder
 
     Rectangle {
         id: knob
@@ -23,7 +23,7 @@ Rectangle {
         radius: 7
         x: root.checked ? root.width - width - 3 : 3
         y: 3
-        color: root.checked ? "#eef0ff" : AppTheme.textSecondary
+        color: root.checked ? AppTheme.textOnAccent : AppTheme.textSecondary
 
         Behavior on x {
             NumberAnimation { duration: 120; easing.type: Easing.OutCubic }
