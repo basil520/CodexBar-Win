@@ -50,6 +50,7 @@ CODEXBAR_PROVIDER(Venice,       "venice",       venice      )
 CODEXBAR_PROVIDER(VertexAI,     "vertexai",     vertexai    )
 CODEXBAR_PROVIDER(Warp,         "warp",         warp        )
 CODEXBAR_PROVIDER(Windsurf,     "windsurf",     windsurf    )
+CODEXBAR_PROVIDER(XFXinChen,    "xfxinchen",    xfxinchen   )
 CODEXBAR_PROVIDER(Zai,          "zai",          zai         )
 
 #undef CODEXBAR_PROVIDER

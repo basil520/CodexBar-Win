@@ -68,6 +68,11 @@ QVector<BridgeProviderSpec> BrowserSessionBridgeCatalog::specs()
           QStringLiteral("login.bce.baidu.com")},
          {}},
 
+        {QStringLiteral("xfxinchen"), BridgeMaterialKind::Cookies,
+         {QStringLiteral("maas.xfyun.cn"), QStringLiteral("passport.xfyun.cn"),
+          QStringLiteral("login.xfyun.cn")},
+         {}},
+
         {QStringLiteral("minimax"), BridgeMaterialKind::Cookies,
          {QStringLiteral("platform.minimax.io"), QStringLiteral("platform.minimaxi.com"),
           QStringLiteral("minimax.io"), QStringLiteral("minimaxi.com")},

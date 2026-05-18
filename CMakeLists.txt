@@ -55,6 +55,7 @@ set(CORE_SOURCES
     src/providers/shared/ProviderCredentialStore.cpp
 
     src/providers/zai/ZaiProvider.cpp
+    src/providers/xfxinchen/XFXinChenProvider.cpp
     src/providers/openrouter/OpenRouterProvider.cpp
     src/providers/copilot/CopilotProvider.cpp
     src/providers/kimik2/KimiK2Provider.cpp

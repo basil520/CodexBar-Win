@@ -42,6 +42,7 @@
 #include "vertexai/VertexAIProvider.h"
 #include "warp/WarpProvider.h"
 #include "windsurf/WindsurfProvider.h"
+#include "xfxinchen/XFXinChenProvider.h"
 #include "zai/ZaiProvider.h"
 
 #include "../app/SettingsStore.h"

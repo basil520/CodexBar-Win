@@ -77,6 +77,7 @@
         <file alias="icons/ProviderIcon-vertexai.svg">../resources/icons/ProviderIcon-vertexai.svg</file>
         <file alias="icons/ProviderIcon-warp.svg">../resources/icons/ProviderIcon-warp.svg</file>
         <file alias="icons/ProviderIcon-windsurf.svg">../resources/icons/ProviderIcon-windsurf.svg</file>
+        <file alias="icons/ProviderIcon-xfxinchen.svg">../resources/icons/ProviderIcon-XFXinChen.svg</file>
         <file alias="icons/ProviderIcon-zai.svg">../resources/icons/ProviderIcon-zai.svg</file>
         <file alias="browser-session-bridge/manifest.json">../resources/browser-session-bridge/manifest.json</file>
         <file alias="browser-session-bridge/protocol.js">../resources/browser-session-bridge/protocol.js</file>
