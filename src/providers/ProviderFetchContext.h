@@ -26,6 +26,7 @@ struct ProviderFetchContext {
     bool allowInteractiveAuth = false;
     bool verbose = false;
     bool webDebugDumpHTML = false;
+    bool disableLegacyCookieImport = false;
     int networkTimeoutMs = 15000;
     QString accountID;
     TokenAccountCredentials accountCredentials;

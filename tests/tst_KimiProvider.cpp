@@ -101,6 +101,7 @@ void tst_KimiProvider::importedBrowserSessionAccessTokenMakesWebStrategyAvailabl
 void tst_KimiProvider::importedBrowserSessionRefreshTokenOnlyIsNotAvailable() {
     ProviderFetchContext ctx;
     ctx.providerId = QStringLiteral("kimi");
+    ctx.disableLegacyCookieImport = true;
     ImportedBrowserSession session;
     session.providerId = QStringLiteral("kimi");
     session.sessionPayload = QStringLiteral(R"({"refresh_token":"refresh-token-only"})");

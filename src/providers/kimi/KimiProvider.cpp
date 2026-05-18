@@ -117,6 +117,7 @@ std::optional<QString> KimiWebStrategy::resolveAuthToken(const ProviderFetchCont
     }
 
     // 4. Legacy browser cookie import
+    if (ctx.disableLegacyCookieImport) return std::nullopt;
     QStringList domains = {"kimi.com", "www.kimi.com", "auth.kimi.com",
                            "kimi.moonshot.cn", "login.moonshot.cn", "login.moonshot.ai"};
     for (auto browser : CookieImporter::importOrder()) {
