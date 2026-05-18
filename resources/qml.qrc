@@ -8,6 +8,7 @@
         <file alias="qml/qmldir">../qml/qmldir</file>
         <file alias="qml/AppTheme.qml">../qml/AppTheme.qml</file>
         <file alias="qml/components/ProgressMeter.qml">../qml/components/ProgressMeter.qml</file>
+        <file alias="qml/components/AcrylicBackdrop.qml">../qml/components/AcrylicBackdrop.qml</file>
         <file alias="qml/components/SettingsGroupBox.qml">../qml/components/SettingsGroupBox.qml</file>
         <file alias="qml/components/SettingsButton.qml">../qml/components/SettingsButton.qml</file>
         <file alias="qml/components/SettingsComboBox.qml">../qml/components/SettingsComboBox.qml</file>

@@ -45,6 +45,11 @@ Rectangle {
         return Qt.rgba(color.r, color.g, color.b, alpha)
     }
 
+    Components.AcrylicBackdrop {
+        anchors.fill: parent
+        tint: AppTheme.bgPrimary
+    }
+
     Component.onCompleted: TrayViewModel.requestCostUsageViewData()
     onCostExpandedChanged: refreshProviderCostRows()
     onSelectedProviderIDChanged: refreshProviderCostRows()

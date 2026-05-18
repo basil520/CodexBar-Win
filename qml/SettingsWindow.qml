@@ -3,6 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 import CodexBarX 1.0
+import "components" as Components
 import "panes"
 
 Rectangle {
@@ -32,6 +33,11 @@ Rectangle {
 
     function colorWithAlpha(color, alpha) {
         return Qt.rgba(color.r, color.g, color.b, alpha)
+    }
+
+    Components.AcrylicBackdrop {
+        anchors.fill: parent
+        tint: AppTheme.bgPrimary
     }
 
     Rectangle {

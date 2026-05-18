@@ -5,6 +5,7 @@
 
 #ifdef Q_OS_WIN
 #include <windows.h>
+#include <dwmapi.h>
 #endif
 
 namespace WindowGlassEffect {
@@ -133,6 +134,22 @@ bool applySystemBackdrop(HWND hwnd, bool enabled)
                         sizeof(backdrop)));
 }
 
+bool extendFrameIntoClientArea(HWND hwnd, bool enabled)
+{
+    MARGINS margins = enabled
+        ? MARGINS{-1, -1, -1, -1}
+        : MARGINS{0, 0, 0, 0};
+    return SUCCEEDED(DwmExtendFrameIntoClientArea(hwnd, &margins));
+}
+
+bool enableBlurBehindWindow(HWND hwnd, bool enabled)
+{
+    DWM_BLURBEHIND blur = {};
+    blur.dwFlags = DWM_BB_ENABLE;
+    blur.fEnable = enabled ? TRUE : FALSE;
+    return SUCCEEDED(DwmEnableBlurBehindWindow(hwnd, &blur));
+}
+
 } // namespace
 
 bool isAvailable()
@@ -148,15 +165,19 @@ bool apply(QWindow* window, bool enabled, QColor tint)
     if (!hwnd) return false;
 
     if (!enabled) {
+        const bool blurCleared = enableBlurBehindWindow(hwnd, false);
+        const bool frameCleared = extendFrameIntoClientArea(hwnd, false);
         const bool accentCleared = applyAccentPolicy(hwnd, false, tint);
         const bool backdropCleared = applySystemBackdrop(hwnd, false);
-        return accentCleared || backdropCleared;
+        return blurCleared || frameCleared || accentCleared || backdropCleared;
     }
 
-    if (applyAccentPolicy(hwnd, true, tint)) {
-        return true;
-    }
-    return applySystemBackdrop(hwnd, true);
+    const bool frameExtended = extendFrameIntoClientArea(hwnd, true);
+    const bool blurEnabled = enableBlurBehindWindow(hwnd, true);
+    const bool backdropApplied = applySystemBackdrop(hwnd, true);
+    const bool accentApplied = applyAccentPolicy(hwnd, true, tint);
+
+    return frameExtended || blurEnabled || backdropApplied || accentApplied;
 }
 
 #else
