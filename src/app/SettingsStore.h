@@ -24,6 +24,7 @@ class SettingsStore : public QObject {
     Q_PROPERTY(bool claudePeakHoursEnabled READ claudePeakHoursEnabled WRITE setClaudePeakHoursEnabled NOTIFY claudePeakHoursEnabledChanged)
     Q_PROPERTY(bool browserSessionBridgeEnabled READ browserSessionBridgeEnabled WRITE setBrowserSessionBridgeEnabled NOTIFY browserSessionBridgeEnabledChanged)
     Q_PROPERTY(QString language READ language WRITE setLanguage NOTIFY languageChanged)
+    Q_PROPERTY(int theme READ theme WRITE setTheme NOTIFY themeChanged)
 
 public:
     explicit SettingsStore(QObject* parent = nullptr);
@@ -73,6 +74,9 @@ public:
     QString language() const { return m_language; }
     void setLanguage(const QString& lang);
 
+    int theme() const { return m_theme; }
+    void setTheme(int theme);
+
     Q_INVOKABLE bool isProviderEnabled(const QString& id) const;
     Q_INVOKABLE void setProviderEnabled(const QString& id, bool enabled);
     Q_INVOKABLE QStringList providerOrder() const;
@@ -109,6 +113,7 @@ signals:
     void claudePeakHoursEnabledChanged();
     void browserSessionBridgeEnabledChanged();
     void languageChanged();
+    void themeChanged();
     void providerOrderChanged();
     void providerSettingChanged(const QString& providerID, const QString& key);
 
@@ -132,6 +137,7 @@ private:
     bool m_claudePeakHoursEnabled = true;
     bool m_browserSessionBridgeEnabled = true;
     QString m_language;
+    int m_theme = 0;
     QStringList m_providerOrder;
     QHash<QString, QHash<QString, QVariant>> m_providerSettings;
 };

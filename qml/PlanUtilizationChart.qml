@@ -17,7 +17,7 @@ Rectangle {
     property int dataRevision: 0
     property bool ready: false
 
-    color: "#1c1c32"
+    color: AppTheme.bgChart
     radius: 8
     height: 130
     implicitHeight: 130
@@ -81,14 +81,14 @@ Rectangle {
                     width: seriesLabel.width + 12
                     height: 20
                     radius: 4
-                    color: isSelected ? "#4a4a7a" : "transparent"
-                    border.color: isSelected ? "#6a6aaa" : "transparent"
+                    color: isSelected ? AppTheme.bgSelected : "transparent"
+                    border.color: isSelected ? AppTheme.borderAccent : "transparent"
 
                     Text {
                         id: seriesLabel
                         anchors.centerIn: parent
                         text: modelData.label
-                        color: isSelected ? "white" : "#888"
+                        color: isSelected ? AppTheme.textPrimary : AppTheme.textTertiary
                         font.pixelSize: 10
                     }
 
@@ -107,7 +107,7 @@ Rectangle {
 
             Text {
                 text: chartPoints.length > 0 ? qsTr("%1 pts").arg(chartPoints.length) : qsTr("No data")
-                color: "#666"
+                color: AppTheme.textInverse
                 font.pixelSize: 9
             }
         }
@@ -123,11 +123,11 @@ Rectangle {
                 onPaint: {
                     var ctx = getContext("2d");
                     ctx.reset();
-                    ctx.fillStyle = "#1c1c32";
+                    ctx.fillStyle = AppTheme.bgChart;
                     ctx.fillRect(0, 0, width, height);
 
                     if (chartPoints.length === 0) {
-                        ctx.fillStyle = "#555";
+                        ctx.fillStyle = AppTheme.textDisabled;
                         ctx.font = "10px sans-serif";
                         ctx.textAlign = "center";
                         ctx.fillText(chartRoot.noDataText, width / 2, height / 2);
@@ -141,7 +141,7 @@ Rectangle {
                         var pct = chartPoints[i].usedPercent;
                         var barHeight = Math.max(1, (pct / 100.0) * (height - 20));
 
-                        ctx.fillStyle = "#2a2a4a";
+                        ctx.fillStyle = AppTheme.bgTrack;
                         ctx.fillRect(startX + i * (barWidth + 2), height - 10, barWidth, -(height - 20));
 
                         ctx.fillStyle = "#4CAF50";
@@ -150,7 +150,7 @@ Rectangle {
                         ctx.fillRect(startX + i * (barWidth + 2), height - 10, barWidth, -barHeight);
                     }
 
-                    ctx.fillStyle = "#444";
+                    ctx.fillStyle = AppTheme.textInverse;
                     ctx.font = "8px sans-serif";
                     ctx.textAlign = "left";
                     ctx.fillText("100%", 0, 12);
@@ -179,7 +179,7 @@ Rectangle {
                 id: hoverDetail
                 anchors.bottom: parent.bottom
                 anchors.horizontalCenter: parent.horizontalCenter
-                color: "#aaa"
+                color: AppTheme.textSecondary
                 font.pixelSize: 9
             }
         }

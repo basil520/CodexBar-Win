@@ -119,7 +119,7 @@ Rectangle {
                 Layout.fillWidth: true
                 visible: root.destructive
                 text: qsTr("This action cannot be undone.")
-                color: "#e06060"
+                color: AppTheme.statusOutage
                 font.pixelSize: AppTheme.fontSizeSm
             }
             RowLayout {
@@ -158,7 +158,7 @@ Rectangle {
                         id: confirmBtnText
                         anchors.centerIn: parent
                         text: qsTr("Delete")
-                        color: "#e06060"
+                        color: AppTheme.statusOutage
                         font.pixelSize: AppTheme.fontSizeSm
                     }
                     MouseArea {

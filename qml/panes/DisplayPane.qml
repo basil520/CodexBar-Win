@@ -9,6 +9,43 @@ SettingsPage {
     subtitle: qsTr("Tune how usage and tray state are presented.")
 
     SettingsGroupBox {
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: AppTheme.spacingMd
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 2
+
+                Text {
+                    text: qsTr("Theme")
+                    color: AppTheme.textPrimary
+                    font.pixelSize: AppTheme.fontSizeMd
+                }
+
+                Text {
+                    text: qsTr("Choose the overall color style.")
+                    color: AppTheme.textSecondary
+                    font.pixelSize: AppTheme.fontSizeSm
+                }
+            }
+
+            SettingsComboBox {
+                Layout.preferredWidth: 180
+                model: [
+                    { value: 0, label: qsTr("Dark") },
+                    { value: 1, label: qsTr("Midnight Blue") },
+                    { value: 2, label: qsTr("Amethyst") }
+                ]
+                selectedValue: SettingsStore.theme
+                onValueActivated: function(value) {
+                    SettingsStore.theme = value
+                }
+            }
+        }
+    }
+
+    SettingsGroupBox {
         SettingsToggleRow {
             title: qsTr("Merge Icons")
             subtitle: qsTr("Show a single combined tray icon for enabled providers.")

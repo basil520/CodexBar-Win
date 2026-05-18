@@ -164,7 +164,7 @@ ScrollView {
                                 text: root.descriptor && root.descriptor.displayName
                                     ? root.descriptor.displayName.charAt(0).toUpperCase()
                                     : "?"
-                                color: "white"
+                                color: AppTheme.textPrimary
                                 font.pixelSize: 18
                                 font.bold: true
                             }
@@ -834,14 +834,14 @@ ScrollView {
                             : {}
 
                         background: Rectangle {
-                            color: parent.hovered ? "#4CAF50" : Qt.rgba(0.30, 0.65, 0.31, 0.35)
+                            color: parent.hovered ? AppTheme.statusOk : Qt.rgba(0.30, 0.65, 0.31, 0.35)
                             radius: 6
-                            border.color: "#4CAF50"
+                            border.color: AppTheme.statusOk
                             border.width: 1
                         }
                         contentItem: Label {
                             text: parent.text
-                            color: "#4CAF50"
+                            color: AppTheme.statusOk
                             font.pixelSize: 13
                             font.bold: true
                             horizontalAlignment: Text.AlignHCenter

@@ -9,11 +9,11 @@ Rectangle {
     id: root
     width: 360
     height: 720
-    color: "#1a1a2e"
+    color: AppTheme.bgPrimary
     radius: 12
     clip: true
     antialiasing: true
-    border.color: "#3a3a5c"
+    border.color: AppTheme.bgSelected
     border.width: 1
 
     property var costData: TrayViewModel.costData
@@ -89,7 +89,7 @@ Rectangle {
         anchors.margins: -1
         radius: 13
         color: "transparent"
-        border.color: "#101020"
+        border.color: AppTheme.bgTitleBar
         border.width: 1
         z: -1
     }
@@ -102,7 +102,7 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 48
-            color: "#12122a"
+            color: AppTheme.bgTitleBar
             radius: 12
 
             Rectangle {
@@ -116,7 +116,7 @@ Rectangle {
                 anchors.bottom: parent.bottom
                 width: parent.width
                 height: 1
-                color: "#2a2a4a"
+                color: AppTheme.borderColor
             }
 
             RowLayout {
@@ -126,7 +126,7 @@ Rectangle {
                 spacing: 8
                 Text {
                     text: qsTr("CodexBar")
-                    color: "white"
+                    color: AppTheme.textPrimary
                     font.pixelSize: 15
                     font.bold: true
                 }
@@ -235,14 +235,14 @@ Rectangle {
                         Text {
                             Layout.preferredWidth: 12
                             text: root.costExpanded && displayCostData.hasData ? "▾" : "▸"
-                            color: "#888"
+                            color: AppTheme.textTertiary
                             font.pixelSize: 11
                             horizontalAlignment: Text.AlignHCenter
                         }
                         Text {
                             Layout.fillWidth: true
                             text: qsTr("Token Usage")
-                            color: "#ccc"
+                            color: AppTheme.textSecondary
                             font.pixelSize: 12
                             font.bold: true
                             elide: Text.ElideRight
@@ -283,7 +283,7 @@ Rectangle {
                             text: displayCostData.hasData
                                 ? "$" + displayCostData.sessionCostUSD.toFixed(2) + " " + qsTr("today")
                                 : TrayViewModel.costUsageRefreshing ? qsTr("scanning...") : qsTr("no data")
-                            color: "#888"
+                            color: AppTheme.textTertiary
                             font.pixelSize: 10
                             elide: Text.ElideRight
                         }
@@ -303,7 +303,7 @@ Rectangle {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 56
                         radius: 8
-                        color: "#1c1c32"
+                        color: AppTheme.bgChart
 
                         RowLayout {
                             anchors.fill: parent
@@ -326,7 +326,7 @@ Rectangle {
                             Rectangle {
                                 Layout.preferredWidth: 1
                                 Layout.fillHeight: true
-                                color: "#2a2a4a"
+                                color: AppTheme.borderColor
                             }
 
                             CostMetricCell {
@@ -346,7 +346,7 @@ Rectangle {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 60
                         radius: 8
-                        color: "#1c1c32"
+                        color: AppTheme.bgChart
                         clip: true
 
                         Row {
@@ -382,7 +382,7 @@ Rectangle {
                                         anchors.bottom: parent.bottom
                                         width: parent.width
                                         height: 1
-                                        color: "#2a2a4a"
+                                        color: AppTheme.borderColor
                                     }
                                 }
                             }
@@ -393,8 +393,8 @@ Rectangle {
                             anchors.leftMargin: 4
                             anchors.verticalCenter: parent.verticalCenter
                             spacing: 4
-                            Text { text: qsTr("max"); color: "#444"; font.pixelSize: 8 }
-                            Text { text: "0"; color: "#444"; font.pixelSize: 8 }
+                            Text { text: qsTr("max"); color: AppTheme.textInverse; font.pixelSize: 8 }
+                            Text { text: "0"; color: AppTheme.textInverse; font.pixelSize: 8 }
                         }
                     }
 
@@ -404,8 +404,8 @@ Rectangle {
                         spacing: 6
                         Rectangle { width: 10; height: 10; radius: 5; color: "#2196F3" }
                         Text { text: qsTr("Mon"); color: "#888"; font.pixelSize: 9 }
-                        Rectangle { width: 1; height: 10; color: "#2a2a4a" }
-                        Rectangle { width: 10; height: 10; radius: 5; color: "#3a3a6a" }
+                        Rectangle { width: 1; height: 10; color: AppTheme.borderColor }
+                        Rectangle { width: 10; height: 10; radius: 5; color: AppTheme.bgSelected }
                         Text { text: qsTr("other day"); color: "#888"; font.pixelSize: 9 }
                     }
 
@@ -443,7 +443,7 @@ Rectangle {
                                     Text {
                                         Layout.preferredWidth: 12
                                         text: providerExpanded ? "▾" : "▸"
-                                        color: "#888"
+                                        color: AppTheme.textTertiary
                                         font.pixelSize: 10
                                         horizontalAlignment: Text.AlignHCenter
                                     }
@@ -462,7 +462,7 @@ Rectangle {
                                             }
                                             return names[modelData.providerId] || modelData.providerId
                                         }
-                                        color: "#ccc"
+                                        color: AppTheme.textSecondary
                                         font.pixelSize: 11
                                         font.bold: true
                                         Layout.fillWidth: true
@@ -470,12 +470,12 @@ Rectangle {
                                     }
                                     Text {
                                         text: "$" + formatCost(modelData.last30DaysCostUSD)
-                                        color: "#888"
+                                        color: AppTheme.textTertiary
                                         font.pixelSize: 10
                                     }
                                     Text {
                                         text: fmtNum(modelData.last30DaysTokens) + " " + qsTr("tokens")
-                                        color: "#666"
+                                        color: AppTheme.textInverse
                                         font.pixelSize: 9
                                     }
                                 }
@@ -495,24 +495,24 @@ Rectangle {
                                         spacing: 4
                                         Text {
                                             text: "└─"
-                                            color: "#555"
+                                            color: AppTheme.textDisabled
                                             font.pixelSize: 9
                                         }
                                         Text {
                                             text: modelData.name
-                                            color: "#999"
+                                            color: AppTheme.textSecondary
                                             font.pixelSize: 10
                                             Layout.fillWidth: true
                                             elide: Text.ElideRight
                                         }
                                         Text {
                                             text: "$" + formatCost(modelData.costUSD)
-                                            color: "#888"
+                                            color: AppTheme.textTertiary
                                             font.pixelSize: 9
                                         }
                                         Text {
                                             text: fmtNum(modelData.tokens) + " tk"
-                                            color: "#666"
+                                            color: AppTheme.textInverse
                                             font.pixelSize: 9
                                         }
                                     }
@@ -599,14 +599,14 @@ Rectangle {
                         spacing: 6
                         Text {
                             text: snap.displayName
-                            color: "white"
+                            color: AppTheme.textPrimary
                             font.pixelSize: 14
                             font.bold: true
                             Layout.fillWidth: true
                         }
                         Text {
                             text: snap.loginMethod && snap.loginMethod !== "" ? snap.loginMethod : ""
-                            color: "#888"
+                            color: AppTheme.textTertiary
                             font.pixelSize: 10
                             visible: !!snap.loginMethod && snap.loginMethod !== "" && !cardDelegate.expanded
                         }
@@ -619,7 +619,7 @@ Rectangle {
 
                         Text {
                             text: qsTr("Account")
-                            color: "#888"
+                            color: AppTheme.textTertiary
                             font.pixelSize: 10
                             Layout.preferredWidth: 54
                         }
@@ -646,7 +646,7 @@ Rectangle {
                         visible: snap.error !== ""
                         Text {
                             text: snap.error
-                            color: "#F44336"
+                            color: AppTheme.statusOutage
                             font.pixelSize: 10
                             Layout.fillWidth: true
                             elide: Text.ElideRight
@@ -660,7 +660,7 @@ Rectangle {
                         Layout.fillWidth: true
                         visible: !snap.hasUsage && snap.error === ""
                         text: root.isRefreshing ? qsTr("Refreshing...") : qsTr("No usage yet")
-                        color: "#555"
+                        color: AppTheme.textDisabled
                         font.pixelSize: 12
                     }
 
@@ -671,7 +671,7 @@ Rectangle {
                         spacing: 6
                         Text {
                             text: cardDelegate.isDetailProvider ? qsTr("Balance") : cardDelegate.primaryLabel
-                            color: "#aaa"
+                            color: AppTheme.textSecondary
                             font.pixelSize: 11
                             font.bold: true
                             Layout.preferredWidth: 80
@@ -680,7 +680,7 @@ Rectangle {
                             Layout.fillWidth: true
                             height: 6
                             radius: 3
-                            color: "#2a2a4a"
+                            color: AppTheme.borderColor
                             Rectangle {
                                 width: Math.max(0, parent.width * (cardDelegate.isDetailProvider ? snap.primaryRemaining : snap.primaryUsed) / 100)
                                 height: parent.height
@@ -717,13 +717,13 @@ Rectangle {
                         spacing: 4
                         Text {
                             text: snap.primaryPaceLeftLabel || ""
-                            color: "#aaa"
+                            color: AppTheme.textSecondary
                             font.pixelSize: 10
                             Layout.preferredWidth: 80
                         }
                         Text {
                             text: snap.primaryPaceRightLabel || ""
-                            color: "#888"
+                            color: AppTheme.textTertiary
                             font.pixelSize: 10
                             Layout.fillWidth: true
                             horizontalAlignment: Text.AlignRight
@@ -737,7 +737,7 @@ Rectangle {
                         Item { Layout.preferredWidth: 80 }
                         Text {
                             text: qsTr("Resets") + " " + (snap.primaryResetDesc || "")
-                            color: "#666"
+                            color: AppTheme.textInverse
                             font.pixelSize: 10
                             Layout.fillWidth: true
                             elide: Text.ElideRight
@@ -752,7 +752,7 @@ Rectangle {
                         Item { Layout.preferredWidth: 80 }
                         Text {
                             text: snap.primaryDetail || ""
-                            color: "#888"
+                            color: AppTheme.textTertiary
                             font.pixelSize: 10
                             Layout.fillWidth: true
                             elide: Text.ElideRight
@@ -766,7 +766,7 @@ Rectangle {
                         spacing: 6
                         Text {
                             text: snap.weeklyLabel
-                            color: "#aaa"
+                            color: AppTheme.textSecondary
                             font.pixelSize: 11
                             font.bold: true
                             Layout.preferredWidth: 80
@@ -775,7 +775,7 @@ Rectangle {
                             Layout.fillWidth: true
                             height: 6
                             radius: 3
-                            color: "#2a2a4a"
+                            color: AppTheme.borderColor
                             Rectangle {
                                 width: Math.max(0, parent.width * snap.secondaryUsed / 100)
                                 height: parent.height
@@ -812,13 +812,13 @@ Rectangle {
                         spacing: 4
                         Text {
                             text: snap.secondaryPaceLeftLabel || ""
-                            color: "#aaa"
+                            color: AppTheme.textSecondary
                             font.pixelSize: 10
                             Layout.preferredWidth: 80
                         }
                         Text {
                             text: snap.secondaryPaceRightLabel || ""
-                            color: "#888"
+                            color: AppTheme.textTertiary
                             font.pixelSize: 10
                             Layout.fillWidth: true
                             horizontalAlignment: Text.AlignRight
@@ -832,7 +832,7 @@ Rectangle {
                         Item { Layout.preferredWidth: 80 }
                         Text {
                             text: qsTr("Resets") + " " + (snap.secondaryResetDesc || "")
-                            color: "#666"
+                            color: AppTheme.textInverse
                             font.pixelSize: 10
                             Layout.fillWidth: true
                             elide: Text.ElideRight
@@ -846,7 +846,7 @@ Rectangle {
                         spacing: 6
                         Text {
                             text: snap.opusLabel || qsTr("Opus")
-                            color: "#aaa"
+                            color: AppTheme.textSecondary
                             font.pixelSize: 11
                             font.bold: true
                             Layout.preferredWidth: 80
@@ -855,7 +855,7 @@ Rectangle {
                             Layout.fillWidth: true
                             height: 6
                             radius: 3
-                            color: "#2a2a4a"
+                            color: AppTheme.borderColor
                             Rectangle {
                                 width: Math.max(0, parent.width * (snap.tertiaryUsed || 0) / 100)
                                 height: parent.height
@@ -884,7 +884,7 @@ Rectangle {
                         Item { Layout.preferredWidth: 80 }
                         Text {
                             text: qsTr("Resets") + " " + (snap.tertiaryResetDesc || "")
-                            color: "#666"
+                            color: AppTheme.textInverse
                             font.pixelSize: 10
                             Layout.fillWidth: true
                             elide: Text.ElideRight
@@ -896,7 +896,7 @@ Rectangle {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 28
                         visible: cardDelegate.providerId === "codex" && snap.hasCredits === true
-                        color: "#1a2a1a"
+                        color: AppTheme.bgCard
                         radius: 6
 
                         RowLayout {
@@ -907,7 +907,7 @@ Rectangle {
 
                             Text {
                                             text: qsTr("Credits")
-                                color: "#888"
+                                color: AppTheme.textTertiary
                                 font.pixelSize: 11
                                 font.bold: true
                             }
@@ -943,7 +943,7 @@ Rectangle {
                         spacing: 6
                         Text {
                             text: snap.providerCostCurrency === "Quota" ? qsTr("Quota usage") : qsTr("Extra usage")
-                            color: "#aaa"
+                            color: AppTheme.textSecondary
                             font.pixelSize: 11
                             font.bold: true
                             Layout.preferredWidth: 80
@@ -952,7 +952,7 @@ Rectangle {
                             Layout.fillWidth: true
                             height: 6
                             radius: 3
-                            color: "#2a2a4a"
+                            color: AppTheme.borderColor
                             Rectangle {
                                 width: Math.max(0, parent.width * Math.min(100, (snap.providerCostUsed || 0) / Math.max(1, snap.providerCostLimit || 1) * 100) / 100)
                                 height: parent.height
@@ -969,7 +969,7 @@ Rectangle {
                         Item { Layout.preferredWidth: 80 }
                         Text {
                             text: qsTr("This month") + ": $" + (snap.providerCostUsed || 0).toFixed(2) + " / $" + (snap.providerCostLimit || 0).toFixed(2)
-                            color: "#888"
+                            color: AppTheme.textTertiary
                             font.pixelSize: 10
                             Layout.fillWidth: true
                         }
@@ -978,7 +978,7 @@ Rectangle {
                                 var pct = snap.providerCostLimit > 0 ? ((snap.providerCostUsed || 0) / (snap.providerCostLimit || 1) * 100).toFixed(0) : "0"
                                 return qsTr("%1 used").arg(pct)
                             }
-                            color: "#666"
+                            color: AppTheme.textInverse
                             font.pixelSize: 10
                             horizontalAlignment: Text.AlignRight
                         }
@@ -989,7 +989,7 @@ Rectangle {
                         Layout.fillWidth: true
                         visible: snap.hasUsage && snap.updatedAt > 0 && !root.isRefreshing
                         text: qsTr("Updated") + " " + timeAgo(snap.updatedAt)
-                        color: "#555"
+                        color: AppTheme.textDisabled
                         font.pixelSize: 9
                     }
 
@@ -1003,7 +1003,7 @@ Rectangle {
                         Rectangle {
                             Layout.fillWidth: true
                             height: 1
-                            color: "#2a2a4a"
+                            color: AppTheme.borderColor
                         }
 
                         // Zai MCP details
@@ -1013,7 +1013,7 @@ Rectangle {
                             spacing: 2
                             Text {
                                 text: qsTr("MCP details")
-                                color: "#aaa"
+                                color: AppTheme.textSecondary
                                 font.pixelSize: 10
                                 font.bold: true
                             }
@@ -1025,14 +1025,14 @@ Rectangle {
                                     spacing: 4
                                     Text {
                                         text: modelData.modelCode
-                                        color: "#888"
+                                        color: AppTheme.textTertiary
                                         font.pixelSize: 9
                                         Layout.fillWidth: true
                                         elide: Text.ElideRight
                                     }
                                     Text {
                                         text: fmtNum(modelData.usage)
-                                        color: "#aaa"
+                                        color: AppTheme.textSecondary
                                         font.pixelSize: 9
                                     }
                                 }
@@ -1053,7 +1053,7 @@ Rectangle {
                             Text {
                                 visible: !!snap.openRouterUsage && snap.openRouterUsage.keyQuotaStatus === 2
                                 text: qsTr("API key limit unavailable right now")
-                                color: "#F44336"
+                                color: AppTheme.statusOutage
                                 font.pixelSize: 10
                             }
                             Text {
@@ -1061,7 +1061,7 @@ Rectangle {
                                 text: snap.openRouterUsage && snap.openRouterUsage.keyRemaining !== undefined
                                     ? "$" + (snap.openRouterUsage.keyRemaining || 0).toFixed(2) + "/$" + (snap.openRouterUsage.keyLimit || 0).toFixed(2) + " " + qsTr("left")
                                     : ""
-                                color: "#aaa"
+                                color: AppTheme.textSecondary
                                 font.pixelSize: 10
                             }
                         }
@@ -1090,7 +1090,7 @@ Rectangle {
                             Rectangle {
                                 Layout.fillWidth: true
                                 height: 1
-                                color: "#2a2a4a"
+                                color: AppTheme.borderColor
                                 visible: parent.hasDashboard
                             }
 
@@ -1101,7 +1101,7 @@ Rectangle {
                                 spacing: 4
                                 Text {
                                     text: qsTr("Credit Events")
-                                    color: "#aaa"
+                                    color: AppTheme.textSecondary
                                     font.pixelSize: 10
                                     font.bold: true
                                 }
@@ -1112,13 +1112,13 @@ Rectangle {
                                         spacing: 4
                                         Text {
                                             text: modelData.date ? new Date(modelData.date).toLocaleDateString(Qt.locale(), "yyyy-MM-dd") : ""
-                                            color: "#888"
+                                            color: AppTheme.textTertiary
                                             font.pixelSize: 9
                                             Layout.preferredWidth: 70
                                         }
                                         Text {
                                             text: modelData.service || ""
-                                            color: "#888"
+                                            color: AppTheme.textTertiary
                                             font.pixelSize: 9
                                             Layout.fillWidth: true
                                             elide: Text.ElideRight
@@ -1140,7 +1140,7 @@ Rectangle {
                                 spacing: 4
                                 Text {
                                     text: qsTr("Usage by Service")
-                                    color: "#aaa"
+                                    color: AppTheme.textSecondary
                                     font.pixelSize: 10
                                     font.bold: true
                                 }
@@ -1151,19 +1151,19 @@ Rectangle {
                                         spacing: 4
                                         Text {
                                             text: modelData.service || ""
-                                            color: "#888"
+                                            color: AppTheme.textTertiary
                                             font.pixelSize: 9
                                             Layout.fillWidth: true
                                             elide: Text.ElideRight
                                         }
                                         Text {
                                             text: fmtNum(modelData.tokens || 0) + " tk"
-                                            color: "#aaa"
+                                            color: AppTheme.textSecondary
                                             font.pixelSize: 9
                                         }
                                         Text {
                                             text: "$" + (modelData.costUSD || 0).toFixed(2)
-                                            color: "#aaa"
+                                            color: AppTheme.textSecondary
                                             font.pixelSize: 9
                                             horizontalAlignment: Text.AlignRight
                                         }
@@ -1188,7 +1188,7 @@ Rectangle {
                             spacing: 6
                             Text {
                                 text: qsTr("Updated")
-                                color: "#888"
+                                color: AppTheme.textTertiary
                                 font.pixelSize: 10
                                 Layout.preferredWidth: 80
                             }
@@ -1196,7 +1196,7 @@ Rectangle {
                                         text: snap.updatedAt && snap.updatedAt > 0
                                             ? new Date(snap.updatedAt).toLocaleTimeString(Qt.locale(), "hh:mm:ss")
                                             : "-"
-                                        color: "#666"
+                                        color: AppTheme.textInverse
                                         font.pixelSize: 10
                                         Layout.fillWidth: true
                                     }
@@ -1294,7 +1294,7 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 44
-            color: "#12122a"
+            color: AppTheme.bgTitleBar
             radius: 12
 
             Rectangle {
@@ -1304,7 +1304,7 @@ Rectangle {
             Rectangle {
                 anchors.top: parent.top
                 width: parent.width; height: 1
-                color: "#2a2a4a"
+                color: AppTheme.borderColor
             }
 
             RowLayout {

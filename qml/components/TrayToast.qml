@@ -18,9 +18,9 @@ Rectangle {
     width: Math.min(parent.width - 24, messageText.implicitWidth + 40)
     height: messageText.implicitHeight + 16
     radius: 8
-    color: "#252540"
+    color: AppTheme.bgTertiary
     border.width: 1
-    border.color: toastType === typeError ? "#4a3030" : "#2a2a4a"
+    border.color: toastType === typeError ? AppTheme.statusOutage : AppTheme.borderColor
     z: 100
     opacity: 0
     y: anchors.bottomMargin + 20

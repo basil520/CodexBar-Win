@@ -104,7 +104,7 @@ Rectangle {
                                     anchors.centerIn: parent
                                     text: (modelData.displayName || modelData.providerId || "").charAt(0).toUpperCase()
                                     font.pixelSize: 8
-                                    color: "white"
+                                    color: AppTheme.textPrimary
                                 }
                             }
                         }
@@ -113,7 +113,7 @@ Rectangle {
                             anchors.horizontalCenter: parent.horizontalCenter
                             text: modelData.displayName || modelData.providerId
                             font.pixelSize: 10
-                            color: btn.isSelected ? "#ffffff" : AppTheme.textSecondary
+                            color: btn.isSelected ? AppTheme.textPrimary : AppTheme.textSecondary
                             elide: Text.ElideRight
                             horizontalAlignment: Text.AlignHCenter
                         }

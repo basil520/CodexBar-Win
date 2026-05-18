@@ -9,7 +9,7 @@ Rectangle {
     readonly property int hoveredIndex: chartHover.hoveredIndex
     readonly property bool hasData: points.length > 0
 
-    color: "#1c1c32"
+    color: AppTheme.bgChart
     radius: 8
     implicitWidth: 276
     implicitHeight: hasData ? 130 + legendArea.implicitHeight + 8 + (legendArea.visible ? 12 : 0) : 40
@@ -48,7 +48,7 @@ Rectangle {
     Text {
         anchors.centerIn: parent
         text: qsTr("No breakdown data")
-        color: "#555"
+        color: AppTheme.textDisabled
         font.pixelSize: 10
         visible: !hasData
     }
@@ -91,7 +91,7 @@ Rectangle {
                     var barH = Math.max(total > 0 ? 1 : 0, (total / dailyMax) * plotH)
 
                     // Track background
-                    ctx.fillStyle = "#2a2a4a"
+                    ctx.fillStyle = AppTheme.bgTrack
                     ctx.fillRect(x, plotBottom - plotH, barW, plotH)
 
                     // Stack segments from bottom up
@@ -113,7 +113,7 @@ Rectangle {
 
                 // X-axis
                 if (points.length > 0) {
-                    ctx.fillStyle = "#444"
+                    ctx.fillStyle = AppTheme.textInverse
                     ctx.font = "8px sans-serif"
                     ctx.textAlign = "left"
                     ctx.fillText(fmtDate(points[0].date), plotLeft, plotBottom + 12)
@@ -152,7 +152,7 @@ Rectangle {
             ChartHoverDetail {
                 id: hoverDetail
                 floating: true
-                accentColor: "#6b6bff"
+                accentColor: AppTheme.accentColor
                 visible: hoveredIndex >= 0 && activePoint !== null
                 width: implicitWidth
                 height: implicitHeight
@@ -187,7 +187,7 @@ Rectangle {
 
             Text {
                 text: qsTr("Services")
-                color: "#888"
+                color: AppTheme.textTertiary
                 font.pixelSize: 10
                 font.bold: true
             }
@@ -209,7 +209,7 @@ Rectangle {
                         }
                         Text {
                             text: modelData.name
-                            color: "#888"
+                            color: AppTheme.textTertiary
                             font.pixelSize: 10
                         }
                     }

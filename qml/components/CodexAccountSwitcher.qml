@@ -64,7 +64,7 @@ Rectangle {
 
                 Text {
                     text: root.expanded ? "▾" : "▸"
-                    color: "#888"
+                    color: AppTheme.textTertiary
                     font.pixelSize: 11
                 }
 
@@ -72,12 +72,12 @@ Rectangle {
                     width: 18
                     height: 18
                     radius: 9
-                    color: (activeAccount && activeAccount.isLive) ? "#4CAF50" : "#6b6bff"
+                    color: (activeAccount && activeAccount.isLive) ? AppTheme.statusOk : AppTheme.accentColor
 
                     Text {
                         anchors.centerIn: parent
                         text: root.activeAccountInitial()
-                        color: "#ffffff"
+                        color: AppTheme.textPrimary
                         font.pixelSize: 9
                         font.bold: true
                     }
@@ -94,7 +94,7 @@ Rectangle {
 
                 Text {
                     text: accounts.length + " " + qsTr("accounts")
-                    color: "#666"
+                    color: AppTheme.textInverse
                     font.pixelSize: 10
                 }
             }
@@ -140,9 +140,9 @@ Rectangle {
                         height: 32
                         radius: 16
 
-                        color: isAccountLive ? "#4CAF50" : "#6b6bff"
+                        color: isAccountLive ? AppTheme.statusOk : AppTheme.accentColor
                         border.width: isAccountActive ? 2 : 0
-                        border.color: "#ffffff"
+                        border.color: AppTheme.textPrimary
 
                         Text {
                             anchors.centerIn: parent
@@ -153,7 +153,7 @@ Rectangle {
                                 return name ? name.charAt(0).toUpperCase() :
                                             (email ? email.charAt(0).toUpperCase() : "A")
                             }
-                            color: "#ffffff"
+                            color: AppTheme.textPrimary
                             font.pixelSize: 14
                             font.bold: true
                         }
@@ -186,8 +186,8 @@ Rectangle {
                         width: tooltipText.implicitWidth + 12
                         height: tooltipText.implicitHeight + 8
                         radius: 4
-                        color: "#1a1a2e"
-                        border.color: "#2a2a4a"
+                        color: AppTheme.bgPrimary
+                        border.color: AppTheme.borderColor
                         border.width: 1
                         z: 9999
 
@@ -203,7 +203,7 @@ Rectangle {
                                 if (isAccountLive) parts.push("(" + qsTr("System") + ")")
                                 return parts.length > 0 ? parts.join("\n") : "Account"
                             }
-                            color: "#ffffff"
+                            color: AppTheme.textPrimary
                             font.pixelSize: 11
                             wrapMode: Text.WordWrap
                         }

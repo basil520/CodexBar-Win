@@ -23,7 +23,7 @@ SettingsPage {
                 Label {
                     anchors.centerIn: parent
                     text: "C"
-                    color: "white"
+                    color: AppTheme.textPrimary
                     font.pixelSize: 20
                     font.bold: true
                 }

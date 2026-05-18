@@ -83,9 +83,10 @@ add_wincodexbar_test(tst_Localization tst_Localization)
 add_executable(tst_AppTheme
     tst_AppTheme.cpp
 )
+target_sources(tst_AppTheme PRIVATE ${CMAKE_SOURCE_DIR}/resources/qml.qrc)
 target_include_directories(tst_AppTheme PRIVATE ${COMMON_INCLUDE})
 target_compile_definitions(tst_AppTheme PRIVATE ${COMMON_DEFINES})
-target_link_libraries(tst_AppTheme PRIVATE codexbar_core Qt6::Core Qt6::Gui Qt6::Test)
+target_link_libraries(tst_AppTheme PRIVATE codexbar_core Qt6::Core Qt6::Gui Qt6::Qml Qt6::Test)
 add_wincodexbar_test(tst_AppTheme tst_AppTheme)
 
 add_executable(tst_ChartDataProvider
@@ -271,6 +272,8 @@ add_wincodexbar_test(opencode_debug_test opencode_debug_test)
 # QML smoke test (load, render, interaction)
 add_executable(tst_QmlSmoke
     tst_QmlSmoke.cpp
+    ../src/app/AppTheme.cpp
+    ../src/app/AppTheme.h
 )
 target_include_directories(tst_QmlSmoke PRIVATE ${COMMON_INCLUDE})
 target_compile_definitions(tst_QmlSmoke PRIVATE ${COMMON_DEFINES})

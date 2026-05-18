@@ -31,7 +31,7 @@ Rectangle {
             id: titleBar
             Layout.fillWidth: true
             Layout.preferredHeight: 44
-            color: "#10101f"
+            color: AppTheme.bgTitleBar
 
             Rectangle {
                 anchors.left: parent.left
@@ -56,7 +56,7 @@ Rectangle {
                     Label {
                         anchors.centerIn: parent
                         text: "U"
-                        color: "white"
+                        color: AppTheme.textPrimary
                         font.pixelSize: 11
                         font.bold: true
                     }
@@ -132,7 +132,7 @@ Rectangle {
         Label {
             id: label
             anchors.centerIn: parent
-            color: "white"
+            color: AppTheme.textPrimary
             font.pixelSize: 13
             font.bold: true
         }

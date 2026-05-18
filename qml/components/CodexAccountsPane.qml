@@ -63,7 +63,7 @@ Rectangle {
                 }
                 contentItem: Text {
                     text: parent.text
-                    color: parent.enabled ? "white" : AppTheme.textSecondary
+                    color: parent.enabled ? AppTheme.textPrimary : AppTheme.textSecondary
                     font.pixelSize: 12
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
@@ -202,12 +202,12 @@ Rectangle {
                         Layout.preferredHeight: 40
                         Layout.alignment: Qt.AlignTop
                         radius: 20
-                        color: modelData.isLive ? "#4CAF50" : AppTheme.accentColor
+                        color: modelData.isLive ? AppTheme.statusOk : AppTheme.accentColor
 
                         Label {
                             anchors.centerIn: parent
                             text: modelData.isLive ? "S" : (modelData.email ? modelData.email.charAt(0).toUpperCase() : "A")
-                            color: "white"
+                            color: AppTheme.textPrimary
                             font.pixelSize: 16
                             font.bold: true
                         }
@@ -237,13 +237,13 @@ Rectangle {
                                 Layout.preferredHeight: 20
                                 Layout.alignment: Qt.AlignVCenter
                                 radius: 4
-                                color: "#4CAF50"
+                                color: AppTheme.statusOk
 
                                 Label {
                                     id: liveLabel
                                     anchors.centerIn: parent
                                     text: qsTr("System")
-                                    color: "white"
+                                    color: AppTheme.textPrimary
                                     font.pixelSize: 10
                                 }
                             }
@@ -260,7 +260,7 @@ Rectangle {
                                     id: activeLabel
                                     anchors.centerIn: parent
                                     text: qsTr("Active")
-                                    color: "white"
+                                    color: AppTheme.textPrimary
                                     font.pixelSize: 10
                                 }
                             }
@@ -354,7 +354,7 @@ Rectangle {
                             background: Rectangle {
                                 color: root.isPromoting && root.promotingAccountID === modelData.id
                                     ? AppTheme.bgTertiary
-                                    : (parent.hovered ? "#4CAF50" : "transparent")
+                                    : (parent.hovered ? AppTheme.statusOk : "transparent")
                                 radius: 4
                             }
                             contentItem: Text {
@@ -363,7 +363,7 @@ Rectangle {
                                     : qsTr("Promote")
                                 color: root.isPromoting && root.promotingAccountID === modelData.id
                                     ? AppTheme.textSecondary
-                                    : (parent.hovered ? "white" : "#4CAF50")
+                                    : (parent.hovered ? AppTheme.textPrimary : AppTheme.statusOk)
                                 font.pixelSize: 11
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
@@ -391,14 +391,14 @@ Rectangle {
                             }
 
                             background: Rectangle {
-                                color: parent.hovered ? "#ff4444" : "transparent"
+                                color: parent.hovered ? AppTheme.statusOutage : "transparent"
                                 radius: 4
                             }
                             contentItem: Text {
                                 text: qsTr("Remove")
                                 color: root.isRemoving && root.removingAccountID === modelData.id
                                     ? AppTheme.textSecondary
-                                    : (parent.hovered ? "white" : "#ff4444")
+                                    : (parent.hovered ? AppTheme.textPrimary : AppTheme.statusOutage)
                                 font.pixelSize: 11
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter

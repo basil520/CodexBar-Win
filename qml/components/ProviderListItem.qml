@@ -123,7 +123,7 @@ Rectangle {
                 Label {
                     anchors.centerIn: parent
                     text: root.providerName.length > 0 ? root.providerName.charAt(0).toUpperCase() : "?"
-                    color: "white"
+                    color: AppTheme.textPrimary
                     font.pixelSize: 10
                     font.bold: true
                 }

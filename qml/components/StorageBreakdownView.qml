@@ -13,7 +13,7 @@ Rectangle {
 
     readonly property bool hasData: storageItems.length > 0
 
-    color: "#1c1c32"
+    color: AppTheme.bgChart
     radius: 8
     implicitWidth: 276
     implicitHeight: contentColumn.implicitHeight + 16
@@ -81,7 +81,7 @@ Rectangle {
 
             Text {
                 text: qsTr("Storage")
-                color: "#aaa"
+                color: AppTheme.textSecondary
                 font.pixelSize: 11
                 font.bold: true
             }
@@ -89,7 +89,7 @@ Rectangle {
             Text {
                 visible: root.hasData
                 text: qsTr("Total: %1").arg(root.formatBytes(root.totalBytes()))
-                color: "#666"
+                color: AppTheme.textInverse
                 font.pixelSize: 10
             }
         }
@@ -99,7 +99,7 @@ Rectangle {
             Layout.fillWidth: true
             visible: !root.hasData
             text: qsTr("No storage data available")
-            color: "#555"
+            color: AppTheme.textDisabled
             font.pixelSize: 10
             horizontalAlignment: Text.AlignHCenter
         }
@@ -125,7 +125,7 @@ Rectangle {
 
                         Text {
                             text: root.elidePath(itemData.path, 40)
-                            color: "#888"
+                            color: AppTheme.textTertiary
                             font.pixelSize: 10
                             Layout.fillWidth: true
                             elide: Text.ElideMiddle
@@ -150,7 +150,7 @@ Rectangle {
 
                         Text {
                             text: itemData.bytesDisplay || root.formatBytes(itemData.bytes)
-                            color: "#666"
+                            color: AppTheme.textInverse
                             font.pixelSize: 10
                             Layout.preferredWidth: 60
                             horizontalAlignment: Text.AlignRight
@@ -162,7 +162,7 @@ Rectangle {
                         Layout.fillWidth: true
                         height: 6
                         radius: 3
-                        color: "#2a2a4a"
+                        color: AppTheme.bgTrack
 
                         Rectangle {
                             width: Math.max(2, parent.width * Math.min(1, itemData.fraction || 0))
@@ -179,7 +179,7 @@ Rectangle {
                 Layout.fillWidth: true
                 visible: root.moreCount() > 0
                 text: qsTr("%1 more items").arg(root.moreCount())
-                color: "#555"
+                color: AppTheme.textDisabled
                 font.pixelSize: 10
             }
         }
@@ -193,12 +193,12 @@ Rectangle {
             Rectangle {
                 Layout.fillWidth: true
                 height: 1
-                color: "#2a2a4a"
+                color: AppTheme.bgTrack
             }
 
             Text {
                 text: qsTr("Cleanup ideas")
-                color: "#aaa"
+                color: AppTheme.textSecondary
                 font.pixelSize: 11
                 font.bold: true
             }
@@ -218,7 +218,7 @@ Rectangle {
 
                         Text {
                             text: cleanupData.title
-                            color: "#888"
+                            color: AppTheme.textTertiary
                             font.pixelSize: 10
                             font.bold: true
                             Layout.fillWidth: true
@@ -227,7 +227,7 @@ Rectangle {
 
                         Text {
                             text: cleanupData.bytesDisplay || root.formatBytes(cleanupData.bytes)
-                            color: "#666"
+                            color: AppTheme.textInverse
                             font.pixelSize: 10
                         }
                     }
@@ -238,7 +238,7 @@ Rectangle {
 
                         Text {
                             text: root.elidePath(cleanupData.path, 35)
-                            color: "#666"
+                            color: AppTheme.textInverse
                             font.pixelSize: 9
                             Layout.fillWidth: true
                             elide: Text.ElideMiddle
@@ -254,7 +254,7 @@ Rectangle {
                     Text {
                         Layout.fillWidth: true
                         text: cleanupData.consequence
-                        color: "#555"
+                        color: AppTheme.textDisabled
                         font.pixelSize: 9
                         wrapMode: Text.WordWrap
                         maximumLineCount: 2

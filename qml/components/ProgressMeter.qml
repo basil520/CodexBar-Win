@@ -9,7 +9,7 @@ Rectangle {
     property bool paceOnTop: true
 
     height: 16
-    color: "#3b3b5c"
+    color: AppTheme.bgTrack
     radius: 3
 
     Rectangle {

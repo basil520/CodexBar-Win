@@ -7,6 +7,8 @@
 #include <QAbstractListModel>
 #include <QVariantMap>
 
+#include "app/AppTheme.h"
+
 class MockSettingsStore : public QObject {
     Q_OBJECT
     Q_PROPERTY(bool debugMenuEnabled READ debugMenuEnabled CONSTANT)
@@ -1317,6 +1319,11 @@ signals:
 
 class tst_QmlSmoke : public QObject {
     Q_OBJECT
+public:
+    tst_QmlSmoke() {
+        registerAppThemeTypes(&mockTheme);
+    }
+
 private:
     MockSettingsStore mockSettings;
     MockUsageStore mockUsage;
@@ -1326,9 +1333,11 @@ private:
     MockBridgeViewModel mockBridge;
     MockLanguageManager mockLang;
     MockAppController mockAppCtrl;
+    AppThemeManager mockTheme;
 
     void setupEngine(QQmlEngine& engine) {
         engine.addImportPath("qrc:/qml");
+        installAppTheme(engine, &mockTheme);
         mockSettingsProviders.setUsageStore(&mockUsage);
         mockTray.setUsageStore(&mockUsage);
         mockUsageDetails.setUsageStore(&mockUsage);

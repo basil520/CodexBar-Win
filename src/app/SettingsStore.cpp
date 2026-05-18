@@ -27,6 +27,7 @@ SettingsStore::SettingsStore(QObject* parent)
     m_claudePeakHoursEnabled = m_settings.value("claudePeakHoursEnabled", true).toBool();
     m_browserSessionBridgeEnabled = m_settings.value("browserSessionBridgeEnabled", true).toBool();
     m_language = m_settings.value("language", "en").toString();
+    m_theme = m_settings.value("theme", 0).toInt();
     loadConfig();
 
     m_saveDelayTimer.setSingleShot(true);
@@ -165,6 +166,14 @@ void SettingsStore::setLanguage(const QString& lang) {
     }
 }
 
+void SettingsStore::setTheme(int theme) {
+    if (m_theme != theme) {
+        m_theme = theme;
+        m_settings.setValue("theme", theme);
+        emit themeChanged();
+    }
+}
+
 bool SettingsStore::isProviderEnabled(const QString& id) const {
     return m_settings.value("providers/" + id + "/enabled", false).toBool();
 }
@@ -278,6 +287,7 @@ void SettingsStore::resetToDefaults() {
     setClaudePeakHoursEnabled(true);
     setBrowserSessionBridgeEnabled(true);
     setLanguage("en");
+    setTheme(0);
     m_providerSettings.clear();
     m_providerOrder.clear();
     saveConfig();

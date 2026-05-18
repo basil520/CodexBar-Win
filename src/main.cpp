@@ -30,6 +30,9 @@
 
 #include "cli/CLIEntry.h"
 #include "app/AppTheme.h"
+#include "tray/TrayIconRenderer.h"
+
+#include <QQuickView>
 
 static bool activateExistingInstance() {
 #ifdef Q_OS_WIN
@@ -536,6 +539,16 @@ int main(int argc, char* argv[]) {
     QThreadPool::globalInstance()->setMaxThreadCount(poolMax);
 
     SettingsStore* settings = new SettingsStore();
+    AppThemeManager* themeMgr = new AppThemeManager(&app);
+    QObject::connect(settings, &SettingsStore::themeChanged, [themeMgr, settings]() {
+        themeMgr->setCurrentTheme(settings->theme());
+    });
+    themeMgr->setCurrentTheme(settings->theme());
+    TrayIconRenderer::setTrackColor(themeMgr->bgTrack());
+    QObject::connect(themeMgr, &AppThemeManager::themeChanged, [themeMgr]() {
+        TrayIconRenderer::setTrackColor(themeMgr->bgTrack());
+    });
+
     UsageStore* usageStore = new UsageStore();
     usageStore->setSettingsStore(settings);
 
@@ -576,6 +589,7 @@ int main(int argc, char* argv[]) {
 
     qmlRegisterSingletonInstance("CodexBarX", 1, 0, "SettingsStore", settings);
     qmlRegisterSingletonInstance("CodexBarX", 1, 0, "UsageStore", usageStore);
+    registerAppThemeTypes(themeMgr);
     qmlRegisterSingletonInstance("CodexBarX", 1, 0, "BridgeViewModel", bridgeViewModel);
     auto* settingsProvidersModel = new SettingsProvidersModel(usageStore, &app);
     qmlRegisterSingletonInstance("CodexBarX", 1, 0, "SettingsProvidersModel", settingsProvidersModel);
@@ -643,13 +657,13 @@ int main(int argc, char* argv[]) {
 
     QQmlEngine qmlEngine;
     langMgr.install(&qmlEngine);
-    qmlEngine.rootContext()->setContextProperty("AppTheme", makeAppTheme());
+    installAppTheme(qmlEngine, themeMgr);
 
     QQuickView trayView(&qmlEngine, nullptr);
     trayView.setTitle("CodexBarX");
     trayView.resize(300, 520);
     trayView.setFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::NoDropShadowWindowHint);
-    trayView.setColor(QColor("#1a1a2e"));
+    trayView.setColor(themeMgr->bgPrimary());
     applyRoundedWindowRegion(&trayView, 12);
 
     appController->trayView = &trayView;
@@ -815,7 +829,7 @@ int main(int argc, char* argv[]) {
     settingsView.setMinimumSize(QSize(820, 560));
     settingsView.setResizeMode(QQuickView::SizeRootObjectToView);
     settingsView.setFlags(Qt::Window | Qt::FramelessWindowHint);
-    settingsView.setColor(QColor("#1a1a2e"));
+    settingsView.setColor(themeMgr->bgPrimary());
 
     // Set height to fit screen and center position
     {
@@ -867,7 +881,7 @@ int main(int argc, char* argv[]) {
     usageView.setMinimumSize(QSize(720, 480));
     usageView.setResizeMode(QQuickView::SizeRootObjectToView);
     usageView.setFlags(Qt::Window | Qt::FramelessWindowHint);
-    usageView.setColor(QColor("#1a1a2e"));
+    usageView.setColor(themeMgr->bgPrimary());
 
     QObject::connect(&usageView, &QQuickView::statusChanged, &usageView, [&usageView](QQuickView::Status status) {
         if (status != QQuickView::Error) return;
@@ -894,6 +908,14 @@ int main(int argc, char* argv[]) {
                      [appController]() {
                          emit appController->settingsMaximizedChanged();
                      });
+
+    QObject::connect(themeMgr, &AppThemeManager::themeChanged, [&]() {
+        QColor c = themeMgr->bgPrimary();
+        trayView.setColor(c);
+        settingsView.setColor(c);
+        usageView.setColor(c);
+    });
+
     if (showSettingsOnStartup) {
         QTimer::singleShot(0, appController, &AppController::openSettings);
         if (!g_logPath.isEmpty()) {

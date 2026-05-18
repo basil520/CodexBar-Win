@@ -1,57 +1,53 @@
-﻿import QtQuick 2.15
+import QtQuick 2.15
+import CodexBarX 1.0
 
 pragma Singleton
 
 QtObject {
-    // Background colors
-    property color bgPrimary: "#1a1a2e"
-    property color bgSecondary: "#15152a"
-    property color bgTertiary: "#252540"
-    property color bgCard: "#1f1f38"
-    property color bgHover: "#2a2a4a"
-    property color bgSelected: "#3a3a5c"
-    property color bgPressed: "#4a4a7c"
+    property color bgPrimary: AppThemeCpp.bgPrimary
+    property color bgSecondary: AppThemeCpp.bgSecondary
+    property color bgTertiary: AppThemeCpp.bgTertiary
+    property color bgCard: AppThemeCpp.bgCard
+    property color bgHover: AppThemeCpp.bgHover
+    property color bgSelected: AppThemeCpp.bgSelected
+    property color bgPressed: AppThemeCpp.bgPressed
+    property color bgTitleBar: AppThemeCpp.bgTitleBar
+    property color bgChart: AppThemeCpp.bgChart
+    property color bgTrack: AppThemeCpp.bgTrack
 
-    // Border colors
-    property color borderColor: "#2a2a4a"
-    property color borderAccent: "#4a4a7c"
+    property color borderColor: AppThemeCpp.borderColor
+    property color borderAccent: AppThemeCpp.borderAccent
 
-    // Text colors
-    property color textPrimary: "#ffffff"
-    property color textSecondary: "#aaaaaa"
-    property color textTertiary: "#888888"
-    property color textDisabled: "#555555"
+    property color textPrimary: AppThemeCpp.textPrimary
+    property color textSecondary: AppThemeCpp.textSecondary
+    property color textTertiary: AppThemeCpp.textTertiary
+    property color textDisabled: AppThemeCpp.textDisabled
+    property color textInverse: AppThemeCpp.textInverse
 
-    // Status colors
-    property color statusOk: "#4CAF50"
-    property color statusDegraded: "#FFC107"
-    property color statusOutage: "#F44336"
-    property color statusUnknown: "#888888"
+    property color statusOk: AppThemeCpp.statusOk
+    property color statusDegraded: AppThemeCpp.statusDegraded
+    property color statusOutage: AppThemeCpp.statusOutage
+    property color statusUnknown: AppThemeCpp.statusUnknown
 
-    // Accent colors
-    property color accentColor: "#6b6bff"
-    property color accentHover: "#8a8aff"
+    property color accentColor: AppThemeCpp.accentColor
+    property color accentHover: AppThemeCpp.accentHover
 
-    // Spacing system
     property int spacingXs: 4
     property int spacingSm: 8
     property int spacingMd: 12
     property int spacingLg: 16
     property int spacingXl: 24
 
-    // Border radius
     property int radiusSm: 4
     property int radiusMd: 8
     property int radiusLg: 12
 
-    // Font sizes
     property int fontSizeXs: 10
     property int fontSizeSm: 11
     property int fontSizeMd: 13
     property int fontSizeLg: 16
     property int fontSizeXl: 20
 
-    // Dimensions
     property int sidebarWidth: 240
     property int listItemHeight: 48
     property int iconSizeSm: 18

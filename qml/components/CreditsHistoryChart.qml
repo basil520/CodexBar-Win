@@ -12,7 +12,7 @@ Rectangle {
     readonly property int hoveredIndex: chartHover.hoveredIndex
     readonly property bool hasData: points.length > 0
 
-    color: "#1c1c32"
+    color: AppTheme.bgChart
     radius: 8
     implicitWidth: 276
     implicitHeight: hasData ? 130 : 40
@@ -21,7 +21,7 @@ Rectangle {
     Text {
         anchors.centerIn: parent
         text: qsTr("No credits history data")
-        color: "#555"
+        color: AppTheme.textDisabled
         font.pixelSize: 10
         visible: !hasData
     }
@@ -62,7 +62,7 @@ Rectangle {
                     var pct = (points[i].creditsUsed || 0) / maxVal
                     var barH = Math.max(pct > 0 ? 1 : 0, pct * plotH)
 
-                    ctx.fillStyle = "#2a2a4a"
+                    ctx.fillStyle = AppTheme.bgTrack
                     ctx.fillRect(x, plotBottom - plotH, barW, plotH)
                     ctx.fillStyle = root.barColor
                     ctx.fillRect(x, plotBottom - barH, barW, barH)
@@ -78,7 +78,7 @@ Rectangle {
                 }
 
                 if (points.length > 0) {
-                    ctx.fillStyle = "#444"
+                    ctx.fillStyle = AppTheme.textInverse
                     ctx.font = "8px sans-serif"
                     ctx.textAlign = "left"
                     ctx.fillText(formatDate(points[0].date), plotLeft, plotBottom + 12)

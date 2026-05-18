@@ -14,7 +14,7 @@ Rectangle {
     readonly property int hoveredIndex: chartHover.hoveredIndex
     readonly property bool hasData: points.length > 0
 
-    color: "#1c1c32"
+    color: AppTheme.bgChart
     radius: 8
     implicitWidth: 276
     implicitHeight: hasData ? 130 : 40
@@ -72,7 +72,7 @@ Rectangle {
     Text {
         anchors.centerIn: parent
         text: qsTr("No cost history data")
-        color: "#555"
+        color: AppTheme.textDisabled
         font.pixelSize: 10
         visible: !hasData
     }
@@ -119,7 +119,7 @@ Rectangle {
                     var barH = Math.max(pct > 0 ? 1 : 0, pct * plotH)
 
                     // Bar background track
-                    ctx.fillStyle = "#2a2a4a"
+                    ctx.fillStyle = AppTheme.bgTrack
                     ctx.fillRect(x, plotBottom - plotH, barW, plotH)
 
                     // Bar fill
@@ -141,7 +141,7 @@ Rectangle {
 
                 // X-axis labels (first and last)
                 if (points.length > 0) {
-                    ctx.fillStyle = "#444"
+                    ctx.fillStyle = AppTheme.textInverse
                     ctx.font = "8px sans-serif"
                     ctx.textAlign = "left"
                     var firstLabel = formatShortDate(points[0].date)

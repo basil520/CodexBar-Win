@@ -3,6 +3,12 @@
 #include <QPainter>
 #include <QLinearGradient>
 
+QColor TrayIconRenderer::s_trackColor = s_trackColor;
+
+void TrayIconRenderer::setTrackColor(const QColor& color) {
+    s_trackColor = color;
+}
+
 QIcon TrayIconRenderer::makeDefaultIcon() {
     return makeIcon(100.0, 100.0, std::nullopt, false, IconStyle::Default);
 }
@@ -61,12 +67,12 @@ QPixmap TrayIconRenderer::renderPixmap(
     int bottomY = spacing + barHeight + spacing;
 
     painter.fillRect(QRect(0, topY, static_cast<int>(size * pRem), barHeight), primaryColor);
-    painter.fillRect(QRect(0, topY, size, barHeight), QColor(60, 60, 60));
+    painter.fillRect(QRect(0, topY, size, barHeight), s_trackColor);
 
     painter.fillRect(QRect(0, topY, static_cast<int>(size * pRem), barHeight), primaryColor);
 
     barHeight = qMax(1, size / 14);
-    painter.fillRect(QRect(0, bottomY, size, barHeight), QColor(60, 60, 60));
+    painter.fillRect(QRect(0, bottomY, size, barHeight), s_trackColor);
     painter.fillRect(QRect(0, bottomY, static_cast<int>(size * wRem), barHeight), weeklyColor);
 
     painter.end();

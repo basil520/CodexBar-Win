@@ -27,4 +27,9 @@ public:
                                  const std::optional<double>& weekly,
                                  bool stale,
                                  IconStyle style);
+
+    static void setTrackColor(const QColor& color);
+
+private:
+    static QColor s_trackColor;
 };

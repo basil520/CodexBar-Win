@@ -9,9 +9,9 @@ Rectangle {
     property var branding: null
     property var paceData: null
 
-    color: "#2a2a3e"
+    color: AppTheme.bgCard
     radius: 8
-    border.color: "#3b3b5c"
+    border.color: AppTheme.borderColor
     border.width: 1
 
     implicitWidth: 260
@@ -30,7 +30,7 @@ Rectangle {
                 text: providerId
                 font.bold: true
                 font.pixelSize: 13
-                color: "white"
+                color: AppTheme.textPrimary
                 Layout.fillWidth: true
             }
 
@@ -67,14 +67,14 @@ Rectangle {
             Label {
                 text: paceData ? (paceData.primaryPaceLeftLabel || "") : ""
                 font.pixelSize: 10
-                color: "#aaa"
+                color: AppTheme.textSecondary
                 Layout.fillWidth: true
             }
 
             Label {
                 text: paceData ? (paceData.primaryPaceRightLabel || "") : ""
                 font.pixelSize: 10
-                color: "#888"
+                color: AppTheme.textTertiary
             }
         }
     }
