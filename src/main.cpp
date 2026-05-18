@@ -104,10 +104,131 @@ static void applyRoundedWindowRegion(QWindow* window, int radius) {
         DeleteObject(region);
     }
 }
+
+#ifdef QT_DEBUG
+static void debugLogImpl(const QString& msg) {
+    static QString logPath = QDir::tempPath() + "/CodexBarX_MonitorDebug.log";
+    QFile f(logPath);
+    if (f.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
+        f.write(QDateTime::currentDateTime().toString("hh:mm:ss.zzz").toUtf8());
+        f.write(" ");
+        f.write(msg.toUtf8());
+        f.write("\n");
+    }
+    qDebug().noquote() << msg;
+}
+#define debugLog(msg) debugLogImpl(msg)
+#else
+#define debugLog(msg) ((void)0)
+#endif
+
+// Get the work area (available geometry excluding taskbar) of the monitor
+// that contains the given point, using Win32 APIs directly.
+// Returns coordinates in virtual-desktop logical pixels (same as Qt uses).
+static QRect win32MonitorWorkArea(const QPoint& point) {
+    POINT pt = { point.x(), point.y() };
+    HMONITOR hmon = MonitorFromPoint(pt, MONITOR_DEFAULTTONEAREST);
+    if (hmon) {
+        MONITORINFOEXW mi = {};
+        mi.cbSize = sizeof(mi);
+        if (GetMonitorInfoW(hmon, &mi)) {
+            // rcWork is in physical pixels; convert to logical if scaled
+            // MonitorFromPoint returns the same coordinate space as SetWindowPos,
+            // so we return as-is. Qt and Win32 share virtual desktop coords at dpr=1.
+            // For HiDPI: MONITORINFOEX rcWork is in physical pixels, but
+            // Qt virtual-desktop coords are logical. We need the logical coords.
+            // Use the monitor's DPI to convert.
+            UINT dpiX = 96, dpiY = 96;
+            // GetDpiForMonitor requires Windows 8.1+, fallback if unavailable
+            typedef HRESULT(WINAPI* GetDpiForMonitorFunc)(HMONITOR, UINT, UINT*, UINT*);
+            static GetDpiForMonitorFunc pGetDpiForMonitor = nullptr;
+            static bool triedLoad = false;
+            if (!triedLoad) {
+                triedLoad = true;
+                HMODULE hShcore = GetModuleHandleW(L"shcore");
+                if (!hShcore) hShcore = LoadLibraryW(L"shcore");
+                if (hShcore) pGetDpiForMonitor = reinterpret_cast<GetDpiForMonitorFunc>(
+                    GetProcAddress(hShcore, "GetDpiForMonitor"));
+            }
+            if (pGetDpiForMonitor) {
+                pGetDpiForMonitor(hmon, 0 /*MDT_EFFECTIVE_DPI*/, &dpiX, &dpiY);
+            }
+            double scale = dpiX / 96.0;
+            return QRect(
+                static_cast<int>(mi.rcWork.left / scale),
+                static_cast<int>(mi.rcWork.top / scale),
+                static_cast<int>((mi.rcWork.right - mi.rcWork.left) / scale),
+                static_cast<int>((mi.rcWork.bottom - mi.rcWork.top) / scale));
+        }
+    }
+    return QRect();
+}
+
+// Get the full geometry of the monitor that contains the given point.
+static QRect win32MonitorGeometry(const QPoint& point) {
+    POINT pt = { point.x(), point.y() };
+    HMONITOR hmon = MonitorFromPoint(pt, MONITOR_DEFAULTTONEAREST);
+    if (hmon) {
+        MONITORINFOEXW mi = {};
+        mi.cbSize = sizeof(mi);
+        if (GetMonitorInfoW(hmon, &mi)) {
+            UINT dpiX = 96, dpiY = 96;
+            typedef HRESULT(WINAPI* GetDpiForMonitorFunc)(HMONITOR, UINT, UINT*, UINT*);
+            static GetDpiForMonitorFunc pGetDpiForMonitor = nullptr;
+            static bool triedLoad = false;
+            if (!triedLoad) {
+                triedLoad = true;
+                HMODULE hShcore = GetModuleHandleW(L"shcore");
+                if (!hShcore) hShcore = LoadLibraryW(L"shcore");
+                if (hShcore) pGetDpiForMonitor = reinterpret_cast<GetDpiForMonitorFunc>(
+                    GetProcAddress(hShcore, "GetDpiForMonitor"));
+            }
+            if (pGetDpiForMonitor) {
+                pGetDpiForMonitor(hmon, 0 /*MDT_EFFECTIVE_DPI*/, &dpiX, &dpiY);
+            }
+            double scale = dpiX / 96.0;
+            return QRect(
+                static_cast<int>(mi.rcMonitor.left / scale),
+                static_cast<int>(mi.rcMonitor.top / scale),
+                static_cast<int>((mi.rcMonitor.right - mi.rcMonitor.left) / scale),
+                static_cast<int>((mi.rcMonitor.bottom - mi.rcMonitor.top) / scale));
+        }
+    }
+    return QRect();
+}
+
+static void forceWindowPosition(QWindow* window, int x, int y) {
+    if (!window) return;
+    HWND hwnd = reinterpret_cast<HWND>(window->winId());
+    if (!hwnd) return;
+    const qreal scale = window->devicePixelRatio();
+    const int sx = static_cast<int>(std::lround(x * scale));
+    const int sy = static_cast<int>(std::lround(y * scale));
+    BOOL ok = SetWindowPos(hwnd, nullptr, sx, sy, 0, 0,
+                 SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+    RECT after;
+    GetWindowRect(hwnd, &after);
+    debugLog(QString("[forceWindowPosition] hwnd=%1 logical=(%2 %3) scale=%4 physical=(%5 %6) SetWindowPos=%7 actualRect=(%8 %9 %10 %11)")
+        .arg(reinterpret_cast<quintptr>(hwnd)).arg(x).arg(y).arg(scale).arg(sx).arg(sy).arg(ok)
+        .arg(after.left).arg(after.top).arg(after.right).arg(after.bottom));
+}
 #else
 static void applyRoundedWindowRegion(QWindow* window, int radius) {
     Q_UNUSED(window);
     Q_UNUSED(radius);
+}
+static void forceWindowPosition(QWindow* window, int x, int y) {
+    Q_UNUSED(window);
+    Q_UNUSED(x);
+    Q_UNUSED(y);
+}
+static QRect win32MonitorWorkArea(const QPoint& point) {
+    Q_UNUSED(point);
+    return QRect();
+}
+static QRect win32MonitorGeometry(const QPoint& point) {
+    Q_UNUSED(point);
+    return QRect();
 }
 #endif
 
@@ -123,14 +244,49 @@ public:
     QQuickView* trayView = nullptr;
     QQuickView* usageView = nullptr;
     std::function<void()> ensureSettingsLoaded;
+    std::function<QScreen*()> screenForTray;
+    std::function<QRect()> win32WorkAreaForTray;
+    QPoint m_lastTargetPos;
 
     Q_INVOKABLE void openSettings() {
         UiFreezeWatchdog::PhaseScope phase(QStringLiteral("settings.open"));
         if (!settingsView) return;
         if (ensureSettingsLoaded) ensureSettingsLoaded();
+        if (!settingsView->isVisible()) {
+            QRect avail = win32WorkAreaForTray ? win32WorkAreaForTray() : QRect();
+            debugLog(QString("[openSettings] win32WorkArea=(%1 %2 %3 %4)")
+                .arg(avail.x()).arg(avail.y()).arg(avail.width()).arg(avail.height()));
+            if (avail.isEmpty()) {
+                QScreen* screen = screenForTray ? screenForTray() : nullptr;
+                if (screen) avail = screen->availableGeometry();
+            }
+            if (!avail.isEmpty()) {
+                int maxH = avail.height() - 60;
+                int h = qMin(960, maxH);
+                int w = 900;
+                int sx = (avail.width() - w) / 2 + avail.x();
+                int sy = (avail.height() - h) / 2 + avail.y();
+                settingsView->resize(w, h);
+                m_lastTargetPos = QPoint(sx, sy);
+                debugLog(QString("[openSettings] target=(%1 %2)").arg(sx).arg(sy));
+            } else {
+                m_lastTargetPos = QPoint();
+            }
+        }
+        debugLog(QString("[openSettings] BEFORE show() pos=(%1 %2)").arg(settingsView->x()).arg(settingsView->y()));
         settingsView->show();
+        debugLog(QString("[openSettings] AFTER show() pos=(%1 %2) screen=%3")
+            .arg(settingsView->x()).arg(settingsView->y())
+            .arg(settingsView->screen() ? settingsView->screen()->name() : "null"));
+        if (!m_lastTargetPos.isNull()) forceWindowPosition(settingsView, m_lastTargetPos.x(), m_lastTargetPos.y());
+        debugLog(QString("[openSettings] AFTER forceWindowPosition() pos=(%1 %2)").arg(settingsView->x()).arg(settingsView->y()));
         settingsView->raise();
         settingsView->requestActivate();
+        QTimer::singleShot(100, [this]() {
+            debugLog(QString("[openSettings] DEFERRED(100ms) pos=(%1 %2) screen=%3")
+                .arg(settingsView->x()).arg(settingsView->y())
+                .arg(settingsView->screen() ? settingsView->screen()->name() : "null"));
+        });
         emit settingsVisibleChanged();
         emit settingsMaximizedChanged();
     }
@@ -175,7 +331,32 @@ public:
             usageView->setSource(QUrl("qrc:/qml/UsageWindow.qml"));
             if (usageView->status() == QQuickView::Error) return;
         }
+        if (!usageView->isVisible()) {
+            QRect avail = win32WorkAreaForTray ? win32WorkAreaForTray() : QRect();
+            debugLog(QString("[openUsage] win32WorkArea=(%1 %2 %3 %4)")
+                .arg(avail.x()).arg(avail.y()).arg(avail.width()).arg(avail.height()));
+            if (avail.isEmpty()) {
+                QScreen* screen = screenForTray ? screenForTray() : nullptr;
+                if (screen) avail = screen->availableGeometry();
+            }
+            if (!avail.isEmpty()) {
+                int w = 800, h = 600;
+                int ux = (avail.width() - w) / 2 + avail.x();
+                int uy = (avail.height() - h) / 2 + avail.y();
+                usageView->resize(w, h);
+                m_lastTargetPos = QPoint(ux, uy);
+                debugLog(QString("[openUsage] target=(%1 %2)").arg(ux).arg(uy));
+            } else {
+                m_lastTargetPos = QPoint();
+            }
+        }
+        debugLog(QString("[openUsage] BEFORE show() pos=(%1 %2)").arg(usageView->x()).arg(usageView->y()));
         usageView->show();
+        debugLog(QString("[openUsage] AFTER show() pos=(%1 %2) screen=%3")
+            .arg(usageView->x()).arg(usageView->y())
+            .arg(usageView->screen() ? usageView->screen()->name() : "null"));
+        if (!m_lastTargetPos.isNull()) forceWindowPosition(usageView, m_lastTargetPos.x(), m_lastTargetPos.y());
+        debugLog(QString("[openUsage] AFTER forceWindowPosition() pos=(%1 %2)").arg(usageView->x()).arg(usageView->y()));
         usageView->raise();
         usageView->requestActivate();
         emit usageVisibleChanged();
@@ -478,31 +659,78 @@ int main(int argc, char* argv[]) {
         trayView.setSource(QUrl("qrc:/qml/TrayPanel.qml"));
     }
 
-    auto positionPanel = [&]() {
+    auto positionPanel = [&]() -> QPoint {
         QRect rect = trayCtrl.trayIconRect();
         QPoint iconCenter(rect.x() + rect.width() / 2, rect.y() + rect.height() / 2);
-        QScreen* screen = QGuiApplication::screenAt(iconCenter);
-        if (!screen) screen = QGuiApplication::primaryScreen();
-        if (!screen) return;
-        QRect avail = screen->availableGeometry();
+
+        // Use Win32 MonitorFromPoint to find the correct monitor — Qt may not
+        // detect all monitors (e.g. only sees secondary on some dual-screen setups).
+        QRect avail = win32MonitorWorkArea(iconCenter);
+        QRect monGeo = win32MonitorGeometry(iconCenter);
+        debugLog(QString("[positionPanel] trayIconRect=(%1 %2 %3 %4) iconCenter=(%5 %6)")
+            .arg(rect.x()).arg(rect.y()).arg(rect.width()).arg(rect.height())
+            .arg(iconCenter.x()).arg(iconCenter.y()));
+        debugLog(QString("[positionPanel] win32 workArea=(%1 %2 %3 %4) monGeo=(%5 %6 %7 %8)")
+            .arg(avail.x()).arg(avail.y()).arg(avail.width()).arg(avail.height())
+            .arg(monGeo.x()).arg(monGeo.y()).arg(monGeo.width()).arg(monGeo.height()));
+        // Also log Qt's view for comparison
+        debugLog(QString("[positionPanel] Qt screens: %1, primaryScreen=%2")
+            .arg(QGuiApplication::screens().size())
+            .arg(QGuiApplication::primaryScreen() ? QGuiApplication::primaryScreen()->name() : "null"));
+        for (auto* s : QGuiApplication::screens()) {
+            debugLog(QString("  Qt screen %1 geo=(%2 %3 %4 %5) avail=(%6 %7 %8 %9) dpr=%10")
+                .arg(s->name())
+                .arg(s->geometry().x()).arg(s->geometry().y()).arg(s->geometry().width()).arg(s->geometry().height())
+                .arg(s->availableGeometry().x()).arg(s->availableGeometry().y()).arg(s->availableGeometry().width()).arg(s->availableGeometry().height())
+                .arg(s->devicePixelRatio()));
+        }
+
+        if (avail.isEmpty()) {
+            // Fallback to Qt if Win32 fails
+            QScreen* screen = QGuiApplication::screenAt(iconCenter);
+            if (!screen) screen = QGuiApplication::primaryScreen();
+            if (!screen) return {};
+            avail = screen->availableGeometry();
+        }
+
         int pw = trayView.width();
         int ph = trayView.height();
         if (pw <= 0) pw = 300;
         if (ph <= 0) ph = 420;
         int x = rect.x() + rect.width() / 2 - pw / 2;
-        int y = avail.bottom() - ph - 4;
-        x = qBound(avail.left(), x, avail.right() - pw);
-        y = qMax(avail.top(), y);
+        int y = avail.y() + avail.height() - ph - 4;
+        x = qBound(avail.x(), x, avail.x() + avail.width() - pw);
+        y = qMax(avail.y(), y);
         trayView.setPosition(x, y);
+        debugLog(QString("[positionPanel] result=(%1 %2)").arg(x).arg(y));
+        return QPoint(x, y);
     };
 
     auto showPanel = [&]() {
         if (trayView.status() != QQuickView::Ready) return;
-        positionPanel();
+        QPoint pos = positionPanel();
+        debugLog(QString("[showPanel] BEFORE show() trayView pos=(%1 %2)").arg(trayView.x()).arg(trayView.y()));
         trayView.show();
+        debugLog(QString("[showPanel] AFTER show() trayView pos=(%1 %2) screen=%3")
+            .arg(trayView.x()).arg(trayView.y())
+            .arg(trayView.screen() ? trayView.screen()->name() : "null"));
+        if (!pos.isNull()) forceWindowPosition(&trayView, pos.x(), pos.y());
+        debugLog(QString("[showPanel] AFTER forceWindowPosition() trayView pos=(%1 %2)").arg(trayView.x()).arg(trayView.y()));
         applyRoundedWindowRegion(&trayView, 12);
         trayView.raise();
         trayView.requestActivate();
+        QTimer::singleShot(100, &trayView, [&trayView]() {
+            debugLog(QString("[showPanel] DEFERRED(100ms) trayView pos=(%1 %2) screen=%3")
+                .arg(trayView.x()).arg(trayView.y())
+                .arg(trayView.screen() ? trayView.screen()->name() : "null"));
+            HWND hwnd = reinterpret_cast<HWND>(trayView.winId());
+            if (hwnd) {
+                RECT r;
+                GetWindowRect(hwnd, &r);
+                debugLog(QString("[showPanel] DEFERRED(100ms) Win32 rect=(%1 %2 %3 %4)")
+                    .arg(r.left).arg(r.top).arg(r.right).arg(r.bottom));
+            }
+        });
     };
 
     bool startupPanelShown = false;
@@ -547,6 +775,37 @@ int main(int argc, char* argv[]) {
 
     QTimer::singleShot(0, &trayView, showStartupPanel);
 
+    // Returns the Win32 work area of the monitor containing the tray icon.
+    // Falls back to Qt's screen detection if Win32 fails.
+    auto win32WorkAreaForTray = [&]() -> QRect {
+        QRect iconRect = trayCtrl.trayIconRect();
+        QPoint iconCenter(iconRect.x() + iconRect.width() / 2, iconRect.y() + iconRect.height() / 2);
+        QRect wa = win32MonitorWorkArea(iconCenter);
+        if (!wa.isEmpty()) return wa;
+        QScreen* screen = QGuiApplication::screenAt(iconCenter);
+        if (!screen) screen = QGuiApplication::primaryScreen();
+        if (screen) return screen->availableGeometry();
+        return QRect();
+    };
+
+    auto screenForTray = [&]() -> QScreen* {
+        if (trayView.screen()) {
+            debugLog(QString("[screenForTray] from trayView.screen() = %1").arg(trayView.screen()->name()));
+            return trayView.screen();
+        }
+        QRect iconRect = trayCtrl.trayIconRect();
+        QPoint iconCenter(iconRect.x() + iconRect.width() / 2, iconRect.y() + iconRect.height() / 2);
+        if (QScreen* s = QGuiApplication::screenAt(iconCenter)) {
+            debugLog(QString("[screenForTray] from screenAt(%1,%2) = %3").arg(iconCenter.x()).arg(iconCenter.y()).arg(s->name()));
+            return s;
+        }
+        debugLog(QString("[screenForTray] fallback to primaryScreen() = %1").arg(QGuiApplication::primaryScreen() ? QGuiApplication::primaryScreen()->name() : "null"));
+        return QGuiApplication::primaryScreen();
+    };
+
+    appController->screenForTray = screenForTray;
+    appController->win32WorkAreaForTray = win32WorkAreaForTray;
+
     QQuickView settingsView(&qmlEngine, nullptr);
     auto updateSettingsTitle = [&settingsView]() {
         settingsView.setTitle(QCoreApplication::translate("App", "CodexBar Settings"));
@@ -559,17 +818,22 @@ int main(int argc, char* argv[]) {
     settingsView.setColor(QColor("#1a1a2e"));
 
     // Set height to fit screen and center position
-    QScreen* screen = QGuiApplication::primaryScreen();
-    if (screen) {
-        QRect avail = screen->availableGeometry();
-        int maxH = avail.height() - 60;
-        int h = qMin(960, maxH);
-        int w = 900;
-        settingsView.setPosition((avail.width() - w) / 2 + avail.x(),
-                                  (avail.height() - h) / 2 + avail.y());
-        settingsView.resize(w, h);
-    } else {
-        settingsView.resize(900, 800);
+    {
+        QRect avail = win32WorkAreaForTray();
+        if (avail.isEmpty()) {
+            QScreen* s = screenForTray();
+            if (s) avail = s->availableGeometry();
+        }
+        if (!avail.isEmpty()) {
+            int maxH = avail.height() - 60;
+            int h = qMin(960, maxH);
+            int w = 900;
+            settingsView.setPosition((avail.width() - w) / 2 + avail.x(),
+                                      (avail.height() - h) / 2 + avail.y());
+            settingsView.resize(w, h);
+        } else {
+            settingsView.resize(900, 800);
+        }
     }
 
     QObject::connect(&settingsView, &QQuickView::statusChanged, &settingsView, [&](QQuickView::Status status) {
