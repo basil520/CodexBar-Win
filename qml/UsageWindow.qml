@@ -10,10 +10,18 @@ Rectangle {
     id: usageWindow
     width: 800
     height: 600
-    color: AppTheme.bgPrimary
+    color: windowBackgroundColor
 
     property int rev: LanguageManager.translationRevision
     readonly property bool contentActive: Window.window !== null && Window.window.visible
+    readonly property bool glassEffectActive: SettingsStore.glassEffectEnabled
+    readonly property real glassOpacity: Math.min(0.85, Math.max(0.25, SettingsStore.glassEffectOpacity / 100))
+    readonly property color windowBackgroundColor: glassEffectActive ? colorWithAlpha(AppTheme.bgPrimary, glassOpacity) : AppTheme.bgPrimary
+    readonly property color titleBarBackgroundColor: glassEffectActive ? colorWithAlpha(AppTheme.bgTitleBar, Math.max(0.18, glassOpacity * 0.76)) : AppTheme.bgTitleBar
+
+    function colorWithAlpha(color, alpha) {
+        return Qt.rgba(color.r, color.g, color.b, alpha)
+    }
 
     Rectangle {
         anchors.fill: parent
@@ -31,7 +39,7 @@ Rectangle {
             id: titleBar
             Layout.fillWidth: true
             Layout.preferredHeight: 44
-            color: AppTheme.bgTitleBar
+            color: usageWindow.titleBarBackgroundColor
 
             Rectangle {
                 anchors.left: parent.left
@@ -96,7 +104,7 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            color: AppTheme.bgPrimary
+            color: "transparent"
 
             Loader {
                 anchors.fill: parent

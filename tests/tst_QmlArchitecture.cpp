@@ -41,12 +41,16 @@ private slots:
     void browserSessionCardInvalidatesImportFeedbackBindings();
     void browserSessionCardDoesNotDisplayRawStaleBindingIds();
     void browserSessionBridgeUiHonorsGlobalSetting();
+    void glassOpacityLivesInDisplayPane();
+    void topLevelWindowsUseAcrylicBackdropLayer();
+    void nativeGlassExtendsDwmIntoClientArea();
     void claudePeakHoursLivesInDisplayPane();
     void usageStoreDoesNotInjectBridgeLookupWhenDisabled();
     void browserSessionBridgeExtensionUsesCanonicalWireProtocol();
     void providerUiBuildersUseCatalogSnapshot();
     void costUsageScanUsesCostUsageService();
     void openCodeCostScanScopesSqlToRecentSessions();
+    void appQmlResourceBypassesMultiConfigAutoRcc();
 };
 
 void QmlArchitectureTest::trayPanelDoesNotUseSynchronousUsageStoreGetters()
@@ -651,6 +655,47 @@ void QmlArchitectureTest::browserSessionBridgeUiHonorsGlobalSetting()
              "ProviderDetailView must not instantiate BrowserSessionCard while Cookies import is disabled.");
 }
 
+void QmlArchitectureTest::glassOpacityLivesInDisplayPane()
+{
+    const QString display = readFile("qml/panes/DisplayPane.qml");
+    QVERIFY2(display.contains(QStringLiteral("SettingsStore.glassEffectEnabled")),
+             "DisplayPane must expose the glass effect toggle.");
+    QVERIFY2(display.contains(QStringLiteral("SettingsStore.glassEffectOpacity")),
+             "DisplayPane must bind a glass opacity setting.");
+    QVERIFY2(display.contains(QStringLiteral("Slider")),
+             "Glass opacity must use a slider control.");
+    QVERIFY2(display.contains(QStringLiteral("from: 10")),
+             "Glass opacity must allow a low enough value for an obvious acrylic effect.");
+}
+
+void QmlArchitectureTest::topLevelWindowsUseAcrylicBackdropLayer()
+{
+    const QString qrc = readFile("resources/qml.qrc");
+    QVERIFY2(qrc.contains(QStringLiteral("qml/components/AcrylicBackdrop.qml")),
+             "AcrylicBackdrop.qml must be embedded in app resources.");
+
+    const QStringList windows = {
+        QStringLiteral("qml/SettingsWindow.qml"),
+        QStringLiteral("qml/TrayPanel.qml"),
+        QStringLiteral("qml/UsageWindow.qml"),
+    };
+
+    for (const QString& path : windows) {
+        const QString contents = readFile(path);
+        QVERIFY2(contents.contains(QStringLiteral("Components.AcrylicBackdrop")),
+                 qPrintable(path + QStringLiteral(" must render the shared acrylic material layer.")));
+    }
+}
+
+void QmlArchitectureTest::nativeGlassExtendsDwmIntoClientArea()
+{
+    const QString contents = readFile("src/app/WindowGlassEffect.cpp");
+    QVERIFY2(contents.contains(QStringLiteral("DwmExtendFrameIntoClientArea")),
+             "Native glass must extend the DWM frame into the Qt client area.");
+    QVERIFY2(contents.contains(QStringLiteral("DwmEnableBlurBehindWindow")),
+             "Native glass must enable DWM blur behind the window, not only set an accent policy.");
+}
+
 void QmlArchitectureTest::claudePeakHoursLivesInDisplayPane()
 {
     const QString general = readFile("qml/panes/GeneralPane.qml");
@@ -848,6 +893,23 @@ void QmlArchitectureTest::openCodeCostScanScopesSqlToRecentSessions()
              "OpenCode DB cost scan must use sinceMs in SQL instead of reading every historical message.");
     QVERIFY2(contents.contains(QStringLiteral("query.bindValue(\":sinceMs\", sinceMs)")),
              "OpenCode DB cost scan must bind sinceMs for the recent session scope.");
+}
+
+void QmlArchitectureTest::appQmlResourceBypassesMultiConfigAutoRcc()
+{
+    const QString cmake = readFile(QStringLiteral("CMakeLists.txt"));
+    QVERIFY2(cmake.contains(QStringLiteral("CODEXBAR_QML_RESOURCE_CPP")),
+             "CodexBarX must generate a single config-independent QML resource source.");
+    QVERIFY2(cmake.contains(QStringLiteral("$<TARGET_FILE:Qt6::rcc>")),
+             "CodexBarX must invoke rcc directly instead of relying on multi-config AUTORCC for app QML.");
+
+    const int appSources = cmake.indexOf(QStringLiteral("set(CODEXBAR_APP_SOURCES"));
+    QVERIFY(appSources >= 0);
+    const int addExecutable = cmake.indexOf(QStringLiteral("add_executable(CodexBarX"), appSources);
+    QVERIFY(addExecutable > appSources);
+    const QString appSourceBlock = cmake.mid(appSources, addExecutable - appSources);
+    QVERIFY2(!appSourceBlock.contains(QStringLiteral("resources/qml.qrc")),
+             "Do not put resources/qml.qrc directly in CODEXBAR_APP_SOURCES; Visual Studio multi-config AUTORCC can leave Release QML stale after Debug refreshed the shared wrapper.");
 }
 
 QTEST_MAIN(QmlArchitectureTest)

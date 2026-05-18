@@ -8,10 +8,15 @@ import "panes"
 Rectangle {
     id: settingsWindow
     width: 900
-    color: AppTheme.bgPrimary
+    color: windowBackgroundColor
 
     property int rev: LanguageManager.translationRevision
     property bool providersPaneLoaded: false
+    readonly property bool glassEffectActive: SettingsStore.glassEffectEnabled
+    readonly property real glassOpacity: Math.min(0.85, Math.max(0.25, SettingsStore.glassEffectOpacity / 100))
+    readonly property color windowBackgroundColor: glassEffectActive ? colorWithAlpha(AppTheme.bgPrimary, glassOpacity) : AppTheme.bgPrimary
+    readonly property color titleBarBackgroundColor: glassEffectActive ? colorWithAlpha(AppTheme.bgTitleBar, Math.max(0.18, glassOpacity * 0.76)) : AppTheme.bgTitleBar
+    readonly property color sidebarBackgroundColor: glassEffectActive ? colorWithAlpha(AppTheme.bgSecondary, Math.max(0.22, glassOpacity * 0.88)) : AppTheme.bgSecondary
     property var tabs: {
         settingsWindow.rev
         var items = [
@@ -23,6 +28,10 @@ Rectangle {
         ]
         if (SettingsStore.debugMenuEnabled) items.push({ label: qsTr("Debug"), icon: "{}" })
         return items
+    }
+
+    function colorWithAlpha(color, alpha) {
+        return Qt.rgba(color.r, color.g, color.b, alpha)
     }
 
     Rectangle {
@@ -41,7 +50,7 @@ Rectangle {
             id: titleBar
             Layout.fillWidth: true
             Layout.preferredHeight: 44
-            color: AppTheme.bgTitleBar
+            color: settingsWindow.titleBarBackgroundColor
 
             Rectangle {
                 anchors.left: parent.left
@@ -117,7 +126,7 @@ Rectangle {
             Rectangle {
                 Layout.preferredWidth: 220
                 Layout.fillHeight: true
-                color: AppTheme.bgSecondary
+                color: settingsWindow.sidebarBackgroundColor
 
                 Rectangle {
                     anchors.right: parent.right
@@ -229,7 +238,7 @@ Rectangle {
             Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                color: AppTheme.bgPrimary
+                color: "transparent"
 
                 StackLayout {
                     id: contentStack

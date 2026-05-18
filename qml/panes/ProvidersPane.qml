@@ -7,7 +7,7 @@ import "../components"
 
 Rectangle {
     id: root
-    color: AppTheme.bgPrimary
+    color: SettingsStore.glassEffectEnabled ? "transparent" : AppTheme.bgPrimary
 
     property var providers: []
     property int providerCount: 0

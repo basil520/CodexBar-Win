@@ -746,6 +746,26 @@
         <translation>Amethyst</translation>
     </message>
     <message>
+        <location filename="../qml/panes/DisplayPane.qml" line="49"/>
+        <source>Glass Effect</source>
+        <translation>Glass Effect</translation>
+    </message>
+    <message>
+        <location filename="../qml/panes/DisplayPane.qml" line="50"/>
+        <source>Use native Windows acrylic blur behind app windows.</source>
+        <translation>Use native Windows acrylic blur behind app windows.</translation>
+    </message>
+    <message>
+        <location filename="../qml/panes/DisplayPane.qml" line="68"/>
+        <source>Glass Opacity</source>
+        <translation>Glass Opacity</translation>
+    </message>
+    <message>
+        <location filename="../qml/panes/DisplayPane.qml" line="77"/>
+        <source>Lower values make the glass more transparent.</source>
+        <translation>Lower values make the glass more transparent.</translation>
+    </message>
+    <message>
         <location filename="../qml/panes/DisplayPane.qml" line="50"/>
         <source>Merge Icons</source>
         <translation>Merge Icons</translation>

@@ -159,6 +159,7 @@ set(CORE_SOURCES
     src/app/CostUsageService.cpp
     src/app/SettingsStore.cpp
     src/app/SettingsProvidersModel.cpp
+    src/app/WindowGlassEffect.cpp
     src/app/BridgeViewModel.cpp
     src/app/UsageStore.cpp
     src/app/TrayProviderListModel.cpp
@@ -322,6 +323,7 @@ set(CORE_HEADERS
     src/app/CostUsageService.h
     src/app/SettingsStore.h
     src/app/SettingsProvidersModel.h
+    src/app/WindowGlassEffect.h
     src/app/BridgeViewModel.h
     src/app/UsageStore.h
     src/app/TrayProviderListModel.h
@@ -406,9 +408,29 @@ elseif(APPLE)
 endif()
 
 if(WINCODEXBAR_QT_RUNTIME_FOUND)
+    set(CODEXBAR_QML_RESOURCE_CPP "${CMAKE_CURRENT_BINARY_DIR}/generated/qrc_codexbar_qml.cpp")
+    file(READ "${CMAKE_CURRENT_SOURCE_DIR}/resources/qml.qrc" CODEXBAR_QML_QRC_CONTENT)
+    string(REGEX MATCHALL "<file[^>]*>[^<]+</file>" CODEXBAR_QML_QRC_FILE_TAGS "${CODEXBAR_QML_QRC_CONTENT}")
+    set(CODEXBAR_QML_RESOURCE_DEPS "${CMAKE_CURRENT_SOURCE_DIR}/resources/qml.qrc")
+    foreach(QRC_FILE_TAG IN LISTS CODEXBAR_QML_QRC_FILE_TAGS)
+        string(REGEX REPLACE "^<file[^>]*>([^<]+)</file>$" "\\1" QRC_FILE_PATH "${QRC_FILE_TAG}")
+        get_filename_component(QRC_FILE_ABSOLUTE "${QRC_FILE_PATH}" ABSOLUTE
+            BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/resources")
+        list(APPEND CODEXBAR_QML_RESOURCE_DEPS "${QRC_FILE_ABSOLUTE}")
+    endforeach()
+
+    add_custom_command(
+        OUTPUT "${CODEXBAR_QML_RESOURCE_CPP}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/generated"
+        COMMAND "$<TARGET_FILE:Qt6::rcc>" -name qml -o "${CODEXBAR_QML_RESOURCE_CPP}" "${CMAKE_CURRENT_SOURCE_DIR}/resources/qml.qrc"
+        DEPENDS ${CODEXBAR_QML_RESOURCE_DEPS}
+        VERBATIM
+    )
+    set_source_files_properties("${CODEXBAR_QML_RESOURCE_CPP}" PROPERTIES GENERATED TRUE)
+
     set(CODEXBAR_APP_SOURCES
         src/main.cpp
-        resources/qml.qrc
+        "${CODEXBAR_QML_RESOURCE_CPP}"
     )
     if(WIN32)
         list(APPEND CODEXBAR_APP_SOURCES resources/codexbarx.rc)

@@ -7,6 +7,7 @@
 #include <QJsonDocument>
 #include <QStandardPaths>
 #include <QSettings>
+#include <QtGlobal>
 
 SettingsStore::SettingsStore(QObject* parent)
     : QObject(parent)
@@ -26,6 +27,8 @@ SettingsStore::SettingsStore(QObject* parent)
     m_sessionQuotaNotificationsEnabled = m_settings.value("sessionQuotaNotificationsEnabled", true).toBool();
     m_claudePeakHoursEnabled = m_settings.value("claudePeakHoursEnabled", true).toBool();
     m_browserSessionBridgeEnabled = m_settings.value("browserSessionBridgeEnabled", true).toBool();
+    m_glassEffectEnabled = m_settings.value("glassEffectEnabled", true).toBool();
+    m_glassEffectOpacity = qBound(10, m_settings.value("glassEffectOpacity", 40).toInt(), 85);
     m_language = m_settings.value("language", "en").toString();
     m_theme = m_settings.value("theme", 0).toInt();
     loadConfig();
@@ -158,6 +161,23 @@ void SettingsStore::setBrowserSessionBridgeEnabled(bool enable) {
     }
 }
 
+void SettingsStore::setGlassEffectEnabled(bool enable) {
+    if (m_glassEffectEnabled != enable) {
+        m_glassEffectEnabled = enable;
+        m_settings.setValue("glassEffectEnabled", enable);
+        emit glassEffectEnabledChanged();
+    }
+}
+
+void SettingsStore::setGlassEffectOpacity(int opacity) {
+    const int bounded = qBound(10, opacity, 85);
+    if (m_glassEffectOpacity != bounded) {
+        m_glassEffectOpacity = bounded;
+        m_settings.setValue("glassEffectOpacity", bounded);
+        emit glassEffectOpacityChanged();
+    }
+}
+
 void SettingsStore::setLanguage(const QString& lang) {
     if (m_language != lang) {
         m_language = lang;
@@ -286,6 +306,8 @@ void SettingsStore::resetToDefaults() {
     setSessionQuotaNotificationsEnabled(true);
     setClaudePeakHoursEnabled(true);
     setBrowserSessionBridgeEnabled(true);
+    setGlassEffectEnabled(true);
+    setGlassEffectOpacity(40);
     setLanguage("en");
     setTheme(0);
     m_providerSettings.clear();

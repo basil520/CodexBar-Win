@@ -5,6 +5,7 @@
 #include <QtQuick/QQuickItem>
 #include <QtQuick/QQuickView>
 #include <QAbstractListModel>
+#include <QColor>
 #include <QVariantMap>
 
 #include "app/AppTheme.h"
@@ -20,6 +21,8 @@ class MockSettingsStore : public QObject {
     Q_PROPERTY(bool sessionQuotaNotificationsEnabled READ sessionQuotaNotificationsEnabled CONSTANT)
     Q_PROPERTY(bool claudePeakHoursEnabled READ claudePeakHoursEnabled CONSTANT)
     Q_PROPERTY(bool browserSessionBridgeEnabled READ browserSessionBridgeEnabled CONSTANT)
+    Q_PROPERTY(bool glassEffectEnabled READ glassEffectEnabled WRITE setGlassEffectEnabled NOTIFY glassEffectEnabledChanged)
+    Q_PROPERTY(int glassEffectOpacity READ glassEffectOpacity WRITE setGlassEffectOpacity NOTIFY glassEffectOpacityChanged)
     Q_PROPERTY(int refreshFrequency READ refreshFrequency CONSTANT)
     Q_PROPERTY(QString language READ language CONSTANT)
 public:
@@ -32,6 +35,18 @@ public:
     bool sessionQuotaNotificationsEnabled() const { return false; }
     bool claudePeakHoursEnabled() const { return true; }
     bool browserSessionBridgeEnabled() const { return true; }
+    bool glassEffectEnabled() const { return glassEffectEnabledValue; }
+    void setGlassEffectEnabled(bool enabled) {
+        if (glassEffectEnabledValue == enabled) return;
+        glassEffectEnabledValue = enabled;
+        emit glassEffectEnabledChanged();
+    }
+    int glassEffectOpacity() const { return glassEffectOpacityValue; }
+    void setGlassEffectOpacity(int opacity) {
+        if (glassEffectOpacityValue == opacity) return;
+        glassEffectOpacityValue = opacity;
+        emit glassEffectOpacityChanged();
+    }
     int refreshFrequency() const { return 15; }
     QString language() const { return "en"; }
     bool launchAtLogin() const { return false; }
@@ -53,6 +68,9 @@ public:
     Q_INVOKABLE void setLanguage(const QString&) {}
     Q_INVOKABLE void setDebugMenuEnabled(bool) {}
 
+    bool glassEffectEnabledValue = false;
+    int glassEffectOpacityValue = 50;
+
 signals:
     void debugMenuEnabledChanged();
     void mergeIconsChanged();
@@ -61,6 +79,8 @@ signals:
     void showOptionalCreditsAndExtraUsageChanged();
     void statusChecksEnabledChanged();
     void sessionQuotaNotificationsEnabledChanged();
+    void glassEffectEnabledChanged();
+    void glassEffectOpacityChanged();
 };
 
 class MockUsageStore : public QObject {
@@ -1871,6 +1891,92 @@ private slots:
                  qPrintable(QString("providerList called %1 times").arg(mockUsage.providerListCalls)));
 
         view.hide();
+    }
+
+    void topLevelWindowsUseTranslucentRootsWhenGlassIsEnabled() {
+        mockSettings.setGlassEffectEnabled(true);
+        mockSettings.setGlassEffectOpacity(42);
+        struct GlassResetGuard {
+            MockSettingsStore* settings = nullptr;
+            ~GlassResetGuard() {
+                if (!settings) return;
+                settings->setGlassEffectOpacity(50);
+                settings->setGlassEffectEnabled(false);
+            }
+        } resetGuard{&mockSettings};
+        QQmlEngine engine;
+        mockTray.resetCounters();
+        setupEngine(engine);
+
+        auto verifyRootColor = [&](const QUrl& url) {
+            QQmlComponent component(&engine, url);
+            if (component.status() == QQmlComponent::Error) {
+                qWarning() << "Top-level window load errors:" << component.errorString();
+            }
+            QVERIFY2(component.status() == QQmlComponent::Ready,
+                     qPrintable(component.errorString()));
+
+            QObject* object = component.create();
+            QVERIFY(object != nullptr);
+            const QColor color = object->property("color").value<QColor>();
+            QVERIFY2(color.isValid(), qPrintable(url.toString()));
+            QVERIFY2(color.alpha() > 0 && color.alpha() < 255,
+                     qPrintable(QString("%1 root must be translucent for native glass; alpha=%2")
+                         .arg(url.toString())
+                         .arg(color.alpha())));
+            QVERIFY2(color.alpha() <= 160,
+                     qPrintable(QString("%1 root must be transparent enough for visible glass; alpha=%2")
+                         .arg(url.toString())
+                         .arg(color.alpha())));
+            const int expectedAlpha = qRound(255.0 * 0.42);
+            QVERIFY2(std::abs(color.alpha() - expectedAlpha) <= 2,
+                     qPrintable(QString("%1 root alpha must follow glassEffectOpacity; expected around %2, got %3")
+                         .arg(url.toString())
+                         .arg(expectedAlpha)
+                         .arg(color.alpha())));
+            delete object;
+        };
+
+        verifyRootColor(QUrl("qrc:/qml/SettingsWindow.qml"));
+        verifyRootColor(QUrl("qrc:/qml/TrayPanel.qml"));
+        verifyRootColor(QUrl("qrc:/qml/UsageWindow.qml"));
+    }
+
+    void settingsGroupBoxUsesTranslucentColorWhenGlassIsEnabled() {
+        mockSettings.setGlassEffectEnabled(true);
+        mockSettings.setGlassEffectOpacity(45);
+        struct GlassResetGuard {
+            MockSettingsStore* settings = nullptr;
+            ~GlassResetGuard() {
+                if (!settings) return;
+                settings->setGlassEffectOpacity(50);
+                settings->setGlassEffectEnabled(false);
+            }
+        } resetGuard{&mockSettings};
+
+        QQmlEngine engine;
+        setupEngine(engine);
+
+        QQmlComponent component(&engine);
+        component.setData(R"QML(
+            import QtQuick 2.15
+            import "qrc:/qml/components" as Components
+
+            Components.SettingsGroupBox {
+                width: 320
+            }
+        )QML", QUrl("qrc:/tests/SettingsGroupBoxGlassHarness.qml"));
+
+        QVERIFY2(component.status() == QQmlComponent::Ready,
+                 qPrintable(component.errorString()));
+
+        QObject* object = component.create();
+        QVERIFY(object != nullptr);
+        const QColor color = object->property("color").value<QColor>();
+        QVERIFY2(color.isValid(), "SettingsGroupBox must expose a valid color.");
+        QVERIFY2(color.alpha() <= 170,
+                 qPrintable(QString("SettingsGroupBox must not hide native glass; alpha=%1").arg(color.alpha())));
+        delete object;
     }
 };
 

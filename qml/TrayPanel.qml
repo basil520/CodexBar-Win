@@ -9,12 +9,18 @@ Rectangle {
     id: root
     width: 360
     height: 720
-    color: AppTheme.bgPrimary
+    color: windowBackgroundColor
     radius: 12
     clip: true
     antialiasing: true
     border.color: AppTheme.bgSelected
     border.width: 1
+
+    readonly property bool glassEffectActive: SettingsStore.glassEffectEnabled
+    readonly property real glassOpacity: Math.min(0.85, Math.max(0.25, SettingsStore.glassEffectOpacity / 100))
+    readonly property color windowBackgroundColor: glassEffectActive ? colorWithAlpha(AppTheme.bgPrimary, glassOpacity) : AppTheme.bgPrimary
+    readonly property color titleBarBackgroundColor: glassEffectActive ? colorWithAlpha(AppTheme.bgTitleBar, Math.max(0.18, glassOpacity * 0.76)) : AppTheme.bgTitleBar
+    readonly property color cardBackgroundColor: glassEffectActive ? colorWithAlpha(AppTheme.bgCard, Math.min(0.78, glassOpacity + 0.08)) : AppTheme.bgCard
 
     property var costData: TrayViewModel.costData
     property var displayCostData: TrayViewModel.displayCostData
@@ -34,6 +40,10 @@ Rectangle {
 
     // Phase 3: Codex accounts (derived from codexAccountState)
     property var codexAccounts: root.codexAccountState && root.codexAccountState.accounts ? root.codexAccountState.accounts : []
+
+    function colorWithAlpha(color, alpha) {
+        return Qt.rgba(color.r, color.g, color.b, alpha)
+    }
 
     Component.onCompleted: TrayViewModel.requestCostUsageViewData()
     onCostExpandedChanged: refreshProviderCostRows()
@@ -89,7 +99,7 @@ Rectangle {
         anchors.margins: -1
         radius: 13
         color: "transparent"
-        border.color: AppTheme.bgTitleBar
+        border.color: root.titleBarBackgroundColor
         border.width: 1
         z: -1
     }
@@ -102,7 +112,7 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 48
-            color: AppTheme.bgTitleBar
+            color: root.titleBarBackgroundColor
             radius: 12
 
             Rectangle {
@@ -896,7 +906,7 @@ Rectangle {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 28
                         visible: cardDelegate.providerId === "codex" && snap.hasCredits === true
-                        color: AppTheme.bgCard
+                        color: root.cardBackgroundColor
                         radius: 6
 
                         RowLayout {
@@ -1294,7 +1304,7 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 44
-            color: AppTheme.bgTitleBar
+            color: root.titleBarBackgroundColor
             radius: 12
 
             Rectangle {

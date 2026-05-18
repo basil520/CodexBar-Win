@@ -746,6 +746,26 @@
         <translation>紫水晶</translation>
     </message>
     <message>
+        <location filename="../qml/panes/DisplayPane.qml" line="49"/>
+        <source>Glass Effect</source>
+        <translation>磨玻璃效果</translation>
+    </message>
+    <message>
+        <location filename="../qml/panes/DisplayPane.qml" line="50"/>
+        <source>Use native Windows acrylic blur behind app windows.</source>
+        <translation>使用 Windows 原生亚克力模糊作为窗口背景。</translation>
+    </message>
+    <message>
+        <location filename="../qml/panes/DisplayPane.qml" line="68"/>
+        <source>Glass Opacity</source>
+        <translation>玻璃不透明度</translation>
+    </message>
+    <message>
+        <location filename="../qml/panes/DisplayPane.qml" line="77"/>
+        <source>Lower values make the glass more transparent.</source>
+        <translation>数值越低，玻璃背景越透明。</translation>
+    </message>
+    <message>
         <location filename="../qml/panes/DisplayPane.qml" line="50"/>
         <source>Merge Icons</source>
         <translation>合并图标</translation>

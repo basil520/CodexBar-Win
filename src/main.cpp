@@ -19,10 +19,10 @@
 #include <QThreadPool>
 #include <QThread>
 #include <algorithm>
+#include <cmath>
 #include <functional>
 
 #ifdef Q_OS_WIN
-#include <cmath>
 #include <windows.h>
 #else
 #include <unistd.h>
@@ -30,6 +30,7 @@
 
 #include "cli/CLIEntry.h"
 #include "app/AppTheme.h"
+#include "app/WindowGlassEffect.h"
 #include "tray/TrayIconRenderer.h"
 
 #include <QQuickView>
@@ -659,11 +660,26 @@ int main(int argc, char* argv[]) {
     langMgr.install(&qmlEngine);
     installAppTheme(qmlEngine, themeMgr);
 
+    auto glassTint = [settings, themeMgr]() {
+        QColor tint = themeMgr->bgPrimary();
+        tint.setAlpha(qBound(45, static_cast<int>(std::lround(settings->glassEffectOpacity() * 1.7)), 145));
+        return tint;
+    };
+    auto applyGlassToView = [settings, themeMgr, glassTint](QQuickView& view) {
+        view.setColor(WindowGlassEffect::clearColor(settings->glassEffectEnabled(),
+                                                    themeMgr->bgPrimary()));
+        WindowGlassEffect::apply(&view, settings->glassEffectEnabled(), glassTint());
+    };
+    auto prepareGlassView = [applyGlassToView](QQuickView& view) {
+        WindowGlassEffect::prepare(&view);
+        applyGlassToView(view);
+    };
+
     QQuickView trayView(&qmlEngine, nullptr);
     trayView.setTitle("CodexBarX");
     trayView.resize(300, 520);
     trayView.setFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::NoDropShadowWindowHint);
-    trayView.setColor(themeMgr->bgPrimary());
+    prepareGlassView(trayView);
     applyRoundedWindowRegion(&trayView, 12);
 
     appController->trayView = &trayView;
@@ -728,6 +744,7 @@ int main(int argc, char* argv[]) {
         debugLog(QString("[showPanel] AFTER show() trayView pos=(%1 %2) screen=%3")
             .arg(trayView.x()).arg(trayView.y())
             .arg(trayView.screen() ? trayView.screen()->name() : "null"));
+        applyGlassToView(trayView);
         if (!pos.isNull()) forceWindowPosition(&trayView, pos.x(), pos.y());
         debugLog(QString("[showPanel] AFTER forceWindowPosition() trayView pos=(%1 %2)").arg(trayView.x()).arg(trayView.y()));
         applyRoundedWindowRegion(&trayView, 12);
@@ -783,8 +800,11 @@ int main(int argc, char* argv[]) {
             trayView.hide();
         }
     });
-    QObject::connect(&trayView, &QWindow::visibleChanged, &trayView, [&trayView](bool visible) {
-        if (visible) applyRoundedWindowRegion(&trayView, 12);
+    QObject::connect(&trayView, &QWindow::visibleChanged, &trayView, [&trayView, applyGlassToView](bool visible) {
+        if (visible) {
+            applyGlassToView(trayView);
+            applyRoundedWindowRegion(&trayView, 12);
+        }
     });
 
     QTimer::singleShot(0, &trayView, showStartupPanel);
@@ -829,7 +849,7 @@ int main(int argc, char* argv[]) {
     settingsView.setMinimumSize(QSize(820, 560));
     settingsView.setResizeMode(QQuickView::SizeRootObjectToView);
     settingsView.setFlags(Qt::Window | Qt::FramelessWindowHint);
-    settingsView.setColor(themeMgr->bgPrimary());
+    prepareGlassView(settingsView);
 
     // Set height to fit screen and center position
     {
@@ -874,6 +894,10 @@ int main(int argc, char* argv[]) {
                      [appController]() {
                          emit appController->settingsMaximizedChanged();
                      });
+    QObject::connect(&settingsView, &QWindow::visibleChanged, &settingsView,
+                     [&settingsView, applyGlassToView](bool visible) {
+                         if (visible) applyGlassToView(settingsView);
+                     });
 
     QQuickView usageView(&qmlEngine, nullptr);
     usageView.setTitle(QCoreApplication::translate("App", "Usage Details"));
@@ -881,7 +905,7 @@ int main(int argc, char* argv[]) {
     usageView.setMinimumSize(QSize(720, 480));
     usageView.setResizeMode(QQuickView::SizeRootObjectToView);
     usageView.setFlags(Qt::Window | Qt::FramelessWindowHint);
-    usageView.setColor(themeMgr->bgPrimary());
+    prepareGlassView(usageView);
 
     QObject::connect(&usageView, &QQuickView::statusChanged, &usageView, [&usageView](QQuickView::Status status) {
         if (status != QQuickView::Error) return;
@@ -903,18 +927,24 @@ int main(int argc, char* argv[]) {
                      [appController]() {
                          emit appController->usageVisibleChanged();
                      });
+    QObject::connect(&usageView, &QWindow::visibleChanged, &usageView,
+                     [&usageView, applyGlassToView](bool visible) {
+                         if (visible) applyGlassToView(usageView);
+                     });
 
     QObject::connect(&settingsView, &QWindow::windowStateChanged, appController,
                      [appController]() {
                          emit appController->settingsMaximizedChanged();
                      });
 
-    QObject::connect(themeMgr, &AppThemeManager::themeChanged, [&]() {
-        QColor c = themeMgr->bgPrimary();
-        trayView.setColor(c);
-        settingsView.setColor(c);
-        usageView.setColor(c);
-    });
+    auto applyGlassToAllViews = [&]() {
+        applyGlassToView(trayView);
+        applyGlassToView(settingsView);
+        applyGlassToView(usageView);
+    };
+    QObject::connect(themeMgr, &AppThemeManager::themeChanged, applyGlassToAllViews);
+    QObject::connect(settings, &SettingsStore::glassEffectEnabledChanged, applyGlassToAllViews);
+    QObject::connect(settings, &SettingsStore::glassEffectOpacityChanged, applyGlassToAllViews);
 
     if (showSettingsOnStartup) {
         QTimer::singleShot(0, appController, &AppController::openSettings);

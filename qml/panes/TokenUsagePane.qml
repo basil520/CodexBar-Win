@@ -6,7 +6,7 @@ import CodexBarX 1.0
 
 Rectangle {
     id: root
-    color: AppTheme.bgPrimary
+    color: SettingsStore.glassEffectEnabled ? "transparent" : AppTheme.bgPrimary
 
     property var costData: UsageDetailsViewModel.costData
     property var providerRows: UsageDetailsViewModel.providerRows

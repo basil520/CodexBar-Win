@@ -23,6 +23,8 @@ class SettingsStore : public QObject {
     Q_PROPERTY(bool sessionQuotaNotificationsEnabled READ sessionQuotaNotificationsEnabled WRITE setSessionQuotaNotificationsEnabled NOTIFY sessionQuotaNotificationsEnabledChanged)
     Q_PROPERTY(bool claudePeakHoursEnabled READ claudePeakHoursEnabled WRITE setClaudePeakHoursEnabled NOTIFY claudePeakHoursEnabledChanged)
     Q_PROPERTY(bool browserSessionBridgeEnabled READ browserSessionBridgeEnabled WRITE setBrowserSessionBridgeEnabled NOTIFY browserSessionBridgeEnabledChanged)
+    Q_PROPERTY(bool glassEffectEnabled READ glassEffectEnabled WRITE setGlassEffectEnabled NOTIFY glassEffectEnabledChanged)
+    Q_PROPERTY(int glassEffectOpacity READ glassEffectOpacity WRITE setGlassEffectOpacity NOTIFY glassEffectOpacityChanged)
     Q_PROPERTY(QString language READ language WRITE setLanguage NOTIFY languageChanged)
     Q_PROPERTY(int theme READ theme WRITE setTheme NOTIFY themeChanged)
 
@@ -71,6 +73,12 @@ public:
     bool browserSessionBridgeEnabled() const { return m_browserSessionBridgeEnabled; }
     void setBrowserSessionBridgeEnabled(bool enable);
 
+    bool glassEffectEnabled() const { return m_glassEffectEnabled; }
+    void setGlassEffectEnabled(bool enable);
+
+    int glassEffectOpacity() const { return m_glassEffectOpacity; }
+    void setGlassEffectOpacity(int opacity);
+
     QString language() const { return m_language; }
     void setLanguage(const QString& lang);
 
@@ -112,6 +120,8 @@ signals:
     void sessionQuotaNotificationsEnabledChanged();
     void claudePeakHoursEnabledChanged();
     void browserSessionBridgeEnabledChanged();
+    void glassEffectEnabledChanged();
+    void glassEffectOpacityChanged();
     void languageChanged();
     void themeChanged();
     void providerOrderChanged();
@@ -136,6 +146,8 @@ private:
     bool m_sessionQuotaNotificationsEnabled = true;
     bool m_claudePeakHoursEnabled = true;
     bool m_browserSessionBridgeEnabled = true;
+    bool m_glassEffectEnabled = true;
+    int m_glassEffectOpacity = 40;
     QString m_language;
     int m_theme = 0;
     QStringList m_providerOrder;

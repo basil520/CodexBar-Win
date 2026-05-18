@@ -1,5 +1,6 @@
 ﻿import QtQuick 2.15
 import QtQuick.Layouts 1.15
+import QtQuick.Controls 2.15
 import CodexBarX 1.0
 import ".."
 import "../components"
@@ -41,6 +42,62 @@ SettingsPage {
                 onValueActivated: function(value) {
                     SettingsStore.theme = value
                 }
+            }
+        }
+
+        SettingsToggleRow {
+            title: qsTr("Glass Effect")
+            subtitle: qsTr("Use native Windows acrylic blur behind app windows.")
+            checked: SettingsStore.glassEffectEnabled
+            onToggled: function(checked) {
+                SettingsStore.glassEffectEnabled = checked
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 56
+            enabled: SettingsStore.glassEffectEnabled
+            opacity: enabled ? 1.0 : 0.45
+            spacing: AppTheme.spacingMd
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: AppTheme.spacingXs
+
+                Label {
+                    text: qsTr("Glass Opacity")
+                    color: AppTheme.textPrimary
+                    font.pixelSize: AppTheme.fontSizeMd
+                    font.bold: true
+                }
+
+                Label {
+                    text: qsTr("Lower values make the glass more transparent.")
+                    color: AppTheme.textSecondary
+                    font.pixelSize: AppTheme.fontSizeSm
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                }
+            }
+
+            Slider {
+                Layout.preferredWidth: 220
+                from: 10
+                to: 85
+                stepSize: 5
+                snapMode: Slider.SnapAlways
+                live: true
+                value: SettingsStore.glassEffectOpacity
+                onMoved: SettingsStore.glassEffectOpacity = Math.round(value)
+            }
+
+            Label {
+                Layout.preferredWidth: 42
+                text: SettingsStore.glassEffectOpacity + "%"
+                color: AppTheme.textSecondary
+                font.pixelSize: AppTheme.fontSizeSm
+                horizontalAlignment: Text.AlignRight
             }
         }
     }
