@@ -24,6 +24,8 @@
 
 #ifdef Q_OS_WIN
 #include <windows.h>
+#include <dwmapi.h>
+#pragma comment(lib, "dwmapi.lib")
 #else
 #include <unistd.h>
 #endif
@@ -90,6 +92,47 @@ static void fileMessageHandler(QtMsgType type, const QMessageLogContext& context
 #include "app/BridgeViewModel.h"
 
 #ifdef Q_OS_WIN
+struct RoundedWindowAccentPolicy {
+    int accentState = 0; // ACCENT_DISABLED
+    int accentFlags = 0;
+    int gradientColor = 0;
+    int animationId = 0;
+};
+
+struct RoundedWindowCompositionAttrData {
+    int attribute = 19; // WCA_ACCENT_POLICY
+    void* data = nullptr;
+    size_t sizeOfData = 0;
+};
+
+static void disableRectangularDwmEffects(HWND hwnd) {
+    // WindowGlassEffect::apply() enables DWM layers that paint across the full
+    // rectangular window and cannot be constrained to a region:
+    //   - DWMWA_SYSTEMBACKDROP_TYPE (Win11 system acrylic)
+    //   - ACCENT_ENABLE_ACRYLICBLURBEHIND (Win10 accent tint)
+    // These bleed through transparent QML corners as a "rectangular shell".
+    // Disable them here; the QML AcrylicBackdrop provides visual tint/noise.
+
+    // Disable Win11 system backdrop
+    auto* fnSetAttr = reinterpret_cast<HRESULT(WINAPI*)(HWND, DWORD, LPCVOID, DWORD)>(
+        GetProcAddress(GetModuleHandleW(L"dwmapi.dll"), "DwmSetWindowAttribute"));
+    if (fnSetAttr) {
+        const int none = 1; // DWMSBT_NONE
+        fnSetAttr(hwnd, 38 /*DWMWA_SYSTEMBACKDROP_TYPE*/, &none, sizeof(none));
+    }
+
+    // Disable Win10 accent policy
+    auto* fnSetCompAttr = reinterpret_cast<BOOL(WINAPI*)(HWND, void*)>(
+        GetProcAddress(GetModuleHandleW(L"user32.dll"), "SetWindowCompositionAttribute"));
+    if (fnSetCompAttr) {
+        RoundedWindowAccentPolicy policy;
+        RoundedWindowCompositionAttrData data;
+        data.data = &policy;
+        data.sizeOfData = sizeof(policy);
+        fnSetCompAttr(hwnd, &data);
+    }
+}
+
 static void applyRoundedWindowRegion(QWindow* window, int radius) {
     if (!window) return;
 
@@ -106,6 +149,42 @@ static void applyRoundedWindowRegion(QWindow* window, int radius) {
 
     if (SetWindowRgn(hwnd, region, TRUE) == FALSE) {
         DeleteObject(region);
+        return;
+    }
+
+    // Disable rectangular DWM effects, then re-enable only the blur
+    // constrained to the rounded region.
+    disableRectangularDwmEffects(hwnd);
+
+    HRGN blurRegion = CreateRoundRectRgn(0, 0, width + 1, height + 1, diameter, diameter);
+    if (blurRegion) {
+        DWM_BLURBEHIND blur = {};
+        blur.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
+        blur.fEnable = TRUE;
+        blur.hRgnBlur = blurRegion;
+        DwmEnableBlurBehindWindow(hwnd, &blur);
+        DeleteObject(blurRegion);
+    }
+
+    // Force DWM to recompose
+    SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
+                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+}
+
+static void updateTrayPanelWindowShape(QQuickView* view, bool glassEnabled)
+{
+    if (!view) return;
+    HWND hwnd = reinterpret_cast<HWND>(view->winId());
+    if (!hwnd) return;
+
+    if (glassEnabled) {
+        // Glass ON: rectangular window so DWM backdrop covers full area
+        SetWindowRgn(hwnd, nullptr, TRUE);
+        SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
+                     SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+    } else {
+        // Glass OFF: rounded window shape
+        applyRoundedWindowRegion(view, 12);
     }
 }
 
@@ -680,7 +759,6 @@ int main(int argc, char* argv[]) {
     trayView.resize(300, 520);
     trayView.setFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::NoDropShadowWindowHint);
     prepareGlassView(trayView);
-    applyRoundedWindowRegion(&trayView, 12);
 
     appController->trayView = &trayView;
 
@@ -736,7 +814,7 @@ int main(int argc, char* argv[]) {
         return QPoint(x, y);
     };
 
-    auto showPanel = [&]() {
+    auto showPanel = [&, settings]() {
         if (trayView.status() != QQuickView::Ready) return;
         QPoint pos = positionPanel();
         debugLog(QString("[showPanel] BEFORE show() trayView pos=(%1 %2)").arg(trayView.x()).arg(trayView.y()));
@@ -745,9 +823,9 @@ int main(int argc, char* argv[]) {
             .arg(trayView.x()).arg(trayView.y())
             .arg(trayView.screen() ? trayView.screen()->name() : "null"));
         applyGlassToView(trayView);
+        updateTrayPanelWindowShape(&trayView, settings->glassEffectEnabled());
         if (!pos.isNull()) forceWindowPosition(&trayView, pos.x(), pos.y());
         debugLog(QString("[showPanel] AFTER forceWindowPosition() trayView pos=(%1 %2)").arg(trayView.x()).arg(trayView.y()));
-        applyRoundedWindowRegion(&trayView, 12);
         trayView.raise();
         trayView.requestActivate();
         QTimer::singleShot(100, &trayView, [&trayView]() {
@@ -800,10 +878,10 @@ int main(int argc, char* argv[]) {
             trayView.hide();
         }
     });
-    QObject::connect(&trayView, &QWindow::visibleChanged, &trayView, [&trayView, applyGlassToView](bool visible) {
+    QObject::connect(&trayView, &QWindow::visibleChanged, &trayView, [&trayView, applyGlassToView, settings](bool visible) {
         if (visible) {
             applyGlassToView(trayView);
-            applyRoundedWindowRegion(&trayView, 12);
+            updateTrayPanelWindowShape(&trayView, settings->glassEffectEnabled());
         }
     });
 
@@ -941,6 +1019,7 @@ int main(int argc, char* argv[]) {
         applyGlassToView(trayView);
         applyGlassToView(settingsView);
         applyGlassToView(usageView);
+        updateTrayPanelWindowShape(&trayView, settings->glassEffectEnabled());
     };
     QObject::connect(themeMgr, &AppThemeManager::themeChanged, applyGlassToAllViews);
     QObject::connect(settings, &SettingsStore::glassEffectEnabledChanged, applyGlassToAllViews);

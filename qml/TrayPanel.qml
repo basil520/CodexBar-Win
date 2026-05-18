@@ -10,8 +10,8 @@ Rectangle {
     width: 360
     height: 720
     color: windowBackgroundColor
-    radius: 12
-    clip: true
+    radius: glassEffectActive ? 0 : 12
+    clip: !glassEffectActive
     antialiasing: true
     border.color: AppTheme.bgSelected
     border.width: 1
@@ -19,7 +19,7 @@ Rectangle {
     readonly property bool glassEffectActive: SettingsStore.glassEffectEnabled
     readonly property real glassOpacity: Math.min(0.85, Math.max(0.25, SettingsStore.glassEffectOpacity / 100))
     readonly property color windowBackgroundColor: glassEffectActive ? colorWithAlpha(AppTheme.bgPrimary, glassOpacity) : AppTheme.bgPrimary
-    readonly property color titleBarBackgroundColor: glassEffectActive ? colorWithAlpha(AppTheme.bgTitleBar, Math.max(0.18, glassOpacity * 0.76)) : AppTheme.bgTitleBar
+    readonly property color titleBarBackgroundColor: glassEffectActive ? "transparent" : AppTheme.bgTitleBar
     readonly property color cardBackgroundColor: glassEffectActive ? colorWithAlpha(AppTheme.bgCard, Math.min(0.78, glassOpacity + 0.08)) : AppTheme.bgCard
 
     property var costData: TrayViewModel.costData
@@ -114,19 +114,15 @@ Rectangle {
         spacing: 0
 
         // === Header ===
-        Rectangle {
+        Components.SelectiveRadiusRect {
             Layout.fillWidth: true
             Layout.preferredHeight: 48
-            color: root.titleBarBackgroundColor
-            radius: 12
+            fillColor: root.titleBarBackgroundColor
+            topLeftRadius: glassEffectActive ? 0 : 12
+            topRightRadius: glassEffectActive ? 0 : 12
+            bottomLeftRadius: 0
+            bottomRightRadius: 0
 
-            Rectangle {
-                anchors.bottom: parent.bottom
-                anchors.left: parent.left
-                anchors.right: parent.right
-                height: 36
-                color: parent.color
-            }
             Rectangle {
                 anchors.bottom: parent.bottom
                 width: parent.width
@@ -1306,16 +1302,15 @@ Rectangle {
         }
 
         // === Footer ===
-        Rectangle {
+        Components.SelectiveRadiusRect {
             Layout.fillWidth: true
             Layout.preferredHeight: 44
-            color: root.titleBarBackgroundColor
-            radius: 12
+            fillColor: root.titleBarBackgroundColor
+            topLeftRadius: 0
+            topRightRadius: 0
+            bottomLeftRadius: glassEffectActive ? 0 : 12
+            bottomRightRadius: glassEffectActive ? 0 : 12
 
-            Rectangle {
-                anchors.top: parent.top; anchors.left: parent.left; anchors.right: parent.right
-                height: 8; color: parent.color
-            }
             Rectangle {
                 anchors.top: parent.top
                 width: parent.width; height: 1

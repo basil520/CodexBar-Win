@@ -16,7 +16,7 @@ Rectangle {
     readonly property bool glassEffectActive: SettingsStore.glassEffectEnabled
     readonly property real glassOpacity: Math.min(0.85, Math.max(0.25, SettingsStore.glassEffectOpacity / 100))
     readonly property color windowBackgroundColor: glassEffectActive ? colorWithAlpha(AppTheme.bgPrimary, glassOpacity) : AppTheme.bgPrimary
-    readonly property color titleBarBackgroundColor: glassEffectActive ? colorWithAlpha(AppTheme.bgTitleBar, Math.max(0.18, glassOpacity * 0.76)) : AppTheme.bgTitleBar
+    readonly property color titleBarBackgroundColor: glassEffectActive ? "transparent" : AppTheme.bgTitleBar
     readonly property color sidebarBackgroundColor: glassEffectActive ? colorWithAlpha(AppTheme.bgSecondary, Math.max(0.22, glassOpacity * 0.88)) : AppTheme.bgSecondary
     property var tabs: {
         settingsWindow.rev

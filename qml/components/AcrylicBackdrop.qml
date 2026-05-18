@@ -2,12 +2,18 @@ import QtQuick 2.15
 import CodexBarX 1.0
 import ".."
 
-Item {
+Rectangle {
     id: root
     visible: SettingsStore.glassEffectEnabled
+    color: "transparent"
 
     property color tint: AppTheme.bgPrimary
     readonly property real materialOpacity: Math.min(0.85, Math.max(0.10, SettingsStore.glassEffectOpacity / 100))
+
+    // Inherit radius from parent so the acrylic layers are clipped to
+    // the rounded shape instead of painting into the corner areas.
+    radius: parent && parent.hasOwnProperty("radius") ? parent.radius : 0
+    clip: true
 
     Rectangle {
         anchors.fill: parent
