@@ -28,7 +28,7 @@ SettingsStore::SettingsStore(QObject* parent)
     m_claudePeakHoursEnabled = m_settings.value("claudePeakHoursEnabled", true).toBool();
     m_browserSessionBridgeEnabled = m_settings.value("browserSessionBridgeEnabled", true).toBool();
     m_glassEffectEnabled = m_settings.value("glassEffectEnabled", true).toBool();
-    m_glassEffectOpacity = qBound(10, m_settings.value("glassEffectOpacity", 40).toInt(), 85);
+    m_glassEffectOpacity = qBound(5, m_settings.value("glassEffectOpacity", 40).toInt(), 95);
     m_language = m_settings.value("language", "en").toString();
     m_theme = m_settings.value("theme", 0).toInt();
     loadConfig();
@@ -170,7 +170,7 @@ void SettingsStore::setGlassEffectEnabled(bool enable) {
 }
 
 void SettingsStore::setGlassEffectOpacity(int opacity) {
-    const int bounded = qBound(10, opacity, 85);
+    const int bounded = qBound(5, opacity, 95);
     if (m_glassEffectOpacity != bounded) {
         m_glassEffectOpacity = bounded;
         m_settings.setValue("glassEffectOpacity", bounded);

@@ -97,7 +97,7 @@ Rectangle {
     Rectangle {
         anchors.fill: parent
         anchors.margins: -1
-        radius: 13
+        radius: glassEffectActive ? 0 : 13
         color: "transparent"
         border.color: AppTheme.surfaceBorder
         border.width: 1

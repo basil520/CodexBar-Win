@@ -83,8 +83,8 @@ SettingsPage {
 
             Slider {
                 Layout.preferredWidth: 220
-                from: 10
-                to: 85
+                from: 5
+                to: 95
                 stepSize: 5
                 snapMode: Slider.SnapAlways
                 live: true

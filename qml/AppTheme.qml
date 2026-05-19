@@ -34,7 +34,7 @@ QtObject {
     property color accentHover: AppThemeCpp.accentHover
 
     readonly property bool glassActive: SettingsStore.glassEffectEnabled
-    readonly property real glassMaterialOpacity: Math.min(0.85, Math.max(0.25, SettingsStore.glassEffectOpacity / 100))
+    readonly property real glassMaterialOpacity: Math.min(0.95, Math.max(0.05, SettingsStore.glassEffectOpacity / 100))
 
     property color surfaceWindow: glassActive ? withAlpha(bgPrimary, glassMaterialOpacity) : bgPrimary
     property color surfaceTitleBar: glassActive ? withAlpha(bgTitleBar, Math.min(0.84, Math.max(0.34, glassMaterialOpacity + 0.12))) : bgTitleBar
