@@ -8,7 +8,7 @@ import "panes"
 
 Rectangle {
     id: settingsWindow
-    width: 900
+    width: 960
     color: windowBackgroundColor
 
     property int rev: LanguageManager.translationRevision
@@ -125,7 +125,7 @@ Rectangle {
             spacing: 0
 
             Rectangle {
-                Layout.preferredWidth: 220
+                Layout.preferredWidth: 240
                 Layout.fillHeight: true
                 color: settingsWindow.sidebarBackgroundColor
 
@@ -139,8 +139,8 @@ Rectangle {
 
                 ColumnLayout {
                     anchors.fill: parent
-                    anchors.margins: 14
-                    spacing: 12
+                    anchors.margins: 16
+                    spacing: 16
 
                     Label {
                         text: qsTr("Settings")
@@ -168,7 +168,7 @@ Rectangle {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         currentIndex: 0
-                        spacing: 4
+                        spacing: 8
                         clip: true
                         model: settingsWindow.tabs
                         onCurrentIndexChanged: {

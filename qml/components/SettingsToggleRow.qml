@@ -1,4 +1,4 @@
-﻿import QtQuick 2.15
+import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import ".."
@@ -11,18 +11,20 @@ RowLayout {
     signal toggled(bool checked)
 
     Layout.fillWidth: true
-    Layout.preferredHeight: 56
-    spacing: 12
+    Layout.preferredHeight: textColumn.implicitHeight + 24
+    spacing: 16
 
     ColumnLayout {
+        id: textColumn
         Layout.fillWidth: true
-        spacing: AppTheme.spacingXs
+        spacing: 4
 
         Label {
             text: root.title
             color: AppTheme.textPrimary
             font.pixelSize: AppTheme.fontSizeMd
             font.bold: true
+            Layout.fillWidth: true
         }
 
         Label {

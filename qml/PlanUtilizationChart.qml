@@ -171,17 +171,34 @@ Rectangle {
                         return;
                     }
 
-                    var barWidth = Math.max(2, (width - 20) / chartPoints.length - 2);
-                    var startX = 10;
+                    var paddingLeft = 32;
+                    var paddingRight = 16;
+                    var paddingTop = 16;
+                    var paddingBottom = 24;
 
-                    for (var i = 0; i < chartPoints.length; i++) {
+                    var renderWidth = width - paddingLeft - paddingRight;
+                    var renderHeight = height - paddingTop - paddingBottom;
+
+                    var pointsCount = chartPoints.length;
+                    var gap = 4;
+                    var barWidth = (renderWidth - (pointsCount - 1) * gap) / pointsCount;
+                    if (barWidth < 2) {
+                        gap = 2;
+                        barWidth = (renderWidth - (pointsCount - 1) * gap) / pointsCount;
+                    }
+                    if (barWidth < 2) {
+                        barWidth = 2;
+                    }
+
+                    for (var i = 0; i < pointsCount; i++) {
                         var pct = chartPoints[i].usedPercent;
                         // Animate heights using the growth factor
-                        var barHeight = Math.max(1, (pct / 100.0) * (height - 20) * chartRoot.animationFactor);
+                        var barHeight = Math.max(1, (pct / 100.0) * renderHeight * chartRoot.animationFactor);
+                        var startX = paddingLeft + i * (barWidth + gap);
 
                         // Draw track using rounded corners
                         ctx.fillStyle = AppTheme.surfaceTrack;
-                        drawRoundedRect(ctx, startX + i * (barWidth + 2), height - 10, barWidth, -(height - 20), 2);
+                        drawRoundedRect(ctx, startX, height - paddingBottom, barWidth, -renderHeight, 2);
                         ctx.fill();
 
                         // Create soft vertical linear gradient for active bars
@@ -189,20 +206,20 @@ Rectangle {
                         if (pct > 80) baseColor = AppTheme.statusOutage;
                         else if (pct > 60) baseColor = AppTheme.statusDegraded;
 
-                        var grad = ctx.createLinearGradient(0, height - 10, 0, height - 10 - barHeight);
+                        var grad = ctx.createLinearGradient(0, height - paddingBottom, 0, height - paddingBottom - barHeight);
                         grad.addColorStop(0.0, baseColor);
                         grad.addColorStop(1.0, Qt.lighter(baseColor, 1.25));
 
                         ctx.fillStyle = grad;
-                        drawRoundedRect(ctx, startX + i * (barWidth + 2), height - 10, barWidth, -barHeight, 2);
+                        drawRoundedRect(ctx, startX, height - paddingBottom, barWidth, -barHeight, 2);
                         ctx.fill();
                     }
 
                     ctx.fillStyle = AppTheme.textInverse;
                     ctx.font = "8px sans-serif";
-                    ctx.textAlign = "left";
-                    ctx.fillText("100%", 0, 12);
-                    ctx.fillText("0%", 0, height - 4);
+                    ctx.textAlign = "right";
+                    ctx.fillText("100%", paddingLeft - 6, paddingTop + 8);
+                    ctx.fillText("0%", paddingLeft - 6, height - paddingBottom - 2);
                 }
             }
 
@@ -233,8 +250,27 @@ Rectangle {
                 hoverEnabled: true
                 onPositionChanged: function(mouse) {
                     if (chartPoints.length === 0) return;
-                    var barWidth = Math.max(2, (chartCanvas.width - 20) / chartPoints.length - 2);
-                    var idx = Math.floor((mouse.x - 10) / (barWidth + 2));
+
+                    var paddingLeft = 32;
+                    var paddingRight = 16;
+                    var paddingTop = 16;
+                    var paddingBottom = 24;
+
+                    var renderWidth = chartCanvas.width - paddingLeft - paddingRight;
+                    var renderHeight = chartCanvas.height - paddingTop - paddingBottom;
+
+                    var pointsCount = chartPoints.length;
+                    var gap = 4;
+                    var barWidth = (renderWidth - (pointsCount - 1) * gap) / pointsCount;
+                    if (barWidth < 2) {
+                        gap = 2;
+                        barWidth = (renderWidth - (pointsCount - 1) * gap) / pointsCount;
+                    }
+                    if (barWidth < 2) {
+                        barWidth = 2;
+                    }
+
+                    var idx = Math.floor((mouse.x - paddingLeft) / (barWidth + gap));
                     if (idx >= 0 && idx < chartPoints.length) {
                         var labelText = qsTr("%1: %2% used")
                             .arg(chartPoints[idx].dateLabel)
@@ -243,12 +279,12 @@ Rectangle {
                         tooltipLabel.text = labelText;
                         hoverTooltip.visible = true;
                         
-                        var targetX = 10 + idx * (barWidth + 2) + barWidth / 2 - hoverTooltip.width / 2;
+                        var targetX = paddingLeft + idx * (barWidth + gap) + barWidth / 2 - hoverTooltip.width / 2;
                         hoverTooltip.x = Math.max(2, Math.min(chartCanvas.width - hoverTooltip.width - 2, targetX));
                         
                         var pct = chartPoints[idx].usedPercent;
-                        var barHeight = Math.max(1, (pct / 100.0) * (chartCanvas.height - 20) * chartRoot.animationFactor);
-                        hoverTooltip.y = chartCanvas.height - 10 - barHeight - hoverTooltip.height - 4;
+                        var barHeight = Math.max(1, (pct / 100.0) * renderHeight * chartRoot.animationFactor);
+                        hoverTooltip.y = chartCanvas.height - paddingBottom - barHeight - hoverTooltip.height - 4;
                     } else {
                         hoverTooltip.visible = false;
                     }

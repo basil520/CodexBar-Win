@@ -20,8 +20,34 @@ Rectangle {
     ScrollView {
         id: scroll
         anchors.fill: parent
-        anchors.margins: 18
+        anchors.margins: 16
         clip: true
+
+        ScrollBar.vertical: ScrollBar {
+            id: elegantScrollBar
+            policy: ScrollBar.AsNeeded
+            active: true
+
+            background: Rectangle {
+                color: "transparent"
+            }
+
+            contentItem: Rectangle {
+                implicitWidth: 4
+                radius: 2
+                color: elegantScrollBar.hovered 
+                    ? AppTheme.textSecondary 
+                    : Qt.rgba(AppTheme.textSecondary.r, AppTheme.textSecondary.g, AppTheme.textSecondary.b, 0.35)
+
+                Behavior on color { ColorAnimation { duration: 150 } }
+                Behavior on implicitWidth { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
+            }
+
+            states: State {
+                name: "hoveredState"; when: elegantScrollBar.hovered
+                PropertyChanges { target: elegantScrollBar.contentItem; implicitWidth: 8; radius: 4 }
+            }
+        }
 
         ColumnLayout {
             width: scroll.availableWidth
@@ -94,8 +120,8 @@ Rectangle {
 
                     RowLayout {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 62
-                        spacing: 12
+                        Layout.preferredHeight: 68
+                        spacing: 16
 
                         SummaryMetric {
                             title: qsTr("Today")
@@ -103,6 +129,7 @@ Rectangle {
                             detail: root.fmtNum(root.costData.sessionTokens || 0) + " " + qsTr("tokens")
                             accentColor: AppTheme.accentColor
                             Layout.fillWidth: true
+                            Layout.preferredWidth: 1
                         }
 
                         SummaryMetric {
@@ -111,6 +138,7 @@ Rectangle {
                             detail: root.fmtNum(root.costData.last30DaysTokens || 0) + " " + qsTr("tokens")
                             accentColor: AppTheme.statusOk
                             Layout.fillWidth: true
+                            Layout.preferredWidth: 1
                         }
 
                         SummaryMetric {
@@ -119,6 +147,7 @@ Rectangle {
                             detail: qsTr("token sources")
                             accentColor: AppTheme.statusDegraded
                             Layout.fillWidth: true
+                            Layout.preferredWidth: 1
                         }
                     }
 
