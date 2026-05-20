@@ -131,6 +131,7 @@ Rectangle {
             Canvas {
                 id: chartCanvas
                 anchors.fill: parent
+                anchors.margins: 16
 
                 property real animFactor: chartRoot.animationFactor
                 onAnimFactorChanged: requestPaint()

@@ -1,4 +1,4 @@
-﻿import QtQuick 2.15
+import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import CodexBarX 1.0
@@ -94,6 +94,32 @@ Rectangle {
                     clip: true
                     model: root.providers
                     spacing: 4
+
+                    ScrollBar.vertical: ScrollBar {
+                        id: elegantScrollBar
+                        policy: ScrollBar.AsNeeded
+                        active: true
+
+                        background: Rectangle {
+                            color: "transparent"
+                        }
+
+                        contentItem: Rectangle {
+                            implicitWidth: 4
+                            radius: 2
+                            color: elegantScrollBar.hovered 
+                                ? AppTheme.textSecondary 
+                                : Qt.rgba(AppTheme.textSecondary.r, AppTheme.textSecondary.g, AppTheme.textSecondary.b, 0.35)
+
+                            Behavior on color { ColorAnimation { duration: 150 } }
+                            Behavior on implicitWidth { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
+                        }
+
+                        states: State {
+                            name: "hoveredState"; when: elegantScrollBar.hovered
+                            PropertyChanges { target: elegantScrollBar.contentItem; implicitWidth: 8; radius: 4 }
+                        }
+                    }
 
                     delegate: ProviderListItem {
                         width: providerList.width

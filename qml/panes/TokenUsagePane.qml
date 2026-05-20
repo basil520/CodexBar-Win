@@ -132,6 +132,12 @@ Rectangle {
                             Layout.preferredWidth: 1
                         }
 
+                        Rectangle {
+                            Layout.preferredWidth: 1
+                            Layout.fillHeight: true
+                            color: AppTheme.surfaceBorder
+                        }
+
                         SummaryMetric {
                             title: qsTr("30 days")
                             value: "$" + root.formatCost(root.costData.last30DaysCostUSD || 0)
@@ -139,6 +145,12 @@ Rectangle {
                             accentColor: AppTheme.statusOk
                             Layout.fillWidth: true
                             Layout.preferredWidth: 1
+                        }
+
+                        Rectangle {
+                            Layout.preferredWidth: 1
+                            Layout.fillHeight: true
+                            color: AppTheme.surfaceBorder
                         }
 
                         SummaryMetric {

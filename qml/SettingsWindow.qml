@@ -9,6 +9,7 @@ import "panes"
 Rectangle {
     id: settingsWindow
     width: 960
+    height: 640
     color: windowBackgroundColor
 
     property int rev: LanguageManager.translationRevision
@@ -147,6 +148,7 @@ Rectangle {
                         color: AppTheme.textPrimary
                         font.pixelSize: AppTheme.fontSizeXl
                         font.bold: true
+                        Layout.topMargin: 8
                     }
 
                     Label {

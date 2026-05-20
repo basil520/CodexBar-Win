@@ -547,6 +547,32 @@ Rectangle {
             leftMargin: 12
             rightMargin: 12
 
+            ScrollBar.vertical: ScrollBar {
+                id: providerScrollBar
+                policy: ScrollBar.AsNeeded
+                active: true
+
+                background: Rectangle {
+                    color: "transparent"
+                }
+
+                contentItem: Rectangle {
+                    implicitWidth: 4
+                    radius: 2
+                    color: providerScrollBar.hovered 
+                        ? AppTheme.textSecondary 
+                        : Qt.rgba(AppTheme.textSecondary.r, AppTheme.textSecondary.g, AppTheme.textSecondary.b, 0.35)
+
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                    Behavior on implicitWidth { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
+                }
+
+                states: State {
+                    name: "hoveredState"; when: providerScrollBar.hovered
+                    PropertyChanges { target: providerScrollBar.contentItem; implicitWidth: 8; radius: 4 }
+                }
+            }
+
             model: TrayViewModel.providers
             delegate: Rectangle {
                 id: cardDelegate
@@ -1246,6 +1272,32 @@ Rectangle {
             contentHeight: detailColumn.implicitHeight
             clip: true
 
+            ScrollBar.vertical: ScrollBar {
+                id: detailScrollBar
+                policy: ScrollBar.AsNeeded
+                active: true
+
+                background: Rectangle {
+                    color: "transparent"
+                }
+
+                contentItem: Rectangle {
+                    implicitWidth: 4
+                    radius: 2
+                    color: detailScrollBar.hovered 
+                        ? AppTheme.textSecondary 
+                        : Qt.rgba(AppTheme.textSecondary.r, AppTheme.textSecondary.g, AppTheme.textSecondary.b, 0.35)
+
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                    Behavior on implicitWidth { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
+                }
+
+                states: State {
+                    name: "hoveredState"; when: detailScrollBar.hovered
+                    PropertyChanges { target: detailScrollBar.contentItem; implicitWidth: 8; radius: 4 }
+                }
+            }
+
             property var detailData: ({})
 
             function refreshDetailData() {
@@ -1263,7 +1315,7 @@ Rectangle {
             Column {
                 id: detailColumn
                 width: parent.width
-                spacing: 4
+                spacing: 8
 
                 // Token Account Switcher (Phase 3) - for non-codex providers
                 Components.TokenAccountSwitcher {
