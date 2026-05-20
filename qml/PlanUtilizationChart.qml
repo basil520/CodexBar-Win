@@ -131,7 +131,6 @@ Rectangle {
             Canvas {
                 id: chartCanvas
                 anchors.fill: parent
-                anchors.margins: 16
 
                 property real animFactor: chartRoot.animationFactor
                 onAnimFactorChanged: requestPaint()
@@ -172,10 +171,10 @@ Rectangle {
                         return;
                     }
 
-                    var paddingLeft = 32;
-                    var paddingRight = 16;
-                    var paddingTop = 16;
-                    var paddingBottom = 24;
+                    var paddingLeft = 28;
+                    var paddingRight = 8;
+                    var paddingTop = 10;
+                    var paddingBottom = 16;
 
                     var renderWidth = width - paddingLeft - paddingRight;
                     var renderHeight = height - paddingTop - paddingBottom;
@@ -252,10 +251,10 @@ Rectangle {
                 onPositionChanged: function(mouse) {
                     if (chartPoints.length === 0) return;
 
-                    var paddingLeft = 32;
-                    var paddingRight = 16;
-                    var paddingTop = 16;
-                    var paddingBottom = 24;
+                    var paddingLeft = 28;
+                    var paddingRight = 8;
+                    var paddingTop = 10;
+                    var paddingBottom = 16;
 
                     var renderWidth = chartCanvas.width - paddingLeft - paddingRight;
                     var renderHeight = chartCanvas.height - paddingTop - paddingBottom;
