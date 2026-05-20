@@ -50,6 +50,25 @@ QtObject {
     property color surfaceTrack: glassActive ? withAlpha(bgTrack, Math.min(0.84, Math.max(0.36, glassMaterialOpacity + 0.16))) : bgTrack
     property color surfaceBorder: glassActive ? withAlpha(borderColor, Math.min(0.74, Math.max(0.38, glassMaterialOpacity + 0.12))) : borderColor
     property color surfaceAccentBorder: glassActive ? withAlpha(borderAccent, Math.min(0.86, Math.max(0.58, glassMaterialOpacity + 0.18))) : borderAccent
+    property color surfaceInteractive: surfaceCard
+    property color surfaceInteractiveHover: surfaceHover
+    property color surfaceInteractivePressed: surfacePressed
+    property color surfaceFloating: surfacePopup
+    property color surfaceInput: surfaceControl
+    property color surfaceDangerSoft: withAlpha(statusOutage, glassActive ? 0.18 : 0.16)
+    property color surfaceWarningSoft: withAlpha(statusDegraded, glassActive ? 0.18 : 0.16)
+    property color surfaceSuccessSoft: withAlpha(statusOk, glassActive ? 0.18 : 0.16)
+    property color borderSubtle: surfaceBorder
+    property color borderStrong: glassActive ? withAlpha(borderColor, Math.min(0.90, Math.max(0.56, glassMaterialOpacity + 0.22))) : borderAccent
+    property color borderFocus: surfaceAccentBorder
+
+    property int motionFast: 90
+    property int motionNormal: 150
+    property int motionSlow: 240
+    property int motionPanel: 320
+    property int easeStandard: Easing.OutCubic
+    property int easeEmphasized: Easing.OutBack
+    property bool reduceMotion: false
 
     property var providerBrandColors: ({
         "codex": "#49A3B0", "claude": "#CC7C5E", "cursor": "#5B8DFA",
@@ -73,6 +92,10 @@ QtObject {
         return providerBrandColors[providerId] || accentColor
     }
 
+    function duration(milliseconds) {
+        return reduceMotion ? 0 : milliseconds
+    }
+
     property int spacingXs: 4
     property int spacingSm: 8
     property int spacingMd: 12
@@ -94,6 +117,10 @@ QtObject {
     property int iconSizeSm: 18
     property int iconSizeMd: 24
     property int iconSizeLg: 28
+    property int avatarSizeCompact: 18
+    property int avatarSizeDock: 34
+    property int avatarSizeList: 28
+    property int avatarSizeHero: 48
     property int statusDotSize: 6
     property int progressBarHeight: 6
 }

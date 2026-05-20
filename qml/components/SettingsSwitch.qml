@@ -27,7 +27,7 @@ Rectangle {
     }
 
     Behavior on color {
-        ColorAnimation { duration: 180 }
+        ColorAnimation { duration: AppTheme.duration(AppTheme.motionNormal); easing.type: AppTheme.easeStandard }
     }
 
     Rectangle {
@@ -41,10 +41,10 @@ Rectangle {
         color: root.checked ? AppTheme.textOnAccent : AppTheme.textSecondary
 
         Behavior on x {
-            NumberAnimation { duration: 180; easing.type: Easing.OutBack }
+            NumberAnimation { duration: AppTheme.duration(AppTheme.motionNormal); easing.type: AppTheme.easeEmphasized }
         }
         Behavior on width {
-            NumberAnimation { duration: 120 }
+            NumberAnimation { duration: AppTheme.duration(AppTheme.motionFast); easing.type: AppTheme.easeStandard }
         }
     }
 

@@ -353,17 +353,14 @@ ScrollView {
                         implicitHeight: connectionPanel.implicitHeight + 20
                         radius: 7
                         visible: root.connectionState !== "idle"
-                        color: Qt.rgba(root.statusColor(root.connectionState).r,
-                                       root.statusColor(root.connectionState).g,
-                                       root.statusColor(root.connectionState).b,
-                                       root.glassEffectActive
-                                           ? (root.connectionState === "testing" ? 0.06 : 0.08)
-                                           : (root.connectionState === "testing" ? 0.10 : 0.13))
+                        color: root.connectionState === "failed"
+                            ? AppTheme.surfaceDangerSoft
+                            : (root.connectionState === "succeeded"
+                                ? AppTheme.surfaceSuccessSoft
+                                : AppTheme.surfaceWarningSoft)
                         border.width: 1
-                        border.color: Qt.rgba(root.statusColor(root.connectionState).r,
-                                              root.statusColor(root.connectionState).g,
-                                              root.statusColor(root.connectionState).b,
-                                              root.glassEffectActive ? 0.28 : 0.42)
+                        border.color: AppTheme.withAlpha(root.statusColor(root.connectionState),
+                                                          root.glassEffectActive ? 0.34 : 0.48)
 
                         ColumnLayout {
                             id: connectionPanel

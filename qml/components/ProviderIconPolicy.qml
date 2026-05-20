@@ -39,6 +39,11 @@ QtObject {
         if (preserveBackgroundProviders[id] === true) {
             return {
                 "tone": "fullColor",
+                "shape": "native",
+                "background": "native",
+                "imageMode": "containNative",
+                "selectedTreatment": "ring",
+                "smallSizeFallback": "native",
                 "surfaceMode": "none",
                 "preserveBackground": true,
                 "paddingRatio": 0.05
@@ -47,6 +52,11 @@ QtObject {
         if (darkGlyphProviders[id] === true) {
             return {
                 "tone": "darkGlyph",
+                "shape": "squircle",
+                "background": "neutralLight",
+                "imageMode": "glyph",
+                "selectedTreatment": "ring",
+                "smallSizeFallback": "glyph",
                 "surfaceMode": "light",
                 "preserveBackground": false,
                 "paddingRatio": 0.18
@@ -55,6 +65,11 @@ QtObject {
         if (lightGlyphProviders[id] === true) {
             return {
                 "tone": "lightGlyph",
+                "shape": "squircle",
+                "background": "brandTint",
+                "imageMode": "glyph",
+                "selectedTreatment": "ring",
+                "smallSizeFallback": "glyph",
                 "surfaceMode": "brandSoft",
                 "preserveBackground": false,
                 "paddingRatio": 0.18
@@ -62,6 +77,11 @@ QtObject {
         }
         return {
             "tone": "unknown",
+            "shape": "squircle",
+            "background": "brandTint",
+            "imageMode": "glyph",
+            "selectedTreatment": "ring",
+            "smallSizeFallback": "initial",
             "surfaceMode": "brandSoft",
             "preserveBackground": false,
             "paddingRatio": 0.16

@@ -58,6 +58,10 @@ private slots:
     void openCodeCostScanScopesSqlToRecentSessions();
     void phaseZeroUiFoundationComponentsAreGuarded();
     void providerIconsUseSharedAvatar();
+    void uiPolishRouteBComponentsAreGuarded();
+    void appThemeExposesInteractionPolishTokens();
+    void providerAvatarUsesPolicyDrivenIconVessel();
+    void providerSwitcherUsesAvatarDockPattern();
     void appQmlResourceBypassesMultiConfigAutoRcc();
 };
 
@@ -763,7 +767,7 @@ void QmlArchitectureTest::qmlSurfacesUseSharedMaterialHelpers()
         QStringLiteral("qml/components/SettingsGroupBox.qml"),
         QStringLiteral("qml/components/SettingsComboBox.qml"),
         QStringLiteral("qml/components/SecretInput.qml"),
-        QStringLiteral("qml/components/ProviderSwitcher.qml"),
+        QStringLiteral("qml/components/TrayProviderDock.qml"),
         QStringLiteral("qml/components/ProviderDetailCard.qml"),
         QStringLiteral("qml/components/ChartHoverDetail.qml"),
         QStringLiteral("qml/components/DeleteConfirmationDialog.qml"),
@@ -1086,6 +1090,7 @@ void QmlArchitectureTest::providerIconsUseSharedAvatar()
     const QStringList providerIdentityFiles = {
         QStringLiteral("qml/components/ProviderSwitcher.qml"),
         QStringLiteral("qml/components/ProviderSwitcherRow.qml"),
+        QStringLiteral("qml/components/TrayProviderDock.qml"),
         QStringLiteral("qml/components/ProviderListItem.qml"),
         QStringLiteral("qml/components/ProviderDetailView.qml"),
         QStringLiteral("qml/panes/TokenUsagePane.qml"),
@@ -1093,11 +1098,114 @@ void QmlArchitectureTest::providerIconsUseSharedAvatar()
 
     for (const QString& path : providerIdentityFiles) {
         const QString contents = readFile(path);
-        QVERIFY2(contents.contains(QStringLiteral("ProviderAvatar")),
-                 qPrintable(path + QStringLiteral(" must render provider identity through ProviderAvatar.")));
+        QVERIFY2(contents.contains(QStringLiteral("ProviderAvatar")) || contents.contains(QStringLiteral("TrayProviderDock")),
+                 qPrintable(path + QStringLiteral(" must render provider identity through ProviderAvatar or delegate to TrayProviderDock.")));
         QVERIFY2(!contents.contains(QStringLiteral("ProviderIcon-")),
                  qPrintable(path + QStringLiteral(" must not construct ProviderIcon resource paths directly.")));
     }
+}
+
+void QmlArchitectureTest::uiPolishRouteBComponentsAreGuarded()
+{
+    const QString qrc = readFile("resources/qml.qrc");
+    const QStringList requiredComponents = {
+        QStringLiteral("qml/components/ProviderIconVessel.qml"),
+        QStringLiteral("qml/components/SurfaceCard.qml"),
+        QStringLiteral("qml/components/ActionButton.qml"),
+        QStringLiteral("qml/components/InlineFeedback.qml"),
+        QStringLiteral("qml/components/SkeletonBlock.qml"),
+        QStringLiteral("qml/components/FocusRing.qml"),
+        QStringLiteral("qml/components/TrayProviderDock.qml"),
+        QStringLiteral("qml/components/UsageProviderRow.qml"),
+    };
+
+    for (const QString& component : requiredComponents) {
+        QVERIFY2(qrc.contains(component),
+                 qPrintable(component + QStringLiteral(" must be registered in qml.qrc for the Route B UI component refresh.")));
+    }
+}
+
+void QmlArchitectureTest::appThemeExposesInteractionPolishTokens()
+{
+    const QString theme = readFile("qml/AppTheme.qml");
+    const QStringList requiredTokens = {
+        QStringLiteral("property color surfaceInteractive"),
+        QStringLiteral("property color surfaceInteractiveHover"),
+        QStringLiteral("property color surfaceInteractivePressed"),
+        QStringLiteral("property color surfaceFloating"),
+        QStringLiteral("property color surfaceInput"),
+        QStringLiteral("property color surfaceDangerSoft"),
+        QStringLiteral("property color surfaceWarningSoft"),
+        QStringLiteral("property color surfaceSuccessSoft"),
+        QStringLiteral("property color borderSubtle"),
+        QStringLiteral("property color borderStrong"),
+        QStringLiteral("property color borderFocus"),
+        QStringLiteral("property int motionFast"),
+        QStringLiteral("property int motionNormal"),
+        QStringLiteral("property int motionSlow"),
+        QStringLiteral("property int motionPanel"),
+        QStringLiteral("property int avatarSizeDock"),
+        QStringLiteral("property int avatarSizeList"),
+        QStringLiteral("property int avatarSizeHero"),
+        QStringLiteral("function duration("),
+    };
+
+    for (const QString& token : requiredTokens) {
+        QVERIFY2(theme.contains(token),
+                 qPrintable(QStringLiteral("AppTheme.qml must expose shared interaction polish token: %1").arg(token)));
+    }
+}
+
+void QmlArchitectureTest::providerAvatarUsesPolicyDrivenIconVessel()
+{
+    const QString avatar = readFile("qml/components/ProviderAvatar.qml");
+    const QString vessel = readFile("qml/components/ProviderIconVessel.qml");
+    const QString policy = readFile("qml/components/ProviderIconPolicy.qml");
+
+    QVERIFY2(avatar.contains(QStringLiteral("ProviderIconVessel")),
+             "ProviderAvatar must delegate shape/background/ring rendering to ProviderIconVessel.");
+    QVERIFY2(!avatar.contains(QStringLiteral("Rectangle {\n        id: surface")),
+             "ProviderAvatar must not own the icon surface rectangle after the Route B refresh.");
+
+    const QStringList policyFields = {
+        QStringLiteral("\"shape\""),
+        QStringLiteral("\"background\""),
+        QStringLiteral("\"imageMode\""),
+        QStringLiteral("\"selectedTreatment\""),
+        QStringLiteral("\"smallSizeFallback\""),
+    };
+    for (const QString& field : policyFields) {
+        QVERIFY2(policy.contains(field),
+                 qPrintable(QStringLiteral("ProviderIconPolicy must expose policy field %1.").arg(field)));
+    }
+
+    QVERIFY2(vessel.contains(QStringLiteral("property string density")),
+             "ProviderIconVessel must support compact/normal/hero density.");
+    QVERIFY2(vessel.contains(QStringLiteral("shapeRadius")),
+             "ProviderIconVessel must compute shape-specific radius instead of forcing every logo into one circle.");
+    QVERIFY2(vessel.contains(QStringLiteral("imageMode")),
+             "ProviderIconVessel must respect imageMode so native rectangular logos are not shoved into circular containers.");
+}
+
+void QmlArchitectureTest::providerSwitcherUsesAvatarDockPattern()
+{
+    const QString switcher = readFile("qml/components/ProviderSwitcher.qml");
+    const QString dock = readFile("qml/components/TrayProviderDock.qml");
+
+    QVERIFY2(switcher.contains(QStringLiteral("TrayProviderDock")),
+             "ProviderSwitcher must become a compatibility wrapper around the new avatar dock.");
+    QVERIFY2(!switcher.contains(QStringLiteral("width: 72")),
+             "ProviderSwitcher must not keep the old text-tab delegate width.");
+    QVERIFY2(!switcher.contains(QStringLiteral("font.pixelSize: 10")),
+             "ProviderSwitcher must not render tiny always-visible labels in each dock item.");
+    QVERIFY2(dock.contains(QStringLiteral("ProviderAvatar")),
+             "TrayProviderDock must render provider identity through ProviderAvatar.");
+    QVERIFY2(dock.contains(QStringLiteral("ToolTip")),
+             "TrayProviderDock must move provider names/status into delayed tooltips.");
+    QVERIFY2(dock.contains(QStringLiteral("showProgressRing")),
+             "TrayProviderDock must expose usage through the avatar ring instead of a cramped mini text tab.");
+    QVERIFY2(dock.contains(QStringLiteral("WheelHandler")) || dock.contains(QStringLiteral("onWheel")),
+             "TrayProviderDock must support horizontal wheel scrolling for many providers.");
 }
 
 void QmlArchitectureTest::appQmlResourceBypassesMultiConfigAutoRcc()

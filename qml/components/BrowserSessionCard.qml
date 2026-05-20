@@ -185,22 +185,18 @@ SettingsGroupBox {
             wrapMode: Text.WordWrap
         }
 
-        Label {
+        InlineFeedback {
             Layout.fillWidth: true
             visible: root.refreshKey >= 0 && !BridgeViewModel.importBusy(root.providerId) && root.importError() !== ""
-            text: root.refreshKey >= 0 ? root.importError() : ""
-            color: AppTheme.statusOutage
-            font.pixelSize: AppTheme.fontSizeSm
-            wrapMode: Text.WordWrap
+            status: "error"
+            message: root.refreshKey >= 0 ? root.importError() : ""
         }
 
-        Label {
+        InlineFeedback {
             Layout.fillWidth: true
             visible: root.unavailableReason() !== ""
-            text: root.unavailableReason()
-            color: AppTheme.statusOutage
-            font.pixelSize: AppTheme.fontSizeSm
-            wrapMode: Text.WordWrap
+            status: "warning"
+            message: root.unavailableReason()
         }
 
         SettingsButton {

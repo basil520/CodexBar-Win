@@ -20,12 +20,16 @@ Rectangle {
     signal dragStarted(int index)
     signal dragFinished(int fromIndex, int toIndex)
 
-    height: 46
-    radius: 7
+    height: AppTheme.listItemHeight
+    radius: AppTheme.radiusMd
     color: {
         if (root.isSelected) return AppTheme.surfaceSelected
-        if (rowMouse.containsMouse) return AppTheme.surfaceHover
+        if (rowMouse.containsMouse) return AppTheme.surfaceInteractiveHover
         return "transparent"
+    }
+
+    Behavior on color {
+        ColorAnimation { duration: AppTheme.duration(AppTheme.motionFast); easing.type: AppTheme.easeStandard }
     }
 
     Drag.active: dragArea.drag.active
@@ -47,7 +51,7 @@ Rectangle {
         width: 3
         height: 24
         radius: 2
-        color: AppTheme.accentColor
+        color: root.brandColor
         visible: root.isSelected
     }
 
@@ -105,10 +109,10 @@ Rectangle {
         }
 
         ProviderAvatar {
-            Layout.preferredWidth: 24
-            Layout.preferredHeight: 24
+            Layout.preferredWidth: AppTheme.avatarSizeList
+            Layout.preferredHeight: AppTheme.avatarSizeList
             Layout.alignment: Qt.AlignVCenter
-            size: 24
+            size: AppTheme.avatarSizeList
             providerId: root.providerId
             displayName: root.providerName
             brandColor: root.brandColor

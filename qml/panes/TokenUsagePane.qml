@@ -497,7 +497,7 @@ Rectangle {
         }
     }
 
-    component ProviderUsageCard: Rectangle {
+    component ProviderUsageCard: SurfaceCard {
         id: card
         property var provider: ({})
         property var providerDetail: root.providerDetails[provider.providerId] || ({})
@@ -516,20 +516,20 @@ Rectangle {
         }
 
         Layout.preferredHeight: contentColumn.implicitHeight + 24
-        radius: AppTheme.radiusMd
-        color: AppTheme.surfaceCard
-        border.color: AppTheme.surfaceBorder
-        border.width: 1
+        radius: AppTheme.radiusLg
+        interactive: true
+        selected: card.expanded
+        tone: card.provider.hasTokenData ? "neutral" : "warning"
         opacity: card.provider.enabled === false ? 0.64 : 1
         clip: true
 
         // 物理悬浮微缩放动效
-        scale: cardMouse.containsMouse ? 1.015 : 1.0
+        scale: cardMouse.containsMouse ? 1.006 : 1.0
 
         Behavior on scale {
             NumberAnimation {
-                duration: 200
-                easing.type: Easing.OutQuad
+                duration: AppTheme.duration(AppTheme.motionNormal)
+                easing.type: AppTheme.easeStandard
             }
         }
 
@@ -576,10 +576,10 @@ Rectangle {
                     }
 
                     ProviderAvatar {
-                        Layout.preferredWidth: 24
-                        Layout.preferredHeight: 24
+                        Layout.preferredWidth: AppTheme.avatarSizeList
+                        Layout.preferredHeight: AppTheme.avatarSizeList
                         Layout.alignment: Qt.AlignVCenter
-                        size: 24
+                        size: AppTheme.avatarSizeList
                         providerId: card.provider.providerId || ""
                         displayName: card.provider.displayName || card.provider.providerId || ""
                         brandColor: card.accentColor

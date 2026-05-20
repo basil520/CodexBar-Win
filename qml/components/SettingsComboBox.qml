@@ -55,7 +55,7 @@ ComboBox {
         rotation: root.popup.visible ? 180 : 0
         transformOrigin: Item.Center
         Behavior on rotation {
-            NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
+            NumberAnimation { duration: AppTheme.duration(AppTheme.motionNormal); easing.type: AppTheme.easeStandard }
         }
     }
 
@@ -82,7 +82,7 @@ ComboBox {
         background: Rectangle {
             color: highlighted ? AppTheme.surfaceHover : "transparent"
             Behavior on color {
-                ColorAnimation { duration: 120 }
+                ColorAnimation { duration: AppTheme.duration(AppTheme.motionFast); easing.type: AppTheme.easeStandard }
             }
         }
     }
@@ -95,12 +95,12 @@ ComboBox {
         padding: 1
 
         enter: Transition {
-            NumberAnimation { property: "scale"; from: 0.95; to: 1.0; duration: 180; easing.type: Easing.OutQuad }
-            NumberAnimation { property: "opacity"; from: 0.0; to: 1.0; duration: 180; easing.type: Easing.OutQuad }
+            NumberAnimation { property: "scale"; from: 0.95; to: 1.0; duration: AppTheme.duration(AppTheme.motionNormal); easing.type: AppTheme.easeStandard }
+            NumberAnimation { property: "opacity"; from: 0.0; to: 1.0; duration: AppTheme.duration(AppTheme.motionNormal); easing.type: AppTheme.easeStandard }
         }
         exit: Transition {
-            NumberAnimation { property: "scale"; from: 1.0; to: 0.95; duration: 150; easing.type: Easing.OutQuad }
-            NumberAnimation { property: "opacity"; from: 1.0; to: 0.0; duration: 150; easing.type: Easing.OutQuad }
+            NumberAnimation { property: "scale"; from: 1.0; to: 0.95; duration: AppTheme.duration(AppTheme.motionFast); easing.type: AppTheme.easeStandard }
+            NumberAnimation { property: "opacity"; from: 1.0; to: 0.0; duration: AppTheme.duration(AppTheme.motionFast); easing.type: AppTheme.easeStandard }
         }
 
         contentItem: ListView {

@@ -20,7 +20,15 @@
         <file alias="qml/components/SettingsSwitch.qml">../qml/components/SettingsSwitch.qml</file>
         <file alias="qml/components/SettingsToggleRow.qml">../qml/components/SettingsToggleRow.qml</file>
         <file alias="qml/components/ProviderIconPolicy.qml">../qml/components/ProviderIconPolicy.qml</file>
+        <file alias="qml/components/ProviderIconVessel.qml">../qml/components/ProviderIconVessel.qml</file>
         <file alias="qml/components/ProviderAvatar.qml">../qml/components/ProviderAvatar.qml</file>
+        <file alias="qml/components/SurfaceCard.qml">../qml/components/SurfaceCard.qml</file>
+        <file alias="qml/components/ActionButton.qml">../qml/components/ActionButton.qml</file>
+        <file alias="qml/components/InlineFeedback.qml">../qml/components/InlineFeedback.qml</file>
+        <file alias="qml/components/SkeletonBlock.qml">../qml/components/SkeletonBlock.qml</file>
+        <file alias="qml/components/FocusRing.qml">../qml/components/FocusRing.qml</file>
+        <file alias="qml/components/TrayProviderDock.qml">../qml/components/TrayProviderDock.qml</file>
+        <file alias="qml/components/UsageProviderRow.qml">../qml/components/UsageProviderRow.qml</file>
         <!-- Phase 0 shared UI foundation components -->
         <file alias="qml/components/IconButton.qml">../qml/components/IconButton.qml</file>
         <file alias="qml/components/StatusPill.qml">../qml/components/StatusPill.qml</file>

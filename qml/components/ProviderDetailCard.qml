@@ -27,16 +27,16 @@ Rectangle {
         }
 
         SequentialAnimation on opacity {
-            loops: Animation.Infinite
-            NumberAnimation { from: 0.4; to: 1.0; duration: 2000; easing.type: Easing.InOutQuad }
-            NumberAnimation { from: 1.0; to: 0.4; duration: 2000; easing.type: Easing.InOutQuad }
+            loops: AppTheme.reduceMotion ? 1 : Animation.Infinite
+            NumberAnimation { from: 0.45; to: 0.88; duration: AppTheme.duration(AppTheme.motionPanel * 6); easing.type: AppTheme.easeStandard }
+            NumberAnimation { from: 0.88; to: 0.45; duration: AppTheme.duration(AppTheme.motionPanel * 6); easing.type: AppTheme.easeStandard }
         }
     }
 
-    scale: cardMouseArea.containsMouse ? (cardMouseArea.pressed ? 0.96 : 1.02) : 1.0
+    scale: cardMouseArea.containsMouse ? (cardMouseArea.pressed ? 0.98 : 1.006) : 1.0
 
     Behavior on scale {
-        NumberAnimation { duration: 180; easing.type: Easing.OutBack }
+        NumberAnimation { duration: AppTheme.duration(AppTheme.motionNormal); easing.type: AppTheme.easeEmphasized }
     }
 
     // MouseArea for card ambient hover
@@ -62,7 +62,7 @@ Rectangle {
         z: -1
         
         Behavior on opacity {
-            NumberAnimation { duration: 200 }
+            NumberAnimation { duration: AppTheme.duration(AppTheme.motionNormal); easing.type: AppTheme.easeStandard }
         }
     }
 
@@ -81,7 +81,7 @@ Rectangle {
 
     color: root.embedded ? "transparent" : AppTheme.surfaceCard
     implicitHeight: cardContent.implicitHeight + (root.embedded ? 0 : 24)
-    radius: root.embedded ? 0 : 10
+    radius: root.embedded ? 0 : AppTheme.radiusLg
     border.color: AppTheme.surfaceBorder
     border.width: root.embedded ? 0 : 1
 
@@ -898,15 +898,15 @@ Rectangle {
         property color hoverColor: AppTheme.surfaceSelected
         signal clicked()
 
-        radius: 6
+        radius: AppTheme.radiusMd
         color: btnMouse.containsMouse ? hoverColor : "transparent"
-        Behavior on color { ColorAnimation { duration: 150 } }
+        Behavior on color { ColorAnimation { duration: AppTheme.duration(AppTheme.motionFast); easing.type: AppTheme.easeStandard } }
 
         Text {
             anchors.centerIn: parent
             text: parent.text
             color: parent.textColor
-            font.pixelSize: 12
+            font.pixelSize: AppTheme.fontSizeSm
         }
 
         MouseArea {

@@ -1528,15 +1528,15 @@ Rectangle {
         property color hoverColor: AppTheme.surfaceHover
         signal clicked()
 
-        radius: 6
+        radius: AppTheme.radiusMd
         color: btnMouse.containsMouse ? hoverColor : "transparent"
-        Behavior on color { ColorAnimation { duration: 150 } }
+        Behavior on color { ColorAnimation { duration: AppTheme.duration(AppTheme.motionFast); easing.type: AppTheme.easeStandard } }
 
         Text {
             anchors.centerIn: parent
             text: parent.text
             color: parent.textColor
-            font.pixelSize: 12
+            font.pixelSize: AppTheme.fontSizeSm
         }
 
         MouseArea {

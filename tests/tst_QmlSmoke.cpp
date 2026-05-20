@@ -1765,15 +1765,15 @@ private slots:
     void uiFoundationComponentsLoad() {
         QQuickView view;
         setupEngine(*view.engine());
-        view.resize(420, 120);
+        view.resize(640, 360);
 
         QQuickItem* root = createInlineRoot(view, R"(
             import QtQuick 2.15
             import "qrc:/qml/components" as Components
 
             Column {
-                width: 420
-                height: 120
+                width: 640
+                height: 360
                 spacing: 8
 
                 Components.ErrorNotice {
@@ -1795,6 +1795,62 @@ private slots:
                     accessibleName: "Copy"
                     symbol: "copy"
                 }
+
+                Components.SurfaceCard {
+                    objectName: "surfaceCard"
+                    width: 380
+                    height: 42
+                    interactive: true
+                    selected: true
+                    tone: "success"
+                }
+
+                Components.ActionButton {
+                    objectName: "actionButton"
+                    text: "Import Now"
+                    variant: "primary"
+                }
+
+                Components.InlineFeedback {
+                    objectName: "inlineFeedback"
+                    status: "error"
+                    message: "No cookies returned"
+                }
+
+                Components.SkeletonBlock {
+                    objectName: "skeletonBlock"
+                    width: 160
+                    height: 14
+                }
+
+                Item {
+                    width: 80
+                    height: 28
+                    Components.FocusRing {
+                        objectName: "focusRing"
+                        anchors.fill: parent
+                        active: true
+                    }
+                }
+
+                Components.TrayProviderDock {
+                    objectName: "trayProviderDock"
+                    width: 380
+                    height: 56
+                    selectedProviderID: "codex"
+                    providerList: []
+                }
+
+                Components.UsageProviderRow {
+                    objectName: "usageProviderRow"
+                    width: 380
+                    providerId: "codex"
+                    providerName: "Codex"
+                    accentColor: "steelblue"
+                    todayText: "$0.00"
+                    periodText: "$12.34"
+                    tokenText: "1.2M tokens"
+                }
             }
         )", QUrl("qrc:/tests/UiFoundationHarness.qml"));
 
@@ -1805,6 +1861,13 @@ private slots:
         QVERIFY(findObjectByStringProperty(root, "objectName", "errorNotice") != nullptr);
         QVERIFY(findObjectByStringProperty(root, "objectName", "statusPill") != nullptr);
         QVERIFY(findObjectByStringProperty(root, "objectName", "iconButton") != nullptr);
+        QVERIFY(findObjectByStringProperty(root, "objectName", "surfaceCard") != nullptr);
+        QVERIFY(findObjectByStringProperty(root, "objectName", "actionButton") != nullptr);
+        QVERIFY(findObjectByStringProperty(root, "objectName", "inlineFeedback") != nullptr);
+        QVERIFY(findObjectByStringProperty(root, "objectName", "skeletonBlock") != nullptr);
+        QVERIFY(findObjectByStringProperty(root, "objectName", "focusRing") != nullptr);
+        QVERIFY(findObjectByStringProperty(root, "objectName", "trayProviderDock") != nullptr);
+        QVERIFY(findObjectByStringProperty(root, "objectName", "usageProviderRow") != nullptr);
 
         view.hide();
     }
