@@ -166,32 +166,17 @@ ScrollView {
                     Layout.fillWidth: true
                     spacing: 12
 
-                    Image {
-                        id: detailIcon
+                    ProviderAvatar {
                         Layout.preferredWidth: 42
                         Layout.preferredHeight: 42
                         Layout.alignment: Qt.AlignTop
-                        source: root.providerId ? "qrc:/icons/ProviderIcon-" + root.providerId + ".svg" : ""
-                        fillMode: Image.PreserveAspectFit
-                        sourceSize.width: 42
-                        sourceSize.height: 42
-
-                        Rectangle {
-                            anchors.fill: parent
-                            radius: 10
-                            color: root.brandColor
-                            visible: detailIcon.status !== Image.Ready
-
-                            Label {
-                                anchors.centerIn: parent
-                                text: root.descriptor && root.descriptor.displayName
-                                    ? root.descriptor.displayName.charAt(0).toUpperCase()
-                                    : "?"
-                                color: AppTheme.textPrimary
-                                font.pixelSize: 18
-                                font.bold: true
-                            }
-                        }
+                        size: 42
+                        providerId: root.providerId
+                        displayName: root.descriptor && root.descriptor.displayName ? root.descriptor.displayName : root.providerId
+                        brandColor: root.brandColor
+                        selected: true
+                        enabled: root.descriptor ? root.descriptor.enabled : true
+                        severity: root.providerError !== "" ? "error" : "none"
                     }
 
                     ColumnLayout {

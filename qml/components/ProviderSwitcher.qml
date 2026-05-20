@@ -74,26 +74,16 @@ Rectangle {
                         anchors.verticalCenterOffset: -2
                         spacing: 2
 
-                        Image {
+                        ProviderAvatar {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            width: 14
-                            height: 14
-                            source: modelData.iconSource || ""
-                            fillMode: Image.PreserveAspectFit
-                            visible: !!modelData.iconSource && modelData.iconSource !== ""
-
-                            Rectangle {
-                                anchors.fill: parent
-                                color: AppTheme.surfaceControl
-                                radius: 3
-                                visible: parent.status !== Image.Ready && !!modelData.iconSource
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: (modelData.displayName || modelData.providerId || "").charAt(0).toUpperCase()
-                                    font.pixelSize: 8
-                                    color: AppTheme.textPrimary
-                                }
-                            }
+                            size: 18
+                            providerId: modelData.providerId || ""
+                            displayName: modelData.displayName || modelData.providerId || ""
+                            iconSource: modelData.iconSource || ""
+                            brandColor: root.brandColorFor(modelData.providerId)
+                            selected: btn.isSelected
+                            enabled: modelData.enabled !== false
+                            severity: modelData.error ? "error" : "none"
                         }
 
                         Text {

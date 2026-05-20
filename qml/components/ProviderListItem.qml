@@ -104,30 +104,17 @@ Rectangle {
             }
         }
 
-        Image {
-            id: providerIcon
-            Layout.preferredWidth: 22
-            Layout.preferredHeight: 22
+        ProviderAvatar {
+            Layout.preferredWidth: 24
+            Layout.preferredHeight: 24
             Layout.alignment: Qt.AlignVCenter
-            source: "qrc:/icons/ProviderIcon-" + root.providerId + ".svg"
-            fillMode: Image.PreserveAspectFit
-            sourceSize.width: 22
-            sourceSize.height: 22
-
-            Rectangle {
-                anchors.fill: parent
-                radius: width / 2
-                color: root.brandColor
-                visible: providerIcon.status !== Image.Ready
-
-                Label {
-                    anchors.centerIn: parent
-                    text: root.providerName.length > 0 ? root.providerName.charAt(0).toUpperCase() : "?"
-                    color: AppTheme.textOnAccent
-                    font.pixelSize: 10
-                    font.bold: true
-                }
-            }
+            size: 24
+            providerId: root.providerId
+            displayName: root.providerName
+            brandColor: root.brandColor
+            selected: root.isSelected
+            enabled: root.isEnabled
+            severity: root.status === "outage" ? "error" : (root.status === "degraded" ? "warning" : "none")
         }
 
         ColumnLayout {

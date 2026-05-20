@@ -962,7 +962,10 @@ Rectangle {
     Component {
         id: opacityAnim
         ParallelAnimation {
+            id: parallelAnim
+            property Item target: null
             NumberAnimation {
+                target: parallelAnim.target
                 property: "opacity"
                 from: 0
                 to: 1
@@ -970,6 +973,7 @@ Rectangle {
                 easing.type: Easing.OutCubic
             }
             NumberAnimation {
+                target: parallelAnim.target
                 property: "x"
                 from: 20
                 to: 0

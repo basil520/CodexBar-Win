@@ -56,6 +56,8 @@ private slots:
     void providerUiBuildersUseCatalogSnapshot();
     void costUsageScanUsesCostUsageService();
     void openCodeCostScanScopesSqlToRecentSessions();
+    void phaseZeroUiFoundationComponentsAreGuarded();
+    void providerIconsUseSharedAvatar();
     void appQmlResourceBypassesMultiConfigAutoRcc();
 };
 
@@ -1039,6 +1041,63 @@ void QmlArchitectureTest::openCodeCostScanScopesSqlToRecentSessions()
              "OpenCode DB cost scan must use sinceMs in SQL instead of reading every historical message.");
     QVERIFY2(contents.contains(QStringLiteral("query.bindValue(\":sinceMs\", sinceMs)")),
              "OpenCode DB cost scan must bind sinceMs for the recent session scope.");
+}
+
+void QmlArchitectureTest::phaseZeroUiFoundationComponentsAreGuarded()
+{
+    const QString qrc = readFile("resources/qml.qrc");
+    const QStringList requiredComponents = {
+        QStringLiteral("qml/components/ProviderAvatar.qml"),
+        QStringLiteral("qml/components/ErrorNotice.qml"),
+        QStringLiteral("qml/components/IconButton.qml"),
+        QStringLiteral("qml/components/StatusPill.qml"),
+    };
+    for (const QString& component : requiredComponents) {
+        QVERIFY2(qrc.contains(component),
+                 qPrintable(component + QStringLiteral(" must be registered in qml.qrc so Release builds cannot drop UI foundation components.")));
+    }
+
+    const QString tray = readFile("qml/TrayPanel.qml");
+    QVERIFY2(tray.contains(QStringLiteral("Components.ErrorNotice")),
+             "TrayPanel inline provider errors must route through ErrorNotice.");
+    QVERIFY2(!tray.contains(QStringLiteral("text: snap.error")),
+             "TrayPanel must not render raw snap.error directly.");
+    QVERIFY2(!tray.contains(QStringLiteral("text: snap.creditsError")),
+             "TrayPanel must not render raw snap.creditsError directly.");
+}
+
+void QmlArchitectureTest::providerIconsUseSharedAvatar()
+{
+    const QString qrc = readFile("resources/qml.qrc");
+    QVERIFY2(qrc.contains(QStringLiteral("qml/components/ProviderAvatar.qml")),
+             "ProviderAvatar.qml must be registered in qml.qrc so Release builds ship the shared provider icon renderer.");
+    QVERIFY2(qrc.contains(QStringLiteral("qml/components/ProviderIconPolicy.qml")),
+             "ProviderIconPolicy.qml must be registered in qml.qrc so Release builds ship contrast policy data.");
+
+    const QString avatar = readFile("qml/components/ProviderAvatar.qml");
+    const QString policy = readFile("qml/components/ProviderIconPolicy.qml");
+    QVERIFY2(avatar.contains(QStringLiteral("ProviderIconPolicy")),
+             "ProviderAvatar must centralize provider icon policy instead of duplicating contrast decisions at call sites.");
+    QVERIFY2(policy.contains(QStringLiteral("darkGlyph")) && policy.contains(QStringLiteral("preserveBackground")),
+             "ProviderIconPolicy must define both dark glyph icons and provider icons with their own background.");
+    QVERIFY2(avatar.contains(QStringLiteral("severity")),
+             "ProviderAvatar must expose a severity/state decoration point for provider errors.");
+
+    const QStringList providerIdentityFiles = {
+        QStringLiteral("qml/components/ProviderSwitcher.qml"),
+        QStringLiteral("qml/components/ProviderSwitcherRow.qml"),
+        QStringLiteral("qml/components/ProviderListItem.qml"),
+        QStringLiteral("qml/components/ProviderDetailView.qml"),
+        QStringLiteral("qml/panes/TokenUsagePane.qml"),
+    };
+
+    for (const QString& path : providerIdentityFiles) {
+        const QString contents = readFile(path);
+        QVERIFY2(contents.contains(QStringLiteral("ProviderAvatar")),
+                 qPrintable(path + QStringLiteral(" must render provider identity through ProviderAvatar.")));
+        QVERIFY2(!contents.contains(QStringLiteral("ProviderIcon-")),
+                 qPrintable(path + QStringLiteral(" must not construct ProviderIcon resource paths directly.")));
+    }
 }
 
 void QmlArchitectureTest::appQmlResourceBypassesMultiConfigAutoRcc()

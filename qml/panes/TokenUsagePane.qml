@@ -575,11 +575,16 @@ Rectangle {
                         verticalAlignment: Text.AlignVCenter
                     }
 
-                    Rectangle {
-                        Layout.preferredWidth: 10
-                        Layout.preferredHeight: 10
-                        radius: 5
-                        color: card.accentColor
+                    ProviderAvatar {
+                        Layout.preferredWidth: 24
+                        Layout.preferredHeight: 24
+                        Layout.alignment: Qt.AlignVCenter
+                        size: 24
+                        providerId: card.provider.providerId || ""
+                        displayName: card.provider.displayName || card.provider.providerId || ""
+                        brandColor: card.accentColor
+                        enabled: card.provider.enabled !== false
+                        severity: card.provider.hasTokenData ? "none" : "warning"
                     }
 
                     Label {

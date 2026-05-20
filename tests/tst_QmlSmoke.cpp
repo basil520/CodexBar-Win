@@ -1703,6 +1703,112 @@ private slots:
         view.hide();
     }
 
+    void providerAvatarLoadsContrastPolicies() {
+        QQuickView view;
+        setupEngine(*view.engine());
+        view.resize(180, 56);
+
+        QQuickItem* root = createInlineRoot(view, R"(
+            import QtQuick 2.15
+            import "qrc:/qml/components" as Components
+
+            Row {
+                width: 180
+                height: 56
+                spacing: 8
+
+                Components.ProviderAvatar {
+                    objectName: "darkGlyphAvatar"
+                    size: 32
+                    providerId: "alibaba"
+                    displayName: "Alibaba"
+                }
+
+                Components.ProviderAvatar {
+                    objectName: "preserveBackgroundAvatar"
+                    size: 32
+                    providerId: "xfxinchen"
+                    displayName: "XFXinChen"
+                    severity: "error"
+                }
+
+                Components.ProviderAvatar {
+                    objectName: "fallbackAvatar"
+                    size: 32
+                    providerId: "missing-provider-for-test"
+                    displayName: "Missing"
+                }
+            }
+        )", QUrl("qrc:/tests/ProviderAvatarHarness.qml"));
+
+        QVERIFY(root != nullptr);
+        view.show();
+        QTest::qWait(150);
+
+        auto* darkGlyph = qobject_cast<QQuickItem*>(
+            findObjectByStringProperty(root, "objectName", "darkGlyphAvatar"));
+        auto* preserveBackground = qobject_cast<QQuickItem*>(
+            findObjectByStringProperty(root, "objectName", "preserveBackgroundAvatar"));
+        auto* fallback = qobject_cast<QQuickItem*>(
+            findObjectByStringProperty(root, "objectName", "fallbackAvatar"));
+
+        QVERIFY(darkGlyph != nullptr);
+        QVERIFY(preserveBackground != nullptr);
+        QVERIFY(fallback != nullptr);
+        QCOMPARE(qRound(darkGlyph->width()), 32);
+        QCOMPARE(qRound(preserveBackground->height()), 32);
+        QCOMPARE(qRound(fallback->width()), 32);
+
+        view.hide();
+    }
+
+    void uiFoundationComponentsLoad() {
+        QQuickView view;
+        setupEngine(*view.engine());
+        view.resize(420, 120);
+
+        QQuickItem* root = createInlineRoot(view, R"(
+            import QtQuick 2.15
+            import "qrc:/qml/components" as Components
+
+            Column {
+                width: 420
+                height: 120
+                spacing: 8
+
+                Components.ErrorNotice {
+                    objectName: "errorNotice"
+                    width: 380
+                    title: "Network error"
+                    message: "Kimi network error: API unreachable or request timed out"
+                    density: "compact"
+                }
+
+                Components.StatusPill {
+                    objectName: "statusPill"
+                    text: "Operational"
+                    state: "ok"
+                }
+
+                Components.IconButton {
+                    objectName: "iconButton"
+                    accessibleName: "Copy"
+                    symbol: "copy"
+                }
+            }
+        )", QUrl("qrc:/tests/UiFoundationHarness.qml"));
+
+        QVERIFY(root != nullptr);
+        view.show();
+        QTest::qWait(120);
+
+        QVERIFY(findObjectByStringProperty(root, "objectName", "errorNotice") != nullptr);
+        QVERIFY(findObjectByStringProperty(root, "objectName", "statusPill") != nullptr);
+        QVERIFY(findObjectByStringProperty(root, "objectName", "iconButton") != nullptr);
+
+        view.hide();
+    }
+
     void secretInputCommitsOnlyOnExplicitAction() {
         QQuickView view;
         setupEngine(*view.engine());

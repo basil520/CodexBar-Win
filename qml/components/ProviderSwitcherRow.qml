@@ -118,39 +118,17 @@ Rectangle {
                         }
                     }
 
-                    // Centered Provider Icon
-                    Rectangle {
+                    // Centered provider identity. ProviderAvatar handles dark logos and fallback text.
+                    ProviderAvatar {
                         anchors.centerIn: parent
-                        width: 32
-                        height: 32
-                        radius: 8
-                        color: btn.isSelected ? AppTheme.surfaceSelected : "transparent"
-                        border.width: 1
-                        border.color: btn.isSelected ? root.brandColorFor(modelData.providerId) : "transparent"
-
-                        Behavior on color { ColorAnimation { duration: 150 } }
-
-                        Image {
-                            id: providerImg
-                            anchors.centerIn: parent
-                            width: 18
-                            height: 18
-                            source: modelData.iconSource || ""
-                            fillMode: Image.PreserveAspectFit
-                            
-                            Rectangle {
-                                anchors.fill: parent
-                                color: AppTheme.surfaceControl
-                                radius: 4
-                                visible: parent.status !== Image.Ready && !!modelData.iconSource
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: (modelData.displayName || modelData.providerId || "").charAt(0).toUpperCase()
-                                    font.pixelSize: 10
-                                    color: AppTheme.textPrimary
-                                }
-                            }
-                        }
+                        size: 32
+                        providerId: modelData.providerId || ""
+                        displayName: modelData.displayName || modelData.providerId || ""
+                        iconSource: modelData.iconSource || ""
+                        brandColor: root.brandColorFor(modelData.providerId)
+                        selected: btn.isSelected
+                        enabled: modelData.enabled !== false
+                        severity: modelData.error ? "error" : "none"
                     }
 
                     MouseArea {
