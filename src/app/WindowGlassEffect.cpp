@@ -31,6 +31,13 @@ QColor clearColor(bool enabled, const QColor& fallback)
 
 #ifdef Q_OS_WIN
 
+#ifndef DWMWA_WINDOW_CORNER_PREFERENCE
+#define DWMWA_WINDOW_CORNER_PREFERENCE 33
+#endif
+#ifndef DWMWCP_DONOTROUND
+#define DWMWCP_DONOTROUND 1
+#endif
+
 namespace {
 
 enum AccentState {
@@ -163,6 +170,21 @@ bool apply(QWindow* window, bool enabled, QColor tint)
 
     HWND hwnd = reinterpret_cast<HWND>(window->winId());
     if (!hwnd) return false;
+
+    // Force square corners (no rounded corners) on Windows 11 to keep it strictly frameless and square
+    auto* fnDwm = dwmSetWindowAttribute();
+    if (fnDwm) {
+        const int preference = DWMWCP_DONOTROUND;
+        fnDwm(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof(preference));
+    }
+
+    // Always strip WS_CAPTION to ensure it is completely frameless and has no native system titlebar
+    LONG_PTR style = GetWindowLongPtr(hwnd, GWL_STYLE);
+    if (style & WS_CAPTION) {
+        style &= ~WS_CAPTION;
+        SetWindowLongPtr(hwnd, GWL_STYLE, style);
+        SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+    }
 
     if (!enabled) {
         const bool blurCleared = enableBlurBehindWindow(hwnd, false);
