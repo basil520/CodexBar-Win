@@ -27,6 +27,9 @@ class SettingsStore : public QObject {
     Q_PROPERTY(int glassEffectOpacity READ glassEffectOpacity WRITE setGlassEffectOpacity NOTIFY glassEffectOpacityChanged)
     Q_PROPERTY(QString language READ language WRITE setLanguage NOTIFY languageChanged)
     Q_PROPERTY(int theme READ theme WRITE setTheme NOTIFY themeChanged)
+    Q_PROPERTY(int trayDisplayMode READ trayDisplayMode WRITE setTrayDisplayMode NOTIFY trayDisplayModeChanged)
+    Q_PROPERTY(int warningThreshold READ warningThreshold WRITE setWarningThreshold NOTIFY warningThresholdChanged)
+    Q_PROPERTY(int criticalThreshold READ criticalThreshold WRITE setCriticalThreshold NOTIFY criticalThresholdChanged)
 
 public:
     explicit SettingsStore(QObject* parent = nullptr);
@@ -85,6 +88,15 @@ public:
     int theme() const { return m_theme; }
     void setTheme(int theme);
 
+    int trayDisplayMode() const { return m_trayDisplayMode; }
+    void setTrayDisplayMode(int mode);
+
+    int warningThreshold() const { return m_warningThreshold; }
+    void setWarningThreshold(int val);
+
+    int criticalThreshold() const { return m_criticalThreshold; }
+    void setCriticalThreshold(int val);
+
     Q_INVOKABLE bool isProviderEnabled(const QString& id) const;
     Q_INVOKABLE void setProviderEnabled(const QString& id, bool enabled);
     Q_INVOKABLE QStringList providerOrder() const;
@@ -124,6 +136,9 @@ signals:
     void glassEffectOpacityChanged();
     void languageChanged();
     void themeChanged();
+    void trayDisplayModeChanged();
+    void warningThresholdChanged();
+    void criticalThresholdChanged();
     void providerOrderChanged();
     void providerSettingChanged(const QString& providerID, const QString& key);
 
@@ -150,6 +165,9 @@ private:
     int m_glassEffectOpacity = 40;
     QString m_language;
     int m_theme = 0;
+    int m_trayDisplayMode = 0;
+    int m_warningThreshold = 20;
+    int m_criticalThreshold = 10;
     QStringList m_providerOrder;
     QHash<QString, QHash<QString, QVariant>> m_providerSettings;
 };

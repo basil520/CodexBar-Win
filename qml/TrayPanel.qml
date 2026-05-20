@@ -165,7 +165,7 @@ Rectangle {
         }
 
         // === Provider Switcher (Phase 2) ===
-        Components.ProviderSwitcher {
+        Components.ProviderSwitcherRow {
             id: providerSwitcher
             Layout.fillWidth: true
             Layout.leftMargin: 12

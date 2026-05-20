@@ -8,6 +8,55 @@ import ".."
 Rectangle {
     id: root
 
+    // Brand-colored top accent line (1.5px brand gradient, cyclic breathing opacity)
+    Rectangle {
+        id: topAccentLine
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 1.5
+        z: 2
+        visible: !root.embedded && root.providerId !== ""
+        
+        gradient: Gradient {
+            orientation: Gradient.Horizontal
+            GradientStop { position: 0.0; color: "transparent" }
+            GradientStop { position: 0.2; color: root.brandColor }
+            GradientStop { position: 0.8; color: root.brandColor }
+            GradientStop { position: 1.0; color: "transparent" }
+        }
+
+        SequentialAnimation on opacity {
+            loops: Animation.Infinite
+            NumberAnimation { from: 0.4; to: 1.0; duration: 2000; easing.type: Easing.InOutQuad }
+            NumberAnimation { from: 1.0; to: 0.4; duration: 2000; easing.type: Easing.InOutQuad }
+        }
+    }
+
+    // MouseArea for card ambient hover
+    MouseArea {
+        id: cardMouseArea
+        anchors.fill: parent
+        hoverEnabled: true
+        acceptedButtons: Qt.NoButton
+        visible: !root.embedded
+    }
+
+    // Ambient hover glow border / shadow
+    Rectangle {
+        anchors.fill: parent
+        radius: parent.radius
+        color: "transparent"
+        border.width: 1.5
+        border.color: root.brandColor
+        opacity: !root.embedded && cardMouseArea.containsMouse ? 0.35 : 0.0
+        z: -1
+        
+        Behavior on opacity {
+            NumberAnimation { duration: 200 }
+        }
+    }
+
     property string providerId: ""
     property var snap: ({})
     property var tokenAccounts: []
@@ -37,6 +86,16 @@ Rectangle {
     property bool hasTokenAccounts: tokenAccounts && tokenAccounts.length > 0
     property string primaryLabel: snap.displayName === "OpenRouter" && snap.openRouterUsage !== undefined
         ? qsTr("API key limit") : snap.sessionLabel
+
+    property int activeChartIndex: 0
+    readonly property var chartSegments: {
+        if (root.providerId === "codex") {
+            return [qsTr("Utilization"), qsTr("Cost"), qsTr("Credits"), qsTr("Breakdown")]
+        } else if (root.providerId === "claude") {
+            return [qsTr("Utilization"), qsTr("Cost")]
+        }
+        return []
+    }
 
     ColumnLayout {
         id: cardContent
@@ -608,46 +667,46 @@ Rectangle {
                 }
             }
 
-            // Subscription Utilization chart
+            // macOS-style Segmented Chart Switcher
+            ChartSegmentedControl {
+                id: chartSwitcher
+                Layout.fillWidth: true
+                Layout.topMargin: 4
+                Layout.bottomMargin: 4
+                visible: (root.providerId === "codex" || root.providerId === "claude") && root.chartSegments.length > 0
+                segments: root.chartSegments
+                selectedIndex: root.activeChartIndex
+                onIndexChanged: function(index) {
+                    root.activeChartIndex = index
+                }
+            }
+
+            // Consolidated Chart Loader with slide / cross-fade transition
             Loader {
+                id: chartLoader
                 Layout.fillWidth: true
                 Layout.preferredHeight: active ? 130 : 0
-                active: root.providerId === "codex" || root.providerId === "claude"
-                sourceComponent: PlanUtilizationChart {
-                    providerId: root.providerId
-                    hasTertiarySeries: snap.hasTertiary === true
-                    tertiarySeriesLabel: snap.opusLabel || qsTr("Opus")
-                    dataRevision: TrayViewModel.providerDataRevision
+                active: (root.providerId === "codex" || root.providerId === "claude") && root.chartSegments.length > 0
+                
+                onLoaded: {
+                    if (item) {
+                        item.opacity = 0
+                        var anim = opacityAnim.createObject(item, { "target": item })
+                        anim.start()
+                    }
                 }
-            }
 
-            // Cost History Chart (Phase B)
-            Loader {
-                Layout.fillWidth: true
-                Layout.preferredHeight: active ? item.implicitHeight : 0
-                active: root.providerId === "codex" || root.providerId === "claude"
-                sourceComponent: CostHistoryChart {
-                    providerId: root.providerId
-                }
-            }
-
-            // Credits History Chart (Phase C) — Codex only
-            Loader {
-                Layout.fillWidth: true
-                Layout.preferredHeight: active ? item.implicitHeight : 0
-                active: root.providerId === "codex"
-                sourceComponent: CreditsHistoryChart {
-                    points: UsageStore.creditsHistoryData()
-                }
-            }
-
-            // Usage Breakdown Chart (Phase C) — Codex only
-            Loader {
-                Layout.fillWidth: true
-                Layout.preferredHeight: active ? item.implicitHeight : 0
-                active: root.providerId === "codex"
-                sourceComponent: UsageBreakdownChart {
-                    points: UsageStore.usageBreakdownData(root.providerId)
+                sourceComponent: {
+                    if (root.providerId === "claude") {
+                        if (root.activeChartIndex === 0) return planUtilizationComp;
+                        if (root.activeChartIndex === 1) return costHistoryComp;
+                    } else if (root.providerId === "codex") {
+                        if (root.activeChartIndex === 0) return planUtilizationComp;
+                        if (root.activeChartIndex === 1) return costHistoryComp;
+                        if (root.activeChartIndex === 2) return creditsHistoryComp;
+                        if (root.activeChartIndex === 3) return usageBreakdownComp;
+                    }
+                    return null;
                 }
             }
 
@@ -847,6 +906,49 @@ Rectangle {
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             onClicked: parent.clicked()
+        }
+    }
+
+    // Chart component templates for dynamic loading
+    Component {
+        id: planUtilizationComp
+        PlanUtilizationChart {
+            providerId: root.providerId
+            hasTertiarySeries: snap.hasTertiary === true
+            tertiarySeriesLabel: snap.opusLabel || qsTr("Opus")
+            dataRevision: TrayViewModel.providerDataRevision
+        }
+    }
+
+    Component {
+        id: costHistoryComp
+        CostHistoryChart {
+            providerId: root.providerId
+        }
+    }
+
+    Component {
+        id: creditsHistoryComp
+        CreditsHistoryChart {
+            points: UsageStore.creditsHistoryData()
+        }
+    }
+
+    Component {
+        id: usageBreakdownComp
+        UsageBreakdownChart {
+            points: UsageStore.usageBreakdownData(root.providerId)
+        }
+    }
+
+    Component {
+        id: opacityAnim
+        NumberAnimation {
+            property: "opacity"
+            from: 0
+            to: 1
+            duration: 250
+            easing.type: Easing.OutCubic
         }
     }
 }

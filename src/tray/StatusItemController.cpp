@@ -40,6 +40,12 @@ StatusItemController::StatusItemController(UsageStore* store,
             this, [this]() { rebuildProviderMenu(); });
     connect(m_settings, &SettingsStore::mergeIconsChanged,
             this, [this]() { applyMergedIcon(); });
+    connect(m_settings, &SettingsStore::trayDisplayModeChanged,
+            this, [this]() { applyMergedIcon(); });
+    connect(m_settings, &SettingsStore::warningThresholdChanged,
+            this, [this]() { applyMergedIcon(); });
+    connect(m_settings, &SettingsStore::criticalThresholdChanged,
+            this, [this]() { applyMergedIcon(); });
     connect(&LanguageManager::instance(), &LanguageManager::retranslate,
             this, [this]() {
                 retranslateMenu();
@@ -325,7 +331,10 @@ void StatusItemController::applyIcon(const QString& providerId) {
     double weekly = snap.secondary.has_value() ? snap.secondary->remainingPercent() : 100.0;
 
     QIcon icon = m_renderer->makeIcon(primary, weekly, std::nullopt, false,
-                                       TrayIconRenderer::IconStyle::Default);
+                                       TrayIconRenderer::IconStyle::Default,
+                                       m_settings->trayDisplayMode(),
+                                       m_settings->warningThreshold(),
+                                       m_settings->criticalThreshold());
     QString tip = m_store->providerDisplayName(providerId);
     if (snap.primary.has_value()) {
         tip += QString(" %1%").arg(static_cast<int>(primary));
@@ -393,7 +402,10 @@ void StatusItemController::applyMergedIcon() {
     }
 
     QIcon icon = m_renderer->makeIcon(lowestPrimary, lowestWeekly, std::nullopt, false,
-                                       TrayIconRenderer::IconStyle::Default);
+                                       TrayIconRenderer::IconStyle::Default,
+                                       m_settings->trayDisplayMode(),
+                                       m_settings->warningThreshold(),
+                                       m_settings->criticalThreshold());
     QString tip = tr("CodexBarX");
     if (!tightestProvider.isEmpty() && lowestPrimary.has_value()) {
         tip += QString(" · %1 %2%")

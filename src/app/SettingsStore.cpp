@@ -31,6 +31,9 @@ SettingsStore::SettingsStore(QObject* parent)
     m_glassEffectOpacity = qBound(5, m_settings.value("glassEffectOpacity", 40).toInt(), 95);
     m_language = m_settings.value("language", "en").toString();
     m_theme = m_settings.value("theme", 0).toInt();
+    m_trayDisplayMode = m_settings.value("trayDisplayMode", 0).toInt();
+    m_warningThreshold = m_settings.value("warningThreshold", 20).toInt();
+    m_criticalThreshold = m_settings.value("criticalThreshold", 10).toInt();
     loadConfig();
 
     m_saveDelayTimer.setSingleShot(true);
@@ -194,6 +197,30 @@ void SettingsStore::setTheme(int theme) {
     }
 }
 
+void SettingsStore::setTrayDisplayMode(int mode) {
+    if (m_trayDisplayMode != mode) {
+        m_trayDisplayMode = mode;
+        m_settings.setValue("trayDisplayMode", mode);
+        emit trayDisplayModeChanged();
+    }
+}
+
+void SettingsStore::setWarningThreshold(int val) {
+    if (m_warningThreshold != val) {
+        m_warningThreshold = val;
+        m_settings.setValue("warningThreshold", val);
+        emit warningThresholdChanged();
+    }
+}
+
+void SettingsStore::setCriticalThreshold(int val) {
+    if (m_criticalThreshold != val) {
+        m_criticalThreshold = val;
+        m_settings.setValue("criticalThreshold", val);
+        emit criticalThresholdChanged();
+    }
+}
+
 bool SettingsStore::isProviderEnabled(const QString& id) const {
     return m_settings.value("providers/" + id + "/enabled", false).toBool();
 }
@@ -310,6 +337,9 @@ void SettingsStore::resetToDefaults() {
     setGlassEffectOpacity(40);
     setLanguage("en");
     setTheme(0);
+    setTrayDisplayMode(0);
+    setWarningThreshold(20);
+    setCriticalThreshold(10);
     m_providerSettings.clear();
     m_providerOrder.clear();
     saveConfig();

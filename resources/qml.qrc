@@ -26,6 +26,8 @@
         <file alias="qml/components/CopyIconButton.qml">../qml/components/CopyIconButton.qml</file>
         <file alias="qml/components/ProviderSwitcher.qml">../qml/components/ProviderSwitcher.qml</file>
         <file alias="qml/components/ProviderDetailCard.qml">../qml/components/ProviderDetailCard.qml</file>
+        <file alias="qml/components/ChartSegmentedControl.qml">../qml/components/ChartSegmentedControl.qml</file>
+        <file alias="qml/components/ProviderSwitcherRow.qml">../qml/components/ProviderSwitcherRow.qml</file>
         <file alias="qml/components/BrowserSessionCard.qml">../qml/components/BrowserSessionCard.qml</file>
         <file alias="qml/components/BrowserSessionInstallGuide.qml">../qml/components/BrowserSessionInstallGuide.qml</file>
         <file alias="qml/components/BrowserSessionBindingDialog.qml">../qml/components/BrowserSessionBindingDialog.qml</file>

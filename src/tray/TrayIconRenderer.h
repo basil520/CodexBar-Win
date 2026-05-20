@@ -21,12 +21,18 @@ public:
                            const std::optional<double>& creditsRemaining,
                            bool stale,
                            IconStyle style,
+                           int displayMode,
+                           int warningThreshold,
+                           int criticalThreshold,
                            double blink = 0.0);
     static QPixmap renderPixmap(int size,
                                  const std::optional<double>& primary,
                                  const std::optional<double>& weekly,
                                  bool stale,
-                                 IconStyle style);
+                                 IconStyle style,
+                                 int displayMode,
+                                 int warningThreshold,
+                                 int criticalThreshold);
 
     static void setTrackColor(const QColor& color);
 
