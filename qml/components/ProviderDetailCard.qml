@@ -16,7 +16,7 @@ Rectangle {
         anchors.right: parent.right
         height: 1.5
         z: 2
-        visible: !root.embedded && root.providerId !== ""
+        visible: root.providerId !== ""
         
         gradient: Gradient {
             orientation: Gradient.Horizontal
@@ -33,13 +33,22 @@ Rectangle {
         }
     }
 
+    scale: cardMouseArea.containsMouse ? (cardMouseArea.pressed ? 0.96 : 1.02) : 1.0
+
+    Behavior on scale {
+        NumberAnimation { duration: 180; easing.type: Easing.OutBack }
+    }
+
     // MouseArea for card ambient hover
     MouseArea {
         id: cardMouseArea
         anchors.fill: parent
         hoverEnabled: true
-        acceptedButtons: Qt.NoButton
-        visible: !root.embedded
+        acceptedButtons: Qt.LeftButton
+        propagateComposedEvents: true
+        onPressed: {
+            mouse.accepted = false;
+        }
     }
 
     // Ambient hover glow border / shadow
@@ -49,7 +58,7 @@ Rectangle {
         color: "transparent"
         border.width: 1.5
         border.color: root.brandColor
-        opacity: !root.embedded && cardMouseArea.containsMouse ? 0.35 : 0.0
+        opacity: cardMouseArea.containsMouse ? 0.35 : 0.0
         z: -1
         
         Behavior on opacity {
@@ -90,9 +99,9 @@ Rectangle {
     property int activeChartIndex: 0
     readonly property var chartSegments: {
         if (root.providerId === "codex") {
-            return [qsTr("Utilization"), qsTr("Cost"), qsTr("Credits"), qsTr("Breakdown")]
+            return [qsTr("Utilization"), qsTr("Cost"), qsTr("Credits"), qsTr("Breakdown"), qsTr("Storage")]
         } else if (root.providerId === "claude") {
-            return [qsTr("Utilization"), qsTr("Cost")]
+            return [qsTr("Utilization"), qsTr("Cost"), qsTr("Storage")]
         }
         return []
     }
@@ -685,12 +694,22 @@ Rectangle {
             Loader {
                 id: chartLoader
                 Layout.fillWidth: true
-                Layout.preferredHeight: active ? 130 : 0
+                Layout.preferredHeight: {
+                    if (!active) return 0;
+                    if (item && item.implicitHeight !== undefined && item.implicitHeight > 0) {
+                        return item.implicitHeight;
+                    }
+                    return 130;
+                }
+                Behavior on Layout.preferredHeight {
+                    NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
+                }
                 active: (root.providerId === "codex" || root.providerId === "claude") && root.chartSegments.length > 0
                 
                 onLoaded: {
                     if (item) {
                         item.opacity = 0
+                        item.x = 20
                         var anim = opacityAnim.createObject(item, { "target": item })
                         anim.start()
                     }
@@ -700,25 +719,15 @@ Rectangle {
                     if (root.providerId === "claude") {
                         if (root.activeChartIndex === 0) return planUtilizationComp;
                         if (root.activeChartIndex === 1) return costHistoryComp;
+                        if (root.activeChartIndex === 2) return storageBreakdownComp;
                     } else if (root.providerId === "codex") {
                         if (root.activeChartIndex === 0) return planUtilizationComp;
                         if (root.activeChartIndex === 1) return costHistoryComp;
                         if (root.activeChartIndex === 2) return creditsHistoryComp;
                         if (root.activeChartIndex === 3) return usageBreakdownComp;
+                        if (root.activeChartIndex === 4) return storageBreakdownComp;
                     }
                     return null;
-                }
-            }
-
-            // Storage Breakdown View (Phase D) — Codex and Claude
-            Loader {
-                Layout.fillWidth: true
-                Layout.preferredHeight: active ? item.implicitHeight : 0
-                active: root.providerId === "codex" || root.providerId === "claude"
-                sourceComponent: StorageBreakdownView {
-                    storageItems: UsageStore.storageBreakdownData(root.providerId)
-                    cleanupItems: UsageStore.storageCleanupData(root.providerId)
-                    barColor: root.brandColor
                 }
             }
 
@@ -942,13 +951,31 @@ Rectangle {
     }
 
     Component {
+        id: storageBreakdownComp
+        StorageBreakdownView {
+            storageItems: UsageStore.storageBreakdownData(root.providerId)
+            cleanupItems: UsageStore.storageCleanupData(root.providerId)
+            barColor: root.brandColor
+        }
+    }
+
+    Component {
         id: opacityAnim
-        NumberAnimation {
-            property: "opacity"
-            from: 0
-            to: 1
-            duration: 250
-            easing.type: Easing.OutCubic
+        ParallelAnimation {
+            NumberAnimation {
+                property: "opacity"
+                from: 0
+                to: 1
+                duration: 300
+                easing.type: Easing.OutCubic
+            }
+            NumberAnimation {
+                property: "x"
+                from: 20
+                to: 0
+                duration: 300
+                easing.type: Easing.OutCubic
+            }
         }
     }
 }

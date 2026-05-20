@@ -64,6 +64,11 @@ Rectangle {
 
                     property bool isSelected: modelData.providerId === root.selectedProviderID
 
+                    scale: mouseArea.containsMouse ? (mouseArea.pressed ? 0.96 : 1.02) : 1.0
+                    Behavior on scale {
+                        NumberAnimation { duration: 180; easing.type: Easing.OutBack }
+                    }
+
                     // Thin dynamic progress circle around provider icon
                     Canvas {
                         id: progressRing

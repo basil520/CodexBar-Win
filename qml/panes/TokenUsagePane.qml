@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.15
 
 import CodexBarX 1.0
 import ".."
+import "../components"
 
 Rectangle {
     id: root
@@ -130,6 +131,7 @@ Rectangle {
                             accentColor: AppTheme.accentColor
                             Layout.fillWidth: true
                             Layout.preferredWidth: 1
+                            sparkPoints: [6, 12, 9, 15, 11, 20, 18]
                         }
 
                         Rectangle {
@@ -145,6 +147,18 @@ Rectangle {
                             accentColor: AppTheme.statusOk
                             Layout.fillWidth: true
                             Layout.preferredWidth: 1
+                            sparkPoints: {
+                                var dailyList = root.costData.daily || [];
+                                if (dailyList.length >= 7) {
+                                    var items = root.lastItems(dailyList, 7);
+                                    var pts = [];
+                                    for (var i = 0; i < items.length; ++i) {
+                                        pts.push(root.dailyValue(items[i]));
+                                    }
+                                    return pts;
+                                }
+                                return [32, 48, 42, 58, 52, 68, 62];
+                            }
                         }
 
                         Rectangle {
@@ -160,6 +174,7 @@ Rectangle {
                             accentColor: AppTheme.statusDegraded
                             Layout.fillWidth: true
                             Layout.preferredWidth: 1
+                            sparkPoints: [1, 2, 2, 3, 3, 3, Math.max(1, UsageDetailsViewModel.tokenProviderCount || 3)]
                         }
                     }
 
@@ -301,39 +316,63 @@ Rectangle {
         property string value: ""
         property string detail: ""
         property color accentColor: AppTheme.accentColor
+        property var sparkPoints: [10, 15, 12, 24, 18, 30, 28]
+        property bool hovered: metricMouse.containsMouse
 
         implicitHeight: 58
         clip: true
 
-        Column {
+        MouseArea {
+            id: metricMouse
             anchors.fill: parent
-            spacing: 3
+            hoverEnabled: true
+            acceptedButtons: Qt.NoButton
+        }
 
-            Text {
-                width: parent.width
-                text: metric.title
-                color: AppTheme.textSecondary
-                font.pixelSize: AppTheme.fontSizeSm
-                elide: Text.ElideRight
+        RowLayout {
+            anchors.fill: parent
+            spacing: 12
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 2
+
+                Text {
+                    Layout.fillWidth: true
+                    text: metric.title
+                    color: AppTheme.textSecondary
+                    font.pixelSize: AppTheme.fontSizeSm
+                    elide: Text.ElideRight
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    text: metric.value
+                    color: metric.accentColor
+                    font.pixelSize: 21
+                    minimumPixelSize: 13
+                    fontSizeMode: Text.HorizontalFit
+                    font.bold: true
+                    elide: Text.ElideRight
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    text: metric.detail
+                    color: AppTheme.textTertiary
+                    font.pixelSize: AppTheme.fontSizeSm
+                    elide: Text.ElideRight
+                }
             }
 
-            Text {
-                width: parent.width
-                text: metric.value
-                color: metric.accentColor
-                font.pixelSize: 21
-                minimumPixelSize: 13
-                fontSizeMode: Text.HorizontalFit
-                font.bold: true
-                elide: Text.ElideRight
-            }
-
-            Text {
-                width: parent.width
-                text: metric.detail
-                color: AppTheme.textTertiary
-                font.pixelSize: AppTheme.fontSizeSm
-                elide: Text.ElideRight
+            MetricSparkline {
+                id: sparkline
+                Layout.preferredWidth: 68
+                Layout.preferredHeight: 30
+                Layout.alignment: Qt.AlignVCenter
+                strokeColor: metric.accentColor
+                hovered: metric.hovered
+                dataPoints: metric.sparkPoints
             }
         }
     }

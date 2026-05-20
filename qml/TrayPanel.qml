@@ -49,6 +49,10 @@ Rectangle {
         tint: AppTheme.bgPrimary
     }
 
+    Components.AmbientFluidAurora {
+        anchors.fill: parent
+    }
+
     Component.onCompleted: TrayViewModel.requestCostUsageViewData()
     onCostExpandedChanged: refreshProviderCostRows()
     onSelectedProviderIDChanged: refreshProviderCostRows()
@@ -1309,6 +1313,27 @@ Rectangle {
                 target: root
                 function onSelectedProviderIDChanged() {
                     detailFlickable.refreshDetailData()
+                    detailColumnTransition.restart()
+                }
+            }
+
+            ParallelAnimation {
+                id: detailColumnTransition
+                NumberAnimation {
+                    target: detailColumn
+                    property: "opacity"
+                    from: 0.0
+                    to: 1.0
+                    duration: 300
+                    easing.type: Easing.OutCubic
+                }
+                NumberAnimation {
+                    target: detailColumn
+                    property: "x"
+                    from: 20
+                    to: 0
+                    duration: 300
+                    easing.type: Easing.OutCubic
                 }
             }
 

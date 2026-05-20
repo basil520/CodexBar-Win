@@ -229,19 +229,52 @@ Rectangle {
                 width: tooltipLabel.implicitWidth + 16
                 height: 22
                 radius: 6
-                color: AppTheme.surfacePopup
-                border.color: AppTheme.surfaceAccentBorder
+                color: AppTheme.withAlpha(AppTheme.surfacePopup || "#181824", 0.75)
+                border.color: AppTheme.withAlpha(AppTheme.accentColor || "#5e5ce6", 0.35)
                 border.width: 1
+                clip: true
                 z: 50
+
+                onVisibleChanged: {
+                    if (visible) {
+                        shimmerAnim.restart()
+                    }
+                }
 
                 Behavior on x { NumberAnimation { duration: 120; easing.type: Easing.OutQuad } }
                 Behavior on y { NumberAnimation { duration: 120; easing.type: Easing.OutQuad } }
+
+                Rectangle {
+                    id: shimmerBar
+                    width: parent.width * 0.5
+                    height: parent.height * 2
+                    rotation: 45
+                    y: -parent.height * 0.5
+                    x: -width
+                    gradient: Gradient {
+                        orientation: Gradient.Horizontal
+                        GradientStop { position: 0.0; color: "transparent" }
+                        GradientStop { position: 0.5; color: Qt.rgba(255, 255, 255, 0.25) }
+                        GradientStop { position: 1.0; color: "transparent" }
+                    }
+                }
+
+                PropertyAnimation {
+                    id: shimmerAnim
+                    target: shimmerBar
+                    property: "x"
+                    from: -shimmerBar.width
+                    to: hoverTooltip.width + shimmerBar.width
+                    duration: 350
+                    easing.type: Easing.OutCubic
+                }
 
                 Label {
                     id: tooltipLabel
                     anchors.centerIn: parent
                     color: AppTheme.textPrimary
                     font.pixelSize: 10
+                    z: 2
                 }
             }
 
