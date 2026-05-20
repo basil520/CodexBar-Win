@@ -1,4 +1,4 @@
-﻿import QtQuick 2.15
+import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
@@ -20,13 +20,13 @@ Rectangle {
     property var tabs: {
         settingsWindow.rev
         var items = [
-            { label: qsTr("General"), icon: "G" },
-            { label: qsTr("Providers"), icon: "P" },
-            { label: qsTr("Display"), icon: "D" },
-            { label: qsTr("Advanced"), icon: "A" },
-            { label: qsTr("About"), icon: "i" }
+            { label: qsTr("General"), icon: "⚙" },
+            { label: qsTr("Providers"), icon: "☁" },
+            { label: qsTr("Display"), icon: "🖵" },
+            { label: qsTr("Advanced"), icon: "🛠" },
+            { label: qsTr("About"), icon: "🛈" }
         ]
-        if (SettingsStore.debugMenuEnabled) items.push({ label: qsTr("Debug"), icon: "{}" })
+        if (SettingsStore.debugMenuEnabled) items.push({ label: qsTr("Debug"), icon: "🐞" })
         return items
     }
 
@@ -175,6 +175,24 @@ Rectangle {
                             if (currentIndex === 1) settingsWindow.providersPaneLoaded = true
                         }
 
+                        Rectangle {
+                            id: activeSlideBar
+                            width: 3
+                            height: 22
+                            radius: 2
+                            color: AppTheme.accentColor
+                            z: 10
+                            x: 0
+                            y: tabList.currentItem ? tabList.currentItem.y + (tabList.currentItem.height - height) / 2 : 0
+
+                            Behavior on y {
+                                NumberAnimation {
+                                    duration: 250
+                                    easing.type: Easing.OutBack
+                                }
+                            }
+                        }
+
                         delegate: Rectangle {
                             width: ListView.view.width
                             height: 38
@@ -182,16 +200,6 @@ Rectangle {
                             color: tabList.currentIndex === index
                                 ? AppTheme.surfaceSelected
                                 : (tabMouse.containsMouse ? AppTheme.surfaceHover : "transparent")
-
-                            Rectangle {
-                                anchors.left: parent.left
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: 3
-                                height: 22
-                                radius: 2
-                                color: AppTheme.accentColor
-                                visible: tabList.currentIndex === index
-                            }
 
                             RowLayout {
                                 anchors.fill: parent
@@ -246,16 +254,20 @@ Rectangle {
                     anchors.fill: parent
                     currentIndex: tabList.currentIndex
 
-                    GeneralPane {}
+                    PageWrapper {
+                        GeneralPane {
+                            anchors.fill: parent
+                        }
+                    }
 
-                    Loader {
-                        id: providersPaneLoader
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        active: settingsWindow.providersPaneLoaded
-                        asynchronous: true
+                    PageWrapper {
+                        Loader {
+                            id: providersPaneLoader
+                            anchors.fill: parent
+                            active: settingsWindow.providersPaneLoaded
+                            asynchronous: true
 
-                        sourceComponent: ProvidersPane {
+                            sourceComponent: ProvidersPane {
                             id: providersPane
                             providers: SettingsProvidersModel.providers
                             providerCount: SettingsProvidersModel.providerCount
@@ -333,11 +345,12 @@ Rectangle {
                             }
                         }
                     }
+                }
 
-                    DisplayPane {}
-                    AdvancedPane {}
-                    AboutPane {}
-                    DebugPane {}
+                    PageWrapper { DisplayPane { anchors.fill: parent } }
+                    PageWrapper { AdvancedPane { anchors.fill: parent } }
+                    PageWrapper { AboutPane { anchors.fill: parent } }
+                    PageWrapper { DebugPane { anchors.fill: parent } }
                 }
             }
         }
@@ -354,7 +367,7 @@ Rectangle {
 
     component TitleButton: Rectangle {
         id: titleButton
-        property alias text: label.text
+        property string text: ""
         property bool danger: false
         signal clicked()
 
@@ -368,9 +381,26 @@ Rectangle {
         Label {
             id: label
             anchors.centerIn: parent
-            color: AppTheme.textPrimary
-            font.pixelSize: 13
-            font.bold: true
+            text: {
+                if (titleButton.text === "_") return "—";
+                if (titleButton.text === "x") return "✕";
+                if (titleButton.text === "[]") return "🗗"; // Maximize state -> Restore symbol
+                if (titleButton.text === "[ ]") return "🗖"; // Normal state -> Maximize symbol
+                return titleButton.text;
+            }
+            color: mouseArea.containsMouse
+                ? (titleButton.danger ? "#ffffff" : AppTheme.textPrimary)
+                : AppTheme.textPrimary
+            font.pixelSize: {
+                if (titleButton.text === "x") return 11;
+                if (titleButton.text === "_") return 9;
+                return 10;
+            }
+            font.bold: false
+
+            Behavior on color {
+                ColorAnimation { duration: 150 }
+            }
         }
 
         MouseArea {
@@ -388,5 +418,22 @@ Rectangle {
         hoverEnabled: true
         z: 30
         onPressed: AppController.startSettingsResize(edge)
+    }
+
+    component PageWrapper: Item {
+        id: wrapper
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+        clip: true
+        
+        opacity: visible ? 1.0 : 0.0
+        x: visible ? 0 : 8
+
+        Behavior on opacity {
+            NumberAnimation { duration: 200; easing.type: Easing.OutQuad }
+        }
+        Behavior on x {
+            NumberAnimation { duration: 200; easing.type: Easing.OutQuad }
+        }
     }
 }

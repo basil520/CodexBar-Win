@@ -1,4 +1,4 @@
-﻿import QtQuick 2.15
+import QtQuick 2.15
 import QtQuick.Controls 2.15
 import ".."
 
@@ -45,11 +45,18 @@ ComboBox {
     }
 
     indicator: Text {
+        id: arrowText
         x: root.width - width - 10
         y: (root.height - height) / 2
-        text: "v"
+        text: "▾"
         color: AppTheme.textSecondary
         font.pixelSize: AppTheme.fontSizeSm
+
+        rotation: root.popup.visible ? 180 : 0
+        transformOrigin: Item.Center
+        Behavior on rotation {
+            NumberAnimation { duration: 180; easing.type: Easing.OutQuad }
+        }
     }
 
     background: Rectangle {
@@ -74,14 +81,27 @@ ComboBox {
 
         background: Rectangle {
             color: highlighted ? AppTheme.surfaceHover : "transparent"
+            Behavior on color {
+                ColorAnimation { duration: 120 }
+            }
         }
     }
 
     popup: Popup {
+        id: popupContainer
         y: root.height + 4
         width: root.width
         implicitHeight: Math.min(contentItem.implicitHeight + 2, 240)
         padding: 1
+
+        enter: Transition {
+            NumberAnimation { property: "scale"; from: 0.95; to: 1.0; duration: 180; easing.type: Easing.OutQuad }
+            NumberAnimation { property: "opacity"; from: 0.0; to: 1.0; duration: 180; easing.type: Easing.OutQuad }
+        }
+        exit: Transition {
+            NumberAnimation { property: "scale"; from: 1.0; to: 0.95; duration: 150; easing.type: Easing.OutQuad }
+            NumberAnimation { property: "opacity"; from: 1.0; to: 0.0; duration: 150; easing.type: Easing.OutQuad }
+        }
 
         contentItem: ListView {
             clip: true

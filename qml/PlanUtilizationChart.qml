@@ -1,4 +1,4 @@
-﻿import QtQuick 2.15
+import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
@@ -16,6 +16,14 @@ Rectangle {
     property int rev: LanguageManager.translationRevision
     property int dataRevision: 0
     property bool ready: false
+
+    property real animationFactor: 0.0
+    Behavior on animationFactor {
+        NumberAnimation {
+            duration: 350
+            easing.type: Easing.OutCubic
+        }
+    }
 
     color: AppTheme.surfaceChart
     radius: 8
@@ -55,7 +63,11 @@ Rectangle {
 
         ensureValidSeries();
         chartRoot.chartPoints = UsageStore.utilizationChartData(chartRoot.providerId, chartRoot.currentSeries);
-        hoverDetail.text = "";
+        
+        // Reset and trigger heights physical grow animation
+        chartRoot.animationFactor = 0.0;
+        chartRoot.animationFactor = 1.0;
+        
         chartCanvas.requestPaint();
     }
 
@@ -120,6 +132,31 @@ Rectangle {
                 id: chartCanvas
                 anchors.fill: parent
 
+                property real animFactor: chartRoot.animationFactor
+                onAnimFactorChanged: requestPaint()
+
+                function drawRoundedRect(ctx, x, y, width, height, radius) {
+                    ctx.beginPath();
+                    var realY = height < 0 ? y + height : y;
+                    var realHeight = Math.abs(height);
+                    if (realHeight < radius * 2) {
+                        radius = realHeight / 2;
+                    }
+                    if (width < radius * 2) {
+                        radius = width / 2;
+                    }
+                    ctx.moveTo(x + radius, realY);
+                    ctx.lineTo(x + width - radius, realY);
+                    ctx.quadraticCurveTo(x + width, realY, x + width, realY + radius);
+                    ctx.lineTo(x + width, realY + realHeight - radius);
+                    ctx.quadraticCurveTo(x + width, realY + realHeight, x + width - radius, realY + realHeight);
+                    ctx.lineTo(x + radius, realY + realHeight);
+                    ctx.quadraticCurveTo(x, realY + realHeight, x, realY + realHeight - radius);
+                    ctx.lineTo(x, realY + radius);
+                    ctx.quadraticCurveTo(x, realY, x + radius, realY);
+                    ctx.closePath();
+                }
+
                 onPaint: {
                     var ctx = getContext("2d");
                     ctx.reset();
@@ -139,15 +176,26 @@ Rectangle {
 
                     for (var i = 0; i < chartPoints.length; i++) {
                         var pct = chartPoints[i].usedPercent;
-                        var barHeight = Math.max(1, (pct / 100.0) * (height - 20));
+                        // Animate heights using the growth factor
+                        var barHeight = Math.max(1, (pct / 100.0) * (height - 20) * chartRoot.animationFactor);
 
+                        // Draw track using rounded corners
                         ctx.fillStyle = AppTheme.surfaceTrack;
-                        ctx.fillRect(startX + i * (barWidth + 2), height - 10, barWidth, -(height - 20));
+                        drawRoundedRect(ctx, startX + i * (barWidth + 2), height - 10, barWidth, -(height - 20), 2);
+                        ctx.fill();
 
-                        ctx.fillStyle = AppTheme.statusOk;
-                        if (pct > 80) ctx.fillStyle = AppTheme.statusOutage;
-                        else if (pct > 60) ctx.fillStyle = AppTheme.statusDegraded;
-                        ctx.fillRect(startX + i * (barWidth + 2), height - 10, barWidth, -barHeight);
+                        // Create soft vertical linear gradient for active bars
+                        var baseColor = AppTheme.statusOk;
+                        if (pct > 80) baseColor = AppTheme.statusOutage;
+                        else if (pct > 60) baseColor = AppTheme.statusDegraded;
+
+                        var grad = ctx.createLinearGradient(0, height - 10, 0, height - 10 - barHeight);
+                        grad.addColorStop(0.0, baseColor);
+                        grad.addColorStop(1.0, Qt.lighter(baseColor, 1.25));
+
+                        ctx.fillStyle = grad;
+                        drawRoundedRect(ctx, startX + i * (barWidth + 2), height - 10, barWidth, -barHeight, 2);
+                        ctx.fill();
                     }
 
                     ctx.fillStyle = AppTheme.textInverse;
@@ -155,6 +203,28 @@ Rectangle {
                     ctx.textAlign = "left";
                     ctx.fillText("100%", 0, 12);
                     ctx.fillText("0%", 0, height - 4);
+                }
+            }
+
+            Rectangle {
+                id: hoverTooltip
+                visible: false
+                width: tooltipLabel.implicitWidth + 16
+                height: 22
+                radius: 6
+                color: AppTheme.surfacePopup
+                border.color: AppTheme.surfaceAccentBorder
+                border.width: 1
+                z: 50
+
+                Behavior on x { NumberAnimation { duration: 120; easing.type: Easing.OutQuad } }
+                Behavior on y { NumberAnimation { duration: 120; easing.type: Easing.OutQuad } }
+
+                Label {
+                    id: tooltipLabel
+                    anchors.centerIn: parent
+                    color: AppTheme.textPrimary
+                    font.pixelSize: 10
                 }
             }
 
@@ -166,21 +236,26 @@ Rectangle {
                     var barWidth = Math.max(2, (chartCanvas.width - 20) / chartPoints.length - 2);
                     var idx = Math.floor((mouse.x - 10) / (barWidth + 2));
                     if (idx >= 0 && idx < chartPoints.length) {
-                        hoverDetail.text = qsTr("%1: %2% used")
+                        var labelText = qsTr("%1: %2% used")
                             .arg(chartPoints[idx].dateLabel)
                             .arg(chartPoints[idx].usedPercent.toFixed(1));
+                        
+                        tooltipLabel.text = labelText;
+                        hoverTooltip.visible = true;
+                        
+                        var targetX = 10 + idx * (barWidth + 2) + barWidth / 2 - hoverTooltip.width / 2;
+                        hoverTooltip.x = Math.max(2, Math.min(chartCanvas.width - hoverTooltip.width - 2, targetX));
+                        
+                        var pct = chartPoints[idx].usedPercent;
+                        var barHeight = Math.max(1, (pct / 100.0) * (chartCanvas.height - 20) * chartRoot.animationFactor);
+                        hoverTooltip.y = chartCanvas.height - 10 - barHeight - hoverTooltip.height - 4;
                     } else {
-                        hoverDetail.text = "";
+                        hoverTooltip.visible = false;
                     }
                 }
-            }
-
-            Text {
-                id: hoverDetail
-                anchors.bottom: parent.bottom
-                anchors.horizontalCenter: parent.horizontalCenter
-                color: AppTheme.textSecondary
-                font.pixelSize: 9
+                onExited: {
+                    hoverTooltip.visible = false;
+                }
             }
         }
     }

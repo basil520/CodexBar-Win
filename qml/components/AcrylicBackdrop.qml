@@ -28,6 +28,58 @@ Rectangle {
     }
 
     Rectangle {
+        id: auroraBlob1
+        width: Math.max(200, parent.width * 0.75)
+        height: Math.max(200, parent.width * 0.75)
+        radius: width / 2
+        opacity: 0.045
+        z: -2
+
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: AppTheme.accentColor }
+            GradientStop { position: 1.0; color: "transparent" }
+        }
+
+        SequentialAnimation on x {
+            loops: Animation.Infinite
+            NumberAnimation { from: -auroraBlob1.width * 0.3; to: -auroraBlob1.width * 0.1; duration: 8000; easing.type: Easing.InOutSine }
+            NumberAnimation { from: -auroraBlob1.width * 0.1; to: -auroraBlob1.width * 0.3; duration: 8000; easing.type: Easing.InOutSine }
+        }
+
+        SequentialAnimation on y {
+            loops: Animation.Infinite
+            NumberAnimation { from: -auroraBlob1.height * 0.2; to: -auroraBlob1.height * 0.4; duration: 9000; easing.type: Easing.InOutSine }
+            NumberAnimation { from: -auroraBlob1.height * 0.4; to: -auroraBlob1.height * 0.2; duration: 9000; easing.type: Easing.InOutSine }
+        }
+    }
+
+    Rectangle {
+        id: auroraBlob2
+        width: Math.max(200, parent.height * 0.8)
+        height: Math.max(200, parent.height * 0.8)
+        radius: width / 2
+        opacity: 0.035
+        z: -1
+
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: AppTheme.providerBrandColor("claude") }
+            GradientStop { position: 1.0; color: "transparent" }
+        }
+
+        SequentialAnimation on x {
+            loops: Animation.Infinite
+            NumberAnimation { from: root.width - auroraBlob2.width * 0.6; to: root.width - auroraBlob2.width * 0.8; duration: 11000; easing.type: Easing.InOutSine }
+            NumberAnimation { from: root.width - auroraBlob2.width * 0.8; to: root.width - auroraBlob2.width * 0.6; duration: 11000; easing.type: Easing.InOutSine }
+        }
+
+        SequentialAnimation on y {
+            loops: Animation.Infinite
+            NumberAnimation { from: root.height - auroraBlob2.height * 0.8; to: root.height - auroraBlob2.height * 0.6; duration: 10000; easing.type: Easing.InOutSine }
+            NumberAnimation { from: root.height - auroraBlob2.height * 0.6; to: root.height - auroraBlob2.height * 0.8; duration: 10000; easing.type: Easing.InOutSine }
+        }
+    }
+
+    Rectangle {
         anchors.fill: parent
         gradient: Gradient {
             GradientStop { position: 0.0; color: Qt.rgba(root.tint.r, root.tint.g, root.tint.b, 0.18) }
