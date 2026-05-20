@@ -1,4 +1,4 @@
-﻿import QtQuick 2.15
+import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
@@ -442,6 +442,24 @@ Rectangle {
         border.width: 1
         opacity: card.provider.enabled === false ? 0.64 : 1
         clip: true
+
+        // 物理悬浮微缩放动效
+        scale: cardMouse.containsMouse ? 1.015 : 1.0
+
+        Behavior on scale {
+            NumberAnimation {
+                duration: 200
+                easing.type: Easing.OutQuad
+            }
+        }
+
+        // 非阻塞纯悬停检测 MouseArea (不吞噬任何子控件事件)
+        MouseArea {
+            id: cardMouse
+            anchors.fill: parent
+            hoverEnabled: true
+            acceptedButtons: Qt.NoButton
+        }
 
         Rectangle {
             anchors.left: parent.left

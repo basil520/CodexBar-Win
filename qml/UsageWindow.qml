@@ -1,4 +1,4 @@
-﻿import QtQuick 2.15
+import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Window 2.15
@@ -127,7 +127,7 @@ Rectangle {
 
     component TitleButton: Rectangle {
         id: titleButton
-        property alias text: label.text
+        property string text: ""
         property bool danger: false
         signal clicked()
 
@@ -141,9 +141,16 @@ Rectangle {
         Label {
             id: label
             anchors.centerIn: parent
-            color: AppTheme.textPrimary
-            font.pixelSize: 13
-            font.bold: true
+            text: titleButton.text === "_" ? "—" : (titleButton.text === "x" ? "✕" : titleButton.text)
+            color: mouseArea.containsMouse
+                ? (titleButton.danger ? "#ffffff" : AppTheme.textPrimary)
+                : AppTheme.textPrimary
+            font.pixelSize: titleButton.text === "x" ? 11 : 9
+            font.bold: false
+
+            Behavior on color {
+                ColorAnimation { duration: 150 }
+            }
         }
 
         MouseArea {

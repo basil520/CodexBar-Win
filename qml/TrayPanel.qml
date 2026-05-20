@@ -1,4 +1,4 @@
-﻿import QtQuick 2.15
+import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
@@ -15,6 +15,10 @@ Rectangle {
     antialiasing: true
     border.color: AppTheme.surfaceBorder
     border.width: 1
+
+    Behavior on color {
+        ColorAnimation { duration: 300 }
+    }
 
     readonly property bool glassEffectActive: SettingsStore.glassEffectEnabled
     readonly property color windowBackgroundColor: AppTheme.surfaceWindow
@@ -550,7 +554,7 @@ Rectangle {
                 height: cardContent.height + 24
                 radius: 10
                 color: mouseArea.containsMouse ? AppTheme.surfaceHover : root.cardBackgroundColor
-                border.color: mouseArea.containsMouse ? AppTheme.surfaceAccentBorder : AppTheme.surfaceBorder
+                border.color: mouseArea.containsMouse ? cardDelegate.brandColor : AppTheme.surfaceBorder
                 border.width: 1
 
                 property string providerId: model.providerId || ""
@@ -571,7 +575,12 @@ Rectangle {
                 property string primaryLabel: snap.displayName === "OpenRouter" && snap.openRouterUsage !== undefined
                     ? qsTr("API key limit") : snap.sessionLabel
 
-                Behavior on border.color { ColorAnimation { duration: 150 } }
+                Behavior on border.color {
+                    ColorAnimation {
+                        duration: 250
+                        easing.type: Easing.OutQuad
+                    }
+                }
 
                 MouseArea {
                     id: mouseArea

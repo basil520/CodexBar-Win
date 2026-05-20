@@ -670,7 +670,7 @@ void QmlArchitectureTest::glassOpacityLivesInDisplayPane()
              "DisplayPane must bind a glass opacity setting.");
     QVERIFY2(display.contains(QStringLiteral("Slider")),
              "Glass opacity must use a slider control.");
-    QVERIFY2(display.contains(QStringLiteral("from: 10")),
+    QVERIFY2(display.contains(QStringLiteral("from: 5")),
              "Glass opacity must allow a low enough value for an obvious acrylic effect.");
 }
 

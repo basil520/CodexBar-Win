@@ -16,8 +16,13 @@ Rectangle {
     Rectangle {
         width: Math.max(0, Math.min(parent.width, parent.width * root.percentValue / 100))
         height: parent.height
-        color: root.barColor
         radius: parent.radius
+
+        gradient: Gradient {
+            orientation: Gradient.Horizontal
+            GradientStop { position: 0.0; color: root.barColor }
+            GradientStop { position: 1.0; color: Qt.lighter(root.barColor, 1.25) }
+        }
 
         Behavior on width {
             NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
