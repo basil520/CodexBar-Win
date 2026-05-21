@@ -21,13 +21,13 @@ Rectangle {
     property var tabs: {
         settingsWindow.rev
         var items = [
-            { label: qsTr("General"), icon: "G" },
-            { label: qsTr("Providers"), icon: "P" },
-            { label: qsTr("Display"), icon: "D" },
-            { label: qsTr("Advanced"), icon: "A" },
-            { label: qsTr("About"), icon: "I" }
+            { label: qsTr("General"), icon: "general" },
+            { label: qsTr("Providers"), icon: "providers" },
+            { label: qsTr("Display"), icon: "display" },
+            { label: qsTr("Advanced"), icon: "advanced" },
+            { label: qsTr("About"), icon: "about" }
         ]
-        if (SettingsStore.debugMenuEnabled) items.push({ label: qsTr("Debug"), icon: "B" })
+        if (SettingsStore.debugMenuEnabled) items.push({ label: qsTr("Debug"), icon: "debug" })
         return items
     }
 
@@ -234,12 +234,12 @@ Rectangle {
                                         ? AppTheme.accentColor
                                         : AppTheme.surfaceControl
 
-                                    Label {
+                                    SettingsNavIcon {
                                         anchors.centerIn: parent
-                                        text: modelData.icon
-                                        color: tabList.currentIndex === index ? AppTheme.textOnAccent : AppTheme.textSecondary
-                                        font.pixelSize: 11
-                                        font.bold: true
+                                        width: 14
+                                        height: 14
+                                        iconName: modelData.icon
+                                        strokeColor: tabList.currentIndex === index ? AppTheme.textOnAccent : AppTheme.textSecondary
                                     }
                                 }
 
@@ -388,6 +388,102 @@ Rectangle {
     ResizeHandle { anchors.right: parent.right; anchors.top: parent.top; width: 10; height: 10; edge: Qt.RightEdge | Qt.TopEdge }
     ResizeHandle { anchors.left: parent.left; anchors.bottom: parent.bottom; width: 10; height: 10; edge: Qt.LeftEdge | Qt.BottomEdge }
     ResizeHandle { anchors.right: parent.right; anchors.bottom: parent.bottom; width: 10; height: 10; edge: Qt.RightEdge | Qt.BottomEdge }
+
+    component SettingsNavIcon: Canvas {
+        id: navIcon
+
+        property string iconName: ""
+        property color strokeColor: AppTheme.textSecondary
+
+        antialiasing: true
+
+        onIconNameChanged: requestPaint()
+        onStrokeColorChanged: requestPaint()
+        onWidthChanged: requestPaint()
+        onHeightChanged: requestPaint()
+
+        onPaint: {
+            var ctx = getContext("2d")
+            ctx.clearRect(0, 0, width, height)
+            ctx.strokeStyle = strokeColor
+            ctx.fillStyle = strokeColor
+            ctx.lineWidth = 1.55
+            ctx.lineCap = "round"
+            ctx.lineJoin = "round"
+
+            var w = width
+            var h = height
+            var cx = w / 2
+            var cy = h / 2
+
+            if (iconName === "general") {
+                ctx.beginPath()
+                ctx.arc(cx, cy, 2.5, 0, Math.PI * 2)
+                ctx.stroke()
+                for (var i = 0; i < 8; ++i) {
+                    var a = Math.PI * 2 * i / 8
+                    ctx.beginPath()
+                    ctx.moveTo(cx + Math.cos(a) * 4.2, cy + Math.sin(a) * 4.2)
+                    ctx.lineTo(cx + Math.cos(a) * 5.7, cy + Math.sin(a) * 5.7)
+                    ctx.stroke()
+                }
+            } else if (iconName === "providers") {
+                ctx.beginPath()
+                ctx.moveTo(3.2, 9.8)
+                ctx.lineTo(10.7, 9.8)
+                ctx.arc(10.3, 8.2, 1.7, Math.PI * 0.45, Math.PI * 1.45, true)
+                ctx.arc(7.5, 6.3, 2.5, Math.PI * 1.1, Math.PI * 1.9, true)
+                ctx.arc(4.6, 8.1, 1.9, Math.PI * 1.3, Math.PI * 0.55, true)
+                ctx.stroke()
+            } else if (iconName === "display") {
+                ctx.strokeRect(2.2, 3.2, 9.6, 6.5)
+                ctx.beginPath()
+                ctx.moveTo(cx, 9.7)
+                ctx.lineTo(cx, 11.4)
+                ctx.moveTo(4.7, 11.5)
+                ctx.lineTo(9.3, 11.5)
+                ctx.stroke()
+            } else if (iconName === "advanced") {
+                ctx.beginPath()
+                ctx.moveTo(3.0, 10.8)
+                ctx.lineTo(8.9, 4.9)
+                ctx.moveTo(8.3, 3.3)
+                ctx.lineTo(10.7, 5.7)
+                ctx.moveTo(9.8, 6.6)
+                ctx.lineTo(11.0, 7.8)
+                ctx.moveTo(2.8, 4.1)
+                ctx.lineTo(5.3, 6.6)
+                ctx.stroke()
+            } else if (iconName === "about") {
+                ctx.beginPath()
+                ctx.arc(cx, cy, 5.1, 0, Math.PI * 2)
+                ctx.stroke()
+                ctx.beginPath()
+                ctx.arc(cx, 4.5, 0.65, 0, Math.PI * 2)
+                ctx.fill()
+                ctx.beginPath()
+                ctx.moveTo(cx, 6.6)
+                ctx.lineTo(cx, 10.0)
+                ctx.stroke()
+            } else {
+                ctx.beginPath()
+                ctx.ellipse(cx, cy + 0.8, 3.4, 4.0, 0, 0, Math.PI * 2)
+                ctx.stroke()
+                ctx.beginPath()
+                ctx.moveTo(3.1, 6.1)
+                ctx.lineTo(1.9, 5.0)
+                ctx.moveTo(10.9, 6.1)
+                ctx.lineTo(12.1, 5.0)
+                ctx.moveTo(3.0, 9.0)
+                ctx.lineTo(1.8, 9.9)
+                ctx.moveTo(11.0, 9.0)
+                ctx.lineTo(12.2, 9.9)
+                ctx.moveTo(cx, 4.4)
+                ctx.lineTo(cx, 11.2)
+                ctx.stroke()
+            }
+        }
+    }
 
     component TitleButton: Rectangle {
         id: titleButton

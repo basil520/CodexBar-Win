@@ -11,6 +11,37 @@
 #include "app/AppTheme.h"
 #include "app/ProviderErrorClassifier.h"
 
+namespace {
+
+bool itemFitsWithin(QQuickItem* item, QQuickItem* ancestor)
+{
+    if (!item || !ancestor) return false;
+    const qreal tolerance = 0.75;
+    const QPointF topLeft = item->mapToItem(ancestor, QPointF(0, 0));
+    const QPointF bottomRight = item->mapToItem(ancestor, QPointF(item->width(), item->height()));
+    return topLeft.x() >= -tolerance
+        && topLeft.y() >= -tolerance
+        && bottomRight.x() <= ancestor->width() + tolerance
+        && bottomRight.y() <= ancestor->height() + tolerance;
+}
+
+QString itemBoundsMessage(QQuickItem* item, QQuickItem* ancestor, const QString& label)
+{
+    if (!item || !ancestor) return label + QStringLiteral(" was not found.");
+    const QPointF topLeft = item->mapToItem(ancestor, QPointF(0, 0));
+    const QPointF bottomRight = item->mapToItem(ancestor, QPointF(item->width(), item->height()));
+    return QStringLiteral("%1 bounds (%2,%3)-(%4,%5) exceed ancestor size %6x%7")
+        .arg(label)
+        .arg(topLeft.x(), 0, 'f', 1)
+        .arg(topLeft.y(), 0, 'f', 1)
+        .arg(bottomRight.x(), 0, 'f', 1)
+        .arg(bottomRight.y(), 0, 'f', 1)
+        .arg(ancestor->width(), 0, 'f', 1)
+        .arg(ancestor->height(), 0, 'f', 1);
+}
+
+} // namespace
+
 class MockSettingsStore : public QObject {
     Q_OBJECT
     Q_PROPERTY(bool debugMenuEnabled READ debugMenuEnabled CONSTANT)
@@ -1455,6 +1486,60 @@ private slots:
         delete root;
     }
 
+    void settingsPageContentCanScrollWhenTall() {
+        QQuickView view;
+        setupEngine(*view.engine());
+        view.resize(420, 220);
+
+        QQuickItem* root = createInlineRoot(view, R"(
+            import QtQuick 2.15
+            import QtQuick.Layouts 1.15
+            import "qrc:/qml/components" as Components
+
+            Components.SettingsPage {
+                width: 400
+                height: 180
+                title: "Display"
+                subtitle: "Scrolling regression harness"
+
+                Repeater {
+                    model: 12
+                    delegate: Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 48
+                        color: "transparent"
+                    }
+                }
+            }
+        )", QUrl("qrc:/tests/SettingsPageScrollHarness.qml"));
+
+        QVERIFY(root != nullptr);
+        view.show();
+        QTest::qWait(150);
+
+        QObject* contentObject = root->property("contentItem").value<QObject*>();
+        QVERIFY(contentObject != nullptr);
+        QVERIFY2(QString::fromLatin1(contentObject->metaObject()->className()).contains(QStringLiteral("Flickable")),
+                 "SettingsPage contentItem must be a Flickable at runtime.");
+
+        const qreal viewportHeight = contentObject->property("height").toReal();
+        const qreal contentHeight = contentObject->property("contentHeight").toReal();
+        QVERIFY2(contentHeight > viewportHeight,
+                 qPrintable(QString("SettingsPage content must be taller than the viewport for this harness; content=%1 viewport=%2")
+                     .arg(contentHeight)
+                     .arg(viewportHeight)));
+        QVERIFY(contentObject->property("interactive").toBool());
+
+        QVERIFY(contentObject->setProperty("contentY", 32.0));
+        QCoreApplication::processEvents();
+        QVERIFY2(contentObject->property("contentY").toReal() > 0.0,
+                 "SettingsPage Flickable must accept vertical scroll movement.");
+
+        view.hide();
+    }
+
+    void providerDetailControlsStayWithinNarrowViewport();
+
     void settingsWindowDefersProviderWorkUntilProvidersTab() {
 #ifdef Q_OS_MACOS
         // Skip on macOS CI: QML component creation has race conditions with
@@ -2242,6 +2327,79 @@ private slots:
         delete object;
     }
 };
+
+void tst_QmlSmoke::providerDetailControlsStayWithinNarrowViewport()
+{
+    QQuickView view;
+    setupEngine(*view.engine());
+    view.resize(380, 620);
+
+    QQuickItem* root = createInlineRoot(view, R"QML(
+        import QtQuick 2.15
+        import "qrc:/qml/components" as Components
+
+        Components.ProviderDetailView {
+            width: 360
+            height: 580
+            providerId: "croft"
+            providerStatus: ({ state: "unknown" })
+            connectionTest: ({ state: "idle" })
+            descriptor: ({
+                displayName: "Croft",
+                enabled: true,
+                brandColor: "#2FC7B8",
+                dashboardURL: "https://example.invalid/dashboard",
+                statusURL: "https://example.invalid/status",
+                sourceModes: ["api"],
+                tokenAccount: {
+                    supportsMultipleAccounts: true,
+                    requiredCredentialTypes: ["apiKey"]
+                },
+                settingsFields: [
+                    {
+                        key: "apiKey",
+                        label: "API key",
+                        type: "secret",
+                        sensitive: true,
+                        placeholder: "croft_...",
+                        secretStatus: { configured: true, source: "credential" }
+                    }
+                ]
+            })
+            tokenAccounts: []
+        }
+    )QML", QUrl("qrc:/tests/ProviderDetailNarrowHarness.qml"));
+
+    QVERIFY(root != nullptr);
+    view.show();
+    QTest::qWait(250);
+
+    const QStringList textControls = {
+        QStringLiteral("Unknown"),
+        QStringLiteral("Dashboard"),
+        QStringLiteral("Status"),
+        QStringLiteral("Refresh"),
+        QStringLiteral("Enabled"),
+        QStringLiteral("Test Connection")
+    };
+    for (const QString& text : textControls) {
+        auto* item = qobject_cast<QQuickItem*>(findObjectByStringProperty(root, "text", text));
+        QVERIFY2(item != nullptr, qPrintable(text + QStringLiteral(" control should exist in the narrow provider detail harness.")));
+        QVERIFY2(itemFitsWithin(item, root), qPrintable(itemBoundsMessage(item, root, text)));
+    }
+
+    auto* addButton = qobject_cast<QQuickItem*>(
+        findObjectByStringProperty(root, "objectName", "addAccountButton"));
+    QVERIFY2(addButton != nullptr, "Token account Add Account button should exist in the narrow provider detail harness.");
+    QVERIFY2(itemFitsWithin(addButton, root), qPrintable(itemBoundsMessage(addButton, root, QStringLiteral("Add Account"))));
+
+    auto* apiKeyField = qobject_cast<QQuickItem*>(
+        findObjectByStringProperty(root, "objectName", "accountApiKeyField"));
+    QVERIFY2(apiKeyField != nullptr, "Token account API key field should exist in the narrow provider detail harness.");
+    QVERIFY2(itemFitsWithin(apiKeyField, root), qPrintable(itemBoundsMessage(apiKeyField, root, QStringLiteral("Token account API key"))));
+
+    view.hide();
+}
 
 int main(int argc, char* argv[])
 {

@@ -10,6 +10,7 @@ ColumnLayout {
     property var accounts: []
     property string defaultAccountId: ""
     property bool busy: false
+    readonly property bool compactLayout: width > 0 && width < 430
 
     signal addAccount(string displayName, int sourceMode, string apiKey)
     signal removeAccount(string accountId)
@@ -80,66 +81,85 @@ ColumnLayout {
         accountApiKeyField.text = ""
     }
 
-    RowLayout {
+    ColumnLayout {
         Layout.fillWidth: true
         spacing: 8
 
-        TextField {
-            id: accountNameField
-            objectName: "accountNameField"
+        RowLayout {
             Layout.fillWidth: true
-            placeholderText: qsTr("Account name")
-            placeholderTextColor: AppTheme.textTertiary
-            color: AppTheme.textPrimary
-            font.pixelSize: AppTheme.fontSizeSm
-            enabled: !root.busy
-            background: Rectangle {
-                radius: 6
-                color: AppTheme.surfaceControl
-                border.width: 1
-                border.color: parent.activeFocus ? AppTheme.surfaceAccentBorder : AppTheme.surfaceBorder
+            spacing: 8
+
+            TextField {
+                id: accountNameField
+                objectName: "accountNameField"
+                Layout.fillWidth: true
+                Layout.minimumWidth: 0
+                placeholderText: qsTr("Account name")
+                placeholderTextColor: AppTheme.textTertiary
+                color: AppTheme.textPrimary
+                font.pixelSize: AppTheme.fontSizeSm
+                enabled: !root.busy
+                background: Rectangle {
+                    radius: 6
+                    color: AppTheme.surfaceControl
+                    border.width: 1
+                    border.color: parent.activeFocus ? AppTheme.surfaceAccentBorder : AppTheme.surfaceBorder
+                }
+            }
+
+            SettingsComboBox {
+                id: addSourceMode
+                Layout.preferredWidth: 112
+                Layout.maximumWidth: 128
+                model: root.sourceModeOptions()
+                selectedValue: model.length > 0 ? model[0].value : 0
+                enabled: !root.busy
             }
         }
 
-        SettingsComboBox {
-            id: addSourceMode
-            Layout.preferredWidth: 112
-            model: root.sourceModeOptions()
-            selectedValue: model.length > 0 ? model[0].value : 0
-            enabled: !root.busy
-        }
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 8
 
-        TextField {
-            id: accountApiKeyField
-            objectName: "accountApiKeyField"
-            Layout.preferredWidth: 190
-            visible: root.requiresApiKey()
-            placeholderText: qsTr("API key")
-            placeholderTextColor: AppTheme.textTertiary
-            echoMode: TextInput.Password
-            color: AppTheme.textPrimary
-            font.pixelSize: AppTheme.fontSizeSm
-            enabled: !root.busy
-            background: Rectangle {
-                radius: 6
-                color: AppTheme.surfaceControl
-                border.width: 1
-                border.color: parent.activeFocus ? AppTheme.surfaceAccentBorder : AppTheme.surfaceBorder
+            TextField {
+                id: accountApiKeyField
+                objectName: "accountApiKeyField"
+                Layout.fillWidth: true
+                Layout.minimumWidth: 0
+                visible: root.requiresApiKey()
+                placeholderText: qsTr("API key")
+                placeholderTextColor: AppTheme.textTertiary
+                echoMode: TextInput.Password
+                color: AppTheme.textPrimary
+                font.pixelSize: AppTheme.fontSizeSm
+                enabled: !root.busy
+                background: Rectangle {
+                    radius: 6
+                    color: AppTheme.surfaceControl
+                    border.width: 1
+                    border.color: parent.activeFocus ? AppTheme.surfaceAccentBorder : AppTheme.surfaceBorder
+                }
             }
-        }
 
-        SettingsButton {
-            objectName: "addAccountButton"
-            text: qsTr("Add Account")
-            primary: true
-            enabled: !root.busy
-                && accountNameField.text.trim() !== ""
-                && (!root.requiresApiKey() || accountApiKeyField.text.trim() !== "")
-            onClicked: {
-                root.addAccount(accountNameField.text.trim(),
-                                addSourceMode.selectedValue,
-                                accountApiKeyField.text.trim())
-                root.resetAddFields()
+            Item {
+                Layout.fillWidth: true
+                visible: !root.requiresApiKey()
+            }
+
+            SettingsButton {
+                objectName: "addAccountButton"
+                compact: root.compactLayout
+                text: qsTr("Add Account")
+                primary: true
+                enabled: !root.busy
+                    && accountNameField.text.trim() !== ""
+                    && (!root.requiresApiKey() || accountApiKeyField.text.trim() !== "")
+                onClicked: {
+                    root.addAccount(accountNameField.text.trim(),
+                                    addSourceMode.selectedValue,
+                                    accountApiKeyField.text.trim())
+                    root.resetAddFields()
+                }
             }
         }
     }
@@ -163,75 +183,96 @@ ColumnLayout {
             border.width: 1
             border.color: AppTheme.surfaceBorder
 
-            RowLayout {
+            ColumnLayout {
                 id: accountRow
                 anchors.fill: parent
                 anchors.margins: 8
                 spacing: 8
 
-                ColumnLayout {
+                RowLayout {
                     Layout.fillWidth: true
-                    spacing: 2
+                    spacing: 8
 
-                    Label {
+                    ColumnLayout {
                         Layout.fillWidth: true
-                        text: modelData.displayName || modelData.accountId
-                        color: AppTheme.textPrimary
-                        font.pixelSize: AppTheme.fontSizeSm
-                        font.bold: true
-                        elide: Text.ElideRight
+                        Layout.minimumWidth: 0
+                        spacing: 2
+
+                        Label {
+                            Layout.fillWidth: true
+                            Layout.minimumWidth: 0
+                            text: modelData.displayName || modelData.accountId
+                            color: AppTheme.textPrimary
+                            font.pixelSize: AppTheme.fontSizeSm
+                            font.bold: true
+                            elide: Text.ElideRight
+                        }
+
+                        Label {
+                            Layout.fillWidth: true
+                            Layout.minimumWidth: 0
+                            text: modelData.visibility === "hidden"
+                                ? qsTr("Hidden")
+                                : (modelData.sourceMode || "auto").toUpperCase()
+                            color: AppTheme.textTertiary
+                            font.pixelSize: 10
+                            elide: Text.ElideRight
+                        }
                     }
 
                     Label {
-                        Layout.fillWidth: true
-                        text: modelData.visibility === "hidden"
-                            ? qsTr("Hidden")
-                            : (modelData.sourceMode || "auto").toUpperCase()
-                        color: AppTheme.textTertiary
+                        visible: modelData.accountId === root.defaultAccountId
+                        text: qsTr("Default")
+                        color: AppTheme.accentColor
                         font.pixelSize: 10
-                        elide: Text.ElideRight
+                        font.bold: true
                     }
                 }
 
-                Label {
-                    visible: modelData.accountId === root.defaultAccountId
-                    text: qsTr("Default")
-                    color: AppTheme.accentColor
-                    font.pixelSize: 10
-                    font.bold: true
-                }
+                GridLayout {
+                    Layout.fillWidth: true
+                    columns: root.compactLayout ? 2 : 4
+                    columnSpacing: 8
+                    rowSpacing: 8
 
-                SettingsComboBox {
-                    Layout.preferredWidth: 104
-                    model: root.sourceModeOptions()
-                    selectedValue: root.selectedModeFor(modelData)
-                    enabled: !root.busy
-                    onValueActivated: function(value) {
-                        root.setSourceMode(modelData.accountId, value)
+                    SettingsComboBox {
+                        Layout.fillWidth: root.compactLayout
+                        Layout.preferredWidth: 104
+                        Layout.minimumWidth: 0
+                        model: root.sourceModeOptions()
+                        selectedValue: root.selectedModeFor(modelData)
+                        enabled: !root.busy
+                        onValueActivated: function(value) {
+                            root.setSourceMode(modelData.accountId, value)
+                        }
                     }
-                }
 
-                SettingsComboBox {
-                    Layout.preferredWidth: 104
-                    model: root.visibilityOptions()
-                    selectedValue: root.visibilityValue(modelData.visibility)
-                    enabled: !root.busy
-                    onValueActivated: function(value) {
-                        root.setVisibility(modelData.accountId, value)
+                    SettingsComboBox {
+                        Layout.fillWidth: root.compactLayout
+                        Layout.preferredWidth: 104
+                        Layout.minimumWidth: 0
+                        model: root.visibilityOptions()
+                        selectedValue: root.visibilityValue(modelData.visibility)
+                        enabled: !root.busy
+                        onValueActivated: function(value) {
+                            root.setVisibility(modelData.accountId, value)
+                        }
                     }
-                }
 
-                SettingsButton {
-                    text: qsTr("Use")
-                    enabled: !root.busy && modelData.accountId !== root.defaultAccountId
-                    onClicked: root.setDefaultAccount(modelData.accountId)
-                }
+                    SettingsButton {
+                        compact: root.compactLayout
+                        text: qsTr("Use")
+                        enabled: !root.busy && modelData.accountId !== root.defaultAccountId
+                        onClicked: root.setDefaultAccount(modelData.accountId)
+                    }
 
-                SettingsButton {
-                    text: qsTr("Remove")
-                    danger: true
-                    enabled: !root.busy
-                    onClicked: root.removeAccount(modelData.accountId)
+                    SettingsButton {
+                        compact: root.compactLayout
+                        text: qsTr("Remove")
+                        danger: true
+                        enabled: !root.busy
+                        onClicked: root.removeAccount(modelData.accountId)
+                    }
                 }
             }
         }

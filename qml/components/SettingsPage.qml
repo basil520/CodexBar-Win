@@ -42,15 +42,19 @@ ScrollView {
         }
     }
 
-    contentItem: Item {
-        width: root.availableWidth
-        height: body.implicitHeight + 48
+    contentItem: Flickable {
+        id: pageFlickable
+        clip: true
+        boundsBehavior: Flickable.StopAtBounds
+        contentWidth: width
+        contentHeight: Math.max(height, body.implicitHeight + 48)
+        interactive: contentHeight > height
 
         ColumnLayout {
             id: body
             x: 28
             y: 24
-            width: Math.max(0, Math.min(root.availableWidth - 56, root.maxContentWidth))
+            width: Math.max(0, Math.min(pageFlickable.width - 56, root.maxContentWidth))
             spacing: 12
 
             Label {

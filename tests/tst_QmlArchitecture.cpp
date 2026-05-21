@@ -66,6 +66,7 @@ private slots:
     void trayProviderDockSupportsKeyboardAndAccessibility();
     void tokenUsagePaneUsesProductionUsageProviderRow();
     void finalUiPolishGuardsStayInPlace();
+    void settingsPageKeepsScrollableContentItem();
     void scrollBarsAvoidPermanentActiveState();
     void appThemeExposesInteractionPolishTokens();
     void providerAvatarUsesPolicyDrivenIconVessel();
@@ -1261,12 +1262,28 @@ void QmlArchitectureTest::finalUiPolishGuardsStayInPlace()
 
     QVERIFY2(settings.contains(QStringLiteral("Canvas")),
              "SettingsWindow title buttons must draw stable window symbols instead of depending on emoji glyph availability.");
+    QVERIFY2(settings.contains(QStringLiteral("component SettingsNavIcon")),
+             "SettingsWindow navigation must render stable drawn icons instead of letter placeholders.");
+    QVERIFY2(!settings.contains(QStringLiteral("text: modelData.icon")),
+             "SettingsWindow navigation must not display icon keys as visible text.");
     QVERIFY2(settings.contains(QStringLiteral("activeFocusOnTab")) && settings.contains(QStringLiteral("Accessible.name")),
              "SettingsWindow navigation and title actions must remain keyboard/accessibility reachable.");
     QVERIFY2(tokenUsage.contains(QStringLiteral("updatedAt")) && tokenUsage.contains(QStringLiteral("formatUpdatedAt")),
              "TokenUsagePane overview must expose a data update timestamp for Release QA.");
     QVERIFY2(tokenUsage.contains(QStringLiteral("UsageProviderRow")),
              "TokenUsagePane final layout must keep the production UsageProviderRow integration.");
+}
+
+void QmlArchitectureTest::settingsPageKeepsScrollableContentItem()
+{
+    const QString page = readFile("qml/components/SettingsPage.qml");
+
+    QVERIFY2(page.contains(QStringLiteral("contentItem: Flickable")),
+             "SettingsPage must keep ScrollView content backed by a real Flickable so long settings panes can scroll.");
+    QVERIFY2(!page.contains(QStringLiteral("contentItem: Item")),
+             "SettingsPage must not replace the ScrollView content item with a plain Item, which clips long panes.");
+    QVERIFY2(page.contains(QStringLiteral("contentHeight:")) && page.contains(QStringLiteral("body.implicitHeight")),
+             "SettingsPage Flickable contentHeight must be derived from the settings body height.");
 }
 
 void QmlArchitectureTest::scrollBarsAvoidPermanentActiveState()

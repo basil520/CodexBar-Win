@@ -25,6 +25,7 @@ RowLayout {
     TextField {
         id: secretInput
         Layout.fillWidth: true
+        Layout.minimumWidth: 0
         implicitHeight: 32
         color: AppTheme.textPrimary
         font.pixelSize: AppTheme.fontSizeMd

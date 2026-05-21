@@ -184,6 +184,7 @@ ScrollView {
 
                     ColumnLayout {
                         Layout.fillWidth: true
+                        Layout.minimumWidth: 0
                         spacing: 6
 
                         RowLayout {
@@ -192,6 +193,7 @@ ScrollView {
 
                             Label {
                                 Layout.fillWidth: true
+                                Layout.minimumWidth: 0
                                 text: root.descriptor ? root.descriptor.displayName : root.providerId
                                 color: AppTheme.textPrimary
                                 font.pixelSize: 22
@@ -207,6 +209,7 @@ ScrollView {
 
                         Label {
                             Layout.fillWidth: true
+                            Layout.minimumWidth: 0
                             text: root.descriptor && root.descriptor.sourceModes && root.descriptor.sourceModes.length > 0
                                 ? qsTr("Sources: ") + root.descriptor.sourceModes.join(", ")
                                 : qsTr("Descriptor-driven provider settings")
@@ -220,6 +223,7 @@ ScrollView {
                             spacing: 8
 
                             SettingsButton {
+                                compact: true
                                 text: qsTr("Dashboard")
                                 visible: root.descriptor && root.descriptor.dashboardURL
                                 enabled: visible
@@ -227,6 +231,7 @@ ScrollView {
                             }
 
                             SettingsButton {
+                                compact: true
                                 text: qsTr("Status")
                                 visible: root.statusOpenURL() !== ""
                                 enabled: visible
@@ -234,10 +239,15 @@ ScrollView {
                             }
 
                             SettingsButton {
+                                compact: true
                                 text: qsTr("Refresh")
                                 onClicked: root.refreshRequested()
                             }
+                        }
 
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 8
                             Item { Layout.fillWidth: true }
 
                             Label {
@@ -336,6 +346,7 @@ ScrollView {
                         SectionTitle {
                             text: qsTr("Connection")
                             Layout.fillWidth: true
+                            Layout.minimumWidth: 0
                         }
 
                         ConnectionStatus {
@@ -489,6 +500,7 @@ ScrollView {
 
                                 Label {
                                     Layout.fillWidth: true
+                                    Layout.minimumWidth: 0
                                     text: modelData.label
                                     color: AppTheme.textPrimary
                                     font.pixelSize: AppTheme.fontSizeSm
