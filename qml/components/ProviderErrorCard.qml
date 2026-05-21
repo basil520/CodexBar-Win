@@ -14,54 +14,17 @@ SettingsGroupBox {
     border.color: Qt.rgba(AppTheme.statusOutage.r, AppTheme.statusOutage.g, AppTheme.statusOutage.b, 0.35)
     border.width: 1
 
-    ColumnLayout {
+    ErrorNotice {
         Layout.fillWidth: true
-        spacing: 8
-
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 8
-
-            Rectangle {
-                Layout.preferredWidth: 8
-                Layout.preferredHeight: 8
-                radius: 4
-                color: AppTheme.statusOutage
-            }
-
-            Label {
-                text: root.errorTitle
-                color: AppTheme.statusOutage
-                font.pixelSize: AppTheme.fontSizeMd
-                font.bold: true
-                Layout.fillWidth: true
-            }
-        }
-
-        Label {
-            text: root.errorMessage
-            color: AppTheme.textPrimary
-            font.pixelSize: AppTheme.fontSizeSm
-            wrapMode: Text.WrapAnywhere
-            Layout.fillWidth: true
-            visible: root.expanded
-            maximumLineCount: 10
-            elide: Text.ElideRight
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 8
-
-            SettingsButton {
-                text: root.expanded ? qsTr("Hide Details") : qsTr("Show Details")
-                onClicked: root.expanded = !root.expanded
-            }
-
-            SettingsButton {
-                text: qsTr("Copy")
-                onClicked: AppController.copyText(root.errorMessage)
-            }
+        title: root.errorTitle
+        message: root.errorMessage
+        detail: root.errorMessage
+        density: "diagnostic"
+        severity: "error"
+        expanded: root.expanded
+        onExpandedChanged: root.expanded = expanded
+        onCopyRequested: function(text) {
+            AppController.copyWithFeedback(text)
         }
     }
 }

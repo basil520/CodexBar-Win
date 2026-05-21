@@ -49,7 +49,8 @@ ScrollView {
     ScrollBar.vertical: ScrollBar {
         id: elegantScrollBar
         policy: ScrollBar.AsNeeded
-        active: true
+        active: hovered || pressed
+            || (root.contentItem && (root.contentItem.moving === true || root.contentItem.flicking === true))
 
         background: Rectangle {
             color: "transparent"
@@ -58,11 +59,13 @@ ScrollView {
         contentItem: Rectangle {
             implicitWidth: 4
             radius: 2
+            opacity: elegantScrollBar.active ? 1.0 : 0.0
             color: elegantScrollBar.hovered 
                 ? AppTheme.textSecondary 
                 : Qt.rgba(AppTheme.textSecondary.r, AppTheme.textSecondary.g, AppTheme.textSecondary.b, 0.35)
 
             Behavior on color { ColorAnimation { duration: 150 } }
+            Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutQuad } }
             Behavior on implicitWidth { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
         }
 
@@ -897,10 +900,17 @@ ScrollView {
                 }
             }
 
-            ProviderErrorCard {
+            ErrorNotice {
                 visible: root.providerError !== ""
-                errorTitle: qsTr("Last Provider Error")
-                errorMessage: root.providerError
+                providerId: root.providerId
+                title: qsTr("Last Provider Error")
+                message: root.providerError
+                detail: root.providerError
+                density: "diagnostic"
+                severity: "error"
+                onCopyRequested: function(text) {
+                    AppController.copyWithFeedback(text)
+                }
             }
         }
     }
@@ -910,41 +920,6 @@ ScrollView {
         font.pixelSize: AppTheme.fontSizeMd
         font.bold: true
         Layout.fillWidth: true
-    }
-
-    component StatusPill: Rectangle {
-        id: pill
-        property string text: ""
-        property color toneColor: AppTheme.statusUnknown
-
-        readonly property int desiredWidth: Math.max(58, label.implicitWidth + 18)
-
-        Layout.preferredWidth: desiredWidth
-        Layout.minimumWidth: desiredWidth
-        Layout.maximumWidth: desiredWidth
-        Layout.preferredHeight: 24
-        Layout.alignment: Qt.AlignVCenter
-        implicitWidth: desiredWidth
-        implicitHeight: 24
-        radius: 12
-        clip: true
-        color: Qt.rgba(toneColor.r, toneColor.g, toneColor.b, 0.14)
-        border.width: 1
-        border.color: Qt.rgba(toneColor.r, toneColor.g, toneColor.b, 0.42)
-
-        Label {
-            id: label
-            anchors.fill: parent
-            anchors.leftMargin: 9
-            anchors.rightMargin: 9
-            text: pill.text
-            color: pill.toneColor
-            font.pixelSize: AppTheme.fontSizeSm
-            font.bold: true
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            elide: Text.ElideRight
-        }
     }
 
     component UsageMetricRow: RowLayout {

@@ -190,19 +190,18 @@ Rectangle {
             }
         }
 
-        // === Error row ===
-        RowLayout {
+        // === Error summary ===
+        ErrorNotice {
             Layout.fillWidth: true
-            spacing: 6
             visible: snap.error !== undefined && snap.error !== ""
-            Text {
-                text: snap.error || ""
-                color: AppTheme.statusOutage
-                font.pixelSize: 10
-                Layout.fillWidth: true
-                elide: Text.ElideRight
-                maximumLineCount: 2
-                wrapMode: Text.WordWrap
+            providerId: root.providerId
+            title: qsTr("Provider error")
+            message: snap.error || ""
+            detail: snap.error || ""
+            density: "compact"
+            severity: "error"
+            onCopyRequested: function(text) {
+                AppController.copyWithFeedback(text)
             }
         }
 
@@ -537,14 +536,18 @@ Rectangle {
         }
 
         // === Codex Credits Error ===
-        Text {
+        ErrorNotice {
             Layout.fillWidth: true
             visible: root.providerId === "codex" && snap.creditsError !== undefined && snap.creditsError !== ""
-            text: snap.creditsError || ""
-            color: AppTheme.statusDegraded
-            font.pixelSize: 10
-            elide: Text.ElideRight
-            maximumLineCount: 1
+            providerId: root.providerId
+            title: qsTr("Credits error")
+            message: snap.creditsError || ""
+            detail: snap.creditsError || ""
+            density: "compact"
+            severity: "warning"
+            onCopyRequested: function(text) {
+                AppController.copyWithFeedback(text)
+            }
         }
 
         // === Provider cost bar ===
@@ -890,32 +893,6 @@ Rectangle {
 
     function brandColorFor(providerId) {
         return AppTheme.providerBrandColor(providerId)
-    }
-
-    component ActionButton: Rectangle {
-        property string text: ""
-        property color textColor: AppTheme.textSecondary
-        property color hoverColor: AppTheme.surfaceSelected
-        signal clicked()
-
-        radius: AppTheme.radiusMd
-        color: btnMouse.containsMouse ? hoverColor : "transparent"
-        Behavior on color { ColorAnimation { duration: AppTheme.duration(AppTheme.motionFast); easing.type: AppTheme.easeStandard } }
-
-        Text {
-            anchors.centerIn: parent
-            text: parent.text
-            color: parent.textColor
-            font.pixelSize: AppTheme.fontSizeSm
-        }
-
-        MouseArea {
-            id: btnMouse
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            onClicked: parent.clicked()
-        }
     }
 
     // Chart component templates for dynamic loading

@@ -79,6 +79,7 @@ static void fileMessageHandler(QtMsgType type, const QMessageLogContext& context
 #include "app/UsageDetailsViewModel.h"
 #include "app/UsageStore.h"
 #include "app/LanguageManager.h"
+#include "app/ProviderErrorClassifier.h"
 #include "app/SessionQuotaNotifications.h"
 #include "tray/StatusItemController.h"
 #include "util/SingleInstanceGuard.h"
@@ -677,6 +678,8 @@ int main(int argc, char* argv[]) {
     qmlRegisterSingletonInstance("CodexBarX", 1, 0, "TrayViewModel", trayViewModel);
     auto* usageDetailsViewModel = new UsageDetailsViewModel(usageStore, &app);
     qmlRegisterSingletonInstance("CodexBarX", 1, 0, "UsageDetailsViewModel", usageDetailsViewModel);
+    auto* providerErrorClassifier = new ProviderErrorClassifier(&app);
+    qmlRegisterSingletonInstance("CodexBarX", 1, 0, "ProviderErrorClassifier", providerErrorClassifier);
 
     AppController* appController = new AppController(&app);
     qmlRegisterSingletonInstance("CodexBarX", 1, 0, "AppController", appController);

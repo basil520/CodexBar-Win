@@ -151,19 +151,12 @@ Rectangle {
             }
         }
 
-        Rectangle {
+        StatusDot {
             Layout.preferredWidth: 8
             Layout.preferredHeight: 8
             Layout.alignment: Qt.AlignVCenter
-            radius: width / 2
-            color: {
-                switch (root.status) {
-                case "ok": return AppTheme.statusOk
-                case "degraded": return AppTheme.statusDegraded
-                case "outage": return AppTheme.statusOutage
-                default: return AppTheme.statusUnknown
-                }
-            }
+            size: 8
+            state: root.status
             opacity: root.isEnabled ? 1.0 : 0.45
         }
 

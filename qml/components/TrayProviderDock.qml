@@ -38,6 +38,33 @@ Rectangle {
         return 0
     }
 
+    function providerLabel(modelData) {
+        if (!modelData) return ""
+        return modelData.displayName || modelData.providerId || ""
+    }
+
+    function providerDescription(modelData) {
+        var label = providerLabel(modelData)
+        if (modelData && modelData.error) return label + qsTr(" - needs attention")
+        if (modelData && modelData.enabled === false) return label + qsTr(" - disabled")
+        if (modelData && modelData.providerId === root.selectedProviderID) return label + qsTr(" - selected")
+        return label
+    }
+
+    function activateProvider(providerId) {
+        var normalizedProviderId = providerId || ""
+        if (root.isSwitching || normalizedProviderId === root.selectedProviderID) return
+        root.selectProvider(normalizedProviderId)
+    }
+
+    function selectProviderAt(index) {
+        if (!providerList || providerList.length === 0) return
+        var clamped = Math.max(0, Math.min(providerList.length - 1, index))
+        var item = providerList[clamped]
+        if (!item || item.providerId === undefined || item.providerId === null) return
+        root.activateProvider(item.providerId)
+    }
+
     Flickable {
         id: flicker
         anchors.fill: parent
@@ -76,6 +103,10 @@ Rectangle {
                     width: 44
                     height: 44
                     anchors.verticalCenter: parent.verticalCenter
+                    activeFocusOnTab: !root.isSwitching
+                    Accessible.role: Accessible.Button
+                    Accessible.name: root.providerLabel(modelData)
+                    Accessible.description: root.providerDescription(modelData)
 
                     property bool isSelected: modelData.providerId === root.selectedProviderID
                     property color itemBrandColor: root.brandColorFor(modelData.providerId)
@@ -96,7 +127,7 @@ Rectangle {
                         height: parent.height
                         radius: width / 2
                         color: btn.isSelected ? AppTheme.withAlpha(btn.itemBrandColor, 0.18)
-                            : (itemMouse.containsMouse ? AppTheme.surfaceInteractiveHover : "transparent")
+                            : (itemMouse.containsMouse || btn.activeFocus ? AppTheme.surfaceInteractiveHover : "transparent")
                         border.width: btn.isSelected ? 1 : 0
                         border.color: AppTheme.withAlpha(btn.itemBrandColor, 0.62)
 
@@ -127,20 +158,41 @@ Rectangle {
                         cursorShape: root.isSwitching ? Qt.BusyCursor : Qt.PointingHandCursor
                         enabled: !root.isSwitching
                         onClicked: {
-                            if (modelData.providerId !== root.selectedProviderID) {
-                                root.selectProvider(modelData.providerId)
-                            }
+                            root.activateProvider(modelData.providerId || "")
                         }
                     }
 
-                    ToolTip.visible: itemMouse.containsMouse
-                    ToolTip.delay: 450
-                    ToolTip.text: {
-                        var label = modelData.displayName || modelData.providerId || ""
-                        if (modelData.error) return label + qsTr(" - needs attention")
-                        if (modelData.enabled === false) return label + qsTr(" - disabled")
-                        return label
+                    Keys.onLeftPressed: function(event) {
+                        event.accepted = true
+                        root.selectProviderAt(index - 1)
                     }
+                    Keys.onRightPressed: function(event) {
+                        event.accepted = true
+                        root.selectProviderAt(index + 1)
+                    }
+                    Keys.onReturnPressed: function(event) {
+                        event.accepted = true
+                        root.activateProvider(modelData.providerId || "")
+                    }
+                    Keys.onEnterPressed: function(event) {
+                        event.accepted = true
+                        root.activateProvider(modelData.providerId || "")
+                    }
+                    Keys.onSpacePressed: function(event) {
+                        event.accepted = true
+                        root.activateProvider(modelData.providerId || "")
+                    }
+
+                    FocusRing {
+                        anchors.fill: parent
+                        anchors.margins: 1
+                        radius: width / 2
+                        active: btn.activeFocus
+                    }
+
+                    ToolTip.visible: itemMouse.containsMouse || btn.activeFocus
+                    ToolTip.delay: btn.activeFocus ? 0 : 450
+                    ToolTip.text: root.providerDescription(modelData)
                 }
             }
         }

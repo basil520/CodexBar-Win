@@ -16,7 +16,8 @@ ScrollView {
     ScrollBar.vertical: ScrollBar {
         id: elegantScrollBar
         policy: ScrollBar.AsNeeded
-        active: true
+        active: hovered || pressed
+            || (root.contentItem && (root.contentItem.moving === true || root.contentItem.flicking === true))
 
         background: Rectangle {
             color: "transparent"
@@ -25,11 +26,13 @@ ScrollView {
         contentItem: Rectangle {
             implicitWidth: 4
             radius: 2
+            opacity: elegantScrollBar.active ? 1.0 : 0.0
             color: elegantScrollBar.hovered 
                 ? AppTheme.textSecondary 
                 : Qt.rgba(AppTheme.textSecondary.r, AppTheme.textSecondary.g, AppTheme.textSecondary.b, 0.35)
 
             Behavior on color { ColorAnimation { duration: 150 } }
+            Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutQuad } }
             Behavior on implicitWidth { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
         }
 

@@ -1,6 +1,7 @@
 #include <QtTest/QtTest>
 
 #include <QFile>
+#include <QRegularExpression>
 #include <QStringList>
 
 namespace {
@@ -59,6 +60,13 @@ private slots:
     void phaseZeroUiFoundationComponentsAreGuarded();
     void providerIconsUseSharedAvatar();
     void uiPolishRouteBComponentsAreGuarded();
+    void actionButtonSupportsKeyboardAndAccessibleFocus();
+    void providerErrorsUseSharedErrorNotice();
+    void sharedControlsDoNotKeepLocalDuplicates();
+    void trayProviderDockSupportsKeyboardAndAccessibility();
+    void tokenUsagePaneUsesProductionUsageProviderRow();
+    void finalUiPolishGuardsStayInPlace();
+    void scrollBarsAvoidPermanentActiveState();
     void appThemeExposesInteractionPolishTokens();
     void providerAvatarUsesPolicyDrivenIconVessel();
     void providerSwitcherUsesAvatarDockPattern();
@@ -1098,8 +1106,10 @@ void QmlArchitectureTest::providerIconsUseSharedAvatar()
 
     for (const QString& path : providerIdentityFiles) {
         const QString contents = readFile(path);
-        QVERIFY2(contents.contains(QStringLiteral("ProviderAvatar")) || contents.contains(QStringLiteral("TrayProviderDock")),
-                 qPrintable(path + QStringLiteral(" must render provider identity through ProviderAvatar or delegate to TrayProviderDock.")));
+        QVERIFY2(contents.contains(QStringLiteral("ProviderAvatar"))
+                     || contents.contains(QStringLiteral("TrayProviderDock"))
+                     || contents.contains(QStringLiteral("UsageProviderRow")),
+                 qPrintable(path + QStringLiteral(" must render provider identity through ProviderAvatar, UsageProviderRow, or delegate to TrayProviderDock.")));
         QVERIFY2(!contents.contains(QStringLiteral("ProviderIcon-")),
                  qPrintable(path + QStringLiteral(" must not construct ProviderIcon resource paths directly.")));
     }
@@ -1122,6 +1132,176 @@ void QmlArchitectureTest::uiPolishRouteBComponentsAreGuarded()
     for (const QString& component : requiredComponents) {
         QVERIFY2(qrc.contains(component),
                  qPrintable(component + QStringLiteral(" must be registered in qml.qrc for the Route B UI component refresh.")));
+    }
+}
+
+void QmlArchitectureTest::actionButtonSupportsKeyboardAndAccessibleFocus()
+{
+    const QString button = readFile("qml/components/ActionButton.qml");
+
+    QVERIFY2(button.contains(QStringLiteral("activeFocusOnTab")),
+             "ActionButton must be reachable from keyboard tab navigation.");
+    QVERIFY2(button.contains(QStringLiteral("Keys.onReturnPressed")) || button.contains(QStringLiteral("Keys.onEnterPressed")),
+             "ActionButton must activate from Enter/Return, not only pointer taps.");
+    QVERIFY2(button.contains(QStringLiteral("Keys.onSpacePressed")),
+             "ActionButton must activate from Space like a normal button.");
+    QVERIFY2(button.contains(QStringLiteral("Accessible.role")),
+             "ActionButton must expose button semantics to accessibility tools.");
+    QVERIFY2(button.contains(QStringLiteral("Accessible.name")),
+             "ActionButton must expose an accessible name.");
+    QVERIFY2(button.contains(QStringLiteral("FocusRing")),
+             "ActionButton must render a visible focus ring when focused.");
+}
+
+void QmlArchitectureTest::providerErrorsUseSharedErrorNotice()
+{
+    const QString detailCard = readFile("qml/components/ProviderDetailCard.qml");
+    const QString detailView = readFile("qml/components/ProviderDetailView.qml");
+    const QString browserCard = readFile("qml/components/BrowserSessionCard.qml");
+    const QString providerErrorCard = readFile("qml/components/ProviderErrorCard.qml");
+
+    QVERIFY2(detailCard.contains(QStringLiteral("ErrorNotice")),
+             "ProviderDetailCard must use ErrorNotice for provider and credits errors.");
+    QVERIFY2(!detailCard.contains(QStringLiteral("text: snap.error")),
+             "ProviderDetailCard must not render snap.error directly as Text.");
+    QVERIFY2(!detailCard.contains(QStringLiteral("text: snap.creditsError")),
+             "ProviderDetailCard must not render snap.creditsError directly as Text.");
+    QVERIFY2(detailView.contains(QStringLiteral("ErrorNotice")) || providerErrorCard.contains(QStringLiteral("ErrorNotice")),
+             "ProviderDetailView errors must render through ErrorNotice or a ProviderErrorCard wrapper.");
+    QVERIFY2(browserCard.contains(QStringLiteral("copyable: true")) || browserCard.contains(QStringLiteral("ErrorNotice")),
+             "BrowserSessionCard import errors must expose a nearby copy affordance.");
+}
+
+void QmlArchitectureTest::sharedControlsDoNotKeepLocalDuplicates()
+{
+    const QString qrc = readFile("resources/qml.qrc");
+    const QString tray = readFile("qml/TrayPanel.qml");
+    const QString detailCard = readFile("qml/components/ProviderDetailCard.qml");
+    const QString detailView = readFile("qml/components/ProviderDetailView.qml");
+    const QString tokenUsage = readFile("qml/panes/TokenUsagePane.qml");
+    const QString providerListItem = readFile("qml/components/ProviderListItem.qml");
+
+    QVERIFY2(qrc.contains(QStringLiteral("qml/components/StatusDot.qml")),
+             "StatusDot must be registered in qml.qrc once status dots are shared.");
+    QVERIFY2(!tray.contains(QStringLiteral("component ActionButton")),
+             "TrayPanel must use Components.ActionButton instead of a local ActionButton.");
+    QVERIFY2(!detailCard.contains(QStringLiteral("component ActionButton")),
+             "ProviderDetailCard must use shared ActionButton instead of a local ActionButton.");
+    QVERIFY2(!detailView.contains(QStringLiteral("component StatusPill")),
+             "ProviderDetailView must use shared StatusPill instead of a local StatusPill.");
+    QVERIFY2(!tokenUsage.contains(QStringLiteral("component StatusPill")),
+             "TokenUsagePane must use shared StatusPill instead of a local StatusPill.");
+    QVERIFY2(!tokenUsage.contains(QStringLiteral("component SmallButton")),
+             "TokenUsagePane must use shared ActionButton instead of a local SmallButton.");
+    QVERIFY2(providerListItem.contains(QStringLiteral("StatusDot")),
+             "ProviderListItem must render provider state through shared StatusDot.");
+}
+
+void QmlArchitectureTest::trayProviderDockSupportsKeyboardAndAccessibility()
+{
+    const QString dock = readFile("qml/components/TrayProviderDock.qml");
+
+    QVERIFY2(dock.contains(QStringLiteral("Accessible.role")),
+             "TrayProviderDock items must expose button semantics.");
+    QVERIFY2(dock.contains(QStringLiteral("Accessible.name")),
+             "TrayProviderDock items must expose provider names to accessibility tools.");
+    QVERIFY2(dock.contains(QStringLiteral("activeFocusOnTab")),
+             "TrayProviderDock items must be keyboard focusable.");
+    QVERIFY2(dock.contains(QStringLiteral("Keys.onLeftPressed")) && dock.contains(QStringLiteral("Keys.onRightPressed")),
+             "TrayProviderDock must support left/right keyboard provider selection.");
+    QVERIFY2(dock.contains(QStringLiteral("Keys.onReturnPressed")) || dock.contains(QStringLiteral("Keys.onEnterPressed")),
+             "TrayProviderDock must support Enter/Return activation.");
+    QVERIFY2(dock.contains(QStringLiteral("Keys.onSpacePressed")),
+             "TrayProviderDock must support Space activation.");
+    QVERIFY2(dock.contains(QStringLiteral("FocusRing")),
+             "TrayProviderDock must render focus visibly.");
+}
+
+void QmlArchitectureTest::tokenUsagePaneUsesProductionUsageProviderRow()
+{
+    const QString qrc = readFile("resources/qml.qrc");
+    const QString tokenUsage = readFile("qml/panes/TokenUsagePane.qml");
+    const QString usageRow = readFile("qml/components/UsageProviderRow.qml");
+
+    QVERIFY2(qrc.contains(QStringLiteral("qml/components/UsageProviderRow.qml")),
+             "UsageProviderRow must stay registered in qml.qrc when TokenUsagePane uses it in production.");
+    QVERIFY2(tokenUsage.contains(QStringLiteral("UsageProviderRow")),
+             "TokenUsagePane must use UsageProviderRow instead of keeping it as a qrc/smoke-only component.");
+    QVERIFY2(!tokenUsage.contains(QStringLiteral("ProviderAvatar {")),
+             "TokenUsagePane provider row identity must live in UsageProviderRow, not a duplicated local header.");
+    QVERIFY2(usageRow.contains(QStringLiteral("property var provider")),
+             "UsageProviderRow must accept the production provider row object.");
+    QVERIFY2(usageRow.contains(QStringLiteral("signal toggleRequested")),
+             "UsageProviderRow must expose a single toggle signal for expandable provider details.");
+    QVERIFY2(usageRow.contains(QStringLiteral("ProviderAvatar")) && usageRow.contains(QStringLiteral("StatusPill")),
+             "UsageProviderRow must own the shared avatar and status pill language for token usage provider rows.");
+    QVERIFY2(usageRow.contains(QStringLiteral("Accessible.name")) && usageRow.contains(QStringLiteral("Keys.onSpacePressed")),
+             "UsageProviderRow must be keyboard and accessibility ready when it handles expansion.");
+}
+
+void QmlArchitectureTest::finalUiPolishGuardsStayInPlace()
+{
+    const QString settings = readFile("qml/SettingsWindow.qml");
+    const QString tokenUsage = readFile("qml/panes/TokenUsagePane.qml");
+
+    const QStringList forbiddenSettingsGlyphs = {
+        QStringLiteral("⚙"),
+        QStringLiteral("☁"),
+        QStringLiteral("🖵"),
+        QStringLiteral("🛠"),
+        QStringLiteral("🛈"),
+        QStringLiteral("🐞"),
+        QStringLiteral("🗗"),
+        QStringLiteral("🗖"),
+    };
+    for (const QString& glyph : forbiddenSettingsGlyphs) {
+        QVERIFY2(!settings.contains(glyph),
+                 qPrintable(QStringLiteral("SettingsWindow must not rely on emoji/symbol glyph %1 for navigation or title actions.").arg(glyph)));
+    }
+
+    QVERIFY2(settings.contains(QStringLiteral("Canvas")),
+             "SettingsWindow title buttons must draw stable window symbols instead of depending on emoji glyph availability.");
+    QVERIFY2(settings.contains(QStringLiteral("activeFocusOnTab")) && settings.contains(QStringLiteral("Accessible.name")),
+             "SettingsWindow navigation and title actions must remain keyboard/accessibility reachable.");
+    QVERIFY2(tokenUsage.contains(QStringLiteral("updatedAt")) && tokenUsage.contains(QStringLiteral("formatUpdatedAt")),
+             "TokenUsagePane overview must expose a data update timestamp for Release QA.");
+    QVERIFY2(tokenUsage.contains(QStringLiteral("UsageProviderRow")),
+             "TokenUsagePane final layout must keep the production UsageProviderRow integration.");
+}
+
+void QmlArchitectureTest::scrollBarsAvoidPermanentActiveState()
+{
+    const QStringList scrollFiles = {
+        QStringLiteral("qml/TrayPanel.qml"),
+        QStringLiteral("qml/panes/TokenUsagePane.qml"),
+        QStringLiteral("qml/panes/ProvidersPane.qml"),
+        QStringLiteral("qml/components/ProviderDetailView.qml"),
+        QStringLiteral("qml/components/SettingsPage.qml"),
+    };
+
+    for (const QString& path : scrollFiles) {
+        const QString contents = readFile(path);
+        const QRegularExpression pinnedActive(QStringLiteral("\\bactive\\s*:\\s*true\\b"));
+        QVERIFY2(!contents.contains(pinnedActive),
+                 qPrintable(path + QStringLiteral(" must not pin ScrollBar.active to true; scrollbars should fade when idle.")));
+        QVERIFY2(contents.contains(QStringLiteral("moving")) || contents.contains(QStringLiteral("flicking")),
+                 qPrintable(path + QStringLiteral(" must keep scrollbars discoverable while the view is scrolling or flicking.")));
+
+        const auto countMatches = [](const QRegularExpression& expression, const QString& text) {
+            int count = 0;
+            auto it = expression.globalMatch(text);
+            while (it.hasNext()) {
+                it.next();
+                ++count;
+            }
+            return count;
+        };
+        const QRegularExpression verticalScrollBars(QStringLiteral("ScrollBar\\.vertical\\s*:\\s*ScrollBar"));
+        const QRegularExpression activeOpacity(QStringLiteral("opacity\\s*:\\s*\\w+ScrollBar\\.active\\s*\\?\\s*1(?:\\.0)?\\s*:\\s*0(?:\\.0)?"));
+        const int scrollBarCount = countMatches(verticalScrollBars, contents);
+        const int opacityBindingCount = countMatches(activeOpacity, contents);
+        QVERIFY2(opacityBindingCount >= scrollBarCount,
+                 qPrintable(path + QStringLiteral(" custom ScrollBar contentItem must bind opacity to ScrollBar.active so idle scrollbars are not visible.")));
     }
 }
 

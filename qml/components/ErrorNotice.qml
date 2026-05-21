@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import CodexBarX 1.0
 import ".."
 
 Rectangle {
@@ -9,12 +10,16 @@ Rectangle {
     property string title: qsTr("Error")
     property string message: ""
     property string detail: ""
+    property string providerId: ""
+    property string category: ""
+    property string suggestedAction: ""
     property string density: "compact"
     property string severity: "error"
     property bool showCopy: true
     property bool expanded: false
-    property string copyPayload: detail !== "" ? detail : message
+    property string copyPayload: ProviderErrorClassifier.copyText(providerId, detail !== "" ? detail : message)
     readonly property bool compact: density === "compact"
+    readonly property bool diagnostic: density === "diagnostic"
     readonly property color toneColor: severity === "warning" ? AppTheme.statusDegraded : AppTheme.statusOutage
 
     signal copyRequested(string text)
@@ -73,6 +78,14 @@ Rectangle {
                 iconColor: root.toneColor
                 onActivated: root.copyRequested(root.copyPayload)
             }
+
+            ActionButton {
+                visible: root.detail !== "" && !root.compact
+                text: root.expanded ? qsTr("Hide") : qsTr("Details")
+                compact: true
+                variant: "ghost"
+                onClicked: root.expanded = !root.expanded
+            }
         }
 
         Label {
@@ -88,12 +101,23 @@ Rectangle {
 
         Label {
             Layout.fillWidth: true
-            visible: root.expanded && root.detail !== ""
+            visible: !root.compact && root.suggestedAction !== ""
+            text: root.suggestedAction
+            color: AppTheme.textSecondary
+            font.pixelSize: AppTheme.fontSizeSm
+            wrapMode: Text.WordWrap
+            maximumLineCount: 2
+            elide: Text.ElideRight
+        }
+
+        Label {
+            Layout.fillWidth: true
+            visible: (root.expanded || root.diagnostic) && root.detail !== ""
             text: root.detail
             color: AppTheme.textSecondary
             font.pixelSize: AppTheme.fontSizeSm
             wrapMode: Text.WrapAnywhere
-            maximumLineCount: 8
+            maximumLineCount: root.diagnostic ? 14 : 8
             elide: Text.ElideRight
         }
     }

@@ -190,6 +190,11 @@ SettingsGroupBox {
             visible: root.refreshKey >= 0 && !BridgeViewModel.importBusy(root.providerId) && root.importError() !== ""
             status: "error"
             message: root.refreshKey >= 0 ? root.importError() : ""
+            copyable: true
+            copyPayload: root.importError()
+            onCopyRequested: function(text) {
+                AppController.copyWithFeedback(text)
+            }
         }
 
         InlineFeedback {

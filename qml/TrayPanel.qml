@@ -554,7 +554,7 @@ Rectangle {
             ScrollBar.vertical: ScrollBar {
                 id: providerScrollBar
                 policy: ScrollBar.AsNeeded
-                active: true
+                active: hovered || pressed || providerList.moving || providerList.flicking
 
                 background: Rectangle {
                     color: "transparent"
@@ -563,11 +563,13 @@ Rectangle {
                 contentItem: Rectangle {
                     implicitWidth: 4
                     radius: 2
+                    opacity: providerScrollBar.active ? 1.0 : 0.0
                     color: providerScrollBar.hovered 
                         ? AppTheme.textSecondary 
                         : Qt.rgba(AppTheme.textSecondary.r, AppTheme.textSecondary.g, AppTheme.textSecondary.b, 0.35)
 
                     Behavior on color { ColorAnimation { duration: 150 } }
+                    Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutQuad } }
                     Behavior on implicitWidth { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
                 }
 
@@ -1251,8 +1253,9 @@ Rectangle {
                                     Layout.fillWidth: true
                                     visible: cardDelegate.statusUrl !== ""
                                     spacing: 6
-                                    ActionButton {
+                                    Components.ActionButton {
                                         text: qsTr("Status")
+                                        compact: true
                                         Layout.fillWidth: true
                                         Layout.preferredHeight: 26
                                         onClicked: {
@@ -1278,7 +1281,7 @@ Rectangle {
             ScrollBar.vertical: ScrollBar {
                 id: detailScrollBar
                 policy: ScrollBar.AsNeeded
-                active: true
+                active: hovered || pressed || detailFlickable.moving || detailFlickable.flicking
 
                 background: Rectangle {
                     color: "transparent"
@@ -1287,11 +1290,13 @@ Rectangle {
                 contentItem: Rectangle {
                     implicitWidth: 4
                     radius: 2
+                    opacity: detailScrollBar.active ? 1.0 : 0.0
                     color: detailScrollBar.hovered 
                         ? AppTheme.textSecondary 
                         : Qt.rgba(AppTheme.textSecondary.r, AppTheme.textSecondary.g, AppTheme.textSecondary.b, 0.35)
 
                     Behavior on color { ColorAnimation { duration: 150 } }
+                    Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutQuad } }
                     Behavior on implicitWidth { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
                 }
 
@@ -1402,31 +1407,34 @@ Rectangle {
                 anchors.margins: 8
                 spacing: 6
 
-                ActionButton {
+                Components.ActionButton {
                     text: root.isRefreshing
                         ? qsTr("Refreshing...") + (root.refreshDuration ? " " + root.refreshDuration : "")
                         : qsTr("Refresh")
+                    compact: true
                     enabled: !root.isRefreshing
                     Layout.fillWidth: true
                     Layout.preferredHeight: 28
                     onClicked: TrayViewModel.refresh()
                 }
-                ActionButton {
+                Components.ActionButton {
                     text: qsTr("Settings")
+                    compact: true
                     Layout.fillWidth: true
                     Layout.preferredHeight: 28
                     onClicked: AppController.toggleSettings()
                 }
-                ActionButton {
+                Components.ActionButton {
                     text: qsTr("About")
+                    compact: true
                     Layout.fillWidth: true
                     Layout.preferredHeight: 28
                     onClicked: AppController.showAbout()
                 }
-                ActionButton {
+                Components.ActionButton {
                     text: qsTr("Quit")
-                    textColor: AppTheme.statusOutage
-                    hoverColor: AppTheme.withAlpha(AppTheme.statusOutage, 0.18)
+                    compact: true
+                    variant: "danger"
                     Layout.fillWidth: true
                     Layout.preferredHeight: 28
                     onClicked: AppController.quitApp()
@@ -1519,32 +1527,6 @@ Rectangle {
                 font.pixelSize: 10
                 elide: Text.ElideRight
             }
-        }
-    }
-
-    component ActionButton: Rectangle {
-        property string text: ""
-        property color textColor: AppTheme.textSecondary
-        property color hoverColor: AppTheme.surfaceHover
-        signal clicked()
-
-        radius: AppTheme.radiusMd
-        color: btnMouse.containsMouse ? hoverColor : "transparent"
-        Behavior on color { ColorAnimation { duration: AppTheme.duration(AppTheme.motionFast); easing.type: AppTheme.easeStandard } }
-
-        Text {
-            anchors.centerIn: parent
-            text: parent.text
-            color: parent.textColor
-            font.pixelSize: AppTheme.fontSizeSm
-        }
-
-        MouseArea {
-            id: btnMouse
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            onClicked: parent.clicked()
         }
     }
 

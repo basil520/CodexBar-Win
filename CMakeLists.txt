@@ -173,6 +173,7 @@ set(CORE_SOURCES
     src/app/SessionQuotaNotifications.cpp
     src/app/LanguageManager.cpp
     src/app/Localization.cpp
+    src/app/ProviderErrorClassifier.cpp
     src/app/ProviderUIService.cpp
     src/app/ProviderRefreshCoordinator.cpp
 
@@ -337,6 +338,7 @@ set(CORE_HEADERS
     src/app/PlanUtilizationHistoryStore.h
     src/app/SessionQuotaNotifications.h
     src/app/Localization.h
+    src/app/ProviderErrorClassifier.h
     src/app/ProviderUIService.h
     src/app/ProviderRefreshCoordinator.h
 

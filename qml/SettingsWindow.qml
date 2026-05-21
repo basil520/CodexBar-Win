@@ -21,13 +21,13 @@ Rectangle {
     property var tabs: {
         settingsWindow.rev
         var items = [
-            { label: qsTr("General"), icon: "⚙" },
-            { label: qsTr("Providers"), icon: "☁" },
-            { label: qsTr("Display"), icon: "🖵" },
-            { label: qsTr("Advanced"), icon: "🛠" },
-            { label: qsTr("About"), icon: "🛈" }
+            { label: qsTr("General"), icon: "G" },
+            { label: qsTr("Providers"), icon: "P" },
+            { label: qsTr("Display"), icon: "D" },
+            { label: qsTr("Advanced"), icon: "A" },
+            { label: qsTr("About"), icon: "I" }
         ]
-        if (SettingsStore.debugMenuEnabled) items.push({ label: qsTr("Debug"), icon: "🐞" })
+        if (SettingsStore.debugMenuEnabled) items.push({ label: qsTr("Debug"), icon: "B" })
         return items
     }
 
@@ -103,17 +103,20 @@ Rectangle {
                 }
 
                 TitleButton {
-                    text: "_"
+                    symbol: "minimize"
+                    accessibleName: "Minimize"
                     onClicked: AppController.minimizeSettings()
                 }
 
                 TitleButton {
-                    text: AppController.settingsMaximized ? "[]" : "[ ]"
+                    symbol: AppController.settingsMaximized ? "restore" : "maximize"
+                    accessibleName: AppController.settingsMaximized ? "Restore" : "Maximize"
                     onClicked: AppController.toggleSettingsMaximized()
                 }
 
                 TitleButton {
-                    text: "x"
+                    symbol: "close"
+                    accessibleName: "Close"
                     danger: true
                     onClicked: AppController.closeSettings()
                 }
@@ -196,12 +199,26 @@ Rectangle {
                         }
 
                         delegate: Rectangle {
+                            id: tabButton
+
                             width: ListView.view.width
                             height: 38
                             radius: 6
                             color: tabList.currentIndex === index
                                 ? AppTheme.surfaceSelected
-                                : (tabMouse.containsMouse ? AppTheme.surfaceHover : "transparent")
+                                : ((tabMouse.containsMouse || activeFocus) ? AppTheme.surfaceHover : "transparent")
+                            activeFocusOnTab: true
+
+                            Accessible.role: Accessible.Button
+                            Accessible.name: modelData.label
+
+                            function activate() {
+                                tabList.currentIndex = index
+                            }
+
+                            Keys.onReturnPressed: activate()
+                            Keys.onEnterPressed: activate()
+                            Keys.onSpacePressed: activate()
 
                             RowLayout {
                                 anchors.fill: parent
@@ -239,7 +256,12 @@ Rectangle {
                                 id: tabMouse
                                 anchors.fill: parent
                                 hoverEnabled: true
-                                onClicked: tabList.currentIndex = index
+                                onClicked: tabButton.activate()
+                            }
+
+                            Components.FocusRing {
+                                anchors.fill: parent
+                                active: tabButton.activeFocus
                             }
                         }
                     }
@@ -369,47 +391,80 @@ Rectangle {
 
     component TitleButton: Rectangle {
         id: titleButton
-        property string text: ""
+        property string symbol: ""
+        property string accessibleName: ""
         property bool danger: false
+        readonly property bool hovered: mouseArea.containsMouse || activeFocus
+        readonly property color glyphColor: hovered && danger ? "#ffffff" : AppTheme.textPrimary
         signal clicked()
 
         Layout.preferredWidth: 36
         Layout.preferredHeight: 30
         radius: 5
-        color: mouseArea.containsMouse
+        color: hovered
             ? (danger ? AppTheme.statusOutage : AppTheme.surfaceHover)
             : "transparent"
+        activeFocusOnTab: true
 
-        Label {
-            id: label
+        Accessible.role: Accessible.Button
+        Accessible.name: accessibleName
+
+        function activate() {
+            clicked()
+        }
+
+        Keys.onReturnPressed: activate()
+        Keys.onEnterPressed: activate()
+        Keys.onSpacePressed: activate()
+
+        Canvas {
+            id: glyph
             anchors.centerIn: parent
-            text: {
-                if (titleButton.text === "_") return "—";
-                if (titleButton.text === "x") return "✕";
-                if (titleButton.text === "[]") return "🗗"; // Maximize state -> Restore symbol
-                if (titleButton.text === "[ ]") return "🗖"; // Normal state -> Maximize symbol
-                return titleButton.text;
-            }
-            color: mouseArea.containsMouse
-                ? (titleButton.danger ? "#ffffff" : AppTheme.textPrimary)
-                : AppTheme.textPrimary
-            font.pixelSize: {
-                if (titleButton.text === "x") return 11;
-                if (titleButton.text === "_") return 9;
-                return 10;
-            }
-            font.bold: false
+            width: 13
+            height: 13
+            antialiasing: true
 
-            Behavior on color {
-                ColorAnimation { duration: 150 }
+            onPaint: {
+                var ctx = getContext("2d")
+                ctx.clearRect(0, 0, width, height)
+                ctx.strokeStyle = titleButton.glyphColor
+                ctx.lineWidth = 1.6
+                ctx.lineCap = "round"
+                ctx.lineJoin = "round"
+                ctx.beginPath()
+
+                if (titleButton.symbol === "minimize") {
+                    ctx.moveTo(2.5, 10.5)
+                    ctx.lineTo(10.5, 10.5)
+                } else if (titleButton.symbol === "close") {
+                    ctx.moveTo(3, 3)
+                    ctx.lineTo(10, 10)
+                    ctx.moveTo(10, 3)
+                    ctx.lineTo(3, 10)
+                } else if (titleButton.symbol === "restore") {
+                    ctx.strokeRect(4.5, 2.5, 6, 6)
+                    ctx.strokeRect(2.5, 4.5, 6, 6)
+                } else {
+                    ctx.strokeRect(3, 3, 7, 7)
+                }
+
+                ctx.stroke()
             }
+        }
+
+        onSymbolChanged: glyph.requestPaint()
+        onGlyphColorChanged: glyph.requestPaint()
+
+        Components.FocusRing {
+            anchors.fill: parent
+            active: titleButton.activeFocus
         }
 
         MouseArea {
             id: mouseArea
             anchors.fill: parent
             hoverEnabled: true
-            onClicked: titleButton.clicked()
+            onClicked: titleButton.activate()
         }
     }
 

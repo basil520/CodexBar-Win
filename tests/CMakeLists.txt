@@ -274,6 +274,8 @@ add_executable(tst_QmlSmoke
     tst_QmlSmoke.cpp
     ../src/app/AppTheme.cpp
     ../src/app/AppTheme.h
+    ../src/app/ProviderErrorClassifier.cpp
+    ../src/app/ProviderErrorClassifier.h
 )
 target_include_directories(tst_QmlSmoke PRIVATE ${COMMON_INCLUDE})
 target_compile_definitions(tst_QmlSmoke PRIVATE ${COMMON_DEFINES})
@@ -325,6 +327,14 @@ target_include_directories(tst_ProviderRefreshCoordinator PRIVATE ${COMMON_INCLU
 target_compile_definitions(tst_ProviderRefreshCoordinator PRIVATE ${COMMON_DEFINES})
 target_link_libraries(tst_ProviderRefreshCoordinator PRIVATE codexbar_core Qt6::Core Qt6::Test)
 add_wincodexbar_test(tst_ProviderRefreshCoordinator tst_ProviderRefreshCoordinator)
+
+add_executable(tst_ProviderErrorClassifier
+    tst_ProviderErrorClassifier.cpp
+)
+target_include_directories(tst_ProviderErrorClassifier PRIVATE ${COMMON_INCLUDE})
+target_compile_definitions(tst_ProviderErrorClassifier PRIVATE ${COMMON_DEFINES})
+target_link_libraries(tst_ProviderErrorClassifier PRIVATE codexbar_core Qt6::Core Qt6::Test)
+add_wincodexbar_test(tst_ProviderErrorClassifier tst_ProviderErrorClassifier)
 
 add_executable(tst_TokenAccountOperationManager
     tst_TokenAccountOperationManager.cpp

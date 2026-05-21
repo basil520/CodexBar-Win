@@ -9,6 +9,7 @@
 #include <QVariantMap>
 
 #include "app/AppTheme.h"
+#include "app/ProviderErrorClassifier.h"
 
 class MockSettingsStore : public QObject {
     Q_OBJECT
@@ -1330,6 +1331,7 @@ public:
     Q_INVOKABLE void quitApp() {}
     Q_INVOKABLE void openExternalUrl(const QString&) {}
     Q_INVOKABLE void copyText(const QString&) {}
+    Q_INVOKABLE void copyWithFeedback(const QString&) {}
 
 signals:
     void settingsVisibleChanged();
@@ -1353,6 +1355,7 @@ private:
     MockBridgeViewModel mockBridge;
     MockLanguageManager mockLang;
     MockAppController mockAppCtrl;
+    ProviderErrorClassifier providerErrorClassifier;
     AppThemeManager mockTheme;
 
     void setupEngine(QQmlEngine& engine) {
@@ -1366,6 +1369,7 @@ private:
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "SettingsProvidersModel", &mockSettingsProviders);
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "TrayViewModel", &mockTray);
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "UsageDetailsViewModel", &mockUsageDetails);
+        qmlRegisterSingletonInstance("CodexBarX", 1, 0, "ProviderErrorClassifier", &providerErrorClassifier);
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "BridgeViewModel", &mockBridge);
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "AppController", &mockAppCtrl);
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "LanguageManager", &mockLang);
@@ -1762,6 +1766,53 @@ private slots:
         view.hide();
     }
 
+    void trayProviderDockCanReturnToOverview() {
+        QQuickView view;
+        setupEngine(*view.engine());
+        view.resize(260, 64);
+
+        QQuickItem* root = createInlineRoot(view, R"(
+            import QtQuick 2.15
+            import "qrc:/qml/components" as Components
+
+            Item {
+                property string selectedProvider: "codex"
+                property string lastSelectedProvider: "__unset__"
+                property int selectCount: 0
+
+                width: 260
+                height: 64
+
+                Components.TrayProviderDock {
+                    objectName: "dock"
+                    anchors.fill: parent
+                    selectedProviderID: parent.selectedProvider
+                    providerList: [
+                        { "providerId": "", "displayName": "Overview" },
+                        { "providerId": "codex", "displayName": "Codex" },
+                        { "providerId": "kimi", "displayName": "Kimi" }
+                    ]
+                    onSelectProvider: function(providerId) {
+                        parent.lastSelectedProvider = providerId
+                        parent.selectedProvider = providerId
+                        parent.selectCount += 1
+                    }
+                }
+            }
+        )", QUrl("qrc:/tests/TrayProviderDockOverviewHarness.qml"));
+
+        QVERIFY(root != nullptr);
+        QObject* dock = findObjectByStringProperty(root, "objectName", "dock");
+        QVERIFY(dock != nullptr);
+
+        QVERIFY(QMetaObject::invokeMethod(dock, "selectProviderAt", Q_ARG(QVariant, QVariant(0))));
+        QCOMPARE(root->property("selectCount").toInt(), 1);
+        QCOMPARE(root->property("lastSelectedProvider").toString(), QString());
+        QCOMPARE(root->property("selectedProvider").toString(), QString());
+
+        view.hide();
+    }
+
     void uiFoundationComponentsLoad() {
         QQuickView view;
         setupEngine(*view.engine());
@@ -1772,6 +1823,9 @@ private slots:
             import "qrc:/qml/components" as Components
 
             Column {
+                property int actionClickCount: 0
+                property int usageToggleCount: 0
+
                 width: 640
                 height: 360
                 spacing: 8
@@ -1809,6 +1863,20 @@ private slots:
                     objectName: "actionButton"
                     text: "Import Now"
                     variant: "primary"
+                    onClicked: parent.actionClickCount += 1
+                }
+
+                Components.ActionButton {
+                    objectName: "busyActionButton"
+                    text: "Import Now"
+                    busy: true
+                }
+
+                Components.ActionButton {
+                    objectName: "disabledActionButton"
+                    text: "Import Now"
+                    enabled: false
+                    variant: "danger"
                 }
 
                 Components.InlineFeedback {
@@ -1844,12 +1912,18 @@ private slots:
                 Components.UsageProviderRow {
                     objectName: "usageProviderRow"
                     width: 380
-                    providerId: "codex"
-                    providerName: "Codex"
+                    provider: ({
+                        "providerId": "codex",
+                        "displayName": "Codex",
+                        "enabled": true,
+                        "hasTokenData": true
+                    })
                     accentColor: "steelblue"
-                    todayText: "$0.00"
-                    periodText: "$12.34"
-                    tokenText: "1.2M tokens"
+                    kindText: "Token"
+                    summary: "$12.34 · 1.2M tokens"
+                    canExpand: true
+                    expanded: false
+                    onToggleRequested: parent.usageToggleCount += 1
                 }
             }
         )", QUrl("qrc:/tests/UiFoundationHarness.qml"));
@@ -1862,12 +1936,32 @@ private slots:
         QVERIFY(findObjectByStringProperty(root, "objectName", "statusPill") != nullptr);
         QVERIFY(findObjectByStringProperty(root, "objectName", "iconButton") != nullptr);
         QVERIFY(findObjectByStringProperty(root, "objectName", "surfaceCard") != nullptr);
-        QVERIFY(findObjectByStringProperty(root, "objectName", "actionButton") != nullptr);
+        QQuickItem* actionButton = qobject_cast<QQuickItem*>(
+            findObjectByStringProperty(root, "objectName", "actionButton"));
+        QVERIFY(actionButton != nullptr);
+        QVERIFY(actionButton->property("activeFocusOnTab").toBool());
+        QVERIFY(findObjectByStringProperty(root, "objectName", "busyActionButton") != nullptr);
+        QVERIFY(findObjectByStringProperty(root, "objectName", "disabledActionButton") != nullptr);
         QVERIFY(findObjectByStringProperty(root, "objectName", "inlineFeedback") != nullptr);
         QVERIFY(findObjectByStringProperty(root, "objectName", "skeletonBlock") != nullptr);
         QVERIFY(findObjectByStringProperty(root, "objectName", "focusRing") != nullptr);
         QVERIFY(findObjectByStringProperty(root, "objectName", "trayProviderDock") != nullptr);
-        QVERIFY(findObjectByStringProperty(root, "objectName", "usageProviderRow") != nullptr);
+        QQuickItem* usageProviderRow = qobject_cast<QQuickItem*>(
+            findObjectByStringProperty(root, "objectName", "usageProviderRow"));
+        QVERIFY(usageProviderRow != nullptr);
+        QVERIFY(usageProviderRow->property("activeFocusOnTab").toBool());
+
+        QCOMPARE(root->property("actionClickCount").toInt(), 0);
+        actionButton->forceActiveFocus();
+        QTest::keyClick(&view, Qt::Key_Return);
+        QCOMPARE(root->property("actionClickCount").toInt(), 1);
+        QTest::keyClick(&view, Qt::Key_Space);
+        QCOMPARE(root->property("actionClickCount").toInt(), 2);
+
+        QCOMPARE(root->property("usageToggleCount").toInt(), 0);
+        usageProviderRow->forceActiveFocus();
+        QTest::keyClick(&view, Qt::Key_Space);
+        QCOMPARE(root->property("usageToggleCount").toInt(), 1);
 
         view.hide();
     }

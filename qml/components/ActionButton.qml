@@ -21,6 +21,10 @@ Rectangle {
     border.width: variant === "primary" ? 0 : 1
     border.color: borderColor()
     opacity: enabled ? 1.0 : 0.55
+    activeFocusOnTab: enabled && !busy
+    Accessible.role: Accessible.Button
+    Accessible.name: text
+    Accessible.description: busy ? qsTr("Busy") : ""
 
     function backgroundColor() {
         if (!enabled) return AppTheme.withAlpha(AppTheme.surfaceHover, 0.34)
@@ -46,6 +50,24 @@ Rectangle {
         return AppTheme.borderSubtle
     }
 
+    function activate() {
+        if (!enabled || busy) return
+        clicked()
+    }
+
+    Keys.onReturnPressed: function(event) {
+        event.accepted = true
+        root.activate()
+    }
+    Keys.onEnterPressed: function(event) {
+        event.accepted = true
+        root.activate()
+    }
+    Keys.onSpacePressed: function(event) {
+        event.accepted = true
+        root.activate()
+    }
+
     Behavior on color {
         ColorAnimation { duration: AppTheme.duration(AppTheme.motionFast); easing.type: AppTheme.easeStandard }
     }
@@ -61,7 +83,7 @@ Rectangle {
     TapHandler {
         id: pressHandler
         enabled: root.enabled && !root.busy
-        onTapped: root.clicked()
+        onTapped: root.activate()
     }
 
     Text {
@@ -79,5 +101,12 @@ Rectangle {
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
+    }
+
+    FocusRing {
+        anchors.fill: parent
+        anchors.margins: -3
+        radius: root.radius + 3
+        active: root.activeFocus
     }
 }

@@ -32,6 +32,7 @@
         <!-- Phase 0 shared UI foundation components -->
         <file alias="qml/components/IconButton.qml">../qml/components/IconButton.qml</file>
         <file alias="qml/components/StatusPill.qml">../qml/components/StatusPill.qml</file>
+        <file alias="qml/components/StatusDot.qml">../qml/components/StatusDot.qml</file>
         <file alias="qml/components/ErrorNotice.qml">../qml/components/ErrorNotice.qml</file>
         <file alias="qml/components/ProviderListItem.qml">../qml/components/ProviderListItem.qml</file>
         <file alias="qml/components/ProviderDetailView.qml">../qml/components/ProviderDetailView.qml</file>

@@ -27,7 +27,8 @@ Rectangle {
         ScrollBar.vertical: ScrollBar {
             id: elegantScrollBar
             policy: ScrollBar.AsNeeded
-            active: true
+            active: hovered || pressed
+                || (scroll.contentItem && (scroll.contentItem.moving === true || scroll.contentItem.flicking === true))
 
             background: Rectangle {
                 color: "transparent"
@@ -36,11 +37,13 @@ Rectangle {
             contentItem: Rectangle {
                 implicitWidth: 4
                 radius: 2
+                opacity: elegantScrollBar.active ? 1.0 : 0.0
                 color: elegantScrollBar.hovered 
                     ? AppTheme.textSecondary 
                     : Qt.rgba(AppTheme.textSecondary.r, AppTheme.textSecondary.g, AppTheme.textSecondary.b, 0.35)
 
                 Behavior on color { ColorAnimation { duration: 150 } }
+                Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutQuad } }
                 Behavior on implicitWidth { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
             }
 
@@ -73,7 +76,7 @@ Rectangle {
 
                     Label {
                         Layout.fillWidth: true
-                        text: qsTr("Provider and model breakdown")
+                        text: root.formatUpdatedAt(root.costData.updatedAt || 0)
                         color: AppTheme.textSecondary
                         font.pixelSize: AppTheme.fontSizeSm
                         elide: Text.ElideRight
@@ -89,8 +92,9 @@ Rectangle {
                         : UsageDetailsViewModel.costUsageRefreshing ? AppTheme.statusDegraded : AppTheme.statusOk
                 }
 
-                SmallButton {
+                ActionButton {
                     text: UsageDetailsViewModel.costUsageRefreshing ? qsTr("Scanning") : qsTr("Refresh")
+                    compact: true
                     enabled: UsageDetailsViewModel.costUsageEnabled && !UsageDetailsViewModel.costUsageRefreshing
                     onClicked: UsageDetailsViewModel.refreshCostUsage()
                 }
@@ -310,6 +314,19 @@ Rectangle {
         return AppTheme.providerBrandColor(providerId)
     }
 
+    function formatUpdatedAt(updatedAt) {
+        var prefix = qsTr("Provider and model breakdown")
+        if (UsageDetailsViewModel.costUsageRefreshing) {
+            return prefix + " · " + qsTr("Scanning")
+        }
+        var timestamp = Number(updatedAt || 0)
+        if (timestamp <= 0) {
+            return prefix
+        }
+        return prefix + " · " + qsTr("Updated") + " "
+            + new Date(timestamp).toLocaleString(Qt.locale(), "yyyy-MM-dd hh:mm")
+    }
+
     component SummaryMetric: Item {
         id: metric
         property string title: ""
@@ -373,80 +390,6 @@ Rectangle {
                 strokeColor: metric.accentColor
                 hovered: metric.hovered
                 dataPoints: metric.sparkPoints
-            }
-        }
-    }
-
-    component StatusPill: Rectangle {
-        id: pill
-        property string text: ""
-        property color toneColor: AppTheme.statusUnknown
-
-        readonly property int desiredWidth: Math.max(72, pillLabel.implicitWidth + 20)
-
-        Layout.preferredWidth: desiredWidth
-        Layout.minimumWidth: desiredWidth
-        Layout.maximumWidth: desiredWidth
-        Layout.preferredHeight: 26
-        radius: 13
-        color: "transparent"
-        border.width: 1
-        border.color: toneColor
-        opacity: enabled ? 1 : 0.6
-
-        Label {
-            id: pillLabel
-            anchors.fill: parent
-            anchors.leftMargin: 10
-            anchors.rightMargin: 10
-            text: pill.text
-            color: pill.toneColor
-            font.pixelSize: AppTheme.fontSizeSm
-            font.bold: true
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            elide: Text.ElideRight
-        }
-    }
-
-    component SmallButton: Rectangle {
-        id: button
-        property string text: ""
-        signal clicked()
-
-        readonly property int desiredWidth: Math.max(72, buttonLabel.implicitWidth + 22)
-
-        Layout.preferredWidth: desiredWidth
-        Layout.minimumWidth: desiredWidth
-        Layout.maximumWidth: desiredWidth
-        Layout.preferredHeight: 30
-        radius: AppTheme.radiusSm
-        color: !enabled ? AppTheme.surfacePane : (buttonMouse.containsMouse ? AppTheme.surfaceHover : AppTheme.surfaceCard)
-        border.width: 1
-        border.color: enabled ? AppTheme.surfaceAccentBorder : AppTheme.surfaceBorder
-        opacity: enabled ? 1 : 0.58
-
-        Label {
-            id: buttonLabel
-            anchors.fill: parent
-            anchors.leftMargin: 10
-            anchors.rightMargin: 10
-            text: button.text
-            color: button.enabled ? AppTheme.textPrimary : AppTheme.textTertiary
-            font.pixelSize: AppTheme.fontSizeSm
-            font.bold: true
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            elide: Text.ElideRight
-        }
-
-        MouseArea {
-            id: buttonMouse
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: button.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-            onClicked: {
-                if (button.enabled) button.clicked()
             }
         }
     }
@@ -562,62 +505,22 @@ Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 30
 
-                RowLayout {
+                UsageProviderRow {
                     anchors.fill: parent
-                    spacing: 8
-
-                    Text {
-                        Layout.preferredWidth: 14
-                        text: card.canExpand ? (card.expanded ? "▾" : "▸") : "•"
-                        color: card.canExpand ? AppTheme.textSecondary : card.accentColor
-                        font.pixelSize: 13
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
-
-                    ProviderAvatar {
-                        Layout.preferredWidth: AppTheme.avatarSizeList
-                        Layout.preferredHeight: AppTheme.avatarSizeList
-                        Layout.alignment: Qt.AlignVCenter
-                        size: AppTheme.avatarSizeList
-                        providerId: card.provider.providerId || ""
-                        displayName: card.provider.displayName || card.provider.providerId || ""
-                        brandColor: card.accentColor
-                        enabled: card.provider.enabled !== false
-                        severity: card.provider.hasTokenData ? "none" : "warning"
-                    }
-
-                    Label {
-                        Layout.fillWidth: true
-                        text: card.provider.displayName || card.provider.providerId
-                        color: AppTheme.textPrimary
-                        font.pixelSize: AppTheme.fontSizeMd
-                        font.bold: true
-                        elide: Text.ElideRight
-                    }
-
-                    StatusPill {
-                        text: root.kindLabel(card.provider.kind || "token")
-                        toneColor: card.accentColor
-                    }
-
-                    Label {
-                        Layout.preferredWidth: Math.min(230, Math.max(150, implicitWidth))
-                        text: root.usageSummary(card.provider, "last30DaysCostUSD", "last30DaysTokens")
-                        color: card.provider.hasTokenData ? AppTheme.textSecondary : AppTheme.textPrimary
-                        font.pixelSize: AppTheme.fontSizeSm
-                        font.bold: !card.provider.hasTokenData
-                        horizontalAlignment: Text.AlignRight
-                        elide: Text.ElideRight
-                    }
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    enabled: card.canExpand
-                    hoverEnabled: true
-                    cursorShape: card.canExpand ? Qt.PointingHandCursor : Qt.ArrowCursor
-                    onClicked: card.expanded = !card.expanded
+                    provider: card.provider
+                    providerId: card.provider.providerId || ""
+                    providerName: card.provider.displayName || card.provider.providerId || ""
+                    accentColor: card.accentColor
+                    kindText: root.kindLabel(card.provider.kind || "token")
+                    subtitleText: card.provider.hasTokenData
+                        ? root.fmtNum(card.provider.last30DaysTokens || 0) + " " + qsTr("tokens")
+                        : root.kindLabel(card.provider.kind || "token")
+                    summary: root.usageSummary(card.provider, "last30DaysCostUSD", "last30DaysTokens")
+                    status: card.provider.hasTokenData ? "none" : "warning"
+                    expanded: card.expanded
+                    canExpand: card.canExpand
+                    providerEnabled: card.provider.enabled !== false
+                    onToggleRequested: card.expanded = !card.expanded
                 }
             }
 
