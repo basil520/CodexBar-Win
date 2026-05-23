@@ -16,7 +16,7 @@ ChartFrame {
     readonly property bool hasData: points.length > 0
 
     implicitWidth: 276
-    implicitHeight: hasData ? 130 : 40
+    implicitHeight: hasData ? 160 : 40
     empty: !hasData
     emptyText: qsTr("No cost history data")
     clip: true

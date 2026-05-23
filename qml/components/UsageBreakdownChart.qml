@@ -11,7 +11,7 @@ ChartFrame {
     readonly property bool hasData: points.length > 0
 
     implicitWidth: 276
-    implicitHeight: hasData ? 130 + legendArea.implicitHeight + 8 + (legendArea.visible ? 12 : 0) : 40
+    implicitHeight: hasData ? 160 + legendArea.implicitHeight + 8 + (legendArea.visible ? 12 : 0) : 40
     empty: !hasData
     emptyText: qsTr("No breakdown data")
     clip: true

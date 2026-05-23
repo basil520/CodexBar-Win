@@ -26,8 +26,8 @@ Components.ChartFrame {
         }
     }
 
-    height: 130
-    implicitHeight: 130
+    height: 160
+    implicitHeight: 160
     empty: chartPoints.length === 0
     emptyText: chartRoot.noDataText
 
