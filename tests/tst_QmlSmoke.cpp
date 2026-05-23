@@ -55,6 +55,8 @@ class MockSettingsStore : public QObject {
     Q_PROPERTY(bool browserSessionBridgeEnabled READ browserSessionBridgeEnabled CONSTANT)
     Q_PROPERTY(bool glassEffectEnabled READ glassEffectEnabled WRITE setGlassEffectEnabled NOTIFY glassEffectEnabledChanged)
     Q_PROPERTY(int glassEffectOpacity READ glassEffectOpacity WRITE setGlassEffectOpacity NOTIFY glassEffectOpacityChanged)
+    Q_PROPERTY(bool reduceMotion READ reduceMotion WRITE setReduceMotion NOTIFY reduceMotionChanged)
+    Q_PROPERTY(QString visualEffectsQuality READ visualEffectsQuality WRITE setVisualEffectsQuality NOTIFY visualEffectsQualityChanged)
     Q_PROPERTY(int refreshFrequency READ refreshFrequency CONSTANT)
     Q_PROPERTY(QString language READ language CONSTANT)
 public:
@@ -79,6 +81,18 @@ public:
         glassEffectOpacityValue = opacity;
         emit glassEffectOpacityChanged();
     }
+    bool reduceMotion() const { return reduceMotionValue; }
+    void setReduceMotion(bool enabled) {
+        if (reduceMotionValue == enabled) return;
+        reduceMotionValue = enabled;
+        emit reduceMotionChanged();
+    }
+    QString visualEffectsQuality() const { return visualEffectsQualityValue; }
+    void setVisualEffectsQuality(const QString& quality) {
+        if (visualEffectsQualityValue == quality) return;
+        visualEffectsQualityValue = quality;
+        emit visualEffectsQualityChanged();
+    }
     int refreshFrequency() const { return 15; }
     QString language() const { return "en"; }
     bool launchAtLogin() const { return false; }
@@ -99,9 +113,12 @@ public:
     Q_INVOKABLE void setRefreshFrequency(int) {}
     Q_INVOKABLE void setLanguage(const QString&) {}
     Q_INVOKABLE void setDebugMenuEnabled(bool) {}
+    Q_INVOKABLE void setVisualEffectsQualityInvokable(const QString& quality) { setVisualEffectsQuality(quality); }
 
     bool glassEffectEnabledValue = false;
     int glassEffectOpacityValue = 50;
+    bool reduceMotionValue = false;
+    QString visualEffectsQualityValue = QStringLiteral("balanced");
 
 signals:
     void debugMenuEnabledChanged();
@@ -113,6 +130,8 @@ signals:
     void sessionQuotaNotificationsEnabledChanged();
     void glassEffectEnabledChanged();
     void glassEffectOpacityChanged();
+    void reduceMotionChanged();
+    void visualEffectsQualityChanged();
 };
 
 class MockUsageStore : public QObject {

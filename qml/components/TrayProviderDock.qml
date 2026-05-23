@@ -136,7 +136,7 @@ Rectangle {
                         }
                     }
 
-                    ProviderAvatar {
+                    ProviderIdentityBadge {
                         anchors.centerIn: parent
                         size: root.avatarSize
                         providerId: modelData.providerId || ""
@@ -148,7 +148,7 @@ Rectangle {
                         severity: modelData.error ? "error" : "none"
                         showProgressRing: root.showUsageRings && modelData.hasUsage === true
                         usagePercent: root.usageFor(modelData)
-                        density: "compact"
+                        context: "compact"
                     }
 
                     MouseArea {

@@ -16,8 +16,7 @@ Rectangle {
     property bool providersPaneLoaded: false
     readonly property bool glassEffectActive: SettingsStore.glassEffectEnabled
     readonly property color windowBackgroundColor: AppTheme.surfaceWindow
-    readonly property color titleBarBackgroundColor: glassEffectActive ? "transparent" : AppTheme.surfaceTitleBar
-    readonly property color sidebarBackgroundColor: AppTheme.surfacePane
+    readonly property color sidebarBackgroundColor: AppTheme.surfaceSidebar
     property var tabs: {
         settingsWindow.rev
         var items = [
@@ -52,79 +51,12 @@ Rectangle {
         anchors.fill: parent
         spacing: 0
 
-        Rectangle {
-            id: titleBar
-            Layout.fillWidth: true
-            Layout.preferredHeight: 44
-            color: settingsWindow.titleBarBackgroundColor
-
-            Rectangle {
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.bottom: parent.bottom
-                height: 1
-                color: AppTheme.surfaceBorder
-            }
-
-            RowLayout {
-                anchors.fill: parent
-                anchors.leftMargin: 14
-                anchors.rightMargin: 8
-                spacing: 10
-
-                Rectangle {
-                    Layout.preferredWidth: 20
-                    Layout.preferredHeight: 20
-                    radius: 5
-                    color: AppTheme.accentColor
-
-                    Label {
-                        anchors.centerIn: parent
-                        text: "C"
-                        color: AppTheme.textOnAccent
-                        font.pixelSize: 11
-                        font.bold: true
-                    }
-                }
-
-                Label {
-                    text: qsTr("CodexBar Settings")
-                    color: AppTheme.textPrimary
-                    font.pixelSize: AppTheme.fontSizeMd
-                    font.bold: true
-                }
-
-                Item {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-
-                    MouseArea {
-                        anchors.fill: parent
-                        acceptedButtons: Qt.LeftButton
-                        onPressed: AppController.startSettingsMove()
-                        onDoubleClicked: AppController.toggleSettingsMaximized()
-                    }
-                }
-
-                TitleButton {
-                    symbol: "minimize"
-                    accessibleName: "Minimize"
-                    onClicked: AppController.minimizeSettings()
-                }
-
-                TitleButton {
-                    symbol: AppController.settingsMaximized ? "restore" : "maximize"
-                    accessibleName: AppController.settingsMaximized ? "Restore" : "Maximize"
-                    onClicked: AppController.toggleSettingsMaximized()
-                }
-
-                TitleButton {
-                    symbol: "close"
-                    accessibleName: "Close"
-                    danger: true
-                    onClicked: AppController.closeSettings()
-                }
-            }
+        Components.WindowTitleBar {
+            title: qsTr("CodexBar Settings")
+            iconText: "C"
+            windowKind: "settings"
+            showMaximize: true
+            maximized: AppController.settingsMaximized
         }
 
         RowLayout {
@@ -196,7 +128,7 @@ Rectangle {
 
                             Behavior on y {
                                 NumberAnimation {
-                                    duration: 250
+                                    duration: AppTheme.duration(AppTheme.motionSlow)
                                     easing.type: Easing.OutBack
                                 }
                             }
@@ -489,85 +421,6 @@ Rectangle {
         }
     }
 
-    component TitleButton: Rectangle {
-        id: titleButton
-        property string symbol: ""
-        property string accessibleName: ""
-        property bool danger: false
-        readonly property bool hovered: mouseArea.containsMouse || activeFocus
-        readonly property color glyphColor: hovered && danger ? "#ffffff" : AppTheme.textPrimary
-        signal clicked()
-
-        Layout.preferredWidth: 36
-        Layout.preferredHeight: 30
-        radius: 5
-        color: hovered
-            ? (danger ? AppTheme.statusOutage : AppTheme.surfaceHover)
-            : "transparent"
-        activeFocusOnTab: true
-
-        Accessible.role: Accessible.Button
-        Accessible.name: accessibleName
-
-        function activate() {
-            clicked()
-        }
-
-        Keys.onReturnPressed: activate()
-        Keys.onEnterPressed: activate()
-        Keys.onSpacePressed: activate()
-
-        Canvas {
-            id: glyph
-            anchors.centerIn: parent
-            width: 13
-            height: 13
-            antialiasing: true
-
-            onPaint: {
-                var ctx = getContext("2d")
-                ctx.clearRect(0, 0, width, height)
-                ctx.strokeStyle = titleButton.glyphColor
-                ctx.lineWidth = 1.6
-                ctx.lineCap = "round"
-                ctx.lineJoin = "round"
-                ctx.beginPath()
-
-                if (titleButton.symbol === "minimize") {
-                    ctx.moveTo(2.5, 10.5)
-                    ctx.lineTo(10.5, 10.5)
-                } else if (titleButton.symbol === "close") {
-                    ctx.moveTo(3, 3)
-                    ctx.lineTo(10, 10)
-                    ctx.moveTo(10, 3)
-                    ctx.lineTo(3, 10)
-                } else if (titleButton.symbol === "restore") {
-                    ctx.strokeRect(4.5, 2.5, 6, 6)
-                    ctx.strokeRect(2.5, 4.5, 6, 6)
-                } else {
-                    ctx.strokeRect(3, 3, 7, 7)
-                }
-
-                ctx.stroke()
-            }
-        }
-
-        onSymbolChanged: glyph.requestPaint()
-        onGlyphColorChanged: glyph.requestPaint()
-
-        Components.FocusRing {
-            anchors.fill: parent
-            active: titleButton.activeFocus
-        }
-
-        MouseArea {
-            id: mouseArea
-            anchors.fill: parent
-            hoverEnabled: true
-            onClicked: titleButton.activate()
-        }
-    }
-
     component ResizeHandle: MouseArea {
         property int edge: Qt.LeftEdge
         width: 6
@@ -587,10 +440,10 @@ Rectangle {
         x: visible ? 0 : 8
 
         Behavior on opacity {
-            NumberAnimation { duration: 200; easing.type: Easing.OutQuad }
+            NumberAnimation { duration: AppTheme.duration(AppTheme.motionNormal); easing.type: Easing.OutQuad }
         }
         Behavior on x {
-            NumberAnimation { duration: 200; easing.type: Easing.OutQuad }
+            NumberAnimation { duration: AppTheme.duration(AppTheme.motionNormal); easing.type: Easing.OutQuad }
         }
     }
 }

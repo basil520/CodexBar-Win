@@ -9,6 +9,8 @@ Rectangle {
 
     property color tint: AppTheme.bgPrimary
     readonly property real materialOpacity: AppTheme.glassMaterialOpacity
+    readonly property bool decorativeMotionEnabled: !AppTheme.reduceMotion && SettingsStore.visualEffectsQuality === "high"
+    readonly property color surfaceScrimOverlay: AppTheme.surfaceScrim
     readonly property color tintScrim: Qt.rgba(root.tint.r, root.tint.g, root.tint.b,
                                               Math.min(0.54, Math.max(0.28, root.materialOpacity * 0.62)))
 
@@ -28,6 +30,12 @@ Rectangle {
     }
 
     Rectangle {
+        anchors.fill: parent
+        color: root.surfaceScrimOverlay
+        opacity: 0.42
+    }
+
+    Rectangle {
         id: auroraBlob1
         width: Math.max(200, parent.width * 0.75)
         height: Math.max(200, parent.width * 0.75)
@@ -41,12 +49,14 @@ Rectangle {
         }
 
         SequentialAnimation on x {
+            running: root.decorativeMotionEnabled
             loops: Animation.Infinite
             NumberAnimation { from: -auroraBlob1.width * 0.3; to: -auroraBlob1.width * 0.1; duration: 8000; easing.type: Easing.InOutSine }
             NumberAnimation { from: -auroraBlob1.width * 0.1; to: -auroraBlob1.width * 0.3; duration: 8000; easing.type: Easing.InOutSine }
         }
 
         SequentialAnimation on y {
+            running: root.decorativeMotionEnabled
             loops: Animation.Infinite
             NumberAnimation { from: -auroraBlob1.height * 0.2; to: -auroraBlob1.height * 0.4; duration: 9000; easing.type: Easing.InOutSine }
             NumberAnimation { from: -auroraBlob1.height * 0.4; to: -auroraBlob1.height * 0.2; duration: 9000; easing.type: Easing.InOutSine }
@@ -67,12 +77,14 @@ Rectangle {
         }
 
         SequentialAnimation on x {
+            running: root.decorativeMotionEnabled
             loops: Animation.Infinite
             NumberAnimation { from: root.width - auroraBlob2.width * 0.6; to: root.width - auroraBlob2.width * 0.8; duration: 11000; easing.type: Easing.InOutSine }
             NumberAnimation { from: root.width - auroraBlob2.width * 0.8; to: root.width - auroraBlob2.width * 0.6; duration: 11000; easing.type: Easing.InOutSine }
         }
 
         SequentialAnimation on y {
+            running: root.decorativeMotionEnabled
             loops: Animation.Infinite
             NumberAnimation { from: root.height - auroraBlob2.height * 0.8; to: root.height - auroraBlob2.height * 0.6; duration: 10000; easing.type: Easing.InOutSine }
             NumberAnimation { from: root.height - auroraBlob2.height * 0.6; to: root.height - auroraBlob2.height * 0.8; duration: 10000; easing.type: Easing.InOutSine }

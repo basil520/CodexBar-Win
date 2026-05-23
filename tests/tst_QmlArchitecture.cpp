@@ -70,6 +70,17 @@ private slots:
     void settingsPageKeepsScrollableContentItem();
     void scrollBarsAvoidPermanentActiveState();
     void appThemeExposesInteractionPolishTokens();
+    void appThemeExposesNextGenerationMaterialTokens();
+    void settingsStorePersistsVisualMotionPreferences();
+    void nextGenerationSharedComponentsAreRegistered();
+    void topLevelWindowsUseSharedWindowTitleBarComponent();
+    void displayPaneUsesAppearanceLabComponents();
+    void usageChartsUseSharedChartFrameSystem();
+    void ambientEffectsRespectMotionPreferences();
+    void providerDetailUsesPhaseFourPanels();
+    void trayUsesPhaseFiveShellComponents();
+    void providerIdentityRegistryDrivesIconPolicy();
+    void dialogsAndToastsUseSharedFeedbackPrimitives();
     void providerAvatarUsesPolicyDrivenIconVessel();
     void providerSwitcherUsesAvatarDockPattern();
     void appQmlResourceBypassesMultiConfigAutoRcc();
@@ -667,20 +678,23 @@ void QmlArchitectureTest::browserSessionBridgeUiHonorsGlobalSetting()
 {
     const QString advanced = readFile("qml/panes/AdvancedPane.qml");
     const QString providerDetail = readFile("qml/components/ProviderDetailView.qml");
+    const QString providerBridgePanel = readFile("qml/components/provider/ProviderBrowserSessionPanel.qml");
+    const QString providerBridgeUi = providerDetail + providerBridgePanel;
 
     QVERIFY2(advanced.contains(QStringLiteral("SettingsStore.browserSessionBridgeEnabled")),
              "AdvancedPane must expose a global Browser Session Bridge/Cookies import setting.");
     QVERIFY2(advanced.contains(QStringLiteral("active: SettingsStore.browserSessionBridgeEnabled")),
              "AdvancedPane must not instantiate Bridge install UI while Cookies import is disabled.");
-    QVERIFY2(providerDetail.contains(QStringLiteral("SettingsStore.browserSessionBridgeEnabled")),
+    QVERIFY2(providerBridgeUi.contains(QStringLiteral("SettingsStore.browserSessionBridgeEnabled")),
              "ProviderDetailView must hide Browser Session Bridge UI behind the global Cookies import setting.");
-    QVERIFY2(providerDetail.contains(QStringLiteral("active: SettingsStore.browserSessionBridgeEnabled")),
+    QVERIFY2(providerBridgeUi.contains(QStringLiteral("active: SettingsStore.browserSessionBridgeEnabled")),
              "ProviderDetailView must not instantiate BrowserSessionCard while Cookies import is disabled.");
 }
 
 void QmlArchitectureTest::glassOpacityLivesInDisplayPane()
 {
-    const QString display = readFile("qml/panes/DisplayPane.qml");
+    const QString display = readFile("qml/panes/DisplayPane.qml")
+        + readFile("qml/components/display/GlassEffectCard.qml");
     QVERIFY2(display.contains(QStringLiteral("SettingsStore.glassEffectEnabled")),
              "DisplayPane must expose the glass effect toggle.");
     QVERIFY2(display.contains(QStringLiteral("SettingsStore.glassEffectOpacity")),
@@ -722,7 +736,8 @@ void QmlArchitectureTest::nativeGlassExtendsDwmIntoClientArea()
 void QmlArchitectureTest::claudePeakHoursLivesInDisplayPane()
 {
     const QString general = readFile("qml/panes/GeneralPane.qml");
-    const QString display = readFile("qml/panes/DisplayPane.qml");
+    const QString display = readFile("qml/panes/DisplayPane.qml")
+        + readFile("qml/components/display/UsageDisplayCard.qml");
 
     QVERIFY2(!general.contains(QStringLiteral("Claude Peak Hours")),
              "Claude Peak Hours is a display preference and must not remain in GeneralPane.");
@@ -1109,11 +1124,12 @@ void QmlArchitectureTest::providerIconsUseSharedAvatar()
 
     for (const QString& path : providerIdentityFiles) {
         const QString contents = readFile(path);
-        QVERIFY2(contents.contains(QStringLiteral("ProviderAvatar"))
+        QVERIFY2(contents.contains(QStringLiteral("ProviderIdentityBadge"))
+                     || contents.contains(QStringLiteral("ProviderAvatar"))
                      || contents.contains(QStringLiteral("TrayProviderDock"))
                      || contents.contains(QStringLiteral("UsageProviderRow"))
                      || contents.contains(QStringLiteral("ProviderDetailHero")),
-                 qPrintable(path + QStringLiteral(" must render provider identity through ProviderAvatar, UsageProviderRow, ProviderDetailHero, or delegate to TrayProviderDock.")));
+                 qPrintable(path + QStringLiteral(" must render provider identity through ProviderIdentityBadge/ProviderAvatar, UsageProviderRow, ProviderDetailHero, or delegate to TrayProviderDock.")));
         QVERIFY2(!contents.contains(QStringLiteral("ProviderIcon-")),
                  qPrintable(path + QStringLiteral(" must not construct ProviderIcon resource paths directly.")));
     }
@@ -1258,7 +1274,9 @@ void QmlArchitectureTest::tokenUsagePaneUsesProductionUsageProviderRow()
              "UsageProviderRow must render the provider mini trend when it owns the production row.");
     QVERIFY2(usageRow.contains(QStringLiteral("signal toggleRequested")),
              "UsageProviderRow must expose a single toggle signal for expandable provider details.");
-    QVERIFY2(usageRow.contains(QStringLiteral("ProviderAvatar")) && usageRow.contains(QStringLiteral("StatusPill")),
+    QVERIFY2((usageRow.contains(QStringLiteral("ProviderIdentityBadge"))
+              || usageRow.contains(QStringLiteral("ProviderAvatar")))
+             && usageRow.contains(QStringLiteral("StatusPill")),
              "UsageProviderRow must own the shared avatar and status pill language for token usage provider rows.");
     QVERIFY2(usageRow.contains(QStringLiteral("Accessible.name")) && usageRow.contains(QStringLiteral("Keys.onSpacePressed")),
              "UsageProviderRow must be keyboard and accessibility ready when it handles expansion.");
@@ -1468,6 +1486,311 @@ void QmlArchitectureTest::appThemeExposesInteractionPolishTokens()
     }
 }
 
+void QmlArchitectureTest::appThemeExposesNextGenerationMaterialTokens()
+{
+    const QString theme = readFile("qml/AppTheme.qml");
+    const QStringList requiredTokens = {
+        QStringLiteral("property color surfaceInteractiveSelected"),
+        QStringLiteral("property color surfaceInteractiveDisabled"),
+        QStringLiteral("property color surfaceElevatedBorder"),
+        QStringLiteral("property color surfaceScrim"),
+        QStringLiteral("property color surfaceSidebar"),
+        QStringLiteral("property color surfacePreview"),
+        QStringLiteral("property color surfaceAvatarNeutral"),
+        QStringLiteral("property color textOnStatus"),
+        QStringLiteral("property color textOnDanger"),
+        QStringLiteral("property color chartGrid"),
+        QStringLiteral("property color chartAxis"),
+        QStringLiteral("property color chartTrack"),
+        QStringLiteral("property color chartBarPrimary"),
+        QStringLiteral("property color chartBarSecondary"),
+        QStringLiteral("property color chartBarMuted"),
+        QStringLiteral("property color chartForecast"),
+        QStringLiteral("property color chartHover"),
+        QStringLiteral("property color focusRing"),
+    };
+
+    for (const QString& token : requiredTokens) {
+        QVERIFY2(theme.contains(token),
+                 qPrintable(QStringLiteral("AppTheme.qml must expose next-generation material token: %1").arg(token)));
+    }
+
+    QVERIFY2(theme.contains(QStringLiteral("SettingsStore.reduceMotion")),
+             "AppTheme.reduceMotion must be wired to the persisted SettingsStore preference.");
+    QVERIFY2(theme.contains(QStringLiteral("SettingsStore.visualEffectsQuality")),
+             "AppTheme must expose the persisted visual effects quality preference to QML.");
+}
+
+void QmlArchitectureTest::settingsStorePersistsVisualMotionPreferences()
+{
+    const QString header = readFile("src/app/SettingsStore.h");
+    const QString source = readFile("src/app/SettingsStore.cpp");
+
+    const QStringList headerTokens = {
+        QStringLiteral("Q_PROPERTY(bool reduceMotion READ reduceMotion WRITE setReduceMotion NOTIFY reduceMotionChanged)"),
+        QStringLiteral("Q_PROPERTY(QString visualEffectsQuality READ visualEffectsQuality WRITE setVisualEffectsQuality NOTIFY visualEffectsQualityChanged)"),
+        QStringLiteral("bool reduceMotion() const"),
+        QStringLiteral("void setReduceMotion(bool enable)"),
+        QStringLiteral("QString visualEffectsQuality() const"),
+        QStringLiteral("void setVisualEffectsQuality(const QString& quality)"),
+        QStringLiteral("void reduceMotionChanged()"),
+        QStringLiteral("void visualEffectsQualityChanged()"),
+    };
+    for (const QString& token : headerTokens) {
+        QVERIFY2(header.contains(token),
+                 qPrintable(QStringLiteral("SettingsStore.h must expose visual motion preference token: %1").arg(token)));
+    }
+
+    const QStringList sourceTokens = {
+        QStringLiteral("m_settings.value(\"reduceMotion\", false).toBool()"),
+        QStringLiteral("m_settings.value(\"visualEffectsQuality\", \"balanced\").toString()"),
+        QStringLiteral("m_settings.setValue(\"reduceMotion\", enable)"),
+        QStringLiteral("m_settings.setValue(\"visualEffectsQuality\", boundedQuality)"),
+        QStringLiteral("emit reduceMotionChanged()"),
+        QStringLiteral("emit visualEffectsQualityChanged()"),
+        QStringLiteral("setReduceMotion(false)"),
+        QStringLiteral("setVisualEffectsQuality(\"balanced\")"),
+    };
+    for (const QString& token : sourceTokens) {
+        QVERIFY2(source.contains(token),
+                 qPrintable(QStringLiteral("SettingsStore.cpp must persist visual motion preference token: %1").arg(token)));
+    }
+}
+
+void QmlArchitectureTest::nextGenerationSharedComponentsAreRegistered()
+{
+    const QString qrc = readFile("resources/qml.qrc");
+    const QStringList components = {
+        QStringLiteral("qml/components/WindowTitleBar.qml"),
+        QStringLiteral("qml/components/CommandCard.qml"),
+        QStringLiteral("qml/components/FeedbackBanner.qml"),
+        QStringLiteral("qml/components/DisclosureRow.qml"),
+        QStringLiteral("qml/components/MetricTile.qml"),
+        QStringLiteral("qml/components/ChartFrame.qml"),
+        QStringLiteral("qml/components/IconGlyph.qml"),
+        QStringLiteral("qml/components/ChevronIcon.qml"),
+        QStringLiteral("qml/components/ProviderIdentityBadge.qml"),
+        QStringLiteral("qml/components/display/ThemeSelectorCard.qml"),
+        QStringLiteral("qml/components/display/GlassEffectCard.qml"),
+        QStringLiteral("qml/components/display/TrayDisplayCard.qml"),
+        QStringLiteral("qml/components/display/UsageDisplayCard.qml"),
+        QStringLiteral("qml/components/display/DisplayPreviewCard.qml"),
+        QStringLiteral("qml/components/usage/UsageChartFrame.qml"),
+        QStringLiteral("qml/components/usage/UsageEmptyState.qml"),
+    };
+
+    for (const QString& component : components) {
+        QVERIFY2(qrc.contains(component),
+                 qPrintable(component + QStringLiteral(" must be registered in qml.qrc for Release builds.")));
+    }
+}
+
+void QmlArchitectureTest::topLevelWindowsUseSharedWindowTitleBarComponent()
+{
+    const QString settings = readFile("qml/SettingsWindow.qml");
+    const QString usage = readFile("qml/UsageWindow.qml");
+    const QString titleBar = readFile("qml/components/WindowTitleBar.qml");
+
+    QVERIFY2(settings.contains(QStringLiteral("Components.WindowTitleBar")),
+             "SettingsWindow must delegate title chrome to the shared WindowTitleBar component.");
+    QVERIFY2(usage.contains(QStringLiteral("Components.WindowTitleBar")),
+             "UsageWindow must delegate title chrome to the shared WindowTitleBar component.");
+    QVERIFY2(!settings.contains(QStringLiteral("component TitleButton")),
+             "SettingsWindow must not keep a local title button implementation.");
+    QVERIFY2(!usage.contains(QStringLiteral("component TitleButton")),
+             "UsageWindow must not keep a local title button implementation.");
+    QVERIFY2(titleBar.contains(QStringLiteral("Accessible.name")) && titleBar.contains(QStringLiteral("activeFocusOnTab")),
+             "WindowTitleBar must keep title actions keyboard and accessibility reachable.");
+    QVERIFY2(titleBar.contains(QStringLiteral("startSettingsMove")) && titleBar.contains(QStringLiteral("startUsageMove")),
+             "WindowTitleBar must support both Settings and Usage move handlers without local title bars.");
+}
+
+void QmlArchitectureTest::displayPaneUsesAppearanceLabComponents()
+{
+    const QString display = readFile("qml/panes/DisplayPane.qml");
+    const QStringList requiredComponents = {
+        QStringLiteral("DisplayComponents.ThemeSelectorCard"),
+        QStringLiteral("DisplayComponents.GlassEffectCard"),
+        QStringLiteral("DisplayComponents.TrayDisplayCard"),
+        QStringLiteral("DisplayComponents.UsageDisplayCard"),
+        QStringLiteral("DisplayComponents.DisplayPreviewCard"),
+    };
+
+    for (const QString& component : requiredComponents) {
+        QVERIFY2(display.contains(component),
+                 qPrintable(QStringLiteral("DisplayPane must compose the Appearance Lab from %1.").arg(component)));
+    }
+
+    const QStringList forbiddenPreviewColors = {
+        QStringLiteral("#0a0a0f"),
+        QStringLiteral("#1e1e2d"),
+        QStringLiteral("#a0a0b0"),
+        QStringLiteral("#707080"),
+        QStringLiteral("#2d2d3d"),
+        QStringLiteral("#3e3e52"),
+        QStringLiteral("#3c3c50"),
+    };
+    for (const QString& color : forbiddenPreviewColors) {
+        QVERIFY2(!display.contains(color),
+                 qPrintable(QStringLiteral("DisplayPane preview must use AppTheme tokens instead of hardcoded color %1.").arg(color)));
+    }
+}
+
+void QmlArchitectureTest::usageChartsUseSharedChartFrameSystem()
+{
+    const QStringList chartFiles = {
+        QStringLiteral("qml/components/CostHistoryChart.qml"),
+        QStringLiteral("qml/components/CreditsHistoryChart.qml"),
+        QStringLiteral("qml/components/UsageBreakdownChart.qml"),
+        QStringLiteral("qml/PlanUtilizationChart.qml"),
+    };
+
+    for (const QString& path : chartFiles) {
+        const QString contents = readFile(path);
+        QVERIFY2(contents.contains(QStringLiteral("ChartFrame")),
+                 qPrintable(path + QStringLiteral(" must render through the shared ChartFrame material shell.")));
+        QVERIFY2(contents.contains(QStringLiteral("AppTheme.chartGrid")),
+                 qPrintable(path + QStringLiteral(" must use shared chart grid tokens.")));
+        QVERIFY2(contents.contains(QStringLiteral("AppTheme.chartTrack")),
+                 qPrintable(path + QStringLiteral(" must use shared chart track tokens.")));
+        QVERIFY2(!contents.contains(QStringLiteral("#181824")) && !contents.contains(QStringLiteral("#5e5ce6")),
+                 qPrintable(path + QStringLiteral(" must not keep hardcoded chart fallback colors.")));
+    }
+
+    const QString providerRow = readFile("qml/components/UsageProviderRow.qml");
+    QVERIFY2(providerRow.contains(QStringLiteral("AppTheme.chartTrack")),
+             "UsageProviderRow mini chart must use the shared chart palette.");
+}
+
+void QmlArchitectureTest::ambientEffectsRespectMotionPreferences()
+{
+    const QString backdrop = readFile("qml/components/AcrylicBackdrop.qml");
+    const QString aurora = readFile("qml/components/AmbientFluidAurora.qml");
+    const QString connection = readFile("qml/components/ConnectionStatus.qml");
+
+    QVERIFY2(aurora.contains(QStringLiteral("SettingsStore.visualEffectsQuality")),
+             "AmbientFluidAurora must respect the persisted visual effects quality preference.");
+    QVERIFY2(aurora.contains(QStringLiteral("AppTheme.reduceMotion")),
+             "AmbientFluidAurora must stop decorative loops when reduce motion is enabled.");
+    QVERIFY2(connection.contains(QStringLiteral("AppTheme.reduceMotion")),
+             "ConnectionStatus pulse animations must respect reduce motion.");
+    QVERIFY2(backdrop.contains(QStringLiteral("AppTheme.surfaceScrim")),
+             "AcrylicBackdrop must use the shared surface scrim token for glass readability.");
+}
+
+void QmlArchitectureTest::providerDetailUsesPhaseFourPanels()
+{
+    const QString qrc = readFile("resources/qml.qrc");
+    const QString detail = readFile("qml/components/ProviderDetailView.qml");
+    const QStringList panels = {
+        QStringLiteral("qml/components/provider/ProviderConnectionPanel.qml"),
+        QStringLiteral("qml/components/provider/ProviderBrowserSessionPanel.qml"),
+    };
+
+    for (const QString& panel : panels) {
+        QVERIFY2(qrc.contains(panel),
+                 qPrintable(panel + QStringLiteral(" must be registered for the Phase 4 provider detail split.")));
+    }
+
+    QVERIFY2(detail.contains(QStringLiteral("ProviderPanels.ProviderConnectionPanel")),
+             "ProviderDetailView must delegate connection feedback to ProviderConnectionPanel.");
+    QVERIFY2(detail.contains(QStringLiteral("ProviderPanels.ProviderBrowserSessionPanel")),
+             "ProviderDetailView must delegate browser session UI to ProviderBrowserSessionPanel.");
+    QVERIFY2(readFile("qml/components/provider/ProviderConnectionPanel.qml").contains(QStringLiteral("FeedbackBanner")),
+             "ProviderConnectionPanel must use the shared FeedbackBanner state grammar.");
+}
+
+void QmlArchitectureTest::trayUsesPhaseFiveShellComponents()
+{
+    const QString qrc = readFile("resources/qml.qrc");
+    const QString tray = readFile("qml/TrayPanel.qml");
+    const QStringList components = {
+        QStringLiteral("qml/components/TrayOverviewPanel.qml"),
+        QStringLiteral("qml/components/TrayProviderDetailShell.qml"),
+        QStringLiteral("qml/components/TrayActionToast.qml"),
+    };
+
+    for (const QString& component : components) {
+        QVERIFY2(qrc.contains(component),
+                 qPrintable(component + QStringLiteral(" must be registered for the Phase 5 Tray shell split.")));
+    }
+
+    QVERIFY2(tray.contains(QStringLiteral("Components.TrayOverviewPanel")),
+             "TrayPanel must delegate the overview list shell to TrayOverviewPanel.");
+    QVERIFY2(tray.contains(QStringLiteral("Components.TrayProviderDetailShell")),
+             "TrayPanel must delegate selected-provider detail scrolling to TrayProviderDetailShell.");
+    QVERIFY2(tray.contains(QStringLiteral("Components.TrayActionToast")),
+             "TrayPanel must use TrayActionToast for action feedback.");
+}
+
+void QmlArchitectureTest::providerIdentityRegistryDrivesIconPolicy()
+{
+    const QString qrc = readFile("resources/qml.qrc");
+    const QString registry = readFile("qml/components/ProviderIdentityRegistry.qml");
+    const QString policy = readFile("qml/components/ProviderIconPolicy.qml");
+    const QString badge = readFile("qml/components/ProviderIdentityBadge.qml");
+    const QString providerListItem = readFile("qml/components/ProviderListItem.qml");
+    const QString providerDock = readFile("qml/components/TrayProviderDock.qml");
+    const QString providerHero = readFile("qml/components/ProviderDetailHero.qml");
+    const QString usageRow = readFile("qml/components/UsageProviderRow.qml");
+
+    QVERIFY2(qrc.contains(QStringLiteral("qml/components/ProviderIdentityRegistry.qml")),
+             "ProviderIdentityRegistry must be shipped in qml.qrc.");
+    QVERIFY2(qrc.contains(QStringLiteral("qml/components/ProviderIdentityBadge.qml")),
+             "ProviderIdentityBadge must be shipped in qml.qrc.");
+    QVERIFY2(registry.contains(QStringLiteral("function identityFor(")),
+             "ProviderIdentityRegistry must expose identityFor(providerId).");
+    QVERIFY2(registry.contains(QStringLiteral("\"vesselShape\"")) && registry.contains(QStringLiteral("\"iconMode\"")),
+             "ProviderIdentityRegistry must define vessel shape and icon mode metadata.");
+    QVERIFY2(policy.contains(QStringLiteral("ProviderIdentityRegistry")),
+             "ProviderIconPolicy must read provider identity metadata instead of growing local condition lists only.");
+    QVERIFY2(badge.contains(QStringLiteral("ProviderIdentityRegistry")) && badge.contains(QStringLiteral("ProviderAvatar")),
+             "ProviderIdentityBadge must be the shared identity entry point over registry + avatar rendering.");
+
+    const QStringList badgeConsumers = {
+        providerListItem,
+        providerDock,
+        providerHero,
+        usageRow,
+    };
+    for (const QString& consumer : badgeConsumers) {
+        QVERIFY2(consumer.contains(QStringLiteral("ProviderIdentityBadge")),
+                 "Provider list, dock, hero, and usage rows must use ProviderIdentityBadge instead of ad-hoc avatar policy wiring.");
+    }
+}
+
+void QmlArchitectureTest::dialogsAndToastsUseSharedFeedbackPrimitives()
+{
+    const QString toast = readFile("qml/components/TrayActionToast.qml");
+    const QString bindingDialog = readFile("qml/components/BrowserSessionBindingDialog.qml");
+    const QString deleteDialog = readFile("qml/components/DeleteConfirmationDialog.qml");
+    const QString codexAccounts = readFile("qml/components/CodexAccountsPane.qml");
+    const QString tokenAccounts = readFile("qml/components/TokenAccountsPane.qml");
+    const QString storageBreakdown = readFile("qml/components/StorageBreakdownView.qml");
+    const QString disclosure = readFile("qml/components/DisclosureRow.qml");
+
+    QVERIFY2(toast.contains(QStringLiteral("IconGlyph")),
+             "TrayActionToast must render stable icon glyphs instead of mojibake-prone text symbols.");
+    QVERIFY2(toast.contains(QStringLiteral("AppTheme.duration(")),
+             "TrayActionToast animation must respect AppTheme.reduceMotion.");
+    QVERIFY2(bindingDialog.contains(QStringLiteral("AppTheme.surfaceElevated"))
+             || bindingDialog.contains(QStringLiteral("AppTheme.surfacePopup")),
+             "BrowserSessionBindingDialog must use shared elevated/popup surfaces.");
+    QVERIFY2(deleteDialog.contains(QStringLiteral("AppTheme.surfaceElevated"))
+             || deleteDialog.contains(QStringLiteral("AppTheme.surfacePopup")),
+             "DeleteConfirmationDialog must use shared elevated/popup surfaces.");
+    QVERIFY2(codexAccounts.contains(QStringLiteral("FeedbackBanner")),
+             "CodexAccountsPane authorization feedback must use FeedbackBanner.");
+    QVERIFY2(tokenAccounts.contains(QStringLiteral("FeedbackBanner"))
+             && tokenAccounts.contains(QStringLiteral("DisclosureRow")),
+             "TokenAccountsPane must use shared empty feedback and disclosure rows.");
+    QVERIFY2(storageBreakdown.contains(QStringLiteral("FeedbackBanner"))
+             && storageBreakdown.contains(QStringLiteral("DisclosureRow")),
+             "StorageBreakdownView must use shared empty feedback and disclosure rows.");
+    QVERIFY2(disclosure.contains(QStringLiteral("anchors.fill: header")),
+             "DisclosureRow must not place a full-card MouseArea over expanded controls.");
+}
+
 void QmlArchitectureTest::providerAvatarUsesPolicyDrivenIconVessel()
 {
     const QString avatar = readFile("qml/components/ProviderAvatar.qml");
@@ -1510,8 +1833,9 @@ void QmlArchitectureTest::providerSwitcherUsesAvatarDockPattern()
              "ProviderSwitcher must not keep the old text-tab delegate width.");
     QVERIFY2(!switcher.contains(QStringLiteral("font.pixelSize: 10")),
              "ProviderSwitcher must not render tiny always-visible labels in each dock item.");
-    QVERIFY2(dock.contains(QStringLiteral("ProviderAvatar")),
-             "TrayProviderDock must render provider identity through ProviderAvatar.");
+    QVERIFY2(dock.contains(QStringLiteral("ProviderIdentityBadge"))
+             || dock.contains(QStringLiteral("ProviderAvatar")),
+             "TrayProviderDock must render provider identity through ProviderIdentityBadge/ProviderAvatar.");
     QVERIFY2(dock.contains(QStringLiteral("ToolTip")),
              "TrayProviderDock must move provider names/status into delayed tooltips.");
     QVERIFY2(dock.contains(QStringLiteral("showProgressRing")),

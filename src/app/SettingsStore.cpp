@@ -29,6 +29,13 @@ SettingsStore::SettingsStore(QObject* parent)
     m_browserSessionBridgeEnabled = m_settings.value("browserSessionBridgeEnabled", true).toBool();
     m_glassEffectEnabled = m_settings.value("glassEffectEnabled", true).toBool();
     m_glassEffectOpacity = qBound(5, m_settings.value("glassEffectOpacity", 40).toInt(), 95);
+    m_reduceMotion = m_settings.value("reduceMotion", false).toBool();
+    m_visualEffectsQuality = m_settings.value("visualEffectsQuality", "balanced").toString();
+    if (m_visualEffectsQuality != QStringLiteral("high")
+        && m_visualEffectsQuality != QStringLiteral("balanced")
+        && m_visualEffectsQuality != QStringLiteral("low")) {
+        m_visualEffectsQuality = QStringLiteral("balanced");
+    }
     m_language = m_settings.value("language", "en").toString();
     m_theme = m_settings.value("theme", 0).toInt();
     m_trayDisplayMode = m_settings.value("trayDisplayMode", 0).toInt();
@@ -178,6 +185,29 @@ void SettingsStore::setGlassEffectOpacity(int opacity) {
         m_glassEffectOpacity = bounded;
         m_settings.setValue("glassEffectOpacity", bounded);
         emit glassEffectOpacityChanged();
+    }
+}
+
+void SettingsStore::setReduceMotion(bool enable) {
+    if (m_reduceMotion != enable) {
+        m_reduceMotion = enable;
+        m_settings.setValue("reduceMotion", enable);
+        emit reduceMotionChanged();
+    }
+}
+
+void SettingsStore::setVisualEffectsQuality(const QString& quality) {
+    QString boundedQuality = quality;
+    if (boundedQuality != QStringLiteral("high")
+        && boundedQuality != QStringLiteral("balanced")
+        && boundedQuality != QStringLiteral("low")) {
+        boundedQuality = QStringLiteral("balanced");
+    }
+
+    if (m_visualEffectsQuality != boundedQuality) {
+        m_visualEffectsQuality = boundedQuality;
+        m_settings.setValue("visualEffectsQuality", boundedQuality);
+        emit visualEffectsQualityChanged();
     }
 }
 
@@ -335,6 +365,8 @@ void SettingsStore::resetToDefaults() {
     setBrowserSessionBridgeEnabled(true);
     setGlassEffectEnabled(true);
     setGlassEffectOpacity(40);
+    setReduceMotion(false);
+    setVisualEffectsQuality("balanced");
     setLanguage("en");
     setTheme(0);
     setTrayDisplayMode(0);

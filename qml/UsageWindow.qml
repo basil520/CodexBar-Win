@@ -17,7 +17,6 @@ Rectangle {
     readonly property bool contentActive: Window.window !== null && Window.window.visible
     readonly property bool glassEffectActive: SettingsStore.glassEffectEnabled
     readonly property color windowBackgroundColor: AppTheme.surfaceWindow
-    readonly property color titleBarBackgroundColor: glassEffectActive ? "transparent" : AppTheme.surfaceTitleBar
 
     Components.AcrylicBackdrop {
         anchors.fill: parent
@@ -40,70 +39,11 @@ Rectangle {
         anchors.fill: parent
         spacing: 0
 
-        Rectangle {
-            id: titleBar
-            Layout.fillWidth: true
-            Layout.preferredHeight: 44
-            color: usageWindow.titleBarBackgroundColor
-
-            Rectangle {
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.bottom: parent.bottom
-                height: 1
-                color: AppTheme.surfaceBorder
-            }
-
-            RowLayout {
-                anchors.fill: parent
-                anchors.leftMargin: 14
-                anchors.rightMargin: 8
-                spacing: 10
-
-                Rectangle {
-                    Layout.preferredWidth: 20
-                    Layout.preferredHeight: 20
-                    radius: 5
-                    color: AppTheme.accentColor
-
-                    Label {
-                        anchors.centerIn: parent
-                        text: "U"
-                        color: AppTheme.textOnAccent
-                        font.pixelSize: 11
-                        font.bold: true
-                    }
-                }
-
-                Label {
-                    text: qsTr("Usage Details")
-                    color: AppTheme.textPrimary
-                    font.pixelSize: AppTheme.fontSizeMd
-                    font.bold: true
-                }
-
-                Item {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-
-                    MouseArea {
-                        anchors.fill: parent
-                        acceptedButtons: Qt.LeftButton
-                        onPressed: AppController.startUsageMove()
-                    }
-                }
-
-                TitleButton {
-                    text: "_"
-                    onClicked: AppController.minimizeUsage()
-                }
-
-                TitleButton {
-                    text: "x"
-                    danger: true
-                    onClicked: AppController.closeUsage()
-                }
-            }
+        Components.WindowTitleBar {
+            title: qsTr("Usage Details")
+            iconText: "U"
+            windowKind: "usage"
+            showMaximize: false
         }
 
         Rectangle {
@@ -128,42 +68,6 @@ Rectangle {
     ResizeHandle { anchors.right: parent.right; anchors.top: parent.top; width: 10; height: 10; edge: Qt.RightEdge | Qt.TopEdge }
     ResizeHandle { anchors.left: parent.left; anchors.bottom: parent.bottom; width: 10; height: 10; edge: Qt.LeftEdge | Qt.BottomEdge }
     ResizeHandle { anchors.right: parent.right; anchors.bottom: parent.bottom; width: 10; height: 10; edge: Qt.RightEdge | Qt.BottomEdge }
-
-    component TitleButton: Rectangle {
-        id: titleButton
-        property string text: ""
-        property bool danger: false
-        signal clicked()
-
-        Layout.preferredWidth: 36
-        Layout.preferredHeight: 30
-        radius: 5
-        color: mouseArea.containsMouse
-            ? (danger ? AppTheme.statusOutage : AppTheme.surfaceHover)
-            : "transparent"
-
-        Label {
-            id: label
-            anchors.centerIn: parent
-            text: titleButton.text === "_" ? "—" : (titleButton.text === "x" ? "✕" : titleButton.text)
-            color: mouseArea.containsMouse
-                ? (titleButton.danger ? "#ffffff" : AppTheme.textPrimary)
-                : AppTheme.textPrimary
-            font.pixelSize: titleButton.text === "x" ? 11 : 9
-            font.bold: false
-
-            Behavior on color {
-                ColorAnimation { duration: 150 }
-            }
-        }
-
-        MouseArea {
-            id: mouseArea
-            anchors.fill: parent
-            hoverEnabled: true
-            onClicked: titleButton.clicked()
-        }
-    }
 
     component ResizeHandle: MouseArea {
         property int edge: Qt.LeftEdge

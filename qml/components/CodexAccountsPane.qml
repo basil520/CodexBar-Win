@@ -72,82 +72,59 @@ Rectangle {
             }
         }
 
-        Rectangle {
+        FeedbackBanner {
             Layout.fillWidth: true
-            implicitHeight: authLayout.implicitHeight + 18
-            radius: 6
-            color: root.authError !== ""
-                ? Qt.rgba(AppTheme.statusOutage.r, AppTheme.statusOutage.g, AppTheme.statusOutage.b, 0.12)
-                : Qt.rgba(AppTheme.statusDegraded.r, AppTheme.statusDegraded.g, AppTheme.statusDegraded.b, 0.12)
-            border.width: 1
-            border.color: root.authError !== ""
-                ? Qt.rgba(AppTheme.statusOutage.r, AppTheme.statusOutage.g, AppTheme.statusOutage.b, 0.40)
-                : Qt.rgba(AppTheme.statusDegraded.r, AppTheme.statusDegraded.g, AppTheme.statusDegraded.b, 0.40)
             visible: root.isAuthenticating || root.authError !== "" || root.userCode !== ""
+            status: root.authError !== "" ? "error" : "warning"
+            title: root.authError !== "" ? qsTr("Authorization failed") : qsTr("Codex authorization")
+            message: root.authError !== ""
+                ? root.authError
+                : (root.authMessage !== "" ? root.authMessage : qsTr("Waiting for Codex authorization..."))
+        }
 
-            ColumnLayout {
-                id: authLayout
-                anchors.fill: parent
-                anchors.margins: 9
-                spacing: 8
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 8
+            visible: root.userCode !== "" || root.verificationUri !== ""
+
+            Rectangle {
+                Layout.preferredWidth: Math.max(110, codeLabel.implicitWidth + 18)
+                Layout.preferredHeight: 30
+                radius: 5
+                color: AppTheme.surfaceControl
+                border.width: 1
+                border.color: AppTheme.surfaceBorder
+                visible: root.userCode !== ""
 
                 Label {
-                    Layout.fillWidth: true
-                    text: root.authError !== ""
-                        ? root.authError
-                        : (root.authMessage !== "" ? root.authMessage : qsTr("Waiting for Codex authorization..."))
-                    color: root.authError !== "" ? AppTheme.statusOutage : AppTheme.statusDegraded
-                    font.pixelSize: AppTheme.fontSizeSm
-                    wrapMode: Text.WordWrap
-                    maximumLineCount: 3
-                    elide: Text.ElideRight
-                }
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 8
-                    visible: root.userCode !== "" || root.verificationUri !== ""
-
-                    Rectangle {
-                        Layout.preferredWidth: Math.max(110, codeLabel.implicitWidth + 18)
-                        Layout.preferredHeight: 30
-                        radius: 5
-                        color: AppTheme.surfaceControl
-                        border.width: 1
-                        border.color: AppTheme.surfaceBorder
-                        visible: root.userCode !== ""
-
-                        Label {
-                            id: codeLabel
-                            anchors.centerIn: parent
-                            text: root.userCode
-                            color: AppTheme.textPrimary
-                            font.pixelSize: AppTheme.fontSizeMd
-                            font.bold: true
-                        }
-                    }
-
-                    Button {
-                        text: qsTr("Open")
-                        enabled: root.verificationUri !== ""
-                        onClicked: root.openVerificationUrl(root.verificationUri)
-                    }
-
-                    Button {
-                        text: qsTr("Copy")
-                        enabled: root.userCode !== "" || root.verificationUri !== ""
-                        onClicked: root.copyText(root.userCode !== "" ? root.userCode : root.verificationUri)
-                    }
-
-                    Button {
-                        text: qsTr("Cancel")
-                        enabled: root.isAuthenticating
-                        onClicked: root.cancelAuthentication()
-                    }
-
-                    Item { Layout.fillWidth: true }
+                    id: codeLabel
+                    anchors.centerIn: parent
+                    text: root.userCode
+                    color: AppTheme.textPrimary
+                    font.pixelSize: AppTheme.fontSizeMd
+                    font.bold: true
                 }
             }
+
+            Button {
+                text: qsTr("Open")
+                enabled: root.verificationUri !== ""
+                onClicked: root.openVerificationUrl(root.verificationUri)
+            }
+
+            Button {
+                text: qsTr("Copy")
+                enabled: root.userCode !== "" || root.verificationUri !== ""
+                onClicked: root.copyText(root.userCode !== "" ? root.userCode : root.verificationUri)
+            }
+
+            Button {
+                text: qsTr("Cancel")
+                enabled: root.isAuthenticating
+                onClicked: root.cancelAuthentication()
+            }
+
+            Item { Layout.fillWidth: true }
         }
 
         Label {

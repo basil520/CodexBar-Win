@@ -33,6 +33,7 @@ Rectangle {
     property int rev: LanguageManager.translationRevision
     property int refreshStartTime: 0
     property string refreshDuration: ""
+    property int tokenAccountRevision: 0
 
     // Phase 2: Provider selection state
     property string selectedProviderID: TrayViewModel.selectedProviderID
@@ -55,6 +56,17 @@ Rectangle {
     Component.onCompleted: TrayViewModel.requestCostUsageViewData()
     onCostExpandedChanged: refreshProviderCostRows()
     onSelectedProviderIDChanged: refreshProviderCostRows()
+
+    Components.TrayOverviewPanel {
+        id: overviewShell
+        target: providerList
+    }
+
+    Components.TrayProviderDetailShell {
+        id: providerDetailShell
+        target: detailFlickable
+        providerId: root.selectedProviderID
+    }
 
     Connections {
         target: AppController
@@ -1078,5 +1090,5 @@ Rectangle {
         return Math.floor(ago / 86400000) + qsTr("d ago")
     }
 
-    Components.TrayToast { id: toast }
+    Components.TrayActionToast { id: toast }
 }

@@ -169,7 +169,7 @@ SurfaceCard {
                 verticalAlignment: Text.AlignVCenter
             }
 
-            ProviderAvatar {
+            ProviderIdentityBadge {
                 Layout.preferredWidth: AppTheme.avatarSizeList
                 Layout.preferredHeight: AppTheme.avatarSizeList
                 Layout.alignment: Qt.AlignVCenter
@@ -180,6 +180,7 @@ SurfaceCard {
                 enabled: root.effectiveProviderEnabled
                 selected: root.expanded
                 severity: root.status
+                context: "normal"
             }
 
             ColumnLayout {
@@ -263,7 +264,7 @@ SurfaceCard {
             Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 1
-                color: AppTheme.surfaceBorder
+                color: AppTheme.chartGrid
             }
 
             Label {
@@ -384,7 +385,7 @@ SurfaceCard {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             height: 1
-            color: AppTheme.surfaceBorder
+            color: AppTheme.chartTrack
         }
 
         Row {

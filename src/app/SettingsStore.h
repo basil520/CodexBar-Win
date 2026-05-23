@@ -25,6 +25,8 @@ class SettingsStore : public QObject {
     Q_PROPERTY(bool browserSessionBridgeEnabled READ browserSessionBridgeEnabled WRITE setBrowserSessionBridgeEnabled NOTIFY browserSessionBridgeEnabledChanged)
     Q_PROPERTY(bool glassEffectEnabled READ glassEffectEnabled WRITE setGlassEffectEnabled NOTIFY glassEffectEnabledChanged)
     Q_PROPERTY(int glassEffectOpacity READ glassEffectOpacity WRITE setGlassEffectOpacity NOTIFY glassEffectOpacityChanged)
+    Q_PROPERTY(bool reduceMotion READ reduceMotion WRITE setReduceMotion NOTIFY reduceMotionChanged)
+    Q_PROPERTY(QString visualEffectsQuality READ visualEffectsQuality WRITE setVisualEffectsQuality NOTIFY visualEffectsQualityChanged)
     Q_PROPERTY(QString language READ language WRITE setLanguage NOTIFY languageChanged)
     Q_PROPERTY(int theme READ theme WRITE setTheme NOTIFY themeChanged)
     Q_PROPERTY(int trayDisplayMode READ trayDisplayMode WRITE setTrayDisplayMode NOTIFY trayDisplayModeChanged)
@@ -82,6 +84,12 @@ public:
     int glassEffectOpacity() const { return m_glassEffectOpacity; }
     void setGlassEffectOpacity(int opacity);
 
+    bool reduceMotion() const { return m_reduceMotion; }
+    void setReduceMotion(bool enable);
+
+    QString visualEffectsQuality() const { return m_visualEffectsQuality; }
+    void setVisualEffectsQuality(const QString& quality);
+
     QString language() const { return m_language; }
     void setLanguage(const QString& lang);
 
@@ -134,6 +142,8 @@ signals:
     void browserSessionBridgeEnabledChanged();
     void glassEffectEnabledChanged();
     void glassEffectOpacityChanged();
+    void reduceMotionChanged();
+    void visualEffectsQualityChanged();
     void languageChanged();
     void themeChanged();
     void trayDisplayModeChanged();
@@ -163,6 +173,8 @@ private:
     bool m_browserSessionBridgeEnabled = true;
     bool m_glassEffectEnabled = true;
     int m_glassEffectOpacity = 40;
+    bool m_reduceMotion = false;
+    QString m_visualEffectsQuality = QStringLiteral("balanced");
     QString m_language;
     int m_theme = 0;
     int m_trayDisplayMode = 0;

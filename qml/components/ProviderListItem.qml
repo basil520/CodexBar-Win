@@ -108,7 +108,7 @@ Rectangle {
             }
         }
 
-        ProviderAvatar {
+        ProviderIdentityBadge {
             Layout.preferredWidth: AppTheme.avatarSizeList
             Layout.preferredHeight: AppTheme.avatarSizeList
             Layout.alignment: Qt.AlignVCenter
@@ -119,6 +119,7 @@ Rectangle {
             selected: root.isSelected
             enabled: root.isEnabled
             severity: root.status === "outage" ? "error" : (root.status === "degraded" ? "warning" : "none")
+            context: "normal"
         }
 
         ColumnLayout {

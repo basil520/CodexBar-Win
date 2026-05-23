@@ -24,6 +24,8 @@ QtObject {
     property color textDisabled: AppThemeCpp.textDisabled
     property color textInverse: AppThemeCpp.textInverse
     property color textOnAccent: "#ffffff"
+    property color textOnStatus: "#ffffff"
+    property color textOnDanger: "#ffffff"
 
     property color statusOk: AppThemeCpp.statusOk
     property color statusDegraded: AppThemeCpp.statusDegraded
@@ -53,14 +55,30 @@ QtObject {
     property color surfaceInteractive: surfaceCard
     property color surfaceInteractiveHover: surfaceHover
     property color surfaceInteractivePressed: surfacePressed
+    property color surfaceInteractiveSelected: surfaceSelected
+    property color surfaceInteractiveDisabled: glassActive ? withAlpha(bgPrimary, Math.min(0.46, Math.max(0.24, glassMaterialOpacity * 0.72))) : withAlpha(bgPrimary, 0.64)
     property color surfaceFloating: surfacePopup
     property color surfaceInput: surfaceControl
+    property color surfaceElevatedBorder: glassActive ? withAlpha(borderAccent, Math.min(0.82, Math.max(0.44, glassMaterialOpacity + 0.18))) : borderColor
+    property color surfaceScrim: glassActive ? withAlpha(bgPrimary, Math.min(0.58, Math.max(0.24, glassMaterialOpacity * 0.70))) : withAlpha(bgPrimary, 0.72)
+    property color surfaceSidebar: glassActive ? withAlpha(bgSecondary, Math.min(0.82, Math.max(0.44, glassMaterialOpacity + 0.16))) : bgSecondary
+    property color surfacePreview: glassActive ? withAlpha(bgCard, Math.min(0.86, Math.max(0.48, glassMaterialOpacity + 0.22))) : bgCard
+    property color surfaceAvatarNeutral: glassActive ? withAlpha(bgSelected, Math.min(0.78, Math.max(0.38, glassMaterialOpacity + 0.14))) : bgSelected
     property color surfaceDangerSoft: withAlpha(statusOutage, glassActive ? 0.18 : 0.16)
     property color surfaceWarningSoft: withAlpha(statusDegraded, glassActive ? 0.18 : 0.16)
     property color surfaceSuccessSoft: withAlpha(statusOk, glassActive ? 0.18 : 0.16)
     property color borderSubtle: surfaceBorder
     property color borderStrong: glassActive ? withAlpha(borderColor, Math.min(0.90, Math.max(0.56, glassMaterialOpacity + 0.22))) : borderAccent
     property color borderFocus: surfaceAccentBorder
+    property color focusRing: surfaceAccentBorder
+    property color chartGrid: glassActive ? withAlpha(textTertiary, 0.18) : withAlpha(textTertiary, 0.15)
+    property color chartAxis: textTertiary
+    property color chartTrack: surfaceTrack
+    property color chartBarPrimary: accentColor
+    property color chartBarSecondary: statusOk
+    property color chartBarMuted: withAlpha(textSecondary, 0.36)
+    property color chartForecast: statusDegraded
+    property color chartHover: surfacePopup
 
     property int motionFast: 90
     property int motionNormal: 150
@@ -68,7 +86,8 @@ QtObject {
     property int motionPanel: 320
     property int easeStandard: Easing.OutCubic
     property int easeEmphasized: Easing.OutBack
-    property bool reduceMotion: false
+    readonly property bool reduceMotion: SettingsStore.reduceMotion
+    readonly property string visualEffectsQuality: SettingsStore.visualEffectsQuality
 
     property var providerBrandColors: ({
         "codex": "#49A3B0", "claude": "#CC7C5E", "cursor": "#5B8DFA",

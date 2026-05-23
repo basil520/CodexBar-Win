@@ -37,11 +37,11 @@ Rectangle {
     Rectangle {
         id: overlay
         anchors.fill: parent
-        color: AppTheme.withAlpha(AppTheme.bgPrimary, 0.92)
+        color: AppTheme.surfaceScrim
         opacity: 0
 
         Behavior on opacity {
-            NumberAnimation { duration: 150; easing.type: Easing.OutQuad }
+            NumberAnimation { duration: AppTheme.duration(AppTheme.motionNormal); easing.type: Easing.OutQuad }
         }
 
         MouseArea { anchors.fill: parent }
@@ -53,8 +53,8 @@ Rectangle {
         height: dialogContent.implicitHeight + 32
         anchors.centerIn: parent
         radius: AppTheme.radiusLg
-        color: AppTheme.surfacePopup
-        border.color: AppTheme.surfaceBorder
+        color: AppTheme.surfaceElevated
+        border.color: AppTheme.surfaceElevatedBorder
         border.width: 1
         opacity: 0
 
@@ -65,10 +65,10 @@ Rectangle {
         }
 
         Behavior on scale {
-            NumberAnimation { duration: 200; easing.type: Easing.OutBack }
+            NumberAnimation { duration: AppTheme.duration(AppTheme.motionNormal); easing.type: Easing.OutBack }
         }
         Behavior on opacity {
-            NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+            NumberAnimation { duration: AppTheme.duration(AppTheme.motionNormal); easing.type: Easing.OutCubic }
         }
 
         ColumnLayout {
@@ -148,7 +148,7 @@ Rectangle {
                         cursorShape: Qt.PointingHandCursor
                         onClicked: root.cancelled()
                     }
-                    Behavior on color { ColorAnimation { duration: 80 } }
+                    Behavior on color { ColorAnimation { duration: AppTheme.duration(AppTheme.motionFast) } }
                 }
                 Rectangle {
                     Layout.preferredWidth: confirmBtnText.implicitWidth + 24
@@ -171,7 +171,7 @@ Rectangle {
                         cursorShape: Qt.PointingHandCursor
                         onClicked: root.confirmed()
                     }
-                    Behavior on color { ColorAnimation { duration: 80 } }
+                    Behavior on color { ColorAnimation { duration: AppTheme.duration(AppTheme.motionFast) } }
                 }
             }
         }
@@ -179,15 +179,15 @@ Rectangle {
 
     ParallelAnimation {
         id: showAnim
-        NumberAnimation { target: overlay; property: "opacity"; to: 0.5; duration: 150; easing.type: Easing.OutQuad }
-        NumberAnimation { target: dialog; property: "opacity"; to: 1; duration: 200; easing.type: Easing.OutBack }
-        NumberAnimation { target: dialog; property: "scale"; to: 1.0; duration: 200; easing.type: Easing.OutBack }
+        NumberAnimation { target: overlay; property: "opacity"; to: 0.5; duration: AppTheme.duration(AppTheme.motionNormal); easing.type: Easing.OutQuad }
+        NumberAnimation { target: dialog; property: "opacity"; to: 1; duration: AppTheme.duration(AppTheme.motionNormal); easing.type: Easing.OutBack }
+        NumberAnimation { target: dialog; property: "scale"; to: 1.0; duration: AppTheme.duration(AppTheme.motionNormal); easing.type: Easing.OutBack }
     }
 
     SequentialAnimation {
         id: hideAnim
-        NumberAnimation { target: dialog; property: "opacity"; to: 0; duration: 150; easing.type: Easing.InCubic }
-        NumberAnimation { target: dialog; property: "scale"; to: 0.95; duration: 150; easing.type: Easing.InCubic }
+        NumberAnimation { target: dialog; property: "opacity"; to: 0; duration: AppTheme.duration(AppTheme.motionFast); easing.type: Easing.InCubic }
+        NumberAnimation { target: dialog; property: "scale"; to: 0.95; duration: AppTheme.duration(AppTheme.motionFast); easing.type: Easing.InCubic }
         PropertyAction { target: root; property: "visible"; value: false }
     }
 

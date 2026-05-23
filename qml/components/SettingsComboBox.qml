@@ -4,6 +4,7 @@ import ".."
 
 ComboBox {
     id: root
+
     property var selectedValue: ""
     signal valueActivated(var value)
 
@@ -36,7 +37,7 @@ ComboBox {
 
     contentItem: Text {
         leftPadding: 12
-        rightPadding: 28
+        rightPadding: 30
         text: root.displayText
         font: root.font
         color: root.enabled ? AppTheme.textPrimary : AppTheme.textDisabled
@@ -44,16 +45,16 @@ ComboBox {
         elide: Text.ElideRight
     }
 
-    indicator: Text {
-        id: arrowText
+    indicator: ChevronIcon {
         x: root.width - width - 10
         y: (root.height - height) / 2
-        text: "▾"
-        color: AppTheme.textSecondary
-        font.pixelSize: AppTheme.fontSizeSm
-
-        rotation: root.popup.visible ? 180 : 0
+        width: 12
+        height: 12
+        expanded: root.popup.visible
+        rotation: root.popup.visible ? 0 : -90
+        strokeColor: root.enabled ? AppTheme.textSecondary : AppTheme.textDisabled
         transformOrigin: Item.Center
+
         Behavior on rotation {
             NumberAnimation { duration: AppTheme.duration(AppTheme.motionNormal); easing.type: AppTheme.easeStandard }
         }

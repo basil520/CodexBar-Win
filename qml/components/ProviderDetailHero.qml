@@ -42,7 +42,7 @@ SettingsGroupBox {
         Layout.fillWidth: true
         spacing: 14
 
-        ProviderAvatar {
+        ProviderIdentityBadge {
             Layout.preferredWidth: 48
             Layout.preferredHeight: 48
             Layout.alignment: Qt.AlignTop
@@ -53,6 +53,7 @@ SettingsGroupBox {
             selected: true
             enabled: root.providerEnabled
             severity: root.providerError !== "" ? "error" : "none"
+            context: "hero"
         }
 
         ColumnLayout {

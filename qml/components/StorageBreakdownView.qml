@@ -96,13 +96,13 @@ Rectangle {
         }
 
         // No data state
-        Text {
+        FeedbackBanner {
             Layout.fillWidth: true
             visible: !root.hasData
-            text: qsTr("No storage data available")
-            color: AppTheme.textDisabled
-            font.pixelSize: 10
-            horizontalAlignment: Text.AlignHCenter
+            status: "info"
+            title: qsTr("No storage data available")
+            message: qsTr("Storage details will appear after the provider reports local cache usage.")
+            compact: true
         }
 
         // Storage components
@@ -186,23 +186,14 @@ Rectangle {
         }
 
         // Cleanup suggestions
-        ColumnLayout {
+        DisclosureRow {
             Layout.fillWidth: true
             visible: root.cleanupItems.length > 0
-            spacing: 6
-
-            Rectangle {
-                Layout.fillWidth: true
-                height: 1
-                color: AppTheme.surfaceTrack
-            }
-
-            Text {
-                text: qsTr("Cleanup ideas")
-                color: AppTheme.textSecondary
-                font.pixelSize: 11
-                font.bold: true
-            }
+            title: qsTr("Cleanup ideas")
+            subtitle: qsTr("%1 suggestions").arg(root.cleanupItems.length)
+            expanded: cleanupExpanded
+            property bool cleanupExpanded: true
+            onToggled: cleanupExpanded = !cleanupExpanded
 
             Repeater {
                 model: root.cleanupItems

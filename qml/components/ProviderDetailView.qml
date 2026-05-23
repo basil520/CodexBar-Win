@@ -3,6 +3,7 @@ import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import CodexBarX 1.0
 import ".."
+import "provider" as ProviderPanels
 
 ScrollView {
     id: root
@@ -249,7 +250,15 @@ ScrollView {
                 }
             }
 
+            ProviderPanels.ProviderConnectionPanel {
+                connectionTest: root.connectionTest
+                connectionState: root.connectionState
+                connectionMessage: root.connectionMessage
+                onTestConnectionRequested: root.testConnectionRequested()
+            }
+
             SettingsGroupBox {
+                visible: false
                 ColumnLayout {
                     Layout.fillWidth: true
                     spacing: 10
@@ -561,12 +570,13 @@ ScrollView {
 
             Loader {
                 Layout.fillWidth: true
-                active: SettingsStore.browserSessionBridgeEnabled
-                    && BridgeViewModel.isProviderSupported(root.providerId)
-                visible: active
-                sourceComponent: BrowserSessionCard {
-                    providerId: root.providerId
-                }
+                active: false
+                visible: false
+            }
+
+            ProviderPanels.ProviderBrowserSessionPanel {
+                Layout.fillWidth: true
+                providerId: root.providerId
             }
 
             SettingsGroupBox {

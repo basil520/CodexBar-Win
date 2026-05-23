@@ -4,7 +4,7 @@ import QtQuick.Layouts 1.15
 import CodexBarX 1.0
 import ".."
 
-Rectangle {
+ChartFrame {
     id: root
 
     property string providerId: ""
@@ -15,10 +15,10 @@ Rectangle {
     readonly property int hoveredIndex: chartHover.hoveredIndex
     readonly property bool hasData: points.length > 0
 
-    color: AppTheme.surfaceChart
-    radius: 8
     implicitWidth: 276
     implicitHeight: hasData ? 130 : 40
+    empty: !hasData
+    emptyText: qsTr("No cost history data")
     clip: true
 
     function brandColorFor(pid) {
@@ -90,6 +90,13 @@ Rectangle {
                 var plotW = plotRight - plotLeft
                 var plotH = plotBottom - plotTop
 
+                ctx.strokeStyle = AppTheme.chartGrid
+                ctx.lineWidth = 1
+                ctx.beginPath()
+                ctx.moveTo(plotLeft, plotBottom)
+                ctx.lineTo(plotRight, plotBottom)
+                ctx.stroke()
+
                 var barGap = 2
                 var barW = Math.max(2, (plotW - barGap * (points.length - 1)) / points.length)
 
@@ -107,8 +114,7 @@ Rectangle {
                     var pct = (points[i].costUSD || 0) / maxVal
                     var barH = Math.max(pct > 0 ? 1 : 0, pct * plotH)
 
-                    // Bar background track
-                    ctx.fillStyle = AppTheme.surfaceTrack
+                    ctx.fillStyle = AppTheme.chartTrack
                     ctx.fillRect(x, plotBottom - plotH, barW, plotH)
 
                     // Bar fill
@@ -123,14 +129,14 @@ Rectangle {
 
                     // Hover overlay
                     if (chartHover.hoveredIndex === i) {
-                        ctx.fillStyle = AppTheme.withAlpha(AppTheme.textOnAccent, 0.12)
+                        ctx.fillStyle = AppTheme.chartHover
                         ctx.fillRect(x, plotBottom - plotH, barW, plotH)
                     }
                 }
 
                 // X-axis labels (first and last)
                 if (points.length > 0) {
-                    ctx.fillStyle = AppTheme.textInverse
+                    ctx.fillStyle = AppTheme.chartAxis
                     ctx.font = "8px sans-serif"
                     ctx.textAlign = "left"
                     var firstLabel = formatShortDate(points[0].date)

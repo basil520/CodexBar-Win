@@ -3,6 +3,10 @@ import QtQuick 2.15
 QtObject {
     id: root
 
+    property QtObject identityRegistry: ProviderIdentityRegistry {
+        id: identityRegistry
+    }
+
     readonly property var darkGlyphProviders: ({
         "alibaba": true,
         "deepseek": true,
@@ -36,10 +40,11 @@ QtObject {
 
     function iconPolicy(providerId) {
         var id = normalize(providerId)
-        if (preserveBackgroundProviders[id] === true) {
+        var identity = identityRegistry.identityFor(id)
+        if (identity.preserveBackground === true || preserveBackgroundProviders[id] === true) {
             return {
                 "tone": "fullColor",
-                "shape": "native",
+                "shape": identity.vesselShape || "native",
                 "background": "native",
                 "imageMode": "containNative",
                 "selectedTreatment": "ring",
@@ -49,10 +54,10 @@ QtObject {
                 "paddingRatio": 0.05
             }
         }
-        if (darkGlyphProviders[id] === true) {
+        if (identity.iconMode === "darkGlyph" || darkGlyphProviders[id] === true) {
             return {
                 "tone": "darkGlyph",
-                "shape": "squircle",
+                "shape": identity.vesselShape || "squircle",
                 "background": "neutralLight",
                 "imageMode": "glyph",
                 "selectedTreatment": "ring",
@@ -62,10 +67,10 @@ QtObject {
                 "paddingRatio": 0.18
             }
         }
-        if (lightGlyphProviders[id] === true) {
+        if (identity.iconMode === "lightGlyph" || lightGlyphProviders[id] === true) {
             return {
                 "tone": "lightGlyph",
-                "shape": "squircle",
+                "shape": identity.vesselShape || "squircle",
                 "background": "brandTint",
                 "imageMode": "glyph",
                 "selectedTreatment": "ring",

@@ -3,8 +3,9 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 import CodexBarX 1.0
+import "components" as Components
 
-Rectangle {
+Components.ChartFrame {
     id: chartRoot
     property string providerId
     property string currentSeries: "session"
@@ -20,15 +21,15 @@ Rectangle {
     property real animationFactor: 0.0
     Behavior on animationFactor {
         NumberAnimation {
-            duration: 350
+            duration: AppTheme.duration(AppTheme.motionPanel)
             easing.type: Easing.OutCubic
         }
     }
 
-    color: AppTheme.surfaceChart
-    radius: 8
     height: 130
     implicitHeight: 130
+    empty: chartPoints.length === 0
+    emptyText: chartRoot.noDataText
 
     function seriesModel() {
         var items = [
@@ -179,6 +180,15 @@ Rectangle {
                     var renderWidth = width - paddingLeft - paddingRight;
                     var renderHeight = height - paddingTop - paddingBottom;
 
+                    ctx.strokeStyle = AppTheme.chartGrid;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(paddingLeft, paddingTop);
+                    ctx.lineTo(width - paddingRight, paddingTop);
+                    ctx.moveTo(paddingLeft, height - paddingBottom);
+                    ctx.lineTo(width - paddingRight, height - paddingBottom);
+                    ctx.stroke();
+
                     var pointsCount = chartPoints.length;
                     var gap = 4;
                     var barWidth = (renderWidth - (pointsCount - 1) * gap) / pointsCount;
@@ -197,7 +207,7 @@ Rectangle {
                         var startX = paddingLeft + i * (barWidth + gap);
 
                         // Draw track using rounded corners
-                        ctx.fillStyle = AppTheme.surfaceTrack;
+                        ctx.fillStyle = AppTheme.chartTrack;
                         drawRoundedRect(ctx, startX, height - paddingBottom, barWidth, -renderHeight, 2);
                         ctx.fill();
 
@@ -215,7 +225,7 @@ Rectangle {
                         ctx.fill();
                     }
 
-                    ctx.fillStyle = AppTheme.textInverse;
+                    ctx.fillStyle = AppTheme.chartAxis;
                     ctx.font = "8px sans-serif";
                     ctx.textAlign = "right";
                     ctx.fillText("100%", paddingLeft - 6, paddingTop + 8);
@@ -229,8 +239,8 @@ Rectangle {
                 width: tooltipLabel.implicitWidth + 16
                 height: 22
                 radius: 6
-                color: AppTheme.withAlpha(AppTheme.surfacePopup || "#181824", 0.75)
-                border.color: AppTheme.withAlpha(AppTheme.accentColor || "#5e5ce6", 0.35)
+                color: AppTheme.withAlpha(AppTheme.chartHover, 0.75)
+                border.color: AppTheme.withAlpha(AppTheme.accentColor, 0.35)
                 border.width: 1
                 clip: true
                 z: 50
@@ -241,8 +251,8 @@ Rectangle {
                     }
                 }
 
-                Behavior on x { NumberAnimation { duration: 120; easing.type: Easing.OutQuad } }
-                Behavior on y { NumberAnimation { duration: 120; easing.type: Easing.OutQuad } }
+                Behavior on x { NumberAnimation { duration: AppTheme.duration(AppTheme.motionFast); easing.type: Easing.OutQuad } }
+                Behavior on y { NumberAnimation { duration: AppTheme.duration(AppTheme.motionFast); easing.type: Easing.OutQuad } }
 
                 Rectangle {
                     id: shimmerBar
@@ -265,7 +275,7 @@ Rectangle {
                     property: "x"
                     from: -shimmerBar.width
                     to: hoverTooltip.width + shimmerBar.width
-                    duration: 350
+                    duration: AppTheme.duration(AppTheme.motionPanel)
                     easing.type: Easing.OutCubic
                 }
 
@@ -367,7 +377,7 @@ Rectangle {
         target: LanguageManager
         function onTranslationRevisionChanged() {
             chartRoot.ensureValidSeries()
-            hoverDetail.text = ""
+            tooltipLabel.text = ""
             chartCanvas.requestPaint()
         }
     }

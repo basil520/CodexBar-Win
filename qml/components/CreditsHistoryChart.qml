@@ -4,7 +4,7 @@ import QtQuick.Layouts 1.15
 import CodexBarX 1.0
 import ".."
 
-Rectangle {
+ChartFrame {
     id: root
 
     property var points: []
@@ -13,10 +13,10 @@ Rectangle {
     readonly property int hoveredIndex: chartHover.hoveredIndex
     readonly property bool hasData: points.length > 0
 
-    color: AppTheme.surfaceChart
-    radius: 8
     implicitWidth: 276
     implicitHeight: hasData ? 130 : 40
+    empty: !hasData
+    emptyText: qsTr("No credits history data")
     clip: true
 
     Text {
@@ -48,6 +48,13 @@ Rectangle {
                 var plotTop = 6, plotBottom = height - 14
                 var plotW = plotRight - plotLeft
                 var plotH = plotBottom - plotTop
+
+                ctx.strokeStyle = AppTheme.chartGrid
+                ctx.lineWidth = 1
+                ctx.beginPath()
+                ctx.moveTo(plotLeft, plotBottom)
+                ctx.lineTo(plotRight, plotBottom)
+                ctx.stroke()
                 var barGap = 2
                 var barW = Math.max(2, (plotW - barGap * (points.length - 1)) / points.length)
 
@@ -63,7 +70,7 @@ Rectangle {
                     var pct = (points[i].creditsUsed || 0) / maxVal
                     var barH = Math.max(pct > 0 ? 1 : 0, pct * plotH)
 
-                    ctx.fillStyle = AppTheme.surfaceTrack
+                    ctx.fillStyle = AppTheme.chartTrack
                     ctx.fillRect(x, plotBottom - plotH, barW, plotH)
                     ctx.fillStyle = root.barColor
                     ctx.fillRect(x, plotBottom - barH, barW, barH)
@@ -73,13 +80,13 @@ Rectangle {
                         ctx.fillRect(x, plotBottom - barH - 1, barW, 3)
                     }
                     if (chartHover.hoveredIndex === i) {
-                        ctx.fillStyle = AppTheme.withAlpha(AppTheme.textOnAccent, 0.12)
+                        ctx.fillStyle = AppTheme.chartHover
                         ctx.fillRect(x, plotBottom - plotH, barW, plotH)
                     }
                 }
 
                 if (points.length > 0) {
-                    ctx.fillStyle = AppTheme.textInverse
+                    ctx.fillStyle = AppTheme.chartAxis
                     ctx.font = "8px sans-serif"
                     ctx.textAlign = "left"
                     ctx.fillText(formatDate(points[0].date), plotLeft, plotBottom + 12)

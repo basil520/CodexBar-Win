@@ -63,10 +63,11 @@ Rectangle {
                 anchors.rightMargin: 6
                 spacing: 6
 
-                Text {
-                    text: root.expanded ? "▾" : "▸"
-                    color: AppTheme.textTertiary
-                    font.pixelSize: 11
+                ChevronIcon {
+                    Layout.preferredWidth: 10
+                    Layout.preferredHeight: 10
+                    expanded: root.expanded
+                    strokeColor: AppTheme.textTertiary
                 }
 
                 Rectangle {
@@ -109,7 +110,7 @@ Rectangle {
             }
 
             Behavior on color {
-                ColorAnimation { duration: 120 }
+                ColorAnimation { duration: AppTheme.duration(AppTheme.motionFast); easing.type: AppTheme.easeStandard }
             }
         }
 
@@ -122,7 +123,7 @@ Rectangle {
             Layout.leftMargin: 4
 
             Behavior on Layout.preferredHeight {
-                NumberAnimation { duration: 150; easing.type: Easing.OutQuad }
+                NumberAnimation { duration: AppTheme.duration(AppTheme.motionFast); easing.type: AppTheme.easeStandard }
             }
 
             Repeater {
@@ -173,7 +174,7 @@ Rectangle {
                         }
 
                         Behavior on color {
-                            ColorAnimation { duration: 120; easing.type: Easing.OutQuad }
+                            ColorAnimation { duration: AppTheme.duration(AppTheme.motionFast); easing.type: AppTheme.easeStandard }
                         }
                     }
 
@@ -221,7 +222,7 @@ Rectangle {
         opacity: root.isSwitching ? 0.4 : 0
         visible: opacity > 0
         Behavior on opacity {
-            NumberAnimation { duration: 150 }
+            NumberAnimation { duration: AppTheme.duration(AppTheme.motionFast); easing.type: AppTheme.easeStandard }
         }
     }
 }

@@ -164,115 +164,87 @@ ColumnLayout {
         }
     }
 
-    Label {
+    FeedbackBanner {
         Layout.fillWidth: true
         visible: !root.accounts || root.accounts.length === 0
-        text: qsTr("No accounts configured.")
-        color: AppTheme.textTertiary
-        font.pixelSize: AppTheme.fontSizeSm
+        status: "info"
+        title: qsTr("No accounts configured.")
+        message: qsTr("Add an account when this provider needs separate token or API-key tracking.")
+        compact: true
     }
 
     Repeater {
         model: root.accounts || []
 
-        Rectangle {
+        DisclosureRow {
             Layout.fillWidth: true
-            implicitHeight: accountRow.implicitHeight + 16
-            radius: 7
-            color: AppTheme.surfaceControl
-            border.width: 1
-            border.color: AppTheme.surfaceBorder
+            title: modelData.displayName || modelData.accountId
+            subtitle: modelData.visibility === "hidden"
+                ? qsTr("Hidden")
+                : (modelData.sourceMode || "auto").toUpperCase()
+            expanded: rowExpanded
+            canExpand: true
+            property bool rowExpanded: modelData.accountId === root.defaultAccountId || root.accounts.length === 1
+            onToggled: rowExpanded = !rowExpanded
 
-            ColumnLayout {
-                id: accountRow
-                anchors.fill: parent
-                anchors.margins: 8
+            RowLayout {
+                Layout.fillWidth: true
                 spacing: 8
 
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 8
+                Label {
+                    visible: modelData.accountId === root.defaultAccountId
+                    text: qsTr("Default")
+                    color: AppTheme.accentColor
+                    font.pixelSize: 10
+                    font.bold: true
+                }
 
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        Layout.minimumWidth: 0
-                        spacing: 2
+                Item { Layout.fillWidth: true }
+            }
 
-                        Label {
-                            Layout.fillWidth: true
-                            Layout.minimumWidth: 0
-                            text: modelData.displayName || modelData.accountId
-                            color: AppTheme.textPrimary
-                            font.pixelSize: AppTheme.fontSizeSm
-                            font.bold: true
-                            elide: Text.ElideRight
-                        }
+            GridLayout {
+                Layout.fillWidth: true
+                columns: root.compactLayout ? 2 : 4
+                columnSpacing: 8
+                rowSpacing: 8
 
-                        Label {
-                            Layout.fillWidth: true
-                            Layout.minimumWidth: 0
-                            text: modelData.visibility === "hidden"
-                                ? qsTr("Hidden")
-                                : (modelData.sourceMode || "auto").toUpperCase()
-                            color: AppTheme.textTertiary
-                            font.pixelSize: 10
-                            elide: Text.ElideRight
-                        }
-                    }
-
-                    Label {
-                        visible: modelData.accountId === root.defaultAccountId
-                        text: qsTr("Default")
-                        color: AppTheme.accentColor
-                        font.pixelSize: 10
-                        font.bold: true
+                SettingsComboBox {
+                    Layout.fillWidth: root.compactLayout
+                    Layout.preferredWidth: 104
+                    Layout.minimumWidth: 0
+                    model: root.sourceModeOptions()
+                    selectedValue: root.selectedModeFor(modelData)
+                    enabled: !root.busy
+                    onValueActivated: function(value) {
+                        root.setSourceMode(modelData.accountId, value)
                     }
                 }
 
-                GridLayout {
-                    Layout.fillWidth: true
-                    columns: root.compactLayout ? 2 : 4
-                    columnSpacing: 8
-                    rowSpacing: 8
-
-                    SettingsComboBox {
-                        Layout.fillWidth: root.compactLayout
-                        Layout.preferredWidth: 104
-                        Layout.minimumWidth: 0
-                        model: root.sourceModeOptions()
-                        selectedValue: root.selectedModeFor(modelData)
-                        enabled: !root.busy
-                        onValueActivated: function(value) {
-                            root.setSourceMode(modelData.accountId, value)
-                        }
+                SettingsComboBox {
+                    Layout.fillWidth: root.compactLayout
+                    Layout.preferredWidth: 104
+                    Layout.minimumWidth: 0
+                    model: root.visibilityOptions()
+                    selectedValue: root.visibilityValue(modelData.visibility)
+                    enabled: !root.busy
+                    onValueActivated: function(value) {
+                        root.setVisibility(modelData.accountId, value)
                     }
+                }
 
-                    SettingsComboBox {
-                        Layout.fillWidth: root.compactLayout
-                        Layout.preferredWidth: 104
-                        Layout.minimumWidth: 0
-                        model: root.visibilityOptions()
-                        selectedValue: root.visibilityValue(modelData.visibility)
-                        enabled: !root.busy
-                        onValueActivated: function(value) {
-                            root.setVisibility(modelData.accountId, value)
-                        }
-                    }
+                SettingsButton {
+                    compact: root.compactLayout
+                    text: qsTr("Use")
+                    enabled: !root.busy && modelData.accountId !== root.defaultAccountId
+                    onClicked: root.setDefaultAccount(modelData.accountId)
+                }
 
-                    SettingsButton {
-                        compact: root.compactLayout
-                        text: qsTr("Use")
-                        enabled: !root.busy && modelData.accountId !== root.defaultAccountId
-                        onClicked: root.setDefaultAccount(modelData.accountId)
-                    }
-
-                    SettingsButton {
-                        compact: root.compactLayout
-                        text: qsTr("Remove")
-                        danger: true
-                        enabled: !root.busy
-                        onClicked: root.removeAccount(modelData.accountId)
-                    }
+                SettingsButton {
+                    compact: root.compactLayout
+                    text: qsTr("Remove")
+                    danger: true
+                    enabled: !root.busy
+                    onClicked: root.removeAccount(modelData.accountId)
                 }
             }
         }

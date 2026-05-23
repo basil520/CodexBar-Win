@@ -34,10 +34,10 @@ RowLayout {
             color: parent.statusColor
 
             RotationAnimation on rotation {
-                running: root.statusState === "testing"
+                running: root.statusState === "testing" && !AppTheme.reduceMotion
                 from: 0
                 to: 360
-                duration: 850
+                duration: AppTheme.duration(850)
                 loops: Animation.Infinite
             }
         }
