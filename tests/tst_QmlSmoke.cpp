@@ -1972,6 +1972,19 @@ private slots:
                     tone: "success"
                 }
 
+                Components.PremiumCard {
+                    objectName: "premiumCard"
+                    width: 380
+                    cardRadius: 8
+                    isInteractive: true
+                }
+
+                Components.NeonProgressBar {
+                    objectName: "neonProgressBar"
+                    width: 200
+                    progress: 0.75
+                }
+
                 Components.ActionButton {
                     objectName: "actionButton"
                     text: "Import Now"
@@ -2130,6 +2143,8 @@ private slots:
         QVERIFY(findObjectByStringProperty(root, "objectName", "statusPill") != nullptr);
         QVERIFY(findObjectByStringProperty(root, "objectName", "iconButton") != nullptr);
         QVERIFY(findObjectByStringProperty(root, "objectName", "surfaceCard") != nullptr);
+        QVERIFY(findObjectByStringProperty(root, "objectName", "premiumCard") != nullptr);
+        QVERIFY(findObjectByStringProperty(root, "objectName", "neonProgressBar") != nullptr);
         QQuickItem* actionButton = qobject_cast<QQuickItem*>(
             findObjectByStringProperty(root, "objectName", "actionButton"));
         QVERIFY(actionButton != nullptr);

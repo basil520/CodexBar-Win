@@ -23,6 +23,8 @@
         <file alias="qml/components/ProviderIconVessel.qml">../qml/components/ProviderIconVessel.qml</file>
         <file alias="qml/components/ProviderAvatar.qml">../qml/components/ProviderAvatar.qml</file>
         <file alias="qml/components/SurfaceCard.qml">../qml/components/SurfaceCard.qml</file>
+        <file alias="qml/components/PremiumCard.qml">../qml/components/PremiumCard.qml</file>
+        <file alias="qml/components/NeonProgressBar.qml">../qml/components/NeonProgressBar.qml</file>
         <file alias="qml/components/ActionButton.qml">../qml/components/ActionButton.qml</file>
         <file alias="qml/components/InlineFeedback.qml">../qml/components/InlineFeedback.qml</file>
         <file alias="qml/components/SkeletonBlock.qml">../qml/components/SkeletonBlock.qml</file>
