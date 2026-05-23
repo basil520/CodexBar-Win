@@ -22,7 +22,6 @@ Rectangle {
 
     readonly property bool glassEffectActive: SettingsStore.glassEffectEnabled
     readonly property color windowBackgroundColor: AppTheme.surfaceWindow
-    readonly property color titleBarBackgroundColor: glassEffectActive ? "transparent" : AppTheme.surfaceTitleBar
     readonly property color cardBackgroundColor: AppTheme.surfaceCard
 
     property var costData: TrayViewModel.costData
@@ -117,54 +116,13 @@ Rectangle {
         spacing: 0
 
         // === Header ===
-        Components.SelectiveRadiusRect {
+        Components.TrayHeader {
             Layout.fillWidth: true
             Layout.preferredHeight: 48
-            fillColor: root.titleBarBackgroundColor
-            topLeftRadius: glassEffectActive ? 0 : 12
-            topRightRadius: glassEffectActive ? 0 : 12
-            bottomLeftRadius: 0
-            bottomRightRadius: 0
-
-            Rectangle {
-                anchors.bottom: parent.bottom
-                width: parent.width
-                height: 1
-                color: AppTheme.surfaceBorder
-            }
-
-            RowLayout {
-                anchors.fill: parent
-                anchors.leftMargin: 16
-                anchors.rightMargin: 16
-                spacing: 8
-                Text {
-                    text: qsTr("CodexBar")
-                    color: AppTheme.textPrimary
-                    font.pixelSize: 15
-                    font.bold: true
-                }
-                Item { Layout.fillWidth: true }
-                Text {
-                    text: TrayViewModel.providerCount + " " + qsTr("providers")
-                    color: AppTheme.textTertiary
-                    font.pixelSize: 11
-                }
-            }
-
-            MouseArea {
-                id: headerDragArea
-                anchors.fill: parent
-                cursorShape: Qt.SizeAllCursor
-                property int pressX: 0
-                property int pressY: 0
-                onPressed: {
-                    pressX = mouseX
-                    pressY = mouseY
-                }
-                onPositionChanged: {
-                    AppController.moveTrayPanel(mouseX - pressX, mouseY - pressY)
-                }
+            providerCount: TrayViewModel.providerCount
+            glassEffectActive: root.glassEffectActive
+            onMoveRequested: function(deltaX, deltaY) {
+                AppController.moveTrayPanel(deltaX, deltaY)
             }
         }
 
@@ -200,342 +158,21 @@ Rectangle {
         }
 
         // === Token Usage Card ===
-        Rectangle {
+        Components.TrayUsageSummary {
             Layout.fillWidth: true
-            Layout.preferredHeight: costSection.implicitHeight
             Layout.leftMargin: 12
             Layout.rightMargin: 12
             Layout.topMargin: 10
             Layout.bottomMargin: 8
-            color: "transparent"
-            clip: true
-
-            ColumnLayout {
-                id: costSection
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.top: parent.top
-                spacing: 0
-
-                // Header row
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    radius: 8
-                    color: costMouse.containsMouse ? AppTheme.surfaceHover : AppTheme.surfacePane
-
-                    Behavior on color { ColorAnimation { duration: 150 } }
-
-                    MouseArea {
-                        id: costMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            if (!TrayViewModel.costUsageEnabled) {
-                                TrayViewModel.ensureCostUsageEnabled()
-                            } else if (displayCostData.hasData) {
-                                root.costExpanded = !root.costExpanded
-                            }
-                        }
-                    }
-
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: 12
-                        anchors.rightMargin: 12
-                        spacing: 8
-
-                        Text {
-                            Layout.preferredWidth: 12
-                            text: root.costExpanded && displayCostData.hasData ? "▾" : "▸"
-                            color: AppTheme.textTertiary
-                            font.pixelSize: 11
-                            horizontalAlignment: Text.AlignHCenter
-                        }
-                        Text {
-                            Layout.fillWidth: true
-                            text: qsTr("Token Usage")
-                            color: AppTheme.textSecondary
-                            font.pixelSize: 12
-                            font.bold: true
-                            elide: Text.ElideRight
-                        }
-                        Rectangle {
-                            Layout.preferredWidth: 8
-                            Layout.preferredHeight: 8
-                            Layout.alignment: Qt.AlignVCenter
-                            radius: 4
-                            color: TrayViewModel.costUsageRefreshing ? AppTheme.statusDegraded
-                                 : displayCostData.hasData ? AppTheme.statusOk : AppTheme.statusUnknown
-
-                            SequentialAnimation on opacity {
-                                running: TrayViewModel.costUsageRefreshing
-                                loops: Animation.Infinite
-                                NumberAnimation { from: 1.0; to: 0.3; duration: 500 }
-                                NumberAnimation { from: 0.3; to: 1.0; duration: 500 }
-                            }
-                        }
-                        Text {
-                            text: qsTr("Details")
-                            color: detailsMouse.containsMouse ? AppTheme.textSecondary : AppTheme.textTertiary
-                            font.pixelSize: 10
-
-                            MouseArea {
-                                id: detailsMouse
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    TrayViewModel.ensureCostUsageEnabled()
-                                    AppController.openUsage()
-                                }
-                            }
-                        }
-                        Text {
-                            Layout.maximumWidth: 86
-                            text: displayCostData.hasData
-                                ? "$" + displayCostData.sessionCostUSD.toFixed(2) + " " + qsTr("today")
-                                : TrayViewModel.costUsageRefreshing ? qsTr("scanning...") : qsTr("no data")
-                            color: AppTheme.textTertiary
-                            font.pixelSize: 10
-                            elide: Text.ElideRight
-                        }
-                    }
-                }
-
-                // Body
-                ColumnLayout {
-                    id: costBody
-                    Layout.fillWidth: true
-                    visible: root.costExpanded && displayCostData.hasData
-                    spacing: 8
-                    Layout.topMargin: 8
-
-                    // Today + 30d summary
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 56
-                        radius: 8
-                        color: AppTheme.surfaceChart
-
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.leftMargin: 10
-                            anchors.rightMargin: 10
-                            anchors.topMargin: 8
-                            anchors.bottomMargin: 8
-                            spacing: 10
-
-                            CostMetricCell {
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                Layout.preferredWidth: 1
-                                title: qsTr("Today")
-                                value: "$" + formatCost(displayCostData.sessionCostUSD)
-                                detail: fmtNum(displayCostData.sessionTokens) + " " + qsTr("tokens")
-                                valueColor: AppTheme.statusOk
-                            }
-
-                            Rectangle {
-                                Layout.preferredWidth: 1
-                                Layout.fillHeight: true
-                                color: AppTheme.surfaceBorder
-                            }
-
-                            CostMetricCell {
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                Layout.preferredWidth: 1
-                                title: qsTr("30 days")
-                                value: "$" + formatCost(displayCostData.last30DaysCostUSD)
-                                detail: fmtNum(displayCostData.last30DaysTokens) + " " + qsTr("tokens")
-                                valueColor: AppTheme.accentColor
-                            }
-                        }
-                    }
-
-                    // Daily bars
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 60
-                        radius: 8
-                        color: AppTheme.surfaceChart
-                        clip: true
-
-                        Row {
-                            id: dailyBarChart
-                            anchors.fill: parent
-                            anchors.margins: 8
-                            spacing: 2
-                            layoutDirection: Qt.RightToLeft
-                            property double dailyMaxCost: {
-                                var maxCost = 0
-                                if (root.costExpanded && displayCostData.daily) {
-                                    for (var i = 0; i < displayCostData.daily.length; i++)
-                                        maxCost = Math.max(maxCost, displayCostData.daily[i].costUSD)
-                                }
-                                return maxCost
-                            }
-
-                            Repeater {
-                                model: root.costExpanded && displayCostData.daily ? displayCostData.daily.slice(-21) : []
-                                delegate: Rectangle {
-                                    width: Math.max(2, parent.width / 21 - 2)
-                                    height: {
-                                        var chartHeight = Math.max(2, parent ? parent.height : 44)
-                                        return dailyBarChart.dailyMaxCost > 0
-                                            ? Math.max(2, chartHeight * modelData.costUSD / dailyBarChart.dailyMaxCost)
-                                            : 2
-                                    }
-                                    y: Math.max(0, (parent ? parent.height : 44) - height)
-                                    radius: 1
-                                    color: index % 7 === 0 ? AppTheme.accentColor : AppTheme.surfaceSelected
-
-                                    Rectangle {
-                                        anchors.bottom: parent.bottom
-                                        width: parent.width
-                                        height: 1
-                                        color: AppTheme.surfaceBorder
-                                    }
-                                }
-                            }
-                        }
-
-                        ColumnLayout {
-                            anchors.left: parent.left
-                            anchors.leftMargin: 4
-                            anchors.verticalCenter: parent.verticalCenter
-                            spacing: 4
-                            Text { text: qsTr("max"); color: AppTheme.textInverse; font.pixelSize: 8 }
-                            Text { text: "0"; color: AppTheme.textInverse; font.pixelSize: 8 }
-                        }
-                    }
-
-                    // Legend
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: 6
-                        Rectangle { width: 10; height: 10; radius: 5; color: AppTheme.accentColor }
-                        Text { text: qsTr("Mon"); color: AppTheme.textTertiary; font.pixelSize: 9 }
-                        Rectangle { width: 1; height: 10; color: AppTheme.surfaceBorder }
-                        Rectangle { width: 10; height: 10; radius: 5; color: AppTheme.surfaceSelected }
-                        Text { text: qsTr("other day"); color: AppTheme.textTertiary; font.pixelSize: 9 }
-                    }
-
-                    // Per-provider breakdown
-                    Repeater {
-                        model: root.providerCostRows  // 已按 selectedProviderID 过滤
-                        delegate: ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 2
-
-                            property bool providerExpanded: false
-
-                            Rectangle {
-                                Layout.fillWidth: true
-                                Layout.preferredHeight: 28
-                                radius: 6
-                                color: providerMouse.containsMouse ? AppTheme.surfaceHover : AppTheme.surfaceControl
-
-                                Behavior on color { ColorAnimation { duration: 150 } }
-
-                                MouseArea {
-                                    id: providerMouse
-                                    anchors.fill: parent
-                                    hoverEnabled: true
-                                    cursorShape: Qt.PointingHandCursor
-                                    onClicked: providerExpanded = !providerExpanded
-                                }
-
-                                RowLayout {
-                                    anchors.fill: parent
-                                    anchors.leftMargin: 8
-                                    anchors.rightMargin: 8
-                                    spacing: 6
-
-                                    Text {
-                                        Layout.preferredWidth: 12
-                                        text: providerExpanded ? "▾" : "▸"
-                                        color: AppTheme.textTertiary
-                                        font.pixelSize: 10
-                                        horizontalAlignment: Text.AlignHCenter
-                                    }
-                                    Rectangle {
-                                        Layout.preferredWidth: 8
-                                        Layout.preferredHeight: 8
-                                        radius: 4
-                                        color: brandColorFor(modelData.providerId)
-                                    }
-                                    Text {
-                                        text: {
-                                            var names = {
-                                                "codex": "Codex", "claude": "Claude",
-                                                "opencodego": "OpenCode Go",
-                                                "qianfan": "QianFan"
-                                            }
-                                            return names[modelData.providerId] || modelData.providerId
-                                        }
-                                        color: AppTheme.textSecondary
-                                        font.pixelSize: 11
-                                        font.bold: true
-                                        Layout.fillWidth: true
-                                        elide: Text.ElideRight
-                                    }
-                                    Text {
-                                        text: "$" + formatCost(modelData.last30DaysCostUSD)
-                                        color: AppTheme.textTertiary
-                                        font.pixelSize: 10
-                                    }
-                                    Text {
-                                        text: fmtNum(modelData.last30DaysTokens) + " " + qsTr("tokens")
-                                        color: AppTheme.textInverse
-                                        font.pixelSize: 9
-                                    }
-                                }
-                            }
-
-                            // Model breakdown (expanded)
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                visible: providerExpanded
-                                spacing: 2
-                                Layout.leftMargin: 28
-
-                                Repeater {
-                                    model: modelData.models || []
-                                    delegate: RowLayout {
-                                        Layout.fillWidth: true
-                                        spacing: 4
-                                        Text {
-                                            text: "└─"
-                                            color: AppTheme.textDisabled
-                                            font.pixelSize: 9
-                                        }
-                                        Text {
-                                            text: modelData.name
-                                            color: AppTheme.textSecondary
-                                            font.pixelSize: 10
-                                            Layout.fillWidth: true
-                                            elide: Text.ElideRight
-                                        }
-                                        Text {
-                                            text: "$" + formatCost(modelData.costUSD)
-                                            color: AppTheme.textTertiary
-                                            font.pixelSize: 9
-                                        }
-                                        Text {
-                                            text: fmtNum(modelData.tokens) + " tk"
-                                            color: AppTheme.textInverse
-                                            font.pixelSize: 9
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            Layout.preferredHeight: implicitHeight
+            displayCostData: root.displayCostData
+            providerCostRows: root.providerCostRows
+            expanded: root.costExpanded
+            costUsageEnabled: TrayViewModel.costUsageEnabled
+            costUsageRefreshing: TrayViewModel.costUsageRefreshing
+            onEnableRequested: TrayViewModel.ensureCostUsageEnabled()
+            onToggleExpandedRequested: root.costExpanded = !root.costExpanded
+            onOpenDetailsRequested: AppController.openUsage()
         }
 
         // === Provider List (Overview) ===
@@ -1387,59 +1024,16 @@ Rectangle {
         }
 
         // === Footer ===
-        Components.SelectiveRadiusRect {
+        Components.TrayFooterActions {
             Layout.fillWidth: true
             Layout.preferredHeight: 44
-            fillColor: root.titleBarBackgroundColor
-            topLeftRadius: 0
-            topRightRadius: 0
-            bottomLeftRadius: glassEffectActive ? 0 : 12
-            bottomRightRadius: glassEffectActive ? 0 : 12
-
-            Rectangle {
-                anchors.top: parent.top
-                width: parent.width; height: 1
-                color: AppTheme.surfaceBorder
-            }
-
-            RowLayout {
-                anchors.fill: parent
-                anchors.margins: 8
-                spacing: 6
-
-                Components.ActionButton {
-                    text: root.isRefreshing
-                        ? qsTr("Refreshing...") + (root.refreshDuration ? " " + root.refreshDuration : "")
-                        : qsTr("Refresh")
-                    compact: true
-                    enabled: !root.isRefreshing
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 28
-                    onClicked: TrayViewModel.refresh()
-                }
-                Components.ActionButton {
-                    text: qsTr("Settings")
-                    compact: true
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 28
-                    onClicked: AppController.toggleSettings()
-                }
-                Components.ActionButton {
-                    text: qsTr("About")
-                    compact: true
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 28
-                    onClicked: AppController.showAbout()
-                }
-                Components.ActionButton {
-                    text: qsTr("Quit")
-                    compact: true
-                    variant: "danger"
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 28
-                    onClicked: AppController.quitApp()
-                }
-            }
+            glassEffectActive: root.glassEffectActive
+            refreshing: root.isRefreshing
+            refreshDuration: root.refreshDuration
+            onRefreshRequested: TrayViewModel.refresh()
+            onSettingsRequested: AppController.toggleSettings()
+            onAboutRequested: AppController.showAbout()
+            onQuitRequested: AppController.quitApp()
         }
     }
 
@@ -1482,52 +1076,6 @@ Rectangle {
         if (ago < 3600000) return Math.floor(ago / 60000) + qsTr("m ago")
         if (ago < 86400000) return Math.floor(ago / 3600000) + qsTr("h ago")
         return Math.floor(ago / 86400000) + qsTr("d ago")
-    }
-
-    component CostMetricCell: Item {
-        id: metricCell
-        property string title: ""
-        property string value: ""
-        property string detail: ""
-        property color valueColor: AppTheme.textSecondary
-
-        implicitHeight: cellColumn.implicitHeight
-        clip: true
-
-        Column {
-            id: cellColumn
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            spacing: 1
-
-            Text {
-                width: parent.width
-                text: metricCell.title
-                color: AppTheme.textTertiary
-                font.pixelSize: 10
-                elide: Text.ElideRight
-            }
-
-            Text {
-                width: parent.width
-                text: metricCell.value
-                color: metricCell.valueColor
-                font.pixelSize: 16
-                minimumPixelSize: 10
-                fontSizeMode: Text.HorizontalFit
-                font.bold: true
-                elide: Text.ElideRight
-            }
-
-            Text {
-                width: parent.width
-                text: metricCell.detail
-                color: AppTheme.textTertiary
-                font.pixelSize: 10
-                elide: Text.ElideRight
-            }
-        }
     }
 
     Components.TrayToast { id: toast }

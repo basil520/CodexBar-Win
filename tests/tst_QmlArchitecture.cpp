@@ -65,6 +65,7 @@ private slots:
     void sharedControlsDoNotKeepLocalDuplicates();
     void trayProviderDockSupportsKeyboardAndAccessibility();
     void tokenUsagePaneUsesProductionUsageProviderRow();
+    void commandCenterControlsMeetPhaseSixAccessibility();
     void finalUiPolishGuardsStayInPlace();
     void settingsPageKeepsScrollableContentItem();
     void scrollBarsAvoidPermanentActiveState();
@@ -313,7 +314,8 @@ void QmlArchitectureTest::usageDetailsRowsArePreparedByBackend()
     const QString paneContents = QString::fromUtf8(pane.readAll());
     QVERIFY2(paneContents.contains(QStringLiteral("UsageDetailsViewModel.requestProviderDetail")),
              "TokenUsagePane must request model breakdown only when a provider is expanded.");
-    QVERIFY2(paneContents.contains(QStringLiteral("property bool expanded: false")),
+    QVERIFY2(paneContents.contains(QStringLiteral("property bool rowExpanded: false"))
+                 || paneContents.contains(QStringLiteral("property bool expanded: false")),
              "Provider usage cards must start collapsed.");
     QVERIFY2(!paneContents.contains(QStringLiteral("model: card.provider.models")),
              "TokenUsagePane must not render model breakdown from first-screen provider rows.");
@@ -1109,8 +1111,9 @@ void QmlArchitectureTest::providerIconsUseSharedAvatar()
         const QString contents = readFile(path);
         QVERIFY2(contents.contains(QStringLiteral("ProviderAvatar"))
                      || contents.contains(QStringLiteral("TrayProviderDock"))
-                     || contents.contains(QStringLiteral("UsageProviderRow")),
-                 qPrintable(path + QStringLiteral(" must render provider identity through ProviderAvatar, UsageProviderRow, or delegate to TrayProviderDock.")));
+                     || contents.contains(QStringLiteral("UsageProviderRow"))
+                     || contents.contains(QStringLiteral("ProviderDetailHero")),
+                 qPrintable(path + QStringLiteral(" must render provider identity through ProviderAvatar, UsageProviderRow, ProviderDetailHero, or delegate to TrayProviderDock.")));
         QVERIFY2(!contents.contains(QStringLiteral("ProviderIcon-")),
                  qPrintable(path + QStringLiteral(" must not construct ProviderIcon resource paths directly.")));
     }
@@ -1127,6 +1130,11 @@ void QmlArchitectureTest::uiPolishRouteBComponentsAreGuarded()
         QStringLiteral("qml/components/SkeletonBlock.qml"),
         QStringLiteral("qml/components/FocusRing.qml"),
         QStringLiteral("qml/components/TrayProviderDock.qml"),
+        QStringLiteral("qml/components/TrayHeader.qml"),
+        QStringLiteral("qml/components/TrayUsageSummary.qml"),
+        QStringLiteral("qml/components/TrayFooterActions.qml"),
+        QStringLiteral("qml/components/ProviderDetailHero.qml"),
+        QStringLiteral("qml/components/UsageOverviewHero.qml"),
         QStringLiteral("qml/components/UsageProviderRow.qml"),
     };
 
@@ -1194,6 +1202,8 @@ void QmlArchitectureTest::sharedControlsDoNotKeepLocalDuplicates()
              "TokenUsagePane must use shared StatusPill instead of a local StatusPill.");
     QVERIFY2(!tokenUsage.contains(QStringLiteral("component SmallButton")),
              "TokenUsagePane must use shared ActionButton instead of a local SmallButton.");
+    QVERIFY2(!tokenUsage.contains(QStringLiteral("component ProviderUsageCard")),
+             "TokenUsagePane must not keep a local ProviderUsageCard once UsageProviderRow is the production row.");
     QVERIFY2(providerListItem.contains(QStringLiteral("StatusDot")),
              "ProviderListItem must render provider state through shared StatusDot.");
 }
@@ -1228,10 +1238,24 @@ void QmlArchitectureTest::tokenUsagePaneUsesProductionUsageProviderRow()
              "UsageProviderRow must stay registered in qml.qrc when TokenUsagePane uses it in production.");
     QVERIFY2(tokenUsage.contains(QStringLiteral("UsageProviderRow")),
              "TokenUsagePane must use UsageProviderRow instead of keeping it as a qrc/smoke-only component.");
+    QVERIFY2(!tokenUsage.contains(QStringLiteral("delegate: SurfaceCard")),
+             "TokenUsagePane provider rows must be rendered directly by UsageProviderRow, not a local SurfaceCard wrapper.");
     QVERIFY2(!tokenUsage.contains(QStringLiteral("ProviderAvatar {")),
              "TokenUsagePane provider row identity must live in UsageProviderRow, not a duplicated local header.");
+    QVERIFY2(!tokenUsage.contains(QStringLiteral("component SummaryMetric")),
+             "TokenUsagePane overview metrics must live in UsageOverviewHero.");
+    QVERIFY2(!tokenUsage.contains(QStringLiteral("component MiniBars")),
+             "TokenUsagePane mini charts must live in UsageOverviewHero or UsageProviderRow.");
+    QVERIFY2(!tokenUsage.contains(QStringLiteral("component StatBlock")),
+             "TokenUsagePane provider stat blocks must live in UsageProviderRow.");
     QVERIFY2(usageRow.contains(QStringLiteral("property var provider")),
              "UsageProviderRow must accept the production provider row object.");
+    QVERIFY2(usageRow.contains(QStringLiteral("property var providerDetail")),
+             "UsageProviderRow must own the expanded provider detail payload.");
+    QVERIFY2(usageRow.contains(QStringLiteral("detailModels")) && usageRow.contains(QStringLiteral("Loading model breakdown")),
+             "UsageProviderRow must render loading and model breakdown states for expanded rows.");
+    QVERIFY2(usageRow.contains(QStringLiteral("MiniBars")),
+             "UsageProviderRow must render the provider mini trend when it owns the production row.");
     QVERIFY2(usageRow.contains(QStringLiteral("signal toggleRequested")),
              "UsageProviderRow must expose a single toggle signal for expandable provider details.");
     QVERIFY2(usageRow.contains(QStringLiteral("ProviderAvatar")) && usageRow.contains(QStringLiteral("StatusPill")),
@@ -1240,10 +1264,69 @@ void QmlArchitectureTest::tokenUsagePaneUsesProductionUsageProviderRow()
              "UsageProviderRow must be keyboard and accessibility ready when it handles expansion.");
 }
 
+void QmlArchitectureTest::commandCenterControlsMeetPhaseSixAccessibility()
+{
+    const QString actionButton = readFile("qml/components/ActionButton.qml");
+    const QString settingsSwitch = readFile("qml/components/SettingsSwitch.qml");
+    const QString trayUsage = readFile("qml/components/TrayUsageSummary.qml");
+    const QString providerHero = readFile("qml/components/ProviderDetailHero.qml");
+    const QString usageRow = readFile("qml/components/UsageProviderRow.qml");
+    const QString sparkline = readFile("qml/components/MetricSparkline.qml");
+    const QString providerListItem = readFile("qml/components/ProviderListItem.qml");
+    const QString settingsToggleRow = readFile("qml/components/SettingsToggleRow.qml");
+    const QString providerDetailView = readFile("qml/components/ProviderDetailView.qml");
+
+    QVERIFY2(actionButton.contains(QStringLiteral("implicitHeight: compact ? 32 : 34")),
+             "ActionButton compact mode must keep a >=32px hit target for Phase 6.");
+    QVERIFY2(actionButton.contains(QStringLiteral("minWidth: compact ? 32 : 48")),
+             "ActionButton compact mode must keep a >=32px minimum width.");
+
+    QVERIFY2(settingsSwitch.contains(QStringLiteral("implicitHeight: 32")),
+             "SettingsSwitch must expose a >=32px pointer target while keeping the visual track compact.");
+    QVERIFY2(settingsSwitch.contains(QStringLiteral("activeFocusOnTab")),
+             "SettingsSwitch must be keyboard focusable.");
+    QVERIFY2(settingsSwitch.contains(QStringLiteral("Accessible.role")) && settingsSwitch.contains(QStringLiteral("Accessible.name")),
+             "SettingsSwitch must expose accessible switch semantics and a name.");
+    QVERIFY2(settingsSwitch.contains(QStringLiteral("Keys.onSpacePressed")) && settingsSwitch.contains(QStringLiteral("Keys.onReturnPressed")),
+             "SettingsSwitch must toggle from keyboard, not only pointer clicks.");
+    QVERIFY2(settingsSwitch.contains(QStringLiteral("FocusRing")),
+             "SettingsSwitch must render a visible focus ring.");
+
+    QVERIFY2(trayUsage.contains(QStringLiteral("activeFocusOnTab")),
+             "TrayUsageSummary clickable rows must be reachable by keyboard.");
+    QVERIFY2(trayUsage.contains(QStringLiteral("Accessible.role")) && trayUsage.contains(QStringLiteral("Accessible.name")),
+             "TrayUsageSummary clickable rows must expose accessible text, not only color or hover state.");
+    QVERIFY2(trayUsage.contains(QStringLiteral("Keys.onSpacePressed")) && trayUsage.contains(QStringLiteral("Keys.onReturnPressed")),
+             "TrayUsageSummary rows must activate from keyboard.");
+    QVERIFY2(trayUsage.contains(QStringLiteral("FocusRing")),
+             "TrayUsageSummary rows must render visible keyboard focus.");
+    QVERIFY2(trayUsage.contains(QStringLiteral("Layout.preferredHeight: 32")),
+             "TrayUsageSummary provider rows and compact actions must keep >=32px hit targets.");
+    QVERIFY2(trayUsage.contains(QStringLiteral("Details")) && trayUsage.contains(QStringLiteral("ActionButton")),
+             "TrayUsageSummary details action must use ActionButton rather than a tiny text-only MouseArea.");
+
+    QVERIFY2(providerHero.contains(QStringLiteral("accessibleName: qsTr(\"Provider enabled\")")),
+             "ProviderDetailHero must give its enabled switch a non-color accessible label.");
+    QVERIFY2(providerListItem.contains(QStringLiteral("accessibleName: root.providerName")),
+             "ProviderListItem must give each enable switch a provider-specific accessible name.");
+    QVERIFY2(settingsToggleRow.contains(QStringLiteral("accessibleName: root.title")),
+             "SettingsToggleRow must reuse its visible title as the switch accessible name.");
+    QVERIFY2(providerDetailView.contains(QStringLiteral("accessibleName: modelData.label")),
+             "ProviderDetailView dynamic boolean fields must name their generated switches.");
+    QVERIFY2(usageRow.contains(QStringLiteral("Accessible.description")) && usageRow.contains(QStringLiteral("expanded ?")),
+             "UsageProviderRow must express expanded/collapsed state textually.");
+    QVERIFY2(sparkline.contains(QStringLiteral("AppTheme.duration(AppTheme.motionNormal)")),
+             "MetricSparkline hover motion must respect AppTheme.reduceMotion via AppTheme.duration().");
+}
+
 void QmlArchitectureTest::finalUiPolishGuardsStayInPlace()
 {
+    const QString qrc = readFile("resources/qml.qrc");
     const QString settings = readFile("qml/SettingsWindow.qml");
+    const QString tray = readFile("qml/TrayPanel.qml");
+    const QString providerDetail = readFile("qml/components/ProviderDetailView.qml");
     const QString tokenUsage = readFile("qml/panes/TokenUsagePane.qml");
+    const QString usageHero = readFile("qml/components/UsageOverviewHero.qml");
 
     const QStringList forbiddenSettingsGlyphs = {
         QStringLiteral("⚙"),
@@ -1268,10 +1351,42 @@ void QmlArchitectureTest::finalUiPolishGuardsStayInPlace()
              "SettingsWindow navigation must not display icon keys as visible text.");
     QVERIFY2(settings.contains(QStringLiteral("activeFocusOnTab")) && settings.contains(QStringLiteral("Accessible.name")),
              "SettingsWindow navigation and title actions must remain keyboard/accessibility reachable.");
-    QVERIFY2(tokenUsage.contains(QStringLiteral("updatedAt")) && tokenUsage.contains(QStringLiteral("formatUpdatedAt")),
-             "TokenUsagePane overview must expose a data update timestamp for Release QA.");
     QVERIFY2(tokenUsage.contains(QStringLiteral("UsageProviderRow")),
              "TokenUsagePane final layout must keep the production UsageProviderRow integration.");
+    QVERIFY2(providerDetail.contains(QStringLiteral("ProviderDetailHero")),
+             "ProviderDetailView must delegate the top provider identity/actions area to ProviderDetailHero.");
+    QVERIFY2(tokenUsage.contains(QStringLiteral("UsageOverviewHero")),
+             "TokenUsagePane must delegate top analytics overview to UsageOverviewHero.");
+    QVERIFY2(!tokenUsage.contains(QStringLiteral("function formatUpdatedAt")),
+             "TokenUsagePane must not retain overview updated-at formatting after UsageOverviewHero extraction.");
+    QVERIFY2(usageHero.contains(QStringLiteral("formatUpdatedAt")),
+             "UsageOverviewHero must own updated-at formatting after the overview extraction.");
+
+    const QStringList commandCenterComponents = {
+        QStringLiteral("TrayHeader"),
+        QStringLiteral("TrayUsageSummary"),
+        QStringLiteral("TrayFooterActions"),
+        QStringLiteral("ProviderDetailHero"),
+        QStringLiteral("UsageOverviewHero"),
+    };
+    for (const QString& component : commandCenterComponents) {
+        const QString fileName = QStringLiteral("qml/components/%1.qml").arg(component);
+        QVERIFY2(qrc.contains(fileName),
+                 qPrintable(fileName + QStringLiteral(" must be registered in qml.qrc for the command-center UI refresh.")));
+        const QString componentSource = readFile(fileName);
+        QVERIFY2(!componentSource.contains(QStringLiteral("Qt5Compat.GraphicalEffects")),
+                 qPrintable(fileName + QStringLiteral(" must not introduce Qt5Compat.GraphicalEffects for the refreshed UI.")));
+        QVERIFY2(!componentSource.contains(QRegularExpression(QStringLiteral("\\bduration\\s*:\\s*300\\b"))),
+                 qPrintable(fileName + QStringLiteral(" must use AppTheme.duration(...) instead of raw 300ms motion constants.")));
+    }
+    for (const QString& component : {
+             QStringLiteral("TrayHeader"),
+             QStringLiteral("TrayUsageSummary"),
+             QStringLiteral("TrayFooterActions"),
+         }) {
+        QVERIFY2(tray.contains(QStringLiteral("Components.%1").arg(component)),
+                 qPrintable(QStringLiteral("TrayPanel must delegate shell UI to Components.%1.").arg(component)));
+    }
 }
 
 void QmlArchitectureTest::settingsPageKeepsScrollableContentItem()

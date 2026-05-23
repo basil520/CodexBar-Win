@@ -162,6 +162,7 @@ Rectangle {
 
         SettingsSwitch {
             Layout.alignment: Qt.AlignVCenter
+            accessibleName: root.providerName + " " + qsTr("enabled")
             checked: root.isEnabled
             onToggled: function(checked) {
                 root.toggleChanged(checked)

@@ -28,6 +28,11 @@
         <file alias="qml/components/SkeletonBlock.qml">../qml/components/SkeletonBlock.qml</file>
         <file alias="qml/components/FocusRing.qml">../qml/components/FocusRing.qml</file>
         <file alias="qml/components/TrayProviderDock.qml">../qml/components/TrayProviderDock.qml</file>
+        <file alias="qml/components/TrayHeader.qml">../qml/components/TrayHeader.qml</file>
+        <file alias="qml/components/TrayUsageSummary.qml">../qml/components/TrayUsageSummary.qml</file>
+        <file alias="qml/components/TrayFooterActions.qml">../qml/components/TrayFooterActions.qml</file>
+        <file alias="qml/components/ProviderDetailHero.qml">../qml/components/ProviderDetailHero.qml</file>
+        <file alias="qml/components/UsageOverviewHero.qml">../qml/components/UsageOverviewHero.qml</file>
         <file alias="qml/components/UsageProviderRow.qml">../qml/components/UsageProviderRow.qml</file>
         <!-- Phase 0 shared UI foundation components -->
         <file alias="qml/components/IconButton.qml">../qml/components/IconButton.qml</file>

@@ -1454,6 +1454,32 @@ private:
     }
 
 private slots:
+#ifdef Q_MOC_RUN
+    void basicQmlEngineWorks();
+    void settingsWindowLoads();
+    void settingsPageContentCanScrollWhenTall();
+    void providerDetailControlsStayWithinNarrowViewport();
+    void settingsWindowDefersProviderWorkUntilProvidersTab();
+    void trayPanelLoads();
+    void trayPanelDefersCostBreakdownOnFirstPaint();
+    void trayPanelSwitchesTokenAccount();
+    void usageWindowDefersTokenUsagePaneUntilShown();
+    void tokenUsagePaneRequestsCostScanOnLoad();
+    void usageWindowReleasesTokenUsageCachesWhenHidden();
+    void settingsWindowRenders();
+    void trayPanelRenders();
+    void settingsWindowTabInteraction();
+    void providerAvatarLoadsContrastPolicies();
+    void trayProviderDockCanReturnToOverview();
+    void uiFoundationComponentsLoad();
+    void secretInputCommitsOnlyOnExplicitAction();
+    void providerTextSettingCommitsOnlyOnExplicitAction();
+    void tokenAccountsPaneAddsApiAccount();
+    void settingsWindowDebouncesStatusProviderListRefresh();
+    void topLevelWindowsUseTranslucentRootsWhenGlassIsEnabled();
+    void settingsGroupBoxUsesTranslucentColorWhenGlassIsEnabled();
+};
+#else
     void basicQmlEngineWorks() {
         QQmlEngine engine;
         setupEngine(engine);
@@ -1797,38 +1823,34 @@ private slots:
         setupEngine(*view.engine());
         view.resize(180, 56);
 
-        QQuickItem* root = createInlineRoot(view, R"(
-            import QtQuick 2.15
-            import "qrc:/qml/components" as Components
-
-            Row {
-                width: 180
-                height: 56
-                spacing: 8
-
-                Components.ProviderAvatar {
-                    objectName: "darkGlyphAvatar"
-                    size: 32
-                    providerId: "alibaba"
-                    displayName: "Alibaba"
-                }
-
-                Components.ProviderAvatar {
-                    objectName: "preserveBackgroundAvatar"
-                    size: 32
-                    providerId: "xfxinchen"
-                    displayName: "XFXinChen"
-                    severity: "error"
-                }
-
-                Components.ProviderAvatar {
-                    objectName: "fallbackAvatar"
-                    size: 32
-                    providerId: "missing-provider-for-test"
-                    displayName: "Missing"
-                }
-            }
-        )", QUrl("qrc:/tests/ProviderAvatarHarness.qml"));
+        const QByteArray qml =
+            "import QtQuick 2.15\n"
+            "import \"qrc:/qml/components\" as Components\n"
+            "Row {\n"
+            "    width: 180\n"
+            "    height: 56\n"
+            "    spacing: 8\n"
+            "    Components.ProviderAvatar {\n"
+            "        objectName: \"darkGlyphAvatar\"\n"
+            "        size: 32\n"
+            "        providerId: \"alibaba\"\n"
+            "        displayName: \"Alibaba\"\n"
+            "    }\n"
+            "    Components.ProviderAvatar {\n"
+            "        objectName: \"preserveBackgroundAvatar\"\n"
+            "        size: 32\n"
+            "        providerId: \"xfxinchen\"\n"
+            "        displayName: \"XFXinChen\"\n"
+            "        severity: \"error\"\n"
+            "    }\n"
+            "    Components.ProviderAvatar {\n"
+            "        objectName: \"fallbackAvatar\"\n"
+            "        size: 32\n"
+            "        providerId: \"missing-provider-for-test\"\n"
+            "        displayName: \"Missing\"\n"
+            "    }\n"
+            "}\n";
+        QQuickItem* root = createInlineRoot(view, qml, QUrl("qrc:/tests/ProviderAvatarHarness.qml"));
 
         QVERIFY(root != nullptr);
         view.show();
@@ -1910,9 +1932,15 @@ private slots:
             Column {
                 property int actionClickCount: 0
                 property int usageToggleCount: 0
+                property int trayHeaderMoveCount: 0
+                property int trayUsageToggleCount: 0
+                property int trayUsageOpenCount: 0
+                property int footerRefreshCount: 0
+                property int heroRefreshCount: 0
+                property int usageRefreshCount: 0
 
                 width: 640
-                height: 360
+                height: 900
                 spacing: 8
 
                 Components.ErrorNotice {
@@ -1994,6 +2022,78 @@ private slots:
                     providerList: []
                 }
 
+                Components.TrayHeader {
+                    objectName: "trayHeader"
+                    width: 380
+                    height: 48
+                    providerCount: 3
+                    glassEffectActive: false
+                    onMoveRequested: parent.trayHeaderMoveCount += 1
+                }
+
+                Components.TrayUsageSummary {
+                    objectName: "trayUsageSummary"
+                    width: 380
+                    displayCostData: ({
+                        "hasData": true,
+                        "sessionCostUSD": 1.23,
+                        "sessionTokens": 1200,
+                        "last30DaysCostUSD": 12.34,
+                        "last30DaysTokens": 42000,
+                        "daily": [{"costUSD": 1.0}, {"costUSD": 2.0}]
+                    })
+                    providerCostRows: []
+                    expanded: true
+                    costUsageEnabled: true
+                    costUsageRefreshing: false
+                    onToggleExpandedRequested: parent.trayUsageToggleCount += 1
+                    onOpenDetailsRequested: parent.trayUsageOpenCount += 1
+                }
+
+                Components.TrayFooterActions {
+                    objectName: "trayFooterActions"
+                    width: 380
+                    height: 44
+                    refreshing: false
+                    refreshDuration: ""
+                    glassEffectActive: false
+                    onRefreshRequested: parent.footerRefreshCount += 1
+                }
+
+                Components.ProviderDetailHero {
+                    objectName: "providerDetailHero"
+                    width: 380
+                    providerId: "codex"
+                    descriptor: ({
+                        "displayName": "Codex",
+                        "enabled": true,
+                        "sourceModes": ["auto", "web"],
+                        "dashboardURL": "https://chatgpt.com",
+                        "statusURL": "https://status.openai.com"
+                    })
+                    providerStatus: ({ "state": "ok" })
+                    providerError: ""
+                    brandColor: "steelblue"
+                    onRefreshRequested: parent.heroRefreshCount += 1
+                }
+
+                Components.UsageOverviewHero {
+                    objectName: "usageOverviewHero"
+                    width: 380
+                    costData: ({
+                        "sessionCostUSD": 1.23,
+                        "sessionTokens": 1200,
+                        "last30DaysCostUSD": 12.34,
+                        "last30DaysTokens": 42000,
+                        "updatedAt": 1760000000000,
+                        "daily": [{"costUSD": 1.0}, {"costUSD": 2.0}]
+                    })
+                    tokenProviderCount: 2
+                    costUsageEnabled: true
+                    costUsageRefreshing: false
+                    onRefreshRequested: parent.usageRefreshCount += 1
+                }
+
                 Components.UsageProviderRow {
                     objectName: "usageProviderRow"
                     width: 380
@@ -2001,13 +2101,22 @@ private slots:
                         "providerId": "codex",
                         "displayName": "Codex",
                         "enabled": true,
-                        "hasTokenData": true
+                        "hasTokenData": true,
+                        "sessionCostUSD": 1.23,
+                        "sessionTokens": 1200,
+                        "last30DaysCostUSD": 12.34,
+                        "last30DaysTokens": 42000,
+                        "daily": [{"costUSD": 1.0}, {"costUSD": 2.0}]
+                    })
+                    providerDetail: ({
+                        "state": "ready",
+                        "models": [{"name": "gpt-5", "costUSD": 1.23, "tokens": 1200}]
                     })
                     accentColor: "steelblue"
                     kindText: "Token"
                     summary: "$12.34 · 1.2M tokens"
                     canExpand: true
-                    expanded: false
+                    expanded: true
                     onToggleRequested: parent.usageToggleCount += 1
                 }
             }
@@ -2031,6 +2140,11 @@ private slots:
         QVERIFY(findObjectByStringProperty(root, "objectName", "skeletonBlock") != nullptr);
         QVERIFY(findObjectByStringProperty(root, "objectName", "focusRing") != nullptr);
         QVERIFY(findObjectByStringProperty(root, "objectName", "trayProviderDock") != nullptr);
+        QVERIFY(findObjectByStringProperty(root, "objectName", "trayHeader") != nullptr);
+        QVERIFY(findObjectByStringProperty(root, "objectName", "trayUsageSummary") != nullptr);
+        QVERIFY(findObjectByStringProperty(root, "objectName", "trayFooterActions") != nullptr);
+        QVERIFY(findObjectByStringProperty(root, "objectName", "providerDetailHero") != nullptr);
+        QVERIFY(findObjectByStringProperty(root, "objectName", "usageOverviewHero") != nullptr);
         QQuickItem* usageProviderRow = qobject_cast<QQuickItem*>(
             findObjectByStringProperty(root, "objectName", "usageProviderRow"));
         QVERIFY(usageProviderRow != nullptr);
@@ -2327,6 +2441,7 @@ private slots:
         delete object;
     }
 };
+#endif
 
 void tst_QmlSmoke::providerDetailControlsStayWithinNarrowViewport()
 {

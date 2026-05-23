@@ -14,7 +14,7 @@ Canvas {
 
     opacity: hovered ? 0.85 : 0.45
     Behavior on opacity {
-        NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+        NumberAnimation { duration: AppTheme.duration(AppTheme.motionNormal); easing.type: AppTheme.easeStandard }
     }
 
     onDataPointsChanged: requestPaint()

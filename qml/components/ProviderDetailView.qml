@@ -164,106 +164,21 @@ ScrollView {
             width: Math.max(0, Math.min(root.availableWidth - 48, 760))
             spacing: 12
 
-            SettingsGroupBox {
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 12
-
-                    ProviderAvatar {
-                        Layout.preferredWidth: 42
-                        Layout.preferredHeight: 42
-                        Layout.alignment: Qt.AlignTop
-                        size: 42
-                        providerId: root.providerId
-                        displayName: root.descriptor && root.descriptor.displayName ? root.descriptor.displayName : root.providerId
-                        brandColor: root.brandColor
-                        selected: true
-                        enabled: root.descriptor ? root.descriptor.enabled : true
-                        severity: root.providerError !== "" ? "error" : "none"
-                    }
-
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        Layout.minimumWidth: 0
-                        spacing: 6
-
-                        RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 8
-
-                            Label {
-                                Layout.fillWidth: true
-                                Layout.minimumWidth: 0
-                                text: root.descriptor ? root.descriptor.displayName : root.providerId
-                                color: AppTheme.textPrimary
-                                font.pixelSize: 22
-                                font.bold: true
-                                elide: Text.ElideRight
-                            }
-
-                            StatusPill {
-                                text: root.statusText(root.providerStatus && root.providerStatus.state ? root.providerStatus.state : "unknown")
-                                toneColor: root.statusColor(root.providerStatus && root.providerStatus.state ? root.providerStatus.state : "unknown")
-                            }
-                        }
-
-                        Label {
-                            Layout.fillWidth: true
-                            Layout.minimumWidth: 0
-                            text: root.descriptor && root.descriptor.sourceModes && root.descriptor.sourceModes.length > 0
-                                ? qsTr("Sources: ") + root.descriptor.sourceModes.join(", ")
-                                : qsTr("Descriptor-driven provider settings")
-                            color: AppTheme.textSecondary
-                            font.pixelSize: AppTheme.fontSizeSm
-                            elide: Text.ElideRight
-                        }
-
-                        RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 8
-
-                            SettingsButton {
-                                compact: true
-                                text: qsTr("Dashboard")
-                                visible: root.descriptor && root.descriptor.dashboardURL
-                                enabled: visible
-                                onClicked: AppController.openExternalUrl(root.descriptor.dashboardURL)
-                            }
-
-                            SettingsButton {
-                                compact: true
-                                text: qsTr("Status")
-                                visible: root.statusOpenURL() !== ""
-                                enabled: visible
-                                onClicked: AppController.openExternalUrl(root.statusOpenURL())
-                            }
-
-                            SettingsButton {
-                                compact: true
-                                text: qsTr("Refresh")
-                                onClicked: root.refreshRequested()
-                            }
-                        }
-
-                        RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 8
-                            Item { Layout.fillWidth: true }
-
-                            Label {
-                                text: qsTr("Enabled")
-                                color: AppTheme.textSecondary
-                                font.pixelSize: AppTheme.fontSizeSm
-                            }
-
-                            SettingsSwitch {
-                                checked: root.descriptor ? root.descriptor.enabled : false
-                                onToggled: function(checked) {
-                                    root.toggleEnabled(checked)
-                                }
-                            }
-                        }
-                    }
+            ProviderDetailHero {
+                providerId: root.providerId
+                descriptor: root.descriptor
+                providerStatus: root.providerStatus
+                providerError: root.providerError
+                brandColor: root.brandColor
+                onDashboardRequested: function(url) {
+                    AppController.openExternalUrl(url)
+                }
+                onStatusRequested: function(url) {
+                    AppController.openExternalUrl(url)
+                }
+                onRefreshRequested: root.refreshRequested()
+                onEnabledToggled: function(enabled) {
+                    root.toggleEnabled(enabled)
                 }
             }
 
@@ -622,6 +537,7 @@ ScrollView {
                                     RowLayout {
                                         Item { Layout.fillWidth: true }
                                         SettingsSwitch {
+                                            accessibleName: modelData.label || modelData.key || qsTr("Setting")
                                             checked: modelData.value || false
                                             onToggled: function(checked) {
                                                 root.settingChanged(modelData.key, checked)

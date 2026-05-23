@@ -9,13 +9,13 @@ Rectangle {
     property bool busy: false
     property bool compact: false
     property int horizontalPadding: compact ? 10 : 14
-    property int minWidth: compact ? 28 : 48
+    property int minWidth: compact ? 32 : 48
     property alias font: label.font
 
     signal clicked()
 
     implicitWidth: Math.max(minWidth, label.implicitWidth + horizontalPadding * 2)
-    implicitHeight: compact ? 28 : 34
+    implicitHeight: compact ? 32 : 34
     radius: AppTheme.radiusMd
     color: backgroundColor()
     border.width: variant === "primary" ? 0 : 1

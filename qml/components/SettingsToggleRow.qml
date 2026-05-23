@@ -40,6 +40,7 @@ RowLayout {
     SettingsSwitch {
         id: toggleSwitch
         Layout.alignment: Qt.AlignVCenter
+        accessibleName: root.title
         checked: root.checked
         onToggled: function(checked) {
             root.toggled(checked)
