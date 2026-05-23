@@ -5,35 +5,42 @@
         <name>AboutPane</name>
         <message>
             <location filename="../qml/panes/AboutPane.qml" line="9" />
+            <location filename="../qml/panes/AboutPane.qml" line="9" />
             <source>About</source>
             <translation>关于</translation>
         </message>
         <message>
+            <location filename="../qml/panes/AboutPane.qml" line="10" />
             <location filename="../qml/panes/AboutPane.qml" line="10" />
             <source>Build information and project links.</source>
             <translation>构建信息和项目链接。</translation>
         </message>
         <message>
             <location filename="../qml/panes/AboutPane.qml" line="37" />
+            <location filename="../qml/panes/AboutPane.qml" line="37" />
             <source>CodexBar</source>
             <translation>CodexBar</translation>
         </message>
         <message>
+            <location filename="../qml/panes/AboutPane.qml" line="44" />
             <location filename="../qml/panes/AboutPane.qml" line="44" />
             <source>Version </source>
             <translation>版本 </translation>
         </message>
         <message>
             <location filename="../qml/panes/AboutPane.qml" line="50" />
+            <location filename="../qml/panes/AboutPane.qml" line="50" />
             <source>Windows system tray app for tracking AI provider usage limits.</source>
             <translation>用于追踪 AI 提供商用量限额的 Windows 系统托盘应用。</translation>
         </message>
         <message>
             <location filename="../qml/panes/AboutPane.qml" line="68" />
+            <location filename="../qml/panes/AboutPane.qml" line="68" />
             <source>Project Repository</source>
             <translation>项目仓库</translation>
         </message>
         <message>
+            <location filename="../qml/panes/AboutPane.qml" line="75" />
             <location filename="../qml/panes/AboutPane.qml" line="75" />
             <source>Open GitHub</source>
             <translation>打开 GitHub</translation>
@@ -43,10 +50,12 @@
         <name>ActionButton</name>
         <message>
             <location filename="../qml/components/ActionButton.qml" line="27" />
+            <location filename="../qml/components/ActionButton.qml" line="27" />
             <source>Busy</source>
             <translation>忙碌</translation>
         </message>
         <message>
+            <location filename="../qml/components/ActionButton.qml" line="92" />
             <location filename="../qml/components/ActionButton.qml" line="92" />
             <source>Working...</source>
             <translation>处理中...</translation>
@@ -56,95 +65,114 @@
         <name>AdvancedPane</name>
         <message>
             <location filename="../qml/panes/AdvancedPane.qml" line="9" />
+            <location filename="../qml/panes/AdvancedPane.qml" line="9" />
             <source>Advanced</source>
             <translation>高级</translation>
         </message>
         <message>
+            <location filename="../qml/panes/AdvancedPane.qml" line="10" />
             <location filename="../qml/panes/AdvancedPane.qml" line="10" />
             <source>Refresh cadence, status polling, and diagnostic controls.</source>
             <translation>自动刷新节奏、状态轮询和诊断控制。</translation>
         </message>
         <message>
             <location filename="../qml/panes/AdvancedPane.qml" line="23" />
+            <location filename="../qml/panes/AdvancedPane.qml" line="23" />
             <source>Refresh Frequency</source>
             <translation>刷新频率</translation>
         </message>
         <message>
+            <location filename="../qml/panes/AdvancedPane.qml" line="30" />
             <location filename="../qml/panes/AdvancedPane.qml" line="30" />
             <source>How often enabled providers refresh automatically.</source>
             <translation>已启用提供商的自动刷新频率。</translation>
         </message>
         <message>
             <location filename="../qml/panes/AdvancedPane.qml" line="41" />
+            <location filename="../qml/panes/AdvancedPane.qml" line="41" />
             <source>Every minute</source>
             <translation>每分钟</translation>
         </message>
         <message>
+            <location filename="../qml/panes/AdvancedPane.qml" line="42" />
             <location filename="../qml/panes/AdvancedPane.qml" line="42" />
             <source>Every 5 minutes</source>
             <translation>每 5 分钟</translation>
         </message>
         <message>
             <location filename="../qml/panes/AdvancedPane.qml" line="43" />
+            <location filename="../qml/panes/AdvancedPane.qml" line="43" />
             <source>Every 15 minutes</source>
             <translation>每 15 分钟</translation>
         </message>
         <message>
+            <location filename="../qml/panes/AdvancedPane.qml" line="44" />
             <location filename="../qml/panes/AdvancedPane.qml" line="44" />
             <source>Every 30 minutes</source>
             <translation>每 30 分钟</translation>
         </message>
         <message>
             <location filename="../qml/panes/AdvancedPane.qml" line="45" />
+            <location filename="../qml/panes/AdvancedPane.qml" line="45" />
             <source>Manual only</source>
             <translation>仅手动</translation>
         </message>
         <message>
+            <location filename="../qml/panes/AdvancedPane.qml" line="55" />
             <location filename="../qml/panes/AdvancedPane.qml" line="55" />
             <source>Check Provider Status</source>
             <translation>检查提供商状态</translation>
         </message>
         <message>
             <location filename="../qml/panes/AdvancedPane.qml" line="56" />
+            <location filename="../qml/panes/AdvancedPane.qml" line="56" />
             <source>Poll statuspage-style endpoints for provider health.</source>
             <translation>轮询 statuspage 风格端点以获取提供商健康状态。</translation>
         </message>
         <message>
+            <location filename="../qml/panes/AdvancedPane.qml" line="64" />
             <location filename="../qml/panes/AdvancedPane.qml" line="64" />
             <source>Cookies Import</source>
             <translation>Cookies 导入</translation>
         </message>
         <message>
             <location filename="../qml/panes/AdvancedPane.qml" line="65" />
+            <location filename="../qml/panes/AdvancedPane.qml" line="65" />
             <source>Enable Browser Session Bridge import UI and extension connections.</source>
             <translation>启用 Browser Session Bridge 导入界面和扩展连接。</translation>
         </message>
         <message>
+            <location filename="../qml/panes/AdvancedPane.qml" line="76" />
             <location filename="../qml/panes/AdvancedPane.qml" line="76" />
             <source>Show debug menus and keep more diagnostic information visible.</source>
             <translation>显示调试菜单，并展示更多诊断信息。</translation>
         </message>
         <message>
             <location filename="../qml/panes/AdvancedPane.qml" line="84" />
+            <location filename="../qml/panes/AdvancedPane.qml" line="84" />
             <source>Codex Verbose Logging</source>
             <translation>Codex 详细日志</translation>
         </message>
         <message>
+            <location filename="../qml/panes/AdvancedPane.qml" line="85" />
             <location filename="../qml/panes/AdvancedPane.qml" line="85" />
             <source>Log detailed strategy-level diagnostics during Codex fetches.</source>
             <translation>Codex 获取期间记录详细的策略级诊断。</translation>
         </message>
         <message>
             <location filename="../qml/panes/AdvancedPane.qml" line="93" />
+            <location filename="../qml/panes/AdvancedPane.qml" line="93" />
             <source>Web Dashboard Debug Dump</source>
             <translation>Web Dashboard 调试转储</translation>
         </message>
         <message>
             <location filename="../qml/panes/AdvancedPane.qml" line="94" />
+            <location filename="../qml/panes/AdvancedPane.qml" line="94" />
             <source>Save raw HTML from web dashboard fetches for troubleshooting.</source>
             <translation>保存 Web 仪表盘获取的原始 HTML 用于故障排除。</translation>
         </message>
         <message>
+            <location filename="../qml/panes/AdvancedPane.qml" line="75" />
             <location filename="../qml/panes/AdvancedPane.qml" line="75" />
             <source>Debug Mode</source>
             <translation>调试模式</translation>
@@ -197,25 +225,30 @@
         <name>BrowserSessionBindingDialog</name>
         <message>
             <location filename="../qml/components/BrowserSessionBindingDialog.qml" line="10" />
+            <location filename="../qml/components/BrowserSessionBindingDialog.qml" line="10" />
             <source>Choose Browser Profile</source>
             <translation>选择浏览器配置文件</translation>
         </message>
         <message>
+            <location filename="../qml/components/BrowserSessionBindingDialog.qml" line="33" />
             <location filename="../qml/components/BrowserSessionBindingDialog.qml" line="33" />
             <source>Select a connected Chrome, Edge, or Brave profile. Auto uses the first connected profile that supports this provider.</source>
             <translation>选择一个已连接的 Chrome、Edge 或 Brave 配置文件。自动模式将使用第一个支持此提供商的已连接配置文件。</translation>
         </message>
         <message>
             <location filename="../qml/components/BrowserSessionBindingDialog.qml" line="41" />
+            <location filename="../qml/components/BrowserSessionBindingDialog.qml" line="41" />
             <source>Auto</source>
             <translation>自动</translation>
         </message>
         <message>
             <location filename="../qml/components/BrowserSessionBindingDialog.qml" line="54" />
+            <location filename="../qml/components/BrowserSessionBindingDialog.qml" line="54" />
             <source> - connected</source>
             <translation> - 已连接</translation>
         </message>
         <message>
+            <location filename="../qml/components/BrowserSessionBindingDialog.qml" line="54" />
             <location filename="../qml/components/BrowserSessionBindingDialog.qml" line="54" />
             <source> - offline</source>
             <translation> - 离线</translation>
@@ -225,75 +258,90 @@
         <name>BrowserSessionCard</name>
         <message>
             <location filename="../qml/components/BrowserSessionCard.qml" line="29" />
+            <location filename="../qml/components/BrowserSessionCard.qml" line="29" />
             <source>Auto</source>
             <translation>自动</translation>
         </message>
         <message>
+            <location filename="../qml/components/BrowserSessionCard.qml" line="34" />
             <location filename="../qml/components/BrowserSessionCard.qml" line="34" />
             <source>Unavailable profile</source>
             <translation>不可用的配置文件</translation>
         </message>
         <message>
             <location filename="../qml/components/BrowserSessionCard.qml" line="59" />
+            <location filename="../qml/components/BrowserSessionCard.qml" line="59" />
             <source>Bridge server is not running yet.</source>
             <translation>桥接服务器尚未运行。</translation>
         </message>
         <message>
+            <location filename="../qml/components/BrowserSessionCard.qml" line="63" />
             <location filename="../qml/components/BrowserSessionCard.qml" line="63" />
             <source>Connected extension is outdated for Codex import. Click Prepare Extension, then reload the unpacked extension in Edge/Chrome.</source>
             <translation>已连接的扩展版本过旧，无法导入 Codex。点击准备扩展，然后在 Edge/Chrome 中重新加载解压的扩展。</translation>
         </message>
         <message>
             <location filename="../qml/components/BrowserSessionCard.qml" line="65" />
+            <location filename="../qml/components/BrowserSessionCard.qml" line="65" />
             <source>No compatible browser profile supports this provider yet. If the browser is connected, click Prepare Extension and reload the unpacked extension.</source>
             <translation>尚无兼容的浏览器配置文件支持此提供商。如果浏览器已连接，请点击准备扩展并重新加载解压的扩展。</translation>
         </message>
         <message>
+            <location filename="../qml/components/BrowserSessionCard.qml" line="67" />
             <location filename="../qml/components/BrowserSessionCard.qml" line="67" />
             <source>The selected provider has no connected compatible browser profile.</source>
             <translation>所选提供商没有已连接的兼容浏览器配置文件。</translation>
         </message>
         <message>
             <location filename="../qml/components/BrowserSessionCard.qml" line="112" />
+            <location filename="../qml/components/BrowserSessionCard.qml" line="112" />
             <source>Browser Session Bridge</source>
             <translation>浏览器会话桥接</translation>
         </message>
         <message>
+            <location filename="../qml/components/BrowserSessionCard.qml" line="137" />
             <location filename="../qml/components/BrowserSessionCard.qml" line="137" />
             <source>Source Profile</source>
             <translation>源配置文件</translation>
         </message>
         <message>
             <location filename="../qml/components/BrowserSessionCard.qml" line="152" />
+            <location filename="../qml/components/BrowserSessionCard.qml" line="152" />
             <source>Refresh after import</source>
             <translation>导入后刷新</translation>
         </message>
         <message>
+            <location filename="../qml/components/BrowserSessionCard.qml" line="153" />
             <location filename="../qml/components/BrowserSessionCard.qml" line="153" />
             <source>After a browser import succeeds, refresh this provider automatically.</source>
             <translation>浏览器导入成功后，自动刷新此提供商。</translation>
         </message>
         <message>
             <location filename="../qml/components/BrowserSessionCard.qml" line="165" />
+            <location filename="../qml/components/BrowserSessionCard.qml" line="165" />
             <source>Last Import</source>
             <translation>上次导入</translation>
         </message>
         <message>
+            <location filename="../qml/components/BrowserSessionCard.qml" line="172" />
             <location filename="../qml/components/BrowserSessionCard.qml" line="172" />
             <source>Never</source>
             <translation>从未</translation>
         </message>
         <message>
             <location filename="../qml/components/BrowserSessionCard.qml" line="182" />
+            <location filename="../qml/components/BrowserSessionCard.qml" line="182" />
             <source>Importing browser session from the selected profile...</source>
             <translation>正在从所选配置文件导入浏览器会话...</translation>
         </message>
         <message>
             <location filename="../qml/components/BrowserSessionCard.qml" line="208" />
+            <location filename="../qml/components/BrowserSessionCard.qml" line="208" />
             <source>Importing...</source>
             <translation>导入中...</translation>
         </message>
         <message>
+            <location filename="../qml/components/BrowserSessionCard.qml" line="208" />
             <location filename="../qml/components/BrowserSessionCard.qml" line="208" />
             <source>Import Now</source>
             <translation>立即导入</translation>
@@ -303,53 +351,78 @@
         <name>BrowserSessionInstallGuide</name>
         <message>
             <location filename="../qml/components/BrowserSessionInstallGuide.qml" line="31" />
+            <location filename="../qml/components/BrowserSessionInstallGuide.qml" line="31" />
             <source>Browser Session Bridge connected</source>
             <translation>浏览器会话桥接已连接</translation>
         </message>
         <message>
+            <location filename="../qml/components/BrowserSessionInstallGuide.qml" line="33" />
             <location filename="../qml/components/BrowserSessionInstallGuide.qml" line="33" />
             <source>Extension prepared, waiting for browser</source>
             <translation>扩展已准备，等待浏览器</translation>
         </message>
         <message>
             <location filename="../qml/components/BrowserSessionInstallGuide.qml" line="34" />
+            <location filename="../qml/components/BrowserSessionInstallGuide.qml" line="34" />
             <source>Prepare the browser extension</source>
             <translation>准备浏览器扩展</translation>
         </message>
         <message>
+            <location filename="../qml/components/BrowserSessionInstallGuide.qml" line="45" />
             <location filename="../qml/components/BrowserSessionInstallGuide.qml" line="45" />
             <source>Load the unpacked extension in Chrome or Edge, then keep CodexBarX open. The bridge uses the extension API instead of reading encrypted Chrome 127+ cookie databases.</source>
             <translation>在 Chrome 或 Edge 中加载解压的扩展，然后保持 CodexBarX 打开。桥接使用扩展 API，而不是读取加密的 Chrome 127+ Cookie 数据库。</translation>
         </message>
         <message>
             <location filename="../qml/components/BrowserSessionInstallGuide.qml" line="73" />
+            <location filename="../qml/components/BrowserSessionInstallGuide.qml" line="73" />
             <source>Preparing...</source>
             <translation>准备中...</translation>
         </message>
         <message>
+            <location filename="../qml/components/BrowserSessionInstallGuide.qml" line="73" />
             <location filename="../qml/components/BrowserSessionInstallGuide.qml" line="73" />
             <source>Prepare Extension</source>
             <translation>准备扩展</translation>
         </message>
         <message>
             <location filename="../qml/components/BrowserSessionInstallGuide.qml" line="80" />
+            <location filename="../qml/components/BrowserSessionInstallGuide.qml" line="80" />
             <source>Copy Path</source>
             <translation>复制路径</translation>
         </message>
         <message>
+            <location filename="../qml/components/BrowserSessionInstallGuide.qml" line="85" />
             <location filename="../qml/components/BrowserSessionInstallGuide.qml" line="85" />
             <source>Open Folder</source>
             <translation>打开文件夹</translation>
         </message>
         <message>
             <location filename="../qml/components/BrowserSessionInstallGuide.qml" line="96" />
+            <location filename="../qml/components/BrowserSessionInstallGuide.qml" line="96" />
             <source>Open Chrome Extensions</source>
             <translation>打开 Chrome 扩展</translation>
         </message>
         <message>
             <location filename="../qml/components/BrowserSessionInstallGuide.qml" line="101" />
+            <location filename="../qml/components/BrowserSessionInstallGuide.qml" line="101" />
             <source>Open Edge Extensions</source>
             <translation>打开 Edge 扩展</translation>
+        </message>
+    </context>
+    <context>
+        <name>ChartFrame</name>
+        <message>
+            <location filename="../qml/components/ChartFrame.qml" line="13" />
+            <location filename="../qml/components/ChartFrame.qml" line="13" />
+            <source>No chart data</source>
+            <translation>无图表数据</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/ChartFrame.qml" line="67" />
+            <location filename="../qml/components/ChartFrame.qml" line="67" />
+            <source>Loading chart</source>
+            <translation>正在加载图表</translation>
         </message>
     </context>
     <context>
@@ -376,12 +449,14 @@
     <context>
         <name>CodexAccountSwitcher</name>
         <message>
-            <location filename="../qml/components/CodexAccountSwitcher.qml" line="97" />
+            <location filename="../qml/components/CodexAccountSwitcher.qml" line="98" />
+            <location filename="../qml/components/CodexAccountSwitcher.qml" line="98" />
             <source>accounts</source>
             <translation>账户</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountSwitcher.qml" line="204" />
+            <location filename="../qml/components/CodexAccountSwitcher.qml" line="205" />
+            <location filename="../qml/components/CodexAccountSwitcher.qml" line="205" />
             <source>System</source>
             <translation>系统</translation>
         </message>
@@ -390,131 +465,169 @@
         <name>CodexAccountsPane</name>
         <message>
             <location filename="../qml/components/CodexAccountsPane.qml" line="47" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="47" />
             <source>Accounts</source>
             <translation>账户</translation>
         </message>
         <message>
+            <location filename="../qml/components/CodexAccountsPane.qml" line="55" />
             <location filename="../qml/components/CodexAccountsPane.qml" line="55" />
             <source>Adding...</source>
             <translation>添加中...</translation>
         </message>
         <message>
             <location filename="../qml/components/CodexAccountsPane.qml" line="56" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="56" />
             <source>Add Account</source>
             <translation>添加账户</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="98" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="79" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="79" />
+            <source>Authorization failed</source>
+            <translation>授权失败</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/CodexAccountsPane.qml" line="79" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="79" />
+            <source>Codex authorization</source>
+            <translation>Codex 授权</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/CodexAccountsPane.qml" line="82" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="82" />
             <source>Waiting for Codex authorization...</source>
             <translation>等待 Codex 授权...</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="131" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="110" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="110" />
             <source>Open</source>
             <translation>打开</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="137" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="116" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="116" />
             <source>Copy</source>
             <translation>复制</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="143" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="122" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="122" />
             <source>Cancel</source>
             <translation>取消</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="155" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="132" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="132" />
             <source>Select the active Codex account for usage tracking.</source>
             <translation>选择用于用量追踪的活动 Codex 账户。</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="247" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="224" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="224" />
             <source>System</source>
             <translation>系统</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="264" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="241" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="241" />
             <source>Active</source>
             <translation>活动中</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="273" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="250" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="250" />
             <source>No email</source>
             <translation>无邮箱</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="307" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="284" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="284" />
             <source>Use</source>
             <translation>使用</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="315" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="292" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="292" />
             <source>Set as active</source>
             <translation>设为活动中</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="333" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="310" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="310" />
             <source>Auth</source>
             <translation>认证</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="342" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="319" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="319" />
             <source>Re-authenticating...</source>
             <translation>重新认证中...</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="343" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="320" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="320" />
             <source>Re-authenticate</source>
             <translation>重新认证</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="364" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="341" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="341" />
             <source>...</source>
             <translation>...</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="365" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="342" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="342" />
             <source>Promote</source>
             <translation>提升</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="376" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="353" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="353" />
             <source>Promoting...</source>
             <translation>升级中...</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="377" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="354" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="354" />
             <source>Promote to system account</source>
             <translation>提升为系统账户</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="400" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="377" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="377" />
             <source>Remove</source>
             <translation>移除</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="411" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="388" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="388" />
             <source>Removing...</source>
             <translation>移除中...</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="412" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="389" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="389" />
             <source>Remove account</source>
             <translation>移除账户</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="423" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="400" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="400" />
             <source>No accounts configured. Click 'Add Account' to add a Codex account.</source>
             <translation>未配置账户。点击添加账户以添加 Codex 账户。</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="437" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="414" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="414" />
             <source>Remove Account?</source>
             <translation>移除账户？</translation>
         </message>
         <message>
-            <location filename="../qml/components/CodexAccountsPane.qml" line="438" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="415" />
+            <location filename="../qml/components/CodexAccountsPane.qml" line="415" />
             <source>This will remove the account from CodexBarX. Your data on the server will not be affected.</source>
             <translation>这将从 CodexBarX 中移除该账户。您在服务器上的数据不会受到影响。</translation>
         </message>
@@ -593,8 +706,64 @@
         </message>
     </context>
     <context>
+        <name>ColorDialog</name>
+        <message>
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Fusion/ColorDialog.qml" line="203" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Imagine/ColorDialog.qml" line="210" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Material/ColorDialog.qml" line="201" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Universal/ColorDialog.qml" line="204" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/ColorDialog.qml" line="210" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Fusion/ColorDialog.qml" line="203" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Imagine/ColorDialog.qml" line="210" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Material/ColorDialog.qml" line="201" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Universal/ColorDialog.qml" line="204" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/ColorDialog.qml" line="210" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Fusion/ColorDialog.qml" line="203" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Imagine/ColorDialog.qml" line="210" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Material/ColorDialog.qml" line="201" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Universal/ColorDialog.qml" line="204" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/ColorDialog.qml" line="210" />
+            <source>Color</source>
+            <translation>颜色</translation>
+        </message>
+    </context>
+    <context>
+        <name>ColorInputs</name>
+        <message>
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/ColorInputs.qml" line="50" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/ColorInputs.qml" line="50" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/ColorInputs.qml" line="50" />
+            <source>Hex</source>
+            <translation>十六进制</translation>
+        </message>
+        <message>
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/ColorInputs.qml" line="53" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/ColorInputs.qml" line="53" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/ColorInputs.qml" line="53" />
+            <source>RGB</source>
+            <translation>RGB</translation>
+        </message>
+        <message>
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/ColorInputs.qml" line="56" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/ColorInputs.qml" line="56" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/ColorInputs.qml" line="56" />
+            <source>HSV</source>
+            <translation>HSV</translation>
+        </message>
+        <message>
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/ColorInputs.qml" line="59" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/ColorInputs.qml" line="59" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/ColorInputs.qml" line="59" />
+            <source>HSL</source>
+            <translation>HSL</translation>
+        </message>
+    </context>
+    <context>
         <name>CostHistoryChart</name>
         <message>
+            <location filename="../qml/components/CostHistoryChart.qml" line="21" />
+            <location filename="../qml/components/CostHistoryChart.qml" line="63" />
+            <location filename="../qml/components/CostHistoryChart.qml" line="21" />
             <location filename="../qml/components/CostHistoryChart.qml" line="63" />
             <source>No cost history data</source>
             <translation>无费用历史数据</translation>
@@ -603,6 +772,9 @@
     <context>
         <name>CreditsHistoryChart</name>
         <message>
+            <location filename="../qml/components/CreditsHistoryChart.qml" line="19" />
+            <location filename="../qml/components/CreditsHistoryChart.qml" line="24" />
+            <location filename="../qml/components/CreditsHistoryChart.qml" line="19" />
             <location filename="../qml/components/CreditsHistoryChart.qml" line="24" />
             <source>No credits history data</source>
             <translation>无积分历史数据</translation>
@@ -612,85 +784,102 @@
         <name>DebugPane</name>
         <message>
             <location filename="../qml/panes/DebugPane.qml" line="9" />
+            <location filename="../qml/panes/DebugPane.qml" line="9" />
             <source>Debug</source>
             <translation>调试</translation>
         </message>
         <message>
+            <location filename="../qml/panes/DebugPane.qml" line="10" />
             <location filename="../qml/panes/DebugPane.qml" line="10" />
             <source>Manual actions for local validation and troubleshooting.</source>
             <translation>用于本地验证和排障的手动操作。</translation>
         </message>
         <message>
             <location filename="../qml/panes/DebugPane.qml" line="23" />
+            <location filename="../qml/panes/DebugPane.qml" line="23" />
             <source>Refresh All Providers</source>
             <translation>刷新所有提供商</translation>
         </message>
         <message>
+            <location filename="../qml/panes/DebugPane.qml" line="30" />
             <location filename="../qml/panes/DebugPane.qml" line="30" />
             <source>Run a normal refresh for every enabled provider.</source>
             <translation>对所有已启用的提供商执行一次常规刷新。</translation>
         </message>
         <message>
             <location filename="../qml/panes/DebugPane.qml" line="39" />
+            <location filename="../qml/panes/DebugPane.qml" line="39" />
             <source>Refresh</source>
             <translation>刷新</translation>
         </message>
         <message>
+            <location filename="../qml/panes/DebugPane.qml" line="55" />
             <location filename="../qml/panes/DebugPane.qml" line="55" />
             <source>Clear Cache</source>
             <translation>清除缓存</translation>
         </message>
         <message>
             <location filename="../qml/panes/DebugPane.qml" line="62" />
+            <location filename="../qml/panes/DebugPane.qml" line="62" />
             <source>Drop in-memory snapshots and connection test results.</source>
             <translation>清除内存中的快照和连接测试结果。</translation>
         </message>
         <message>
+            <location filename="../qml/panes/DebugPane.qml" line="71" />
             <location filename="../qml/panes/DebugPane.qml" line="71" />
             <source>Clear</source>
             <translation>清除</translation>
         </message>
         <message>
             <location filename="../qml/panes/DebugPane.qml" line="86" />
+            <location filename="../qml/panes/DebugPane.qml" line="86" />
             <source>Reset Settings</source>
             <translation>重置设置</translation>
         </message>
         <message>
+            <location filename="../qml/panes/DebugPane.qml" line="93" />
             <location filename="../qml/panes/DebugPane.qml" line="93" />
             <source>Restore app-level settings and provider order.</source>
             <translation>恢复应用设置和提供商顺序。</translation>
         </message>
         <message>
             <location filename="../qml/panes/DebugPane.qml" line="102" />
+            <location filename="../qml/panes/DebugPane.qml" line="102" />
             <source>Reset</source>
             <translation>重置</translation>
         </message>
         <message>
+            <location filename="../qml/panes/DebugPane.qml" line="115" />
             <location filename="../qml/panes/DebugPane.qml" line="115" />
             <source>Codex Diagnostics</source>
             <translation>Codex 诊断</translation>
         </message>
         <message>
             <location filename="../qml/panes/DebugPane.qml" line="131" />
+            <location filename="../qml/panes/DebugPane.qml" line="131" />
             <source>Test Codex Connection</source>
             <translation>测试 Codex 连接</translation>
         </message>
         <message>
+            <location filename="../qml/panes/DebugPane.qml" line="138" />
             <location filename="../qml/panes/DebugPane.qml" line="138" />
             <source>Run a single fetch attempt and record diagnostics.</source>
             <translation>执行单次获取尝试并记录诊断信息。</translation>
         </message>
         <message>
             <location filename="../qml/panes/DebugPane.qml" line="147" />
+            <location filename="../qml/panes/DebugPane.qml" line="147" />
             <source>Test</source>
             <translation>测试</translation>
         </message>
         <message>
             <location filename="../qml/panes/DebugPane.qml" line="159" />
+            <location filename="../qml/panes/DebugPane.qml" line="159" />
             <source>Last session source</source>
             <translation>最近会话来源</translation>
         </message>
         <message>
+            <location filename="../qml/panes/DebugPane.qml" line="178" />
             <location filename="../qml/panes/DebugPane.qml" line="178" />
             <source>Recent Fetch Attempts</source>
             <translation>最近获取尝试</translation>
@@ -700,211 +889,272 @@
         <name>DeleteConfirmationDialog</name>
         <message>
             <location filename="../qml/components/DeleteConfirmationDialog.qml" line="10" />
+            <location filename="../qml/components/DeleteConfirmationDialog.qml" line="10" />
             <source>Confirm Delete</source>
             <translation>确认删除</translation>
         </message>
         <message>
+            <location filename="../qml/components/DeleteConfirmationDialog.qml" line="122" />
             <location filename="../qml/components/DeleteConfirmationDialog.qml" line="122" />
             <source>This action cannot be undone.</source>
             <translation>此操作无法撤销。</translation>
         </message>
         <message>
             <location filename="../qml/components/DeleteConfirmationDialog.qml" line="140" />
+            <location filename="../qml/components/DeleteConfirmationDialog.qml" line="140" />
             <source>Cancel</source>
             <translation>取消</translation>
         </message>
         <message>
+            <location filename="../qml/components/DeleteConfirmationDialog.qml" line="163" />
             <location filename="../qml/components/DeleteConfirmationDialog.qml" line="163" />
             <source>Delete</source>
             <translation>删除</translation>
         </message>
     </context>
     <context>
+        <name>DisclosureRow</name>
+        <message>
+            <location filename="../qml/components/DisclosureRow.qml" line="24" />
+            <location filename="../qml/components/DisclosureRow.qml" line="24" />
+            <source>Expanded</source>
+            <translation>已展开</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/DisclosureRow.qml" line="24" />
+            <location filename="../qml/components/DisclosureRow.qml" line="24" />
+            <source>Collapsed</source>
+            <translation>已折叠</translation>
+        </message>
+    </context>
+    <context>
         <name>DisplayPane</name>
         <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="9" />
+            <location filename="../qml/panes/DisplayPane.qml" line="8" />
+            <location filename="../qml/panes/DisplayPane.qml" line="8" />
             <source>Display</source>
             <translation>显示</translation>
         </message>
         <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="10" />
-            <source>Tune how usage and tray state are presented.</source>
-            <translation>调整用量和托盘状态的显示方式。</translation>
+            <location filename="../qml/panes/DisplayPane.qml" line="9" />
+            <location filename="../qml/panes/DisplayPane.qml" line="9" />
+            <source>Tune how usage, glass, motion, and tray state are presented.</source>
+            <translation>调整使用量、毛玻璃、动态效果和系统托盘状态的呈现方式。</translation>
         </message>
         <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="22" />
-            <source>Theme</source>
-            <translation>主题</translation>
+            <location filename="../qml/panes/DisplayPane.qml" line="12" />
+            <location filename="../qml/panes/DisplayPane.qml" line="12" />
+            <source>Appearance</source>
+            <translation>外观</translation>
         </message>
         <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="28" />
-            <source>Choose the overall color style.</source>
-            <translation>选择整体配色风格。</translation>
+            <location filename="../qml/panes/DisplayPane.qml" line="20" />
+            <location filename="../qml/panes/DisplayPane.qml" line="20" />
+            <source>Tray Presentation</source>
+            <translation>托盘呈现</translation>
         </message>
         <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="37" />
-            <source>Dark</source>
-            <translation>暗色</translation>
+            <location filename="../qml/panes/DisplayPane.qml" line="26" />
+            <location filename="../qml/panes/DisplayPane.qml" line="26" />
+            <source>Usage Display</source>
+            <translation>使用量显示</translation>
         </message>
         <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="38" />
-            <source>Midnight Blue</source>
-            <translation>午夜蓝</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="39" />
-            <source>Amethyst</source>
-            <translation>紫水晶</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="49" />
-            <source>Glass Effect</source>
-            <translation>磨玻璃效果</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="50" />
-            <source>Use native Windows acrylic blur behind app windows.</source>
-            <translation>使用 Windows 原生亚克力模糊作为窗口背景。</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="69" />
-            <source>Glass Opacity</source>
-            <translation>玻璃不透明度</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="76" />
-            <source>Lower values make the glass more transparent.</source>
-            <translation>数值越低，玻璃背景越透明。</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="107" />
-            <source>Merge Icons</source>
-            <translation>合并图标</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="108" />
-            <source>Show a single combined tray icon for enabled providers.</source>
-            <translation>为已启用的提供商显示一个合并托盘图标。</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="117" />
-            <source>Use consumed percentage instead of remaining percentage.</source>
-            <translation>使用已用百分比，而不是剩余百分比。</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="128" />
-            <source>Display exact reset times instead of relative wording.</source>
-            <translation>显示精确重置时间，而不是相对描述。</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="136" />
-            <source>Optional Credits and Extra Usage</source>
-            <translation>可选积分和额外用量</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="137" />
-            <source>Show additional provider-specific credit and usage fields.</source>
-            <translation>显示额外的提供商专属积分和用量字段。</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="145" />
-            <source>Claude Peak Hours</source>
-            <translation>Claude 高峰时段</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="146" />
-            <source>Show peak hours indicator for Claude usage pricing.</source>
-            <translation>显示 Claude 用量定价的高峰时段指示。</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="155" />
-            <source>Taskbar &amp; Tray Icon Customization</source>
-            <translation>任务栏与托盘图标自定义</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="168" />
-            <source>Tray Display Mode</source>
-            <translation>托盘显示模式</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="175" />
-            <source>Change how usage info is presented in the system taskbar.</source>
-            <translation>更改在系统任务栏中显示用量信息的方式。</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="184" />
-            <source>Icon Only</source>
-            <translation>仅图标</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="185" />
-            <source>Percentage</source>
-            <translation>百分比</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="186" />
-            <source>Remaining Time</source>
-            <translation>剩余时间</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="187" />
-            <source>Custom Time</source>
-            <translation>自定义时间</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="206" />
-            <source>Warning Threshold</source>
-            <translation>警告阈值</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="213" />
-            <source>Show warnings when usage remaining drops below this level.</source>
-            <translation>当剩余容量低于此水平时显示警告。</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="252" />
-            <source>Critical Threshold</source>
-            <translation>严重阈值</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="259" />
-            <source>Show alert warning when usage remaining drops below this level.</source>
-            <translation>当剩余容量低于此水平时显示警报警告。</translation>
-        </message>
-        <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="290" />
-            <source>Real-Time Preview</source>
+            <location filename="../qml/panes/DisplayPane.qml" line="32" />
+            <location filename="../qml/panes/DisplayPane.qml" line="32" />
+            <source>Live Preview</source>
             <translation>实时预览</translation>
         </message>
         <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="304" />
+            <source>Tune how usage and tray state are presented.</source>
+            <translation type="vanished">调整用量和托盘状态的显示方式。</translation>
+        </message>
+        <message>
+            <source>Theme</source>
+            <translation type="vanished">主题</translation>
+        </message>
+        <message>
+            <source>Choose the overall color style.</source>
+            <translation type="vanished">选择整体配色风格。</translation>
+        </message>
+        <message>
+            <source>Dark</source>
+            <translation type="vanished">暗色</translation>
+        </message>
+        <message>
+            <source>Midnight Blue</source>
+            <translation type="vanished">午夜蓝</translation>
+        </message>
+        <message>
+            <source>Amethyst</source>
+            <translation type="vanished">紫水晶</translation>
+        </message>
+        <message>
+            <source>Glass Effect</source>
+            <translation type="vanished">磨玻璃效果</translation>
+        </message>
+        <message>
+            <source>Use native Windows acrylic blur behind app windows.</source>
+            <translation type="vanished">使用 Windows 原生亚克力模糊作为窗口背景。</translation>
+        </message>
+        <message>
+            <source>Glass Opacity</source>
+            <translation type="vanished">玻璃不透明度</translation>
+        </message>
+        <message>
+            <source>Lower values make the glass more transparent.</source>
+            <translation type="vanished">数值越低，玻璃背景越透明。</translation>
+        </message>
+        <message>
+            <source>Merge Icons</source>
+            <translation type="vanished">合并图标</translation>
+        </message>
+        <message>
+            <source>Show a single combined tray icon for enabled providers.</source>
+            <translation type="vanished">为已启用的提供商显示一个合并托盘图标。</translation>
+        </message>
+        <message>
+            <source>Use consumed percentage instead of remaining percentage.</source>
+            <translation type="vanished">使用已用百分比，而不是剩余百分比。</translation>
+        </message>
+        <message>
+            <source>Display exact reset times instead of relative wording.</source>
+            <translation type="vanished">显示精确重置时间，而不是相对描述。</translation>
+        </message>
+        <message>
+            <source>Optional Credits and Extra Usage</source>
+            <translation type="vanished">可选积分和额外用量</translation>
+        </message>
+        <message>
+            <source>Show additional provider-specific credit and usage fields.</source>
+            <translation type="vanished">显示额外的提供商专属积分和用量字段。</translation>
+        </message>
+        <message>
+            <source>Claude Peak Hours</source>
+            <translation type="vanished">Claude 高峰时段</translation>
+        </message>
+        <message>
+            <source>Show peak hours indicator for Claude usage pricing.</source>
+            <translation type="vanished">显示 Claude 用量定价的高峰时段指示。</translation>
+        </message>
+        <message>
+            <source>Taskbar &amp; Tray Icon Customization</source>
+            <translation type="vanished">任务栏与托盘图标自定义</translation>
+        </message>
+        <message>
+            <source>Tray Display Mode</source>
+            <translation type="vanished">托盘显示模式</translation>
+        </message>
+        <message>
+            <source>Change how usage info is presented in the system taskbar.</source>
+            <translation type="vanished">更改在系统任务栏中显示用量信息的方式。</translation>
+        </message>
+        <message>
+            <source>Icon Only</source>
+            <translation type="vanished">仅图标</translation>
+        </message>
+        <message>
+            <source>Percentage</source>
+            <translation type="vanished">百分比</translation>
+        </message>
+        <message>
+            <source>Remaining Time</source>
+            <translation type="vanished">剩余时间</translation>
+        </message>
+        <message>
+            <source>Custom Time</source>
+            <translation type="vanished">自定义时间</translation>
+        </message>
+        <message>
+            <source>Warning Threshold</source>
+            <translation type="vanished">警告阈值</translation>
+        </message>
+        <message>
+            <source>Show warnings when usage remaining drops below this level.</source>
+            <translation type="vanished">当剩余容量低于此水平时显示警告。</translation>
+        </message>
+        <message>
+            <source>Critical Threshold</source>
+            <translation type="vanished">严重阈值</translation>
+        </message>
+        <message>
+            <source>Show alert warning when usage remaining drops below this level.</source>
+            <translation type="vanished">当剩余容量低于此水平时显示警报警告。</translation>
+        </message>
+        <message>
+            <source>Real-Time Preview</source>
+            <translation type="vanished">实时预览</translation>
+        </message>
+        <message>
             <source>Simulated Usage Level</source>
-            <translation>模拟用量水平</translation>
+            <translation type="vanished">模拟用量水平</translation>
         </message>
         <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="311" />
             <source>Drag to simulate different remaining capacity levels.</source>
-            <translation>拖动以模拟不同的剩余容量水平。</translation>
+            <translation type="vanished">拖动以模拟不同的剩余容量水平。</translation>
         </message>
         <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="358" />
             <source>Simulated Windows Taskbar</source>
-            <translation>模拟 Windows 任务栏</translation>
+            <translation type="vanished">模拟 Windows 任务栏</translation>
         </message>
         <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="116" />
             <source>Show Usage Amount Used</source>
-            <translation>显示已用用量</translation>
+            <translation type="vanished">显示已用用量</translation>
         </message>
         <message>
-            <location filename="../qml/panes/DisplayPane.qml" line="127" />
             <source>Show Absolute Reset Times</source>
-            <translation>显示绝对重置时间</translation>
+            <translation type="vanished">显示绝对重置时间</translation>
+        </message>
+    </context>
+    <context>
+        <name>DisplayPreviewCard</name>
+        <message>
+            <location filename="../qml/components/display/DisplayPreviewCard.qml" line="28" />
+            <location filename="../qml/components/display/DisplayPreviewCard.qml" line="28" />
+            <source>Simulated Usage Level</source>
+            <translation>模拟使用量级别</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/DisplayPreviewCard.qml" line="36" />
+            <location filename="../qml/components/display/DisplayPreviewCard.qml" line="36" />
+            <source>Drag to preview tray, card, and chart states with the current theme.</source>
+            <translation>拖动以在当前主题下预览系统托盘、卡片和图表状态。</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/DisplayPreviewCard.qml" line="103" />
+            <location filename="../qml/components/display/DisplayPreviewCard.qml" line="103" />
+            <source>Preview Provider</source>
+            <translation>预览服务商</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/DisplayPreviewCard.qml" line="112" />
+            <location filename="../qml/components/display/DisplayPreviewCard.qml" line="112" />
+            <source>Glass, theme, thresholds, and tray display use the same tokens as production UI.</source>
+            <translation>毛玻璃效果、主题、阈值和托盘显示均使用与实际界面相同的样式标记。</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/DisplayPreviewCard.qml" line="150" />
+            <location filename="../qml/components/display/DisplayPreviewCard.qml" line="150" />
+            <source>Tray</source>
+            <translation>托盘</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/DisplayPreviewCard.qml" line="160" />
+            <location filename="../qml/components/display/DisplayPreviewCard.qml" line="160" />
+            <source>Icon</source>
+            <translation>图标</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/DisplayPreviewCard.qml" line="161" />
+            <location filename="../qml/components/display/DisplayPreviewCard.qml" line="161" />
+            <source>Ready</source>
+            <translation>就绪</translation>
         </message>
     </context>
     <context>
         <name>ErrorNotice</name>
         <message>
+            <location filename="../qml/components/ErrorNotice.qml" line="10" />
             <location filename="../qml/components/ErrorNotice.qml" line="10" />
             <source>Error</source>
             <translation>错误</translation>
@@ -912,91 +1162,293 @@
         <message>
             <location filename="../qml/components/ErrorNotice.qml" line="76" />
             <location filename="../qml/components/ErrorNotice.qml" line="77" />
+            <location filename="../qml/components/ErrorNotice.qml" line="76" />
+            <location filename="../qml/components/ErrorNotice.qml" line="77" />
             <source>Copy error</source>
             <translation>复制错误</translation>
         </message>
         <message>
+            <location filename="../qml/components/ErrorNotice.qml" line="77" />
             <location filename="../qml/components/ErrorNotice.qml" line="77" />
             <source>Nothing to copy</source>
             <translation>没有可复制的内容</translation>
         </message>
         <message>
             <location filename="../qml/components/ErrorNotice.qml" line="84" />
+            <location filename="../qml/components/ErrorNotice.qml" line="84" />
             <source>Hide</source>
             <translation>隐藏</translation>
         </message>
         <message>
+            <location filename="../qml/components/ErrorNotice.qml" line="84" />
             <location filename="../qml/components/ErrorNotice.qml" line="84" />
             <source>Details</source>
             <translation>详情</translation>
         </message>
     </context>
     <context>
+        <name>FileDialog</name>
+        <message>
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Fusion/FileDialog.qml" line="138" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Imagine/FileDialog.qml" line="127" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Material/FileDialog.qml" line="109" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Universal/FileDialog.qml" line="111" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/FileDialog.qml" line="129" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Fusion/FileDialog.qml" line="138" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Imagine/FileDialog.qml" line="127" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Material/FileDialog.qml" line="109" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Universal/FileDialog.qml" line="111" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/FileDialog.qml" line="129" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Fusion/FileDialog.qml" line="138" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Imagine/FileDialog.qml" line="127" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Material/FileDialog.qml" line="109" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Universal/FileDialog.qml" line="111" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/FileDialog.qml" line="129" />
+            <source>File name</source>
+            <translation>文件名</translation>
+        </message>
+        <message>
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Fusion/FileDialog.qml" line="153" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Imagine/FileDialog.qml" line="143" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Material/FileDialog.qml" line="127" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Universal/FileDialog.qml" line="127" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/FileDialog.qml" line="145" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Fusion/FileDialog.qml" line="153" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Imagine/FileDialog.qml" line="143" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Material/FileDialog.qml" line="127" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Universal/FileDialog.qml" line="127" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/FileDialog.qml" line="145" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Fusion/FileDialog.qml" line="153" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Imagine/FileDialog.qml" line="143" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Material/FileDialog.qml" line="127" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Universal/FileDialog.qml" line="127" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/FileDialog.qml" line="145" />
+            <source>Filter</source>
+            <translation>过滤器</translation>
+        </message>
+    </context>
+    <context>
+        <name>FontDialog</name>
+        <message>
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Fusion/FontDialog.qml" line="91" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Imagine/FontDialog.qml" line="115" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Material/FontDialog.qml" line="89" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Universal/FontDialog.qml" line="79" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/FontDialog.qml" line="93" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Fusion/FontDialog.qml" line="91" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Imagine/FontDialog.qml" line="115" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Material/FontDialog.qml" line="89" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Universal/FontDialog.qml" line="79" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/FontDialog.qml" line="93" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Fusion/FontDialog.qml" line="91" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Imagine/FontDialog.qml" line="115" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Material/FontDialog.qml" line="89" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Universal/FontDialog.qml" line="79" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/FontDialog.qml" line="93" />
+            <source>Writing System</source>
+            <translation>书写系统</translation>
+        </message>
+    </context>
+    <context>
+        <name>FontDialogContent</name>
+        <message>
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="30" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="30" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="30" />
+            <source>Family</source>
+            <translation>字体族</translation>
+        </message>
+        <message>
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="80" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="80" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="80" />
+            <source>Style</source>
+            <translation>字形</translation>
+        </message>
+        <message>
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="126" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="126" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="126" />
+            <source>Size</source>
+            <translation>大小</translation>
+        </message>
+        <message>
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="178" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="178" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="178" />
+            <source>Effects</source>
+            <translation>效果</translation>
+        </message>
+        <message>
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="193" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="193" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="193" />
+            <source>Underline</source>
+            <translation>下划线</translation>
+        </message>
+        <message>
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="198" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="198" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="198" />
+            <source>Strikeout</source>
+            <translation>删除线</translation>
+        </message>
+        <message>
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="207" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="207" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/FontDialogContent.qml" line="207" />
+            <source>Sample</source>
+            <translation>示例</translation>
+        </message>
+    </context>
+    <context>
         <name>GeneralPane</name>
         <message>
+            <location filename="../qml/panes/GeneralPane.qml" line="10" />
             <location filename="../qml/panes/GeneralPane.qml" line="10" />
             <source>General</source>
             <translation>通用</translation>
         </message>
         <message>
             <location filename="../qml/panes/GeneralPane.qml" line="11" />
+            <location filename="../qml/panes/GeneralPane.qml" line="11" />
             <source>Startup, updates, language, and notification behavior.</source>
             <translation>启动、更新、语言和通知行为。</translation>
         </message>
         <message>
+            <location filename="../qml/panes/GeneralPane.qml" line="15" />
             <location filename="../qml/panes/GeneralPane.qml" line="15" />
             <source>Launch at Login</source>
             <translation>开机启动</translation>
         </message>
         <message>
             <location filename="../qml/panes/GeneralPane.qml" line="16" />
+            <location filename="../qml/panes/GeneralPane.qml" line="16" />
             <source>Start CodexBar automatically when Windows starts.</source>
             <translation>Windows 启动时自动启动 CodexBar。</translation>
         </message>
         <message>
+            <location filename="../qml/panes/GeneralPane.qml" line="25" />
             <location filename="../qml/panes/GeneralPane.qml" line="25" />
             <source>Look for new app versions in the background.</source>
             <translation>在后台检查新版本。</translation>
         </message>
         <message>
             <location filename="../qml/panes/GeneralPane.qml" line="44" />
+            <location filename="../qml/panes/GeneralPane.qml" line="44" />
             <source>Language</source>
             <translation>语言</translation>
         </message>
         <message>
+            <location filename="../qml/panes/GeneralPane.qml" line="51" />
             <location filename="../qml/panes/GeneralPane.qml" line="51" />
             <source>Apply interface text immediately where supported.</source>
             <translation>在支持的位置立即应用界面文字。</translation>
         </message>
         <message>
             <location filename="../qml/panes/GeneralPane.qml" line="62" />
+            <location filename="../qml/panes/GeneralPane.qml" line="62" />
             <source>English</source>
             <translation>英语</translation>
         </message>
         <message>
+            <location filename="../qml/panes/GeneralPane.qml" line="63" />
             <location filename="../qml/panes/GeneralPane.qml" line="63" />
             <source>Chinese</source>
             <translation>中文</translation>
         </message>
         <message>
             <location filename="../qml/panes/GeneralPane.qml" line="73" />
+            <location filename="../qml/panes/GeneralPane.qml" line="73" />
             <source>Session Quota Notifications</source>
             <translation>会话额度通知</translation>
         </message>
         <message>
+            <location filename="../qml/panes/GeneralPane.qml" line="74" />
             <location filename="../qml/panes/GeneralPane.qml" line="74" />
             <source>Warn when provider session quota becomes constrained.</source>
             <translation>当提供商会话额度趋紧时提醒。</translation>
         </message>
         <message>
             <location filename="../qml/panes/GeneralPane.qml" line="24" />
+            <location filename="../qml/panes/GeneralPane.qml" line="24" />
             <source>Check for Updates</source>
             <translation>检查更新</translation>
         </message>
     </context>
     <context>
+        <name>GlassEffectCard</name>
+        <message>
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="10" />
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="10" />
+            <source>Glass Effect</source>
+            <translation>毛玻璃效果</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="11" />
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="11" />
+            <source>Use native Windows acrylic blur behind app windows.</source>
+            <translation>在应用程序窗口后方使用原生 Windows 亚克力模糊效果。</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="30" />
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="30" />
+            <source>Glass Opacity</source>
+            <translation>玻璃不透明度</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="38" />
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="38" />
+            <source>Lower values make the glass more transparent.</source>
+            <translation>较低的值使玻璃更加透明。</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="66" />
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="66" />
+            <source>Reduce Motion</source>
+            <translation>减少动态效果</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="67" />
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="67" />
+            <source>Minimize decorative animation while keeping essential feedback.</source>
+            <translation>在保留基本交互反馈的同时，最大程度减少装饰性动画。</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="83" />
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="83" />
+            <source>Visual Effects Quality</source>
+            <translation>视觉效果质量</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="91" />
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="91" />
+            <source>Lower quality reduces ambient animation and layered effects.</source>
+            <translation>较低的质量会减少环境动画和分层效果。</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="101" />
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="101" />
+            <source>High</source>
+            <translation>高</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="102" />
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="102" />
+            <source>Balanced</source>
+            <translation>平衡</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="103" />
+            <location filename="../qml/components/display/GlassEffectCard.qml" line="103" />
+            <source>Low</source>
+            <translation>低</translation>
+        </message>
+    </context>
+    <context>
         <name>InlineFeedback</name>
         <message>
+            <location filename="../qml/components/InlineFeedback.qml" line="41" />
             <location filename="../qml/components/InlineFeedback.qml" line="41" />
             <source>Working...</source>
             <translation>处理中...</translation>
@@ -1004,13 +1456,35 @@
         <message>
             <location filename="../qml/components/InlineFeedback.qml" line="57" />
             <location filename="../qml/components/InlineFeedback.qml" line="58" />
+            <location filename="../qml/components/InlineFeedback.qml" line="57" />
+            <location filename="../qml/components/InlineFeedback.qml" line="58" />
             <source>Copy message</source>
             <translation>复制消息</translation>
         </message>
         <message>
             <location filename="../qml/components/InlineFeedback.qml" line="58" />
+            <location filename="../qml/components/InlineFeedback.qml" line="58" />
             <source>Nothing to copy</source>
             <translation>没有可复制的内容</translation>
+        </message>
+    </context>
+    <context>
+        <name>Keyboard</name>
+        <message>
+            <location filename="../build/Debug/qml/QtQuick/VirtualKeyboard/Components/Keyboard.qml" line="1370" />
+            <location filename="../build/Release/qml/QtQuick/VirtualKeyboard/Components/Keyboard.qml" line="1370" />
+            <location filename="../cmake-build-release/qml/QtQuick/VirtualKeyboard/Components/Keyboard.qml" line="1370" />
+            <source>Remove from dictionary</source>
+            <translation>从字典中移除</translation>
+            <extra-VirtualKeyboard>Context menu for word suggestion if it can be removed from the user dictionary.</extra-VirtualKeyboard>
+        </message>
+        <message>
+            <location filename="../build/Debug/qml/QtQuick/VirtualKeyboard/Components/Keyboard.qml" line="1376" />
+            <location filename="../build/Release/qml/QtQuick/VirtualKeyboard/Components/Keyboard.qml" line="1376" />
+            <location filename="../cmake-build-release/qml/QtQuick/VirtualKeyboard/Components/Keyboard.qml" line="1376" />
+            <source>Block word</source>
+            <translation>屏蔽词汇</translation>
+            <extra-VirtualKeyboard>Context menu for word suggestion if it can be removed from the default dictionary.</extra-VirtualKeyboard>
         </message>
     </context>
     <context>
@@ -1062,72 +1536,225 @@
         </message>
     </context>
     <context>
+        <name>MessageDialog</name>
+        <message>
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Fusion/MessageDialog.qml" line="88" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Imagine/MessageDialog.qml" line="109" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Material/MessageDialog.qml" line="87" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Universal/MessageDialog.qml" line="89" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/MessageDialog.qml" line="93" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Fusion/MessageDialog.qml" line="88" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Imagine/MessageDialog.qml" line="109" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Material/MessageDialog.qml" line="87" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Universal/MessageDialog.qml" line="89" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/MessageDialog.qml" line="93" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Fusion/MessageDialog.qml" line="88" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Imagine/MessageDialog.qml" line="109" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Material/MessageDialog.qml" line="87" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Universal/MessageDialog.qml" line="89" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/MessageDialog.qml" line="93" />
+            <source>Hide Details...</source>
+            <translation>隐藏详情...</translation>
+        </message>
+        <message>
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Fusion/MessageDialog.qml" line="88" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Imagine/MessageDialog.qml" line="109" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Material/MessageDialog.qml" line="87" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/+Universal/MessageDialog.qml" line="89" />
+            <location filename="../build/Debug/qml/QtQuick/Dialogs/quickimpl/qml/MessageDialog.qml" line="93" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Fusion/MessageDialog.qml" line="88" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Imagine/MessageDialog.qml" line="109" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Material/MessageDialog.qml" line="87" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/+Universal/MessageDialog.qml" line="89" />
+            <location filename="../build/Release/qml/QtQuick/Dialogs/quickimpl/qml/MessageDialog.qml" line="93" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Fusion/MessageDialog.qml" line="88" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Imagine/MessageDialog.qml" line="109" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Material/MessageDialog.qml" line="87" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/+Universal/MessageDialog.qml" line="89" />
+            <location filename="../cmake-build-release/qml/QtQuick/Dialogs/quickimpl/qml/MessageDialog.qml" line="93" />
+            <source>Show Details...</source>
+            <translation>显示详情...</translation>
+        </message>
+    </context>
+    <context>
+        <name>PdfLinkDelegate</name>
+        <message>
+            <location filename="../build/Debug/qml/QtQuick/Pdf/PdfLinkDelegate.qml" line="68" />
+            <location filename="../build/Release/qml/QtQuick/Pdf/PdfLinkDelegate.qml" line="68" />
+            <location filename="../cmake-build-release/qml/QtQuick/Pdf/PdfLinkDelegate.qml" line="68" />
+            <source>Page %1 location %2, %3 zoom %4</source>
+            <translation>第 %1 页位置 %2，%3 缩放 %4</translation>
+        </message>
+    </context>
+    <context>
         <name>PlanUtilizationChart</name>
         <message>
-            <location filename="../qml/PlanUtilizationChart.qml" line="35" />
+            <location filename="../qml/PlanUtilizationChart.qml" line="36" />
+            <location filename="../qml/PlanUtilizationChart.qml" line="36" />
             <source>Session</source>
             <translation>会话</translation>
         </message>
         <message>
-            <location filename="../qml/PlanUtilizationChart.qml" line="36" />
+            <location filename="../qml/PlanUtilizationChart.qml" line="37" />
+            <location filename="../qml/PlanUtilizationChart.qml" line="37" />
             <source>Weekly</source>
             <translation>每周</translation>
         </message>
         <message>
-            <location filename="../qml/PlanUtilizationChart.qml" line="14" />
-            <location filename="../qml/PlanUtilizationChart.qml" line="42" />
+            <location filename="../qml/PlanUtilizationChart.qml" line="15" />
+            <location filename="../qml/PlanUtilizationChart.qml" line="43" />
+            <location filename="../qml/PlanUtilizationChart.qml" line="15" />
+            <location filename="../qml/PlanUtilizationChart.qml" line="43" />
             <source>Opus</source>
             <translation>Opus</translation>
         </message>
         <message>
-            <location filename="../qml/PlanUtilizationChart.qml" line="121" />
+            <location filename="../qml/PlanUtilizationChart.qml" line="122" />
+            <location filename="../qml/PlanUtilizationChart.qml" line="122" />
             <source>No data</source>
             <translation>暂无数据</translation>
         </message>
         <message>
-            <location filename="../qml/PlanUtilizationChart.qml" line="121" />
+            <location filename="../qml/PlanUtilizationChart.qml" line="122" />
+            <location filename="../qml/PlanUtilizationChart.qml" line="122" />
             <source>%1 pts</source>
             <translation>%1 点</translation>
         </message>
         <message>
-            <location filename="../qml/PlanUtilizationChart.qml" line="308" />
+            <location filename="../qml/PlanUtilizationChart.qml" line="318" />
+            <location filename="../qml/PlanUtilizationChart.qml" line="318" />
             <source>%1: %2% used</source>
             <translation>%1：已用 %2%</translation>
         </message>
         <message>
-            <location filename="../qml/PlanUtilizationChart.qml" line="15" />
+            <location filename="../qml/PlanUtilizationChart.qml" line="16" />
+            <location filename="../qml/PlanUtilizationChart.qml" line="16" />
             <source>No session utilization data yet.</source>
             <translation>暂无会话利用率数据。</translation>
+        </message>
+    </context>
+    <context>
+        <name>ProviderConnectionPanel</name>
+        <message>
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="26" />
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="26" />
+            <source>Testing connection</source>
+            <translation>正在测试连接</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="27" />
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="27" />
+            <source>Connection OK</source>
+            <translation>连接正常</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="28" />
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="28" />
+            <source>Connection failed</source>
+            <translation>连接失败</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="29" />
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="65" />
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="29" />
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="65" />
+            <source>Not tested</source>
+            <translation>未测试</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="56" />
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="56" />
+            <source>Connection</source>
+            <translation>连接</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="69" />
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="69" />
+            <source>Testing...</source>
+            <translation>正在测试...</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="69" />
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="69" />
+            <source>Test Connection</source>
+            <translation>测试连接</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="84" />
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="84" />
+            <source>Running one non-interactive provider refresh.</source>
+            <translation>正在运行一次非交互式的服务商数据刷新。</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="85" />
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="85" />
+            <source>Retry</source>
+            <translation>重试</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="95" />
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="97" />
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="95" />
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="97" />
+            <source>Last tested: </source>
+            <translation>上次测试时间：</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="110" />
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="110" />
+            <source>Hide Details</source>
+            <translation>隐藏详情</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="110" />
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="110" />
+            <source>Show Details</source>
+            <translation>显示详情</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="115" />
+            <location filename="../qml/components/provider/ProviderConnectionPanel.qml" line="115" />
+            <source>Copy</source>
+            <translation>复制</translation>
         </message>
     </context>
     <context>
         <name>ProviderDetailCard</name>
         <message>
             <location filename="../qml/components/ProviderDetailCard.qml" line="97" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="97" />
             <source>API key limit</source>
             <translation>API 密钥限额</translation>
         </message>
         <message>
+            <location filename="../qml/components/ProviderDetailCard.qml" line="173" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="173" />
             <source>Account</source>
             <translation>账户</translation>
         </message>
         <message>
             <location filename="../qml/components/ProviderDetailCard.qml" line="212" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="212" />
             <source>Refreshing...</source>
             <translation>刷新中...</translation>
         </message>
         <message>
+            <location filename="../qml/components/ProviderDetailCard.qml" line="212" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="212" />
             <source>No usage yet</source>
             <translation>尚无使用数据</translation>
         </message>
         <message>
             <location filename="../qml/components/ProviderDetailCard.qml" line="223" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="223" />
             <source>Balance</source>
             <translation>余额</translation>
         </message>
         <message>
+            <location filename="../qml/components/ProviderDetailCard.qml" line="289" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="384" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="436" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="494" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="289" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="384" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="436" />
@@ -1138,10 +1765,14 @@
         <message>
             <location filename="../qml/components/ProviderDetailCard.qml" line="398" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="904" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="398" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="904" />
             <source>Opus</source>
             <translation>Opus</translation>
         </message>
         <message>
+            <location filename="../qml/components/ProviderDetailCard.qml" line="102" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="519" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="102" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="519" />
             <source>Credits</source>
@@ -1150,10 +1781,14 @@
         <message>
             <location filename="../qml/components/ProviderDetailCard.qml" line="102" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="104" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="102" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="104" />
             <source>Utilization</source>
             <translation>使用率</translation>
         </message>
         <message>
+            <location filename="../qml/components/ProviderDetailCard.qml" line="102" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="104" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="102" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="104" />
             <source>Cost</source>
@@ -1161,10 +1796,13 @@
         </message>
         <message>
             <location filename="../qml/components/ProviderDetailCard.qml" line="102" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="102" />
             <source>Breakdown</source>
             <translation>细分</translation>
         </message>
         <message>
+            <location filename="../qml/components/ProviderDetailCard.qml" line="102" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="104" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="102" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="104" />
             <source>Storage</source>
@@ -1172,30 +1810,36 @@
         </message>
         <message>
             <location filename="../qml/components/ProviderDetailCard.qml" line="198" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="198" />
             <source>Provider error</source>
             <translation>提供商错误</translation>
         </message>
         <message>
+            <location filename="../qml/components/ProviderDetailCard.qml" line="543" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="543" />
             <source>Credits error</source>
             <translation>积分错误</translation>
         </message>
         <message>
             <location filename="../qml/components/ProviderDetailCard.qml" line="559" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="559" />
             <source>Quota usage</source>
             <translation>配额使用</translation>
         </message>
         <message>
+            <location filename="../qml/components/ProviderDetailCard.qml" line="559" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="559" />
             <source>Extra usage</source>
             <translation>额外使用</translation>
         </message>
         <message>
             <location filename="../qml/components/ProviderDetailCard.qml" line="585" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="585" />
             <source>This month</source>
             <translation>本月</translation>
         </message>
         <message>
+            <location filename="../qml/components/ProviderDetailCard.qml" line="593" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="593" />
             <source>%1 used</source>
             <translation>已使用 %1</translation>
@@ -1203,70 +1847,85 @@
         <message>
             <location filename="../qml/components/ProviderDetailCard.qml" line="605" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="846" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="605" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="846" />
             <source>Updated</source>
             <translation>已更新</translation>
         </message>
         <message>
+            <location filename="../qml/components/ProviderDetailCard.qml" line="629" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="629" />
             <source>MCP details</source>
             <translation>MCP 详情</translation>
         </message>
         <message>
             <location filename="../qml/components/ProviderDetailCard.qml" line="662" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="662" />
             <source>No limit set for the API key</source>
             <translation>未设置 API 密钥限额</translation>
         </message>
         <message>
+            <location filename="../qml/components/ProviderDetailCard.qml" line="668" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="668" />
             <source>API key limit unavailable right now</source>
             <translation>API 密钥限额当前不可用</translation>
         </message>
         <message>
             <location filename="../qml/components/ProviderDetailCard.qml" line="675" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="675" />
             <source>left</source>
             <translation>剩余</translation>
         </message>
         <message>
+            <location filename="../qml/components/ProviderDetailCard.qml" line="759" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="759" />
             <source>Credit Events</source>
             <translation>积分事件</translation>
         </message>
         <message>
             <location filename="../qml/components/ProviderDetailCard.qml" line="798" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="798" />
             <source>Usage by Service</source>
             <translation>按服务使用</translation>
         </message>
         <message>
+            <location filename="../qml/components/ProviderDetailCard.qml" line="834" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="834" />
             <source>Purchase credits</source>
             <translation>购买积分</translation>
         </message>
         <message>
             <location filename="../qml/components/ProviderDetailCard.qml" line="867" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="867" />
             <source>Status</source>
             <translation>状态</translation>
         </message>
         <message>
+            <location filename="../qml/components/ProviderDetailCard.qml" line="886" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="886" />
             <source>never</source>
             <translation>从未</translation>
         </message>
         <message>
             <location filename="../qml/components/ProviderDetailCard.qml" line="888" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="888" />
             <source>just now</source>
             <translation>刚刚</translation>
         </message>
         <message>
+            <location filename="../qml/components/ProviderDetailCard.qml" line="889" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="889" />
             <source>m ago</source>
             <translation>分钟前</translation>
         </message>
         <message>
             <location filename="../qml/components/ProviderDetailCard.qml" line="890" />
+            <location filename="../qml/components/ProviderDetailCard.qml" line="890" />
             <source>h ago</source>
             <translation>小时前</translation>
         </message>
         <message>
+            <location filename="../qml/components/ProviderDetailCard.qml" line="891" />
             <location filename="../qml/components/ProviderDetailCard.qml" line="891" />
             <source>d ago</source>
             <translation>天前</translation>
@@ -1276,56 +1935,67 @@
         <name>ProviderDetailHero</name>
         <message>
             <location filename="../qml/components/ProviderDetailHero.qml" line="28" />
+            <location filename="../qml/components/ProviderDetailHero.qml" line="28" />
             <source>Operational</source>
             <translation>正常</translation>
         </message>
         <message>
+            <location filename="../qml/components/ProviderDetailHero.qml" line="29" />
             <location filename="../qml/components/ProviderDetailHero.qml" line="29" />
             <source>Degraded</source>
             <translation>降级</translation>
         </message>
         <message>
             <location filename="../qml/components/ProviderDetailHero.qml" line="30" />
+            <location filename="../qml/components/ProviderDetailHero.qml" line="30" />
             <source>Outage</source>
             <translation>中断</translation>
         </message>
         <message>
             <location filename="../qml/components/ProviderDetailHero.qml" line="31" />
+            <location filename="../qml/components/ProviderDetailHero.qml" line="31" />
             <source>Unknown</source>
             <translation>未知</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailHero.qml" line="90" />
+            <location filename="../qml/components/ProviderDetailHero.qml" line="91" />
+            <location filename="../qml/components/ProviderDetailHero.qml" line="91" />
             <source>Sources: </source>
             <translation>来源：</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailHero.qml" line="91" />
+            <location filename="../qml/components/ProviderDetailHero.qml" line="92" />
+            <location filename="../qml/components/ProviderDetailHero.qml" line="92" />
             <source>Descriptor-driven provider settings</source>
             <translation>基于描述符的提供商设置</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailHero.qml" line="109" />
+            <location filename="../qml/components/ProviderDetailHero.qml" line="110" />
+            <location filename="../qml/components/ProviderDetailHero.qml" line="110" />
             <source>Dashboard</source>
             <translation>仪表盘</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailHero.qml" line="117" />
+            <location filename="../qml/components/ProviderDetailHero.qml" line="118" />
+            <location filename="../qml/components/ProviderDetailHero.qml" line="118" />
             <source>Status</source>
             <translation>状态</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailHero.qml" line="125" />
+            <location filename="../qml/components/ProviderDetailHero.qml" line="126" />
+            <location filename="../qml/components/ProviderDetailHero.qml" line="126" />
             <source>Refresh</source>
             <translation>刷新</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailHero.qml" line="137" />
+            <location filename="../qml/components/ProviderDetailHero.qml" line="138" />
+            <location filename="../qml/components/ProviderDetailHero.qml" line="138" />
             <source>Enabled</source>
             <translation>已启用</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailHero.qml" line="143" />
+            <location filename="../qml/components/ProviderDetailHero.qml" line="144" />
+            <location filename="../qml/components/ProviderDetailHero.qml" line="144" />
             <source>Provider enabled</source>
             <translation>提供商已启用</translation>
         </message>
@@ -1333,43 +2003,52 @@
     <context>
         <name>ProviderDetailView</name>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="89" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="90" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="90" />
             <source>Operational</source>
             <translation>正常</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="90" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="91" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="91" />
             <source>Degraded</source>
             <translation>降级</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="91" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="92" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="92" />
             <source>Outage</source>
             <translation>中断</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="92" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="93" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="93" />
             <source>Unknown</source>
             <translation>未知</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="108" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="109" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="109" />
             <source>Testing connection</source>
             <translation>正在测试连接</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="109" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="110" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="110" />
             <source>Connection OK</source>
             <translation>连接正常</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="110" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="111" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="111" />
             <source>Connection failed</source>
             <translation>连接失败</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="111" />
-            <location filename="../qml/components/ProviderDetailView.qml" line="269" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="112" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="278" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="112" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="278" />
             <source>Not tested</source>
             <translation>未测试</translation>
         </message>
@@ -1398,149 +2077,180 @@
             <translation type="vanished">已启用</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="192" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="193" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="193" />
             <source>Usage</source>
             <translation>用量</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="201" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="202" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="202" />
             <source>Account</source>
             <translation>账户</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="217" />
-            <location filename="../qml/components/ProviderDetailView.qml" line="711" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="218" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="721" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="218" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="721" />
             <source>Session</source>
             <translation>会话</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="217" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="218" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="218" />
             <source>Balance</source>
             <translation>余额</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="224" />
-            <location filename="../qml/components/ProviderDetailView.qml" line="712" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="225" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="722" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="225" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="722" />
             <source>Weekly</source>
             <translation>每周</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="233" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="234" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="234" />
             <source>Monthly</source>
             <translation>每月</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="262" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="271" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="271" />
             <source>Connection</source>
             <translation>连接</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="273" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="282" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="282" />
             <source>Test Connection</source>
             <translation>测试连接</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="273" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="282" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="282" />
             <source>Testing...</source>
             <translation>测试中...</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="331" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="340" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="340" />
             <source>Running one non-interactive provider refresh.</source>
             <translation>正在执行一次非交互式提供商刷新。</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="344" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="353" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="353" />
             <source>Last tested: </source>
             <translation>最近测试：</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="370" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="379" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="379" />
             <source>Hide Details</source>
             <translation>隐藏详情</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="370" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="379" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="379" />
             <source>Show Details</source>
             <translation>显示详情</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="375" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="384" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="384" />
             <source>Copy</source>
             <translation>复制</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="384" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="393" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="393" />
             <source>Retry</source>
             <translation>重试</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="403" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="412" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="412" />
             <source>Settings</source>
             <translation>设置</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="428" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="437" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="437" />
             <source>Secret</source>
             <translation>密钥</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="540" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="549" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="549" />
             <source>Setting</source>
             <translation>设置</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="579" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="589" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="589" />
             <source>Token Accounts</source>
             <translation>Token 账户</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="615" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="625" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="625" />
             <source>Account Management</source>
             <translation>账户管理</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="619" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="629" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="629" />
             <source>Manage multiple Codex accounts. Switch between accounts to track usage separately.</source>
             <translation>管理多个 Codex 账户。切换账户以分别追踪用量。</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="679" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="689" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="689" />
             <source>Usage Projection</source>
             <translation>用量预测</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="683" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="693" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="693" />
             <source>Projected rate lanes and credits from the current active account.</source>
             <translation>来自当前活动账户的预测速率通道和积分。</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="750" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="760" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="760" />
             <source>Credits</source>
             <translation>积分</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="771" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="781" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="781" />
             <source>Buy More Credits</source>
             <translation>购买更多积分</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="806" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="816" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="816" />
             <source>Supplemental Metrics</source>
             <translation>补充指标</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="818" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="828" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="828" />
             <source>Code Review</source>
             <translation>Code Review</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="819" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="829" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="829" />
             <source>Metric #</source>
             <translation>指标 #</translation>
         </message>
         <message>
-            <location filename="../qml/components/ProviderDetailView.qml" line="834" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="844" />
+            <location filename="../qml/components/ProviderDetailView.qml" line="844" />
             <source>Last Provider Error</source>
             <translation>最近的提供商错误</translation>
         </message>
@@ -2537,7 +3247,8 @@
     <context>
         <name>ProviderListItem</name>
         <message>
-            <location filename="../qml/components/ProviderListItem.qml" line="165" />
+            <location filename="../qml/components/ProviderListItem.qml" line="166" />
+            <location filename="../qml/components/ProviderListItem.qml" line="166" />
             <source>enabled</source>
             <translation>已启用</translation>
         </message>
@@ -2604,20 +3315,24 @@
         <name>ProvidersPane</name>
         <message>
             <location filename="../qml/panes/ProvidersPane.qml" line="70" />
+            <location filename="../qml/panes/ProvidersPane.qml" line="70" />
             <source>Providers</source>
             <translation>提供商</translation>
         </message>
         <message>
+            <location filename="../qml/panes/ProvidersPane.qml" line="77" />
             <location filename="../qml/panes/ProvidersPane.qml" line="77" />
             <source>Enable, order, and test each data source.</source>
             <translation>启用、排序并测试每个数据源。</translation>
         </message>
         <message>
             <location filename="../qml/panes/ProvidersPane.qml" line="226" />
+            <location filename="../qml/panes/ProvidersPane.qml" line="226" />
             <source>Select a provider</source>
             <translation>选择提供商</translation>
         </message>
         <message>
+            <location filename="../qml/panes/ProvidersPane.qml" line="235" />
             <location filename="../qml/panes/ProvidersPane.qml" line="235" />
             <source>Choose a provider from the list to edit connection settings.</source>
             <translation>从列表中选择提供商以编辑连接设置。</translation>
@@ -2750,25 +3465,30 @@
         <name>SecretInput</name>
         <message>
             <location filename="../qml/components/SecretInput.qml" line="36" />
+            <location filename="../qml/components/SecretInput.qml" line="36" />
             <source>Configured by environment</source>
             <translation>由环境变量配置</translation>
         </message>
         <message>
+            <location filename="../qml/components/SecretInput.qml" line="37" />
             <location filename="../qml/components/SecretInput.qml" line="37" />
             <source>Stored in Windows Credential Manager</source>
             <translation>存储在 Windows 凭据管理器中</translation>
         </message>
         <message>
             <location filename="../qml/components/SecretInput.qml" line="39" />
+            <location filename="../qml/components/SecretInput.qml" line="39" />
             <source>Enter value...</source>
             <translation>输入值...</translation>
         </message>
         <message>
             <location filename="../qml/components/SecretInput.qml" line="55" />
+            <location filename="../qml/components/SecretInput.qml" line="55" />
             <source>Save</source>
             <translation>保存</translation>
         </message>
         <message>
+            <location filename="../qml/components/SecretInput.qml" line="62" />
             <location filename="../qml/components/SecretInput.qml" line="62" />
             <source>Clear</source>
             <translation>清除</translation>
@@ -2801,15 +3521,18 @@
         <name>SettingsSwitch</name>
         <message>
             <location filename="../qml/components/SettingsSwitch.qml" line="8" />
+            <location filename="../qml/components/SettingsSwitch.qml" line="8" />
             <source>Switch</source>
             <translation>开关</translation>
         </message>
         <message>
             <location filename="../qml/components/SettingsSwitch.qml" line="18" />
+            <location filename="../qml/components/SettingsSwitch.qml" line="18" />
             <source>On</source>
             <translation>开启</translation>
         </message>
         <message>
+            <location filename="../qml/components/SettingsSwitch.qml" line="18" />
             <location filename="../qml/components/SettingsSwitch.qml" line="18" />
             <source>Off</source>
             <translation>关闭</translation>
@@ -2818,47 +3541,56 @@
     <context>
         <name>SettingsWindow</name>
         <message>
-            <location filename="../qml/SettingsWindow.qml" line="150" />
+            <location filename="../qml/SettingsWindow.qml" line="86" />
+            <location filename="../qml/SettingsWindow.qml" line="86" />
             <source>Settings</source>
             <translation>设置</translation>
         </message>
         <message>
-            <location filename="../qml/SettingsWindow.qml" line="24" />
+            <location filename="../qml/SettingsWindow.qml" line="23" />
+            <location filename="../qml/SettingsWindow.qml" line="23" />
             <source>General</source>
             <translation>通用</translation>
         </message>
         <message>
-            <location filename="../qml/SettingsWindow.qml" line="25" />
+            <location filename="../qml/SettingsWindow.qml" line="24" />
+            <location filename="../qml/SettingsWindow.qml" line="24" />
             <source>Providers</source>
             <translation>提供商</translation>
         </message>
         <message>
-            <location filename="../qml/SettingsWindow.qml" line="26" />
+            <location filename="../qml/SettingsWindow.qml" line="25" />
+            <location filename="../qml/SettingsWindow.qml" line="25" />
             <source>Display</source>
             <translation>显示</translation>
         </message>
         <message>
-            <location filename="../qml/SettingsWindow.qml" line="27" />
+            <location filename="../qml/SettingsWindow.qml" line="26" />
+            <location filename="../qml/SettingsWindow.qml" line="26" />
             <source>Advanced</source>
             <translation>高级</translation>
         </message>
         <message>
-            <location filename="../qml/SettingsWindow.qml" line="28" />
+            <location filename="../qml/SettingsWindow.qml" line="27" />
+            <location filename="../qml/SettingsWindow.qml" line="27" />
             <source>About</source>
             <translation>关于</translation>
         </message>
         <message>
-            <location filename="../qml/SettingsWindow.qml" line="30" />
+            <location filename="../qml/SettingsWindow.qml" line="29" />
+            <location filename="../qml/SettingsWindow.qml" line="29" />
             <source>Debug</source>
             <translation>调试</translation>
         </message>
         <message>
-            <location filename="../qml/SettingsWindow.qml" line="87" />
+            <location filename="../qml/SettingsWindow.qml" line="55" />
+            <location filename="../qml/SettingsWindow.qml" line="55" />
             <source>CodexBar Settings</source>
             <translation>CodexBar 设置</translation>
         </message>
         <message>
-            <location filename="../qml/SettingsWindow.qml" line="158" />
+            <location filename="../qml/SettingsWindow.qml" line="94" />
+            <location filename="../qml/SettingsWindow.qml" line="94" />
             <source>Configure providers and app behavior</source>
             <translation>配置提供商和应用行为</translation>
         </message>
@@ -2910,75 +3642,141 @@
         <name>StorageBreakdownView</name>
         <message>
             <location filename="../qml/components/StorageBreakdownView.qml" line="84" />
+            <location filename="../qml/components/StorageBreakdownView.qml" line="84" />
             <source>Storage</source>
             <translation>存储</translation>
         </message>
         <message>
             <location filename="../qml/components/StorageBreakdownView.qml" line="92" />
+            <location filename="../qml/components/StorageBreakdownView.qml" line="92" />
             <source>Total: %1</source>
             <translation>总计：%1</translation>
         </message>
         <message>
-            <location filename="../qml/components/StorageBreakdownView.qml" line="102" />
+            <location filename="../qml/components/StorageBreakdownView.qml" line="103" />
+            <location filename="../qml/components/StorageBreakdownView.qml" line="103" />
             <source>No storage data available</source>
             <translation>无存储数据</translation>
         </message>
         <message>
+            <location filename="../qml/components/StorageBreakdownView.qml" line="104" />
+            <location filename="../qml/components/StorageBreakdownView.qml" line="104" />
+            <source>Storage details will appear after the provider reports local cache usage.</source>
+            <translation>存储详情将在服务商报告本地缓存使用量后显示。</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/StorageBreakdownView.qml" line="182" />
             <location filename="../qml/components/StorageBreakdownView.qml" line="182" />
             <source>%1 more items</source>
             <translation>还有 %1 项</translation>
         </message>
         <message>
-            <location filename="../qml/components/StorageBreakdownView.qml" line="201" />
+            <location filename="../qml/components/StorageBreakdownView.qml" line="192" />
+            <location filename="../qml/components/StorageBreakdownView.qml" line="192" />
             <source>Cleanup ideas</source>
             <translation>清理建议</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/StorageBreakdownView.qml" line="193" />
+            <location filename="../qml/components/StorageBreakdownView.qml" line="193" />
+            <source>%1 suggestions</source>
+            <translation>%1 个建议</translation>
+        </message>
+    </context>
+    <context>
+        <name>ThemeSelectorCard</name>
+        <message>
+            <location filename="../qml/components/display/ThemeSelectorCard.qml" line="18" />
+            <location filename="../qml/components/display/ThemeSelectorCard.qml" line="18" />
+            <source>Theme</source>
+            <translation>主题</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/ThemeSelectorCard.qml" line="26" />
+            <location filename="../qml/components/display/ThemeSelectorCard.qml" line="26" />
+            <source>Choose the overall color style.</source>
+            <translation>选择整体配色风格。</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/ThemeSelectorCard.qml" line="36" />
+            <location filename="../qml/components/display/ThemeSelectorCard.qml" line="36" />
+            <source>Dark</source>
+            <translation>深色</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/ThemeSelectorCard.qml" line="37" />
+            <location filename="../qml/components/display/ThemeSelectorCard.qml" line="37" />
+            <source>Midnight Blue</source>
+            <translation>午夜蓝</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/ThemeSelectorCard.qml" line="38" />
+            <location filename="../qml/components/display/ThemeSelectorCard.qml" line="38" />
+            <source>Amethyst</source>
+            <translation>紫水晶</translation>
         </message>
     </context>
     <context>
         <name>TokenAccountsPane</name>
         <message>
             <location filename="../qml/components/TokenAccountsPane.qml" line="59" />
+            <location filename="../qml/components/TokenAccountsPane.qml" line="59" />
             <source>Visible</source>
             <translation>可见</translation>
         </message>
         <message>
             <location filename="../qml/components/TokenAccountsPane.qml" line="60" />
-            <location filename="../qml/components/TokenAccountsPane.qml" line="215" />
+            <location filename="../qml/components/TokenAccountsPane.qml" line="183" />
+            <location filename="../qml/components/TokenAccountsPane.qml" line="60" />
+            <location filename="../qml/components/TokenAccountsPane.qml" line="183" />
             <source>Hidden</source>
             <translation>隐藏</translation>
         </message>
         <message>
+            <location filename="../qml/components/TokenAccountsPane.qml" line="97" />
             <location filename="../qml/components/TokenAccountsPane.qml" line="97" />
             <source>Account name</source>
             <translation>账户名称</translation>
         </message>
         <message>
             <location filename="../qml/components/TokenAccountsPane.qml" line="130" />
+            <location filename="../qml/components/TokenAccountsPane.qml" line="130" />
             <source>API key</source>
             <translation>API 密钥</translation>
         </message>
         <message>
             <location filename="../qml/components/TokenAccountsPane.qml" line="152" />
+            <location filename="../qml/components/TokenAccountsPane.qml" line="152" />
             <source>Add Account</source>
             <translation>添加账户</translation>
         </message>
         <message>
-            <location filename="../qml/components/TokenAccountsPane.qml" line="170" />
+            <location filename="../qml/components/TokenAccountsPane.qml" line="171" />
+            <location filename="../qml/components/TokenAccountsPane.qml" line="171" />
             <source>No accounts configured.</source>
             <translation>未配置账户。</translation>
         </message>
         <message>
-            <location filename="../qml/components/TokenAccountsPane.qml" line="225" />
+            <location filename="../qml/components/TokenAccountsPane.qml" line="172" />
+            <location filename="../qml/components/TokenAccountsPane.qml" line="172" />
+            <source>Add an account when this provider needs separate token or API-key tracking.</source>
+            <translation>当此服务商需要单独的 Token 或 API 密钥跟踪时添加账户。</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/TokenAccountsPane.qml" line="196" />
+            <location filename="../qml/components/TokenAccountsPane.qml" line="196" />
             <source>Default</source>
             <translation>默认</translation>
         </message>
         <message>
-            <location filename="../qml/components/TokenAccountsPane.qml" line="264" />
+            <location filename="../qml/components/TokenAccountsPane.qml" line="237" />
+            <location filename="../qml/components/TokenAccountsPane.qml" line="237" />
             <source>Use</source>
             <translation>使用</translation>
         </message>
         <message>
-            <location filename="../qml/components/TokenAccountsPane.qml" line="271" />
+            <location filename="../qml/components/TokenAccountsPane.qml" line="244" />
+            <location filename="../qml/components/TokenAccountsPane.qml" line="244" />
             <source>Remove</source>
             <translation>移除</translation>
         </message>
@@ -3017,6 +3815,9 @@
             <location filename="../qml/panes/TokenUsagePane.qml" line="89" />
             <location filename="../qml/panes/TokenUsagePane.qml" line="132" />
             <location filename="../qml/panes/TokenUsagePane.qml" line="182" />
+            <location filename="../qml/panes/TokenUsagePane.qml" line="89" />
+            <location filename="../qml/panes/TokenUsagePane.qml" line="132" />
+            <location filename="../qml/panes/TokenUsagePane.qml" line="182" />
             <source>tokens</source>
             <translation>词元</translation>
         </message>
@@ -3034,25 +3835,30 @@
         </message>
         <message>
             <location filename="../qml/panes/TokenUsagePane.qml" line="122" />
+            <location filename="../qml/panes/TokenUsagePane.qml" line="122" />
             <source>Total</source>
             <translation>总计</translation>
         </message>
         <message>
+            <location filename="../qml/panes/TokenUsagePane.qml" line="152" />
             <location filename="../qml/panes/TokenUsagePane.qml" line="152" />
             <source>No token providers enabled</source>
             <translation>未启用词元提供商</translation>
         </message>
         <message>
             <location filename="../qml/panes/TokenUsagePane.qml" line="168" />
+            <location filename="../qml/panes/TokenUsagePane.qml" line="168" />
             <source>Token</source>
             <translation>词元</translation>
         </message>
         <message>
             <location filename="../qml/panes/TokenUsagePane.qml" line="166" />
+            <location filename="../qml/panes/TokenUsagePane.qml" line="166" />
             <source>Credit</source>
             <translation>积分</translation>
         </message>
         <message>
+            <location filename="../qml/panes/TokenUsagePane.qml" line="167" />
             <location filename="../qml/panes/TokenUsagePane.qml" line="167" />
             <source>Quota</source>
             <translation>配额</translation>
@@ -3067,28 +3873,120 @@
         </message>
     </context>
     <context>
+        <name>TrayDisplayCard</name>
+        <message>
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="10" />
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="10" />
+            <source>Merge Icons</source>
+            <translation>合并图标</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="11" />
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="11" />
+            <source>Show a single combined tray icon for enabled providers.</source>
+            <translation>为启用的服务商显示单个合并的托盘图标。</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="19" />
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="19" />
+            <source>Show Usage Amount Used</source>
+            <translation>显示已消耗的使用量</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="20" />
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="20" />
+            <source>Use consumed percentage instead of remaining percentage.</source>
+            <translation>使用已消耗的百分比而不是剩余的百分比。</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="36" />
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="36" />
+            <source>Tray Display Mode</source>
+            <translation>托盘显示模式</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="44" />
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="44" />
+            <source>Change how usage info is presented in the system taskbar.</source>
+            <translation>更改使用量信息在系统任务栏中的呈现方式。</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="54" />
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="54" />
+            <source>Icon Only</source>
+            <translation>仅图标</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="55" />
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="55" />
+            <source>Percentage</source>
+            <translation>百分比</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="56" />
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="56" />
+            <source>Remaining Time</source>
+            <translation>剩余时间</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="57" />
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="57" />
+            <source>Custom Time</source>
+            <translation>自定义时间</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="67" />
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="67" />
+            <source>Warning Threshold</source>
+            <translation>警告阈值</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="68" />
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="68" />
+            <source>Show warnings when usage remaining drops below this level.</source>
+            <translation>当剩余使用量低于此水平时显示警告。</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="78" />
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="78" />
+            <source>Critical Threshold</source>
+            <translation>严重警告阈值</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="79" />
+            <location filename="../qml/components/display/TrayDisplayCard.qml" line="79" />
+            <source>Show alert warning when usage remaining drops below this level.</source>
+            <translation>当剩余使用量低于此水平时显示严重警告。</translation>
+        </message>
+    </context>
+    <context>
         <name>TrayFooterActions</name>
         <message>
+            <location filename="../qml/components/TrayFooterActions.qml" line="38" />
             <location filename="../qml/components/TrayFooterActions.qml" line="38" />
             <source>Refreshing...</source>
             <translation>刷新中...</translation>
         </message>
         <message>
             <location filename="../qml/components/TrayFooterActions.qml" line="39" />
+            <location filename="../qml/components/TrayFooterActions.qml" line="39" />
             <source>Refresh</source>
             <translation>刷新</translation>
         </message>
         <message>
+            <location filename="../qml/components/TrayFooterActions.qml" line="48" />
             <location filename="../qml/components/TrayFooterActions.qml" line="48" />
             <source>Settings</source>
             <translation>设置</translation>
         </message>
         <message>
             <location filename="../qml/components/TrayFooterActions.qml" line="56" />
+            <location filename="../qml/components/TrayFooterActions.qml" line="56" />
             <source>About</source>
             <translation>关于</translation>
         </message>
         <message>
+            <location filename="../qml/components/TrayFooterActions.qml" line="64" />
             <location filename="../qml/components/TrayFooterActions.qml" line="64" />
             <source>Quit</source>
             <translation>退出</translation>
@@ -3098,10 +3996,12 @@
         <name>TrayHeader</name>
         <message>
             <location filename="../qml/components/TrayHeader.qml" line="34" />
+            <location filename="../qml/components/TrayHeader.qml" line="34" />
             <source>CodexBar</source>
             <translation>CodexBar</translation>
         </message>
         <message>
+            <location filename="../qml/components/TrayHeader.qml" line="43" />
             <location filename="../qml/components/TrayHeader.qml" line="43" />
             <source>providers</source>
             <translation>提供商</translation>
@@ -3111,23 +4011,42 @@
         <name>TrayMenuActions</name>
         <message>
             <location filename="../qml/components/TrayMenuActions.qml" line="39" />
+            <location filename="../qml/components/TrayMenuActions.qml" line="39" />
             <source>Dashboard</source>
             <translation>仪表盘</translation>
         </message>
         <message>
+            <location filename="../qml/components/TrayMenuActions.qml" line="45" />
             <location filename="../qml/components/TrayMenuActions.qml" line="45" />
             <source>Status</source>
             <translation>状态</translation>
         </message>
         <message>
             <location filename="../qml/components/TrayMenuActions.qml" line="58" />
+            <location filename="../qml/components/TrayMenuActions.qml" line="58" />
             <source>Copy Error</source>
             <translation>复制错误</translation>
         </message>
         <message>
             <location filename="../qml/components/TrayMenuActions.qml" line="90" />
+            <location filename="../qml/components/TrayMenuActions.qml" line="90" />
             <source>Terminal</source>
             <translation>终端</translation>
+        </message>
+    </context>
+    <context>
+        <name>TrayOverviewPanel</name>
+        <message>
+            <location filename="../qml/components/TrayOverviewPanel.qml" line="9" />
+            <location filename="../qml/components/TrayOverviewPanel.qml" line="9" />
+            <source>Overview</source>
+            <translation>概览</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/TrayOverviewPanel.qml" line="9" />
+            <location filename="../qml/components/TrayOverviewPanel.qml" line="9" />
+            <source>Hidden</source>
+            <translation>已隐藏</translation>
         </message>
     </context>
     <context>
@@ -3185,47 +4104,56 @@
             <translation type="vanished">其他</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="305" />
+            <location filename="../qml/TrayPanel.qml" line="317" />
+            <location filename="../qml/TrayPanel.qml" line="317" />
             <source>Account</source>
             <translation>账户</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="330" />
+            <location filename="../qml/TrayPanel.qml" line="342" />
+            <location filename="../qml/TrayPanel.qml" line="342" />
             <source>Provider error</source>
             <translation>提供商错误</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="354" />
+            <location filename="../qml/TrayPanel.qml" line="366" />
+            <location filename="../qml/TrayPanel.qml" line="366" />
             <source>Balance</source>
             <translation>余额</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="590" />
+            <location filename="../qml/TrayPanel.qml" line="602" />
+            <location filename="../qml/TrayPanel.qml" line="602" />
             <source>Credits</source>
             <translation>积分</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="613" />
+            <location filename="../qml/TrayPanel.qml" line="625" />
+            <location filename="../qml/TrayPanel.qml" line="625" />
             <source>Credits error</source>
             <translation>积分错误</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="786" />
+            <location filename="../qml/TrayPanel.qml" line="798" />
+            <location filename="../qml/TrayPanel.qml" line="798" />
             <source>Credit Events</source>
             <translation>积分事件</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="825" />
+            <location filename="../qml/TrayPanel.qml" line="837" />
+            <location filename="../qml/TrayPanel.qml" line="837" />
             <source>Usage by Service</source>
             <translation>按服务用量</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="861" />
+            <location filename="../qml/TrayPanel.qml" line="873" />
+            <location filename="../qml/TrayPanel.qml" line="873" />
             <source>Purchase credits</source>
             <translation>购买积分</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="894" />
+            <location filename="../qml/TrayPanel.qml" line="906" />
+            <location filename="../qml/TrayPanel.qml" line="906" />
             <source>Status</source>
             <translation>状态</translation>
         </message>
@@ -3234,7 +4162,8 @@
             <translation type="vanished">刷新</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="343" />
+            <location filename="../qml/TrayPanel.qml" line="355" />
+            <location filename="../qml/TrayPanel.qml" line="355" />
             <source>Refreshing...</source>
             <translation>刷新中...</translation>
         </message>
@@ -3247,25 +4176,32 @@
             <translation type="vanished">退出</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="343" />
+            <location filename="../qml/TrayPanel.qml" line="355" />
+            <location filename="../qml/TrayPanel.qml" line="355" />
             <source>No usage yet</source>
             <translation>暂无用量</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="245" />
+            <location filename="../qml/TrayPanel.qml" line="257" />
+            <location filename="../qml/TrayPanel.qml" line="257" />
             <source>API key limit</source>
             <translation>API Key 限额</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="420" />
-            <location filename="../qml/TrayPanel.qml" line="515" />
-            <location filename="../qml/TrayPanel.qml" line="567" />
+            <location filename="../qml/TrayPanel.qml" line="432" />
+            <location filename="../qml/TrayPanel.qml" line="527" />
+            <location filename="../qml/TrayPanel.qml" line="579" />
+            <location filename="../qml/TrayPanel.qml" line="432" />
+            <location filename="../qml/TrayPanel.qml" line="527" />
+            <location filename="../qml/TrayPanel.qml" line="579" />
             <source>Resets</source>
             <translation>重置于</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="674" />
-            <location filename="../qml/TrayPanel.qml" line="873" />
+            <location filename="../qml/TrayPanel.qml" line="686" />
+            <location filename="../qml/TrayPanel.qml" line="885" />
+            <location filename="../qml/TrayPanel.qml" line="686" />
+            <location filename="../qml/TrayPanel.qml" line="885" />
             <source>Updated</source>
             <translation>更新于</translation>
         </message>
@@ -3274,90 +4210,123 @@
             <translation type="vanished">关于</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="1075" />
+            <location filename="../qml/TrayPanel.qml" line="1087" />
+            <location filename="../qml/TrayPanel.qml" line="1087" />
             <source>just now</source>
             <translation>刚刚</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="1076" />
+            <location filename="../qml/TrayPanel.qml" line="1088" />
+            <location filename="../qml/TrayPanel.qml" line="1088" />
             <source>m ago</source>
             <translation>分钟前</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="1077" />
+            <location filename="../qml/TrayPanel.qml" line="1089" />
+            <location filename="../qml/TrayPanel.qml" line="1089" />
             <source>h ago</source>
             <translation>小时前</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="1078" />
+            <location filename="../qml/TrayPanel.qml" line="1090" />
+            <location filename="../qml/TrayPanel.qml" line="1090" />
             <source>d ago</source>
             <translation>天前</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="1073" />
+            <location filename="../qml/TrayPanel.qml" line="1085" />
+            <location filename="../qml/TrayPanel.qml" line="1085" />
             <source>never</source>
             <translation>从未</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="628" />
+            <location filename="../qml/TrayPanel.qml" line="640" />
+            <location filename="../qml/TrayPanel.qml" line="640" />
             <source>Extra usage</source>
             <translation>额外用量</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="628" />
+            <location filename="../qml/TrayPanel.qml" line="640" />
+            <location filename="../qml/TrayPanel.qml" line="640" />
             <source>Quota usage</source>
             <translation>配额用量</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="654" />
+            <location filename="../qml/TrayPanel.qml" line="666" />
+            <location filename="../qml/TrayPanel.qml" line="666" />
             <source>This month</source>
             <translation>本月</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="662" />
+            <location filename="../qml/TrayPanel.qml" line="674" />
+            <location filename="../qml/TrayPanel.qml" line="674" />
             <source>%1 used</source>
             <translation>已用 %1%</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="529" />
-            <location filename="../qml/TrayPanel.qml" line="759" />
+            <location filename="../qml/TrayPanel.qml" line="541" />
+            <location filename="../qml/TrayPanel.qml" line="771" />
+            <location filename="../qml/TrayPanel.qml" line="541" />
+            <location filename="../qml/TrayPanel.qml" line="771" />
             <source>Opus</source>
             <translation>Opus</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="732" />
+            <location filename="../qml/TrayPanel.qml" line="744" />
+            <location filename="../qml/TrayPanel.qml" line="744" />
             <source>No limit set for the API key</source>
             <translation>此 API Key 未设置限额</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="738" />
+            <location filename="../qml/TrayPanel.qml" line="750" />
+            <location filename="../qml/TrayPanel.qml" line="750" />
             <source>API key limit unavailable right now</source>
             <translation>API Key 限额暂不可用</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="698" />
+            <location filename="../qml/TrayPanel.qml" line="710" />
+            <location filename="../qml/TrayPanel.qml" line="710" />
             <source>MCP details</source>
             <translation>MCP 详情</translation>
         </message>
         <message>
-            <location filename="../qml/TrayPanel.qml" line="745" />
+            <location filename="../qml/TrayPanel.qml" line="757" />
+            <location filename="../qml/TrayPanel.qml" line="757" />
             <source>left</source>
             <translation>剩余</translation>
+        </message>
+    </context>
+    <context>
+        <name>TrayProviderDetailShell</name>
+        <message>
+            <location filename="../qml/components/TrayProviderDetailShell.qml" line="10" />
+            <location filename="../qml/components/TrayProviderDetailShell.qml" line="10" />
+            <source>Provider detail</source>
+            <translation>服务商详情</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/TrayProviderDetailShell.qml" line="10" />
+            <location filename="../qml/components/TrayProviderDetailShell.qml" line="10" />
+            <source>Hidden</source>
+            <translation>已隐藏</translation>
         </message>
     </context>
     <context>
         <name>TrayProviderDock</name>
         <message>
             <location filename="../qml/components/TrayProviderDock.qml" line="48" />
+            <location filename="../qml/components/TrayProviderDock.qml" line="48" />
             <source> - needs attention</source>
             <translation> - 需要注意</translation>
         </message>
         <message>
             <location filename="../qml/components/TrayProviderDock.qml" line="49" />
+            <location filename="../qml/components/TrayProviderDock.qml" line="49" />
             <source> - disabled</source>
             <translation> - 已禁用</translation>
         </message>
         <message>
+            <location filename="../qml/components/TrayProviderDock.qml" line="50" />
             <location filename="../qml/components/TrayProviderDock.qml" line="50" />
             <source> - selected</source>
             <translation> - 已选中</translation>
@@ -3367,20 +4336,24 @@
         <name>TrayUsageSummary</name>
         <message>
             <location filename="../qml/components/TrayUsageSummary.qml" line="53" />
+            <location filename="../qml/components/TrayUsageSummary.qml" line="53" />
             <source>Token usage is off</source>
             <translation>词元用量已关闭</translation>
         </message>
         <message>
+            <location filename="../qml/components/TrayUsageSummary.qml" line="54" />
             <location filename="../qml/components/TrayUsageSummary.qml" line="54" />
             <source>Token usage is scanning</source>
             <translation>正在扫描词元用量</translation>
         </message>
         <message>
             <location filename="../qml/components/TrayUsageSummary.qml" line="55" />
+            <location filename="../qml/components/TrayUsageSummary.qml" line="55" />
             <source>Token usage data available</source>
             <translation>词元用量数据可用</translation>
         </message>
         <message>
+            <location filename="../qml/components/TrayUsageSummary.qml" line="56" />
             <location filename="../qml/components/TrayUsageSummary.qml" line="56" />
             <source>No token usage data</source>
             <translation>无词元用量数据</translation>
@@ -3388,30 +4361,37 @@
         <message>
             <location filename="../qml/components/TrayUsageSummary.qml" line="81" />
             <location filename="../qml/components/TrayUsageSummary.qml" line="136" />
+            <location filename="../qml/components/TrayUsageSummary.qml" line="81" />
+            <location filename="../qml/components/TrayUsageSummary.qml" line="136" />
             <source>Token Usage</source>
             <translation>词元用量</translation>
         </message>
         <message>
+            <location filename="../qml/components/TrayUsageSummary.qml" line="161" />
             <location filename="../qml/components/TrayUsageSummary.qml" line="161" />
             <source>Details</source>
             <translation>详情</translation>
         </message>
         <message>
             <location filename="../qml/components/TrayUsageSummary.qml" line="173" />
+            <location filename="../qml/components/TrayUsageSummary.qml" line="173" />
             <source>today</source>
             <translation>今日</translation>
         </message>
         <message>
+            <location filename="../qml/components/TrayUsageSummary.qml" line="174" />
             <location filename="../qml/components/TrayUsageSummary.qml" line="174" />
             <source>scanning...</source>
             <translation>扫描中...</translation>
         </message>
         <message>
             <location filename="../qml/components/TrayUsageSummary.qml" line="174" />
+            <location filename="../qml/components/TrayUsageSummary.qml" line="174" />
             <source>no data</source>
             <translation>无数据</translation>
         </message>
         <message>
+            <location filename="../qml/components/TrayUsageSummary.qml" line="207" />
             <location filename="../qml/components/TrayUsageSummary.qml" line="207" />
             <source>Today</source>
             <translation>今日</translation>
@@ -3420,35 +4400,44 @@
             <location filename="../qml/components/TrayUsageSummary.qml" line="209" />
             <location filename="../qml/components/TrayUsageSummary.qml" line="225" />
             <location filename="../qml/components/TrayUsageSummary.qml" line="397" />
+            <location filename="../qml/components/TrayUsageSummary.qml" line="209" />
+            <location filename="../qml/components/TrayUsageSummary.qml" line="225" />
+            <location filename="../qml/components/TrayUsageSummary.qml" line="397" />
             <source>tokens</source>
             <translation>词元</translation>
         </message>
         <message>
+            <location filename="../qml/components/TrayUsageSummary.qml" line="223" />
             <location filename="../qml/components/TrayUsageSummary.qml" line="223" />
             <source>30 days</source>
             <translation>30天</translation>
         </message>
         <message>
             <location filename="../qml/components/TrayUsageSummary.qml" line="284" />
+            <location filename="../qml/components/TrayUsageSummary.qml" line="284" />
             <source>max</source>
             <translation>最大</translation>
         </message>
         <message>
+            <location filename="../qml/components/TrayUsageSummary.qml" line="294" />
             <location filename="../qml/components/TrayUsageSummary.qml" line="294" />
             <source>Mon</source>
             <translation>周一</translation>
         </message>
         <message>
             <location filename="../qml/components/TrayUsageSummary.qml" line="297" />
+            <location filename="../qml/components/TrayUsageSummary.qml" line="297" />
             <source>other day</source>
             <translation>其他</translation>
         </message>
         <message>
             <location filename="../qml/components/TrayUsageSummary.qml" line="322" />
+            <location filename="../qml/components/TrayUsageSummary.qml" line="322" />
             <source>Model breakdown expanded</source>
             <translation>模型细分已展开</translation>
         </message>
         <message>
+            <location filename="../qml/components/TrayUsageSummary.qml" line="323" />
             <location filename="../qml/components/TrayUsageSummary.qml" line="323" />
             <source>Model breakdown collapsed</source>
             <translation>模型细分已收起</translation>
@@ -3457,12 +4446,16 @@
     <context>
         <name>UsageBreakdownChart</name>
         <message>
+            <location filename="../qml/components/UsageBreakdownChart.qml" line="16" />
+            <location filename="../qml/components/UsageBreakdownChart.qml" line="51" />
+            <location filename="../qml/components/UsageBreakdownChart.qml" line="16" />
             <location filename="../qml/components/UsageBreakdownChart.qml" line="51" />
             <source>No breakdown data</source>
             <translation>无细分数据</translation>
         </message>
         <message>
-            <location filename="../qml/components/UsageBreakdownChart.qml" line="190" />
+            <location filename="../qml/components/UsageBreakdownChart.qml" line="197" />
+            <location filename="../qml/components/UsageBreakdownChart.qml" line="197" />
             <source>Services</source>
             <translation>服务</translation>
         </message>
@@ -3471,18 +4464,75 @@
         <name>UsageCard</name>
         <message>
             <location filename="../qml/UsageCard.qml" line="47" />
+            <location filename="../qml/UsageCard.qml" line="47" />
             <source>Session</source>
             <translation>会话</translation>
         </message>
         <message>
+            <location filename="../qml/UsageCard.qml" line="56" />
             <location filename="../qml/UsageCard.qml" line="56" />
             <source>Weekly</source>
             <translation>每周</translation>
         </message>
     </context>
     <context>
+        <name>UsageDisplayCard</name>
+        <message>
+            <location filename="../qml/components/display/UsageDisplayCard.qml" line="8" />
+            <location filename="../qml/components/display/UsageDisplayCard.qml" line="8" />
+            <source>Show Absolute Reset Times</source>
+            <translation>显示绝对重置时间</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/UsageDisplayCard.qml" line="9" />
+            <location filename="../qml/components/display/UsageDisplayCard.qml" line="9" />
+            <source>Display exact reset times instead of relative wording.</source>
+            <translation>显示确切的重置时间，而不是相对的文字表述。</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/UsageDisplayCard.qml" line="17" />
+            <location filename="../qml/components/display/UsageDisplayCard.qml" line="17" />
+            <source>Optional Credits and Extra Usage</source>
+            <translation>可选额度及额外使用量</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/UsageDisplayCard.qml" line="18" />
+            <location filename="../qml/components/display/UsageDisplayCard.qml" line="18" />
+            <source>Show additional provider-specific credit and usage fields.</source>
+            <translation>显示额外特定于服务商的额度与使用量字段。</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/UsageDisplayCard.qml" line="26" />
+            <location filename="../qml/components/display/UsageDisplayCard.qml" line="26" />
+            <source>Claude Peak Hours</source>
+            <translation>Claude 高峰时段</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/display/UsageDisplayCard.qml" line="27" />
+            <location filename="../qml/components/display/UsageDisplayCard.qml" line="27" />
+            <source>Show peak hours indicator for Claude usage pricing.</source>
+            <translation>显示 Claude 使用量计费的高峰时段指示器。</translation>
+        </message>
+    </context>
+    <context>
+        <name>UsageEmptyState</name>
+        <message>
+            <location filename="../qml/components/usage/UsageEmptyState.qml" line="8" />
+            <location filename="../qml/components/usage/UsageEmptyState.qml" line="8" />
+            <source>No usage data</source>
+            <translation>无使用量数据</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/usage/UsageEmptyState.qml" line="9" />
+            <location filename="../qml/components/usage/UsageEmptyState.qml" line="9" />
+            <source>Enable a provider or refresh usage to populate this view.</source>
+            <translation>启用服务商或刷新使用量以填充此视图。</translation>
+        </message>
+    </context>
+    <context>
         <name>UsageOverviewHero</name>
         <message>
+            <location filename="../qml/components/UsageOverviewHero.qml" line="60" />
             <location filename="../qml/components/UsageOverviewHero.qml" line="60" />
             <source>Provider and model breakdown</source>
             <translation>提供商和模型明细</translation>
@@ -3491,35 +4541,44 @@
             <location filename="../qml/components/UsageOverviewHero.qml" line="62" />
             <location filename="../qml/components/UsageOverviewHero.qml" line="102" />
             <location filename="../qml/components/UsageOverviewHero.qml" line="109" />
+            <location filename="../qml/components/UsageOverviewHero.qml" line="62" />
+            <location filename="../qml/components/UsageOverviewHero.qml" line="102" />
+            <location filename="../qml/components/UsageOverviewHero.qml" line="109" />
             <source>Scanning</source>
             <translation>扫描中</translation>
         </message>
         <message>
+            <location filename="../qml/components/UsageOverviewHero.qml" line="68" />
             <location filename="../qml/components/UsageOverviewHero.qml" line="68" />
             <source>Updated</source>
             <translation>已更新</translation>
         </message>
         <message>
             <location filename="../qml/components/UsageOverviewHero.qml" line="83" />
+            <location filename="../qml/components/UsageOverviewHero.qml" line="83" />
             <source>Token Usage Overview</source>
             <translation>词元用量总览</translation>
         </message>
         <message>
+            <location filename="../qml/components/UsageOverviewHero.qml" line="101" />
             <location filename="../qml/components/UsageOverviewHero.qml" line="101" />
             <source>Off</source>
             <translation>关闭</translation>
         </message>
         <message>
             <location filename="../qml/components/UsageOverviewHero.qml" line="102" />
+            <location filename="../qml/components/UsageOverviewHero.qml" line="102" />
             <source>Last 30 days</source>
             <translation>最近30天</translation>
         </message>
         <message>
             <location filename="../qml/components/UsageOverviewHero.qml" line="109" />
+            <location filename="../qml/components/UsageOverviewHero.qml" line="109" />
             <source>Refresh</source>
             <translation>刷新</translation>
         </message>
         <message>
+            <location filename="../qml/components/UsageOverviewHero.qml" line="144" />
             <location filename="../qml/components/UsageOverviewHero.qml" line="144" />
             <source>Today</source>
             <translation>今日</translation>
@@ -3527,20 +4586,25 @@
         <message>
             <location filename="../qml/components/UsageOverviewHero.qml" line="146" />
             <location filename="../qml/components/UsageOverviewHero.qml" line="162" />
+            <location filename="../qml/components/UsageOverviewHero.qml" line="146" />
+            <location filename="../qml/components/UsageOverviewHero.qml" line="162" />
             <source>tokens</source>
             <translation>词元</translation>
         </message>
         <message>
+            <location filename="../qml/components/UsageOverviewHero.qml" line="160" />
             <location filename="../qml/components/UsageOverviewHero.qml" line="160" />
             <source>30 days</source>
             <translation>30天</translation>
         </message>
         <message>
             <location filename="../qml/components/UsageOverviewHero.qml" line="187" />
+            <location filename="../qml/components/UsageOverviewHero.qml" line="187" />
             <source>Providers</source>
             <translation>提供商</translation>
         </message>
         <message>
+            <location filename="../qml/components/UsageOverviewHero.qml" line="189" />
             <location filename="../qml/components/UsageOverviewHero.qml" line="189" />
             <source>token sources</source>
             <translation>词元来源</translation>
@@ -3630,44 +4694,55 @@
         <name>UsageProviderRow</name>
         <message>
             <location filename="../qml/components/UsageProviderRow.qml" line="70" />
+            <location filename="../qml/components/UsageProviderRow.qml" line="70" />
             <source>Model breakdown expanded</source>
             <translation>模型细分已展开</translation>
         </message>
         <message>
+            <location filename="../qml/components/UsageProviderRow.qml" line="70" />
             <location filename="../qml/components/UsageProviderRow.qml" line="70" />
             <source>Model breakdown collapsed</source>
             <translation>模型细分已收起</translation>
         </message>
         <message>
             <location filename="../qml/components/UsageProviderRow.qml" line="99" />
-            <location filename="../qml/components/UsageProviderRow.qml" line="237" />
-            <location filename="../qml/components/UsageProviderRow.qml" line="244" />
-            <location filename="../qml/components/UsageProviderRow.qml" line="314" />
+            <location filename="../qml/components/UsageProviderRow.qml" line="238" />
+            <location filename="../qml/components/UsageProviderRow.qml" line="245" />
+            <location filename="../qml/components/UsageProviderRow.qml" line="315" />
+            <location filename="../qml/components/UsageProviderRow.qml" line="99" />
+            <location filename="../qml/components/UsageProviderRow.qml" line="238" />
+            <location filename="../qml/components/UsageProviderRow.qml" line="245" />
+            <location filename="../qml/components/UsageProviderRow.qml" line="315" />
             <source>tokens</source>
             <translation>词元</translation>
         </message>
         <message>
-            <location filename="../qml/components/UsageProviderRow.qml" line="235" />
+            <location filename="../qml/components/UsageProviderRow.qml" line="236" />
+            <location filename="../qml/components/UsageProviderRow.qml" line="236" />
             <source>Today</source>
             <translation>今日</translation>
         </message>
         <message>
-            <location filename="../qml/components/UsageProviderRow.qml" line="242" />
+            <location filename="../qml/components/UsageProviderRow.qml" line="243" />
+            <location filename="../qml/components/UsageProviderRow.qml" line="243" />
             <source>30 days</source>
             <translation>30天</translation>
         </message>
         <message>
-            <location filename="../qml/components/UsageProviderRow.qml" line="272" />
+            <location filename="../qml/components/UsageProviderRow.qml" line="273" />
+            <location filename="../qml/components/UsageProviderRow.qml" line="273" />
             <source>Loading model breakdown</source>
             <translation>正在加载模型细分</translation>
         </message>
         <message>
-            <location filename="../qml/components/UsageProviderRow.qml" line="281" />
+            <location filename="../qml/components/UsageProviderRow.qml" line="282" />
+            <location filename="../qml/components/UsageProviderRow.qml" line="282" />
             <source>No model breakdown available</source>
             <translation>无可用模型细分</translation>
         </message>
         <message>
-            <location filename="../qml/components/UsageProviderRow.qml" line="297" />
+            <location filename="../qml/components/UsageProviderRow.qml" line="298" />
+            <location filename="../qml/components/UsageProviderRow.qml" line="298" />
             <source>Unknown model</source>
             <translation>未知模型</translation>
         </message>
@@ -3675,9 +4750,37 @@
     <context>
         <name>UsageWindow</name>
         <message>
-            <location filename="../qml/UsageWindow.qml" line="75" />
+            <location filename="../qml/UsageWindow.qml" line="43" />
+            <location filename="../qml/UsageWindow.qml" line="43" />
             <source>Usage Details</source>
             <translation>用量详情</translation>
+        </message>
+    </context>
+    <context>
+        <name>WindowTitleBar</name>
+        <message>
+            <location filename="../qml/components/WindowTitleBar.qml" line="103" />
+            <location filename="../qml/components/WindowTitleBar.qml" line="103" />
+            <source>Minimize</source>
+            <translation>最小化</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/WindowTitleBar.qml" line="110" />
+            <location filename="../qml/components/WindowTitleBar.qml" line="110" />
+            <source>Restore</source>
+            <translation>还原</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/WindowTitleBar.qml" line="110" />
+            <location filename="../qml/components/WindowTitleBar.qml" line="110" />
+            <source>Maximize</source>
+            <translation>最大化</translation>
+        </message>
+        <message>
+            <location filename="../qml/components/WindowTitleBar.qml" line="116" />
+            <location filename="../qml/components/WindowTitleBar.qml" line="116" />
+            <source>Close</source>
+            <translation>关闭</translation>
         </message>
     </context>
 </TS>
