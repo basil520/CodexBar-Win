@@ -36,6 +36,10 @@ Rectangle {
         tint: AppTheme.bgPrimary
     }
 
+    Components.AmbientFluidAurora {
+        anchors.fill: parent
+    }
+
     Rectangle {
         anchors.fill: parent
         color: "transparent"
