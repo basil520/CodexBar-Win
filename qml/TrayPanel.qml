@@ -344,6 +344,45 @@ Rectangle {
                     }
                 }
 
+                Canvas {
+                    id: spotlightCanvas
+                    width: 240
+                    height: 240
+                    x: mouseArea.mouseX - width / 2
+                    y: mouseArea.mouseY - height / 2
+                    visible: mouseArea.containsMouse
+                    opacity: mouseArea.containsMouse ? 1.0 : 0.0
+                    
+                    Behavior on opacity {
+                        NumberAnimation { duration: 250 }
+                    }
+
+                    onPaint: {
+                        var ctx = getContext("2d");
+                        ctx.reset();
+                        var gradient = ctx.createRadialGradient(120, 120, 0, 120, 120, 120);
+                        
+                        var bColor = cardDelegate.brandColor;
+                        var r = Math.round(bColor.r * 255);
+                        var g = Math.round(bColor.g * 255);
+                        var b = Math.round(bColor.b * 255);
+                        
+                        gradient.addColorStop(0.0, "rgba(" + r + "," + g + "," + b + ", 0.14)");
+                        gradient.addColorStop(0.5, "rgba(" + r + "," + g + "," + b + ", 0.04)");
+                        gradient.addColorStop(1.0, "rgba(" + r + "," + g + "," + b + ", 0.0)");
+                        
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(0, 0, 240, 240);
+                    }
+
+                    Component.onCompleted: requestPaint()
+
+                    Connections {
+                        target: cardDelegate
+                        function onBrandColorChanged() { spotlightCanvas.requestPaint() }
+                    }
+                }
+
                 ColumnLayout {
                     id: cardContent
                     anchors.left: parent.left
