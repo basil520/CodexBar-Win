@@ -83,6 +83,10 @@ private slots:
     void dialogsAndToastsUseSharedFeedbackPrimitives();
     void providerAvatarUsesPolicyDrivenIconVessel();
     void providerSwitcherUsesAvatarDockPattern();
+    void disruptiveExperienceComponentsAreRegistered();
+    void disruptiveExperienceShellsUseNewEntryPoints();
+    void trayProviderFocusDetailsRoutesToSelectedProvider();
+    void stateSpineComponentsExposeNarrativeContract();
     void appQmlResourceBypassesMultiConfigAutoRcc();
 };
 
@@ -1613,7 +1617,7 @@ void QmlArchitectureTest::displayPaneUsesAppearanceLabComponents()
         QStringLiteral("DisplayComponents.GlassEffectCard"),
         QStringLiteral("DisplayComponents.TrayDisplayCard"),
         QStringLiteral("DisplayComponents.UsageDisplayCard"),
-        QStringLiteral("DisplayComponents.DisplayPreviewCard"),
+        QStringLiteral("DisplayComponents.ExperiencePreviewStage"),
     };
 
     for (const QString& component : requiredComponents) {
@@ -1842,6 +1846,133 @@ void QmlArchitectureTest::providerSwitcherUsesAvatarDockPattern()
              "TrayProviderDock must expose usage through the avatar ring instead of a cramped mini text tab.");
     QVERIFY2(dock.contains(QStringLiteral("WheelHandler")) || dock.contains(QStringLiteral("onWheel")),
              "TrayProviderDock must support horizontal wheel scrolling for many providers.");
+}
+
+void QmlArchitectureTest::disruptiveExperienceComponentsAreRegistered()
+{
+    const QString qrc = readFile("resources/qml.qrc");
+    const QStringList components = {
+        QStringLiteral("qml/components/state/StateBanner.qml"),
+        QStringLiteral("qml/components/state/StateEmpty.qml"),
+        QStringLiteral("qml/components/state/StateTimeline.qml"),
+        QStringLiteral("qml/components/state/ActionStateButton.qml"),
+        QStringLiteral("qml/components/tray/TrayMissionControl.qml"),
+        QStringLiteral("qml/components/tray/TrayStatusHeader.qml"),
+        QStringLiteral("qml/components/tray/TrayTodaySnapshot.qml"),
+        QStringLiteral("qml/components/tray/TrayProviderFocus.qml"),
+        QStringLiteral("qml/components/provider/ProviderWorkbench.qml"),
+        QStringLiteral("qml/components/provider/ProviderStatusNarrative.qml"),
+        QStringLiteral("qml/components/provider/ProviderDiagnosticsPanel.qml"),
+        QStringLiteral("qml/components/usage/UsageCommandBar.qml"),
+        QStringLiteral("qml/components/usage/UsageTrendDeck.qml"),
+        QStringLiteral("qml/components/usage/UsageForecastPanel.qml"),
+        QStringLiteral("qml/components/display/ExperiencePreviewStage.qml"),
+        QStringLiteral("qml/components/CommandPalette.qml"),
+    };
+
+    for (const QString& component : components) {
+        QVERIFY2(qrc.contains(component),
+                 qPrintable(component + QStringLiteral(" must be registered for the disruptive experience rollout.")));
+    }
+}
+
+void QmlArchitectureTest::disruptiveExperienceShellsUseNewEntryPoints()
+{
+    const QString tray = readFile("qml/TrayPanel.qml");
+    const QString providerDetail = readFile("qml/components/ProviderDetailView.qml");
+    const QString usage = readFile("qml/panes/TokenUsagePane.qml");
+    const QString display = readFile("qml/panes/DisplayPane.qml");
+    const QString main = readFile("qml/Main.qml");
+
+    QVERIFY2(tray.contains(QStringLiteral("Components.TrayMissionControl")),
+             "TrayPanel must be reduced to a Mission Control shell entry point.");
+    QVERIFY2(tray.contains(QStringLiteral("TrayShell.TrayStatusHeader"))
+             && tray.contains(QStringLiteral("TrayShell.TrayTodaySnapshot"))
+             && tray.contains(QStringLiteral("TrayShell.TrayProviderFocus")),
+             "TrayPanel must compose the Mission Control status, snapshot, and focus regions.");
+
+    QVERIFY2(providerDetail.contains(QStringLiteral("ProviderPanels.ProviderWorkbench")),
+             "ProviderDetailView must route the Settings provider detail through ProviderWorkbench.");
+    QVERIFY2(providerDetail.contains(QStringLiteral("ProviderPanels.ProviderStatusNarrative"))
+             && providerDetail.contains(QStringLiteral("ProviderPanels.ProviderDiagnosticsPanel")),
+             "ProviderDetailView must expose status narrative and diagnostics panels.");
+
+    QVERIFY2(usage.contains(QStringLiteral("UsageComponents.UsageCommandBar"))
+             && usage.contains(QStringLiteral("UsageComponents.UsageTrendDeck"))
+             && usage.contains(QStringLiteral("UsageComponents.UsageForecastPanel")),
+             "TokenUsagePane must compose the Usage Observatory command bar, trend deck, and forecast panel.");
+
+    QVERIFY2(display.contains(QStringLiteral("DisplayComponents.ExperiencePreviewStage")),
+             "DisplayPane must use ExperiencePreviewStage instead of a static preview card only.");
+    QVERIFY2(main.contains(QStringLiteral("Components.CommandPalette")),
+             "Main.qml must expose the unified Command Palette entry point.");
+}
+
+void QmlArchitectureTest::trayProviderFocusDetailsRoutesToSelectedProvider()
+{
+    const QString tray = readFile("qml/TrayPanel.qml");
+    const QString settingsWindow = readFile("qml/SettingsWindow.qml");
+    const QString settingsModelHeader = readFile("src/app/SettingsProvidersModel.h");
+    const QString settingsModelSource = readFile("src/app/SettingsProvidersModel.cpp");
+
+    QVERIFY2(tray.contains(QStringLiteral("function openSelectedProviderDetails()")),
+             "Tray Details must use an explicit provider-aware route helper.");
+    QVERIFY2(tray.contains(QStringLiteral("SettingsProvidersModel.selectProvider(root.selectedProviderID)")),
+             "Tray Details must select the currently focused provider before opening Settings.");
+    QVERIFY2(tray.contains(QStringLiteral("SettingsProvidersModel.requestOpenProvidersTab()")),
+             "Tray Details must request the Providers tab, not just the generic settings page.");
+    QVERIFY2(tray.contains(QStringLiteral("AppController.openSettings()")),
+             "Tray Details must open/raise Settings without toggling an already-open window closed.");
+    QVERIFY2(tray.contains(QStringLiteral("onActionRequested: root.openSelectedProviderDetails()")),
+             "TrayProviderFocus Details action must route through the provider-aware helper.");
+    QVERIFY2(!tray.contains(QStringLiteral("onActionRequested: AppController.toggleSettings()")),
+             "TrayProviderFocus Details must not be a generic settings toggle.");
+
+    QVERIFY2(settingsModelHeader.contains(QStringLiteral("openProvidersTabRequested")),
+             "SettingsProvidersModel must expose a signal for routing SettingsWindow to the Providers tab.");
+    QVERIFY2(settingsModelSource.contains(QStringLiteral("emit openProvidersTabRequested()")),
+             "requestOpenProvidersTab() must notify SettingsWindow to switch to the Providers tab.");
+    QVERIFY2(settingsWindow.contains(QStringLiteral("function onOpenProvidersTabRequested()"))
+             && settingsWindow.contains(QStringLiteral("tabList.currentIndex = 1")),
+             "SettingsWindow must switch to the Providers tab when a provider details route is requested.");
+}
+
+void QmlArchitectureTest::stateSpineComponentsExposeNarrativeContract()
+{
+    const QString banner = readFile("qml/components/state/StateBanner.qml");
+    const QString empty = readFile("qml/components/state/StateEmpty.qml");
+    const QString timeline = readFile("qml/components/state/StateTimeline.qml");
+    const QString button = readFile("qml/components/state/ActionStateButton.qml");
+    const QString registry = readFile("qml/components/ProviderIdentityRegistry.qml");
+
+    const QStringList stateTokens = {
+        QStringLiteral("property string state"),
+        QStringLiteral("property string reason"),
+        QStringLiteral("property string nextStep"),
+        QStringLiteral("property string lifecycle"),
+        QStringLiteral("FeedbackBanner"),
+    };
+    for (const QString& token : stateTokens) {
+        QVERIFY2(banner.contains(token),
+                 qPrintable(QStringLiteral("StateBanner must expose narrative token: %1").arg(token)));
+    }
+
+    QVERIFY2(empty.contains(QStringLiteral("property string reason"))
+             && empty.contains(QStringLiteral("property string actionText")),
+             "StateEmpty must carry reason and next action text.");
+    QVERIFY2(timeline.contains(QStringLiteral("property var events"))
+             && timeline.contains(QStringLiteral("severity")),
+             "StateTimeline must render non-secret UI activity events with severity.");
+    QVERIFY2(button.contains(QStringLiteral("property string disabledReason"))
+             && button.contains(QStringLiteral("property string busyLabel"))
+             && button.contains(QStringLiteral("ActionButton")),
+             "ActionStateButton must centralize busy/disabled/action state.");
+
+    QVERIFY2(registry.contains(QStringLiteral("\"supportsUsageRing\""))
+             && registry.contains(QStringLiteral("\"supportsAccountBadge\""))
+             && registry.contains(QStringLiteral("\"preferredBadge\""))
+             && registry.contains(QStringLiteral("\"shortName\"")),
+             "ProviderIdentityRegistry must expose Provider Identity 2.0 capability metadata.");
 }
 
 void QmlArchitectureTest::appQmlResourceBypassesMultiConfigAutoRcc()

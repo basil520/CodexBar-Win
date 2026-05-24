@@ -734,6 +734,7 @@ public:
 
     Q_INVOKABLE void requestOpenProvidersTab() {
         ++requestOpenProvidersTabCalls;
+        emit openProvidersTabRequested();
         if (!mockUsage) {
             return;
         }
@@ -866,6 +867,7 @@ public:
     }
 
 signals:
+    void openProvidersTabRequested();
     void providersChanged();
     void selectedProviderChanged();
     void selectedDescriptorChanged();
@@ -1491,6 +1493,7 @@ private slots:
     void providerAvatarLoadsContrastPolicies();
     void trayProviderDockCanReturnToOverview();
     void uiFoundationComponentsLoad();
+    void disruptiveExperienceComponentsLoad();
     void secretInputCommitsOnlyOnExplicitAction();
     void providerTextSettingCommitsOnlyOnExplicitAction();
     void tokenAccountsPaneAddsApiAccount();
@@ -1584,6 +1587,7 @@ private slots:
     }
 
     void providerDetailControlsStayWithinNarrowViewport();
+    void disruptiveExperienceComponentsLoad();
 
     void settingsWindowDefersProviderWorkUntilProvidersTab() {
 #ifdef Q_OS_MACOS
@@ -2476,6 +2480,176 @@ private slots:
     }
 };
 #endif
+
+void tst_QmlSmoke::disruptiveExperienceComponentsLoad()
+{
+    QQuickView view;
+    setupEngine(*view.engine());
+    view.resize(760, 760);
+
+    QQuickItem* root = createInlineRoot(view, R"(
+        import QtQuick 2.15
+        import QtQuick.Layouts 1.15
+        import "qrc:/qml/components" as Components
+        import "qrc:/qml/components/state" as StateComponents
+        import "qrc:/qml/components/tray" as TrayShell
+        import "qrc:/qml/components/provider" as ProviderPanels
+        import "qrc:/qml/components/usage" as UsageComponents
+        import "qrc:/qml/components/display" as DisplayComponents
+
+        Item {
+            width: 720
+            height: 720
+            property int paletteActionCount: 0
+            property int buttonActionCount: 0
+
+            ColumnLayout {
+                anchors.fill: parent
+                spacing: 8
+
+                StateComponents.StateBanner {
+                    objectName: "stateBanner"
+                    Layout.fillWidth: true
+                    state: "warning"
+                    title: "Provider needs attention"
+                    reason: "Credentials are stale"
+                    nextStep: "Refresh or import a browser session"
+                    actionText: "Retry"
+                    onActionRequested: buttonActionCount += 1
+                }
+
+                StateComponents.StateEmpty {
+                    objectName: "stateEmpty"
+                    Layout.fillWidth: true
+                    title: "No activity yet"
+                    reason: "Refresh a provider to populate the timeline."
+                    actionText: "Refresh"
+                }
+
+                StateComponents.ActionStateButton {
+                    objectName: "actionStateButton"
+                    text: "Import"
+                    busyLabel: "Importing"
+                    disabledReason: ""
+                    onClicked: buttonActionCount += 1
+                }
+
+                StateComponents.StateTimeline {
+                    objectName: "stateTimeline"
+                    Layout.fillWidth: true
+                    events: [
+                        { severity: "success", title: "Session imported", message: "Codex refreshed", createdAt: "just now" },
+                        { severity: "warning", title: "Usage stale", message: "Waiting for next refresh", createdAt: "1m ago" }
+                    ]
+                }
+
+                TrayShell.TrayMissionControl {
+                    objectName: "trayMissionControl"
+                    Layout.fillWidth: true
+                    TrayShell.TrayStatusHeader {
+                        objectName: "trayStatusHeader"
+                        providerCount: 3
+                        globalState: "ready"
+                    }
+                    TrayShell.TrayTodaySnapshot {
+                        objectName: "trayTodaySnapshot"
+                        todayCost: "$0.42"
+                        providerCount: 3
+                        activeProviderName: "Codex"
+                    }
+                    TrayShell.TrayProviderFocus {
+                        objectName: "trayProviderFocus"
+                        providerId: "codex"
+                        providerName: "Codex"
+                        state: "ready"
+                        summary: "Session healthy"
+                    }
+                }
+
+                ProviderPanels.ProviderWorkbench {
+                    objectName: "providerWorkbench"
+                    Layout.fillWidth: true
+                    providerId: "codex"
+                    ProviderPanels.ProviderStatusNarrative {
+                        objectName: "providerStatusNarrative"
+                        state: "success"
+                        title: "Connection OK"
+                        reason: "Dashboard session is available."
+                    }
+                    ProviderPanels.ProviderDiagnosticsPanel {
+                        objectName: "providerDiagnosticsPanel"
+                        events: [{ severity: "success", title: "Tested", message: "Connection OK", createdAt: "now" }]
+                    }
+                }
+
+                UsageComponents.UsageCommandBar {
+                    objectName: "usageCommandBar"
+                    Layout.fillWidth: true
+                    rangeLabel: "Last 30 days"
+                    freshnessLabel: "Updated just now"
+                }
+
+                UsageComponents.UsageTrendDeck {
+                    objectName: "usageTrendDeck"
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 72
+                    title: "Usage Observatory"
+                }
+
+                UsageComponents.UsageForecastPanel {
+                    objectName: "usageForecastPanel"
+                    Layout.fillWidth: true
+                    forecastText: "No quota risk detected."
+                }
+
+                DisplayComponents.ExperiencePreviewStage {
+                    objectName: "experiencePreviewStage"
+                    Layout.fillWidth: true
+                }
+            }
+
+            Components.CommandPalette {
+                objectName: "commandPalette"
+                anchors.centerIn: parent
+                width: 420
+                commands: [
+                    { id: "open-usage", title: "Open Usage", subtitle: "Inspect usage observatory", keywords: "usage" }
+                ]
+                open: true
+                onCommandTriggered: paletteActionCount += 1
+            }
+        }
+    )", QUrl("qrc:/tests/DisruptiveExperienceHarness.qml"));
+
+    QVERIFY(root != nullptr);
+    view.show();
+    QTest::qWait(220);
+
+    const QStringList expectedObjects = {
+        QStringLiteral("stateBanner"),
+        QStringLiteral("stateEmpty"),
+        QStringLiteral("actionStateButton"),
+        QStringLiteral("stateTimeline"),
+        QStringLiteral("trayMissionControl"),
+        QStringLiteral("trayStatusHeader"),
+        QStringLiteral("trayTodaySnapshot"),
+        QStringLiteral("trayProviderFocus"),
+        QStringLiteral("providerWorkbench"),
+        QStringLiteral("providerStatusNarrative"),
+        QStringLiteral("providerDiagnosticsPanel"),
+        QStringLiteral("usageCommandBar"),
+        QStringLiteral("usageTrendDeck"),
+        QStringLiteral("usageForecastPanel"),
+        QStringLiteral("experiencePreviewStage"),
+        QStringLiteral("commandPalette"),
+    };
+    for (const QString& objectName : expectedObjects) {
+        QVERIFY2(findObjectByStringProperty(root, "objectName", objectName) != nullptr,
+                 qPrintable(objectName + QStringLiteral(" should load in the disruptive experience smoke harness.")));
+    }
+
+    view.hide();
+}
 
 void tst_QmlSmoke::providerDetailControlsStayWithinNarrowViewport()
 {

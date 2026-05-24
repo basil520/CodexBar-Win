@@ -5,6 +5,7 @@ import QtQuick.Layouts 1.15
 import CodexBarX 1.0
 import ".."
 import "../components"
+import "../components/usage" as UsageComponents
 
 Rectangle {
     id: root
@@ -53,9 +54,19 @@ Rectangle {
             }
         }
 
-        ColumnLayout {
+        UsageComponents.UsageTrendDeck {
             width: scroll.availableWidth
             spacing: 14
+
+            UsageComponents.UsageCommandBar {
+                Layout.fillWidth: true
+                rangeLabel: qsTr("Last 30 days")
+                freshnessLabel: root.costData && root.costData.updatedAt
+                    ? qsTr("Updated ") + Qt.formatDateTime(new Date(root.costData.updatedAt), "MM-dd hh:mm")
+                    : qsTr("Waiting for usage data")
+                refreshing: UsageDetailsViewModel.costUsageRefreshing
+                onRefreshRequested: UsageDetailsViewModel.refreshCostUsage()
+            }
 
             UsageOverviewHero {
                 Layout.fillWidth: true
@@ -102,6 +113,14 @@ Rectangle {
                         rowExpanded = !rowExpanded
                     }
                 }
+            }
+
+            UsageComponents.UsageForecastPanel {
+                Layout.fillWidth: true
+                forecastText: root.providerRows.length === 0
+                    ? qsTr("Enable providers or refresh usage before forecasting quota risk.")
+                    : qsTr("Forecast is based on cached usage rows and never blocks this view.")
+                riskLevel: root.providerRows.length === 0 ? "warning" : "info"
             }
 
             Rectangle {

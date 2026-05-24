@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.15
 
 import CodexBarX 1.0
 import "components" as Components
+import "components/tray" as TrayShell
 
 Rectangle {
     id: root
@@ -56,6 +57,14 @@ Rectangle {
     Component.onCompleted: TrayViewModel.requestCostUsageViewData()
     onCostExpandedChanged: refreshProviderCostRows()
     onSelectedProviderIDChanged: refreshProviderCostRows()
+
+    function openSelectedProviderDetails() {
+        if (root.selectedProviderID !== "") {
+            SettingsProvidersModel.selectProvider(root.selectedProviderID)
+            SettingsProvidersModel.requestOpenProvidersTab()
+        }
+        AppController.openSettings()
+    }
 
     Components.TrayOverviewPanel {
         id: overviewShell
@@ -123,8 +132,11 @@ Rectangle {
         z: -1
     }
 
-    ColumnLayout {
+    Components.TrayMissionControl {
+        id: missionControl
         anchors.fill: parent
+        selectedProviderId: root.selectedProviderID
+        glassEffectActive: root.glassEffectActive
         spacing: 0
 
         // === Header ===
@@ -136,6 +148,17 @@ Rectangle {
             onMoveRequested: function(deltaX, deltaY) {
                 AppController.moveTrayPanel(deltaX, deltaY)
             }
+        }
+
+        TrayShell.TrayStatusHeader {
+            Layout.fillWidth: true
+            Layout.leftMargin: 12
+            Layout.rightMargin: 12
+            Layout.topMargin: 8
+            providerCount: TrayViewModel.providerCount
+            globalState: root.selectedProviderID === "" ? "ready" : "focused"
+            refreshing: root.isRefreshing
+            freshnessLabel: root.refreshDuration
         }
 
         // === Provider Switcher (Phase 2) ===
@@ -185,6 +208,42 @@ Rectangle {
             onEnableRequested: TrayViewModel.ensureCostUsageEnabled()
             onToggleExpandedRequested: root.costExpanded = !root.costExpanded
             onOpenDetailsRequested: AppController.openUsage()
+        }
+
+        TrayShell.TrayTodaySnapshot {
+            Layout.fillWidth: true
+            Layout.leftMargin: 12
+            Layout.rightMargin: 12
+            Layout.bottomMargin: 8
+            todayCost: root.displayCostData && root.displayCostData.hasData
+                ? "$" + root.formatCost(root.displayCostData.todayCostUSD || root.displayCostData.sessionCostUSD || 0)
+                : "$0.00"
+            providerCount: TrayViewModel.providerCount.toString()
+            activeProviderName: root.selectedProviderID !== ""
+                ? (detailFlickable.detailData && detailFlickable.detailData.snap
+                    ? (detailFlickable.detailData.snap.displayName || root.selectedProviderID)
+                    : root.selectedProviderID)
+                : ""
+            statusText: root.costExpanded ? qsTr("Usage expanded") : qsTr("Today Snapshot")
+        }
+
+        TrayShell.TrayProviderFocus {
+            Layout.fillWidth: true
+            Layout.leftMargin: 12
+            Layout.rightMargin: 12
+            Layout.bottomMargin: 8
+            providerId: root.selectedProviderID
+            providerName: detailFlickable.detailData && detailFlickable.detailData.snap
+                ? (detailFlickable.detailData.snap.displayName || root.selectedProviderID)
+                : root.selectedProviderID
+            state: detailFlickable.detailData && detailFlickable.detailData.snap && detailFlickable.detailData.snap.error
+                ? "error"
+                : "ready"
+            summary: detailFlickable.detailData && detailFlickable.detailData.snap && detailFlickable.detailData.snap.error
+                ? detailFlickable.detailData.snap.error
+                : qsTr("Ready for quick actions")
+            actionText: qsTr("Details")
+            onActionRequested: root.openSelectedProviderDetails()
         }
 
         // === Provider List (Overview) ===

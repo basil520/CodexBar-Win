@@ -30,6 +30,14 @@ Rectangle {
         return items
     }
 
+    Connections {
+        target: SettingsProvidersModel
+        function onOpenProvidersTabRequested() {
+            settingsWindow.providersPaneLoaded = true
+            tabList.currentIndex = 1
+        }
+    }
+
     Components.AcrylicBackdrop {
         anchors.fill: parent
         tint: AppTheme.bgPrimary

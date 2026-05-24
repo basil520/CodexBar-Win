@@ -32,5 +32,5 @@ SettingsPage {
         text: qsTr("Live Preview")
     }
 
-    DisplayComponents.DisplayPreviewCard {}
+    DisplayComponents.ExperiencePreviewStage {}
 }

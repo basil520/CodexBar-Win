@@ -138,6 +138,7 @@ SettingsProvidersModel::SettingsProvidersModel(UsageStore* store, QObject* paren
 
 void SettingsProvidersModel::requestOpenProvidersTab()
 {
+    emit openProvidersTabRequested();
     if (!m_store) {
         return;
     }

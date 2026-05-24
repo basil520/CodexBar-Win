@@ -50,6 +50,11 @@ QtObject {
             "vesselShape": identity.vesselShape || "squircle",
             "preserveBackground": identity.preserveBackground === true,
             "needsStroke": identity.needsStroke === true,
+            "preferredBadge": identity.preferredBadge || "status",
+            "supportsUsageRing": identity.supportsUsageRing !== false,
+            "supportsAccountBadge": identity.supportsAccountBadge !== false,
+            "shortName": identity.shortName || (id.length > 0 ? id.charAt(0).toUpperCase() : "?"),
+            "tooltipName": identity.tooltipName || id,
             "prefersDarkBackground": identity.iconMode === "lightGlyph"
         }
     }

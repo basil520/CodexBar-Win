@@ -93,6 +93,7 @@ public:
     Q_INVOKABLE void promoteCodexAccount(const QString& accountId);
 
 signals:
+    void openProvidersTabRequested();
     void providersChanged();
     void selectedProviderChanged();
     void selectedDescriptorChanged();

@@ -158,11 +158,13 @@ ScrollView {
         width: root.availableWidth
         height: root.contentHeight
 
-        ColumnLayout {
+        ProviderPanels.ProviderWorkbench {
             id: body
             x: 24
             y: 22
             width: Math.max(0, Math.min(root.availableWidth - 48, 760))
+            providerId: root.providerId
+            state: root.connectionState
             spacing: 12
 
             ProviderDetailHero {
@@ -181,6 +183,23 @@ ScrollView {
                 onEnabledToggled: function(enabled) {
                     root.toggleEnabled(enabled)
                 }
+            }
+
+            ProviderPanels.ProviderStatusNarrative {
+                Layout.fillWidth: true
+                visible: root.providerError !== "" || root.connectionState !== "idle"
+                state: root.providerError !== "" ? "error"
+                    : root.connectionState === "failed" ? "error"
+                    : root.connectionState === "testing" ? "busy"
+                    : root.connectionState === "succeeded" ? "success"
+                    : "idle"
+                title: root.providerError !== "" ? qsTr("Provider needs attention") : root.connectionTitle()
+                reason: root.providerError !== "" ? root.providerError : root.connectionMessage
+                nextStep: state === "error"
+                    ? qsTr("Open diagnostics, retry the connection, or refresh the configured session source.")
+                    : ""
+                actionText: state === "error" ? qsTr("Retry") : ""
+                onActionRequested: root.testConnectionRequested()
             }
 
             SettingsGroupBox {
@@ -836,6 +855,27 @@ ScrollView {
                         }
                     }
                 }
+            }
+
+            ProviderPanels.ProviderDiagnosticsPanel {
+                Layout.fillWidth: true
+                providerId: root.providerId
+                events: [
+                    {
+                        severity: root.connectionState === "failed" ? "error"
+                            : root.connectionState === "succeeded" ? "success"
+                            : "info",
+                        title: root.connectionTitle(),
+                        message: root.connectionMessage,
+                        createdAt: root.timeLabel(root.connectionTest ? root.connectionTest.finishedAt : 0)
+                    },
+                    {
+                        severity: root.providerError !== "" ? "error" : "info",
+                        title: root.providerError !== "" ? qsTr("Provider error") : qsTr("Provider configuration ready"),
+                        message: root.providerError,
+                        createdAt: ""
+                    }
+                ]
             }
 
             ErrorNotice {
