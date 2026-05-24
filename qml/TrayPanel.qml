@@ -150,6 +150,7 @@ Rectangle {
             }
         }
 
+        /*
         TrayShell.TrayStatusHeader {
             Layout.fillWidth: true
             Layout.leftMargin: 12
@@ -160,6 +161,7 @@ Rectangle {
             refreshing: root.isRefreshing
             freshnessLabel: root.refreshDuration
         }
+        */
 
         // === Provider Switcher (Phase 2) ===
         Components.ProviderSwitcherRow {
@@ -227,6 +229,7 @@ Rectangle {
             statusText: root.costExpanded ? qsTr("Usage expanded") : qsTr("Today Snapshot")
         }
 
+        /*
         TrayShell.TrayProviderFocus {
             Layout.fillWidth: true
             Layout.leftMargin: 12
@@ -245,6 +248,7 @@ Rectangle {
             actionText: qsTr("Details")
             onActionRequested: root.openSelectedProviderDetails()
         }
+        */
 
         // === Provider List (Overview) ===
         ListView {
