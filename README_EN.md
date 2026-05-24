@@ -1,4 +1,4 @@
-﻿# CodexBarX
+# CodexBarX
 
 English | [简体中文](README.md)
 
@@ -20,33 +20,73 @@ English | [简体中文](README.md)
 
 ### Core Features
 
-- **Real-time Usage Monitoring** - Display today's, 30-day, session, and weekly usage statistics in the system tray
-- **Multi-provider Support** - Support for 30+ major AI coding assistant providers
-- **Quota Tracking** - Display remaining quota, progress bars, and estimated depletion time
-- **Reset Reminders** - Show countdown to quota reset
-- **Connection Status** - Real-time connection status for each provider
-- **Dark Theme** - Adaptive to Windows dark mode, eye-friendly
-- **Auto-start** - Support automatic startup on boot
+- **Real-time Usage Monitoring** — Display today's, 30-day, session, and weekly usage statistics in the system tray
+- **30+ Provider Support** — Covering all major AI coding assistants, see the full list below
+- **Quota Tracking** — Display remaining quota, progress bars, and estimated depletion time
+- **Reset Reminders** — Show countdown to quota reset
+- **Connection Status** — Real-time connection status for each provider
+- **Auto-start** — Support automatic startup on boot
+- **Bilingual** — Full internationalization support for Chinese and English
 
-### Advanced Features
+### Visual & Interaction
 
-- **Multi-account Support** - Switch between multiple accounts for some providers
-- **Auto-login** - Automatically read browser cookies or CLI configurations
-- **Secure Storage** - Credentials encrypted and stored in Windows Credential Manager
-- **Portable Version** - No installation required, just extract and run
+- **Three Themes** — Dark / Midnight Blue / Amethyst
+- **Acrylic Glass Effect** — Native Windows DWM blur with adjustable opacity (5%–95%)
+- **Ambient Animations** — Brand-colored flowing gradient backgrounds with three quality tiers (High / Balanced / Low)
+- **Accessibility** — Reduce Motion mode minimizes decorative animations while preserving essential feedback
+- **Command Palette** — Ctrl+P to quickly search providers and actions
+- **Elastic Micro-interactions** — Hover scale, click bounce, expand/collapse smooth transitions
+
+### Data & Charts
+
+- **Cost History Chart** — Daily cost bar chart with peak markers and model-level cost breakdown
+- **Credits History Chart** — Daily credits-used bar chart
+- **Usage Breakdown Chart** — Stacked bar chart by service category (CLI / GitHub Review / API / Codex / Storage, etc.)
+- **Plan Utilization Chart** — Plan utilization curve over time
+- **Storage Analysis** — Per-path byte breakdown with cleanup suggestions
+
+### Multi-Account Management
+
+- **Codex Multi-account** — OAuth device flow authentication, account switching, upgrade/downgrade, re-authentication
+- **Token Multi-account** — API Key management and quick switching
+- **Account Reconciliation** — Automatic sync between local and remote account state
+
+### Browser Session Bridge
+
+Import browser login credentials directly via a Chrome extension + WebSocket local server, bypassing the Chrome 127+ encrypted cookie database limitation:
+
+- Supports Chrome / Edge / Brave / Opera / Vivaldi
+- Three import modes: Cookie / localStorage / Hybrid
+- Auto-matches domains and cookie names per provider
+- Browser Profile binding with auto-sync
+- Secure design: Bearer Token auto-redaction, minimal extension permissions
+
+### Tray Customization
+
+- **Four Tray Display Modes** — Icon Only / Percentage / Remaining Time / Custom Time
+- **Merge Icons** — Combine all enabled providers into a single tray icon
+- **Usage Bar Direction** — Toggle between showing used percentage or remaining percentage
+- **Threshold Alerts** — Configurable Warning (5%–95%) and Critical (1%–50%) threshold sliders
+- **Absolute Reset Times** — Toggle between exact reset timestamps and relative wording
+- **Session Quota Notifications** — Alert when provider session quota becomes constrained
+
+### Diagnostics & Debugging
+
+- **Provider Status Checks** — Poll statuspage endpoints for service health monitoring
+- **Debug Panel** — One-click refresh, clear cache, reset settings, connection test
+- **Verbose Logging** — Strategy-level diagnostics during Codex fetches
+- **Web Debug Dump** — Save raw HTML for offline troubleshooting
 
 ---
 
 ## Supported AI Providers
 
-CodexBarX supports the following AI coding assistant providers:
-
 ### Major Providers
 
 | Provider | Authentication | Features |
 |----------|---------------|----------|
-| **OpenAI Codex** | OAuth / CLI | ✅ Quota, Usage, Reset Time |
-| **Claude** | API Key | ✅ Usage Statistics |
+| **OpenAI Codex** | OAuth / CLI | ✅ Quota, Usage, Reset Time, Multi-account |
+| **Claude** | API Key | ✅ Usage Statistics, Peak Pricing Indicator |
 | **GitHub Copilot** | OAuth | ✅ Subscription Status |
 | **Cursor** | Cookie | ✅ Quota, Usage |
 | **Kimi** | Cookie / Token | ✅ Usage Statistics |
@@ -56,32 +96,30 @@ CodexBarX supports the following AI coding assistant providers:
 
 | Platform | Authentication | Features |
 |----------|---------------|----------|
-| **OpenRouter** | API Key | ✅ Usage, Balance |
+| **OpenRouter** | API Key | ✅ Usage, Balance, Key Quota |
 | **z.ai** | Cookie | ✅ Quota, Usage |
 | **Perplexity** | API Key | ✅ Usage Statistics |
 | **Mistral** | API Key | ✅ Usage Statistics |
-| **Together AI** | API Key | ✅ Usage Statistics |
 
 ### Other Providers
 
-- **Google Gemini** - API Key
-- **Google VertexAI** - Service Account
-- **MiniMax** - API Key
-- **Alibaba (Tongyi Qianwen)** - API Key
-- **Ollama** - Local Service
-- **OpenCode** - Local SQLite
-- **Augment** - Cookie
-- **Amp** - Cookie
-- **JetBrains AI** - Cookie
-- **Factory** - API Key
-- **Warp** - Cookie
-- **Abacus** - Cookie
-- **Codebuff** - Cookie
-- **Windsurf** - SQLite
-- **KimiK2** - Cookie
-- **Kilo** - Cookie
-- **Kiro** - Cookie
-- **Antigravity** - Cookie
+| Provider | Authentication | Provider | Authentication |
+|----------|---------------|----------|---------------|
+| Google Gemini | API Key | Google VertexAI | Service Account |
+| MiniMax | API Key | Alibaba (Tongyi Qianwen) | API Key |
+| Ollama | Local Service | OpenCode | Local SQLite |
+| Augment | Cookie | Amp | Cookie |
+| JetBrains AI | Cookie | Factory | API Key |
+| Warp | Cookie | Abacus | Cookie |
+| Codebuff | Cookie | Windsurf | SQLite |
+| KimiK2 | Cookie | Kilo | Cookie |
+| Kiro | Cookie | Antigravity | Cookie |
+| QianFan | API Key | Venice | API Key |
+| Manus | Cookie | Doubao | Cookie |
+| StepFun | API Key | Mimo | Cookie |
+| XFXinChen | Cookie | OpenAI API | API Key |
+| Crof | Cookie | CommandCode | Cookie |
+| Synthetic | API Key | OpenCodeGo | Local SQLite |
 
 ---
 
@@ -145,6 +183,15 @@ Some providers support automatic reading of browser cookies or CLI configuration
 - **Cursor**: Automatically reads Chrome/Edge cookies
 - **Kimi**: Automatically reads Chrome/Edge cookies
 
+#### Browser Session Bridge (Advanced Alternative for Cookie Method)
+
+For providers where Chrome 127+ encrypted cookie database cannot be read directly:
+
+1. Enable **Browser Session Bridge** in **Advanced** settings
+2. Follow the guide to install the CodexBarX browser extension (supports Chrome / Edge / Brave / Opera / Vivaldi)
+3. Bind browser profiles to each provider
+4. Enable auto-sync or manually click import
+
 ### Viewing Usage
 
 - Left-click the tray icon to expand the usage panel
@@ -156,8 +203,11 @@ Some providers support automatic reading of browser cookies or CLI configuration
 
 - **Auto Refresh**: Set refresh interval (default: 5 minutes)
 - **Auto-start on Boot**: Configure automatic startup
-- **Theme**: Switch between dark/light themes
-- **Language**: Support for Chinese and English interfaces
+- **Theme**: Dark / Midnight Blue / Amethyst
+- **Acrylic Effect**: Toggle and opacity slider
+- **Visual Quality**: High / Balanced / Low
+- **Reduce Motion**: Minimize decorative animations
+- **Language**: Chinese and English interfaces
 
 ---
 
@@ -229,13 +279,21 @@ ctest --test-dir build -C Release -R tst_RateWindow
 CodexBarX/
 ├── src/                    # Source code
 │   ├── app/               # Application core logic
-│   ├── providers/         # Provider implementations
+│   ├── providers/         # Provider implementations (30+)
 │   ├── models/            # Data models
 │   ├── network/           # Network layer
 │   ├── tray/              # Tray functionality
+│   ├── browserbridge/     # Browser session bridge
+│   ├── account/           # Multi-account management
 │   └── util/              # Utilities
 ├── qml/                    # QML interfaces
+│   ├── components/        # Common components
+│   ├── panes/             # Settings pages
+│   └── provider/          # Provider detail components
 ├── resources/              # Resource files
+│   ├── icons/             # Provider icons
+│   ├── screenshots/       # Screenshots
+│   └── browser-session-bridge/  # Chrome extension
 ├── translations/           # Translation files
 ├── tests/                  # Unit tests
 ├── installer/              # Installer configuration
@@ -262,9 +320,16 @@ CodexBarX/
 2. Configure different authentication credentials
 3. Rename to distinguish different accounts
 
+### Q: What if cookies can't be read after Chrome updates?
+
+**A:** Chrome 127+ encrypts the cookie database. Use the **Browser Session Bridge** feature:
+1. Enable Browser Session Bridge in Advanced settings
+2. Install the browser extension and bind a Profile
+3. Cookies will then be securely imported through the extension
+
 ### Q: Where is data stored?
 
-**A:** 
+**A:**
 - Configuration: `%APPDATA%\CodexBar\`
 - Credentials: Windows Credential Manager (encrypted)
 - Logs: `%LOCALAPPDATA%\CodexBar\logs\`
