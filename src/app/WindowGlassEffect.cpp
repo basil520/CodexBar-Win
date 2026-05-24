@@ -178,10 +178,10 @@ bool apply(QWindow* window, bool enabled, QColor tint)
         fnDwm(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof(preference));
     }
 
-    // Always strip WS_CAPTION to ensure it is completely frameless and has no native system titlebar
+    // Always strip WS_CAPTION and WS_SYSMENU to ensure it is completely frameless and has no native system titlebar
     LONG_PTR style = GetWindowLongPtr(hwnd, GWL_STYLE);
-    if (style & WS_CAPTION) {
-        style &= ~WS_CAPTION;
+    if ((style & WS_CAPTION) || (style & WS_SYSMENU)) {
+        style &= ~(WS_CAPTION | WS_SYSMENU);
         SetWindowLongPtr(hwnd, GWL_STYLE, style);
         SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
     }
