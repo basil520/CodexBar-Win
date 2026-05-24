@@ -41,7 +41,6 @@ Rectangle {
 
         Components.WindowTitleBar {
             title: qsTr("Usage Details")
-            iconText: "U"
             windowKind: "usage"
             showMaximize: false
         }

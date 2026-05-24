@@ -60,8 +60,7 @@ Rectangle {
         spacing: 0
 
         Components.WindowTitleBar {
-            title: qsTr("CodexBar Settings")
-            iconText: "C"
+            title: qsTr("CodexBarX Settings")
             windowKind: "settings"
             showMaximize: true
             maximized: AppController.settingsMaximized

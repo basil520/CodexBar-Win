@@ -11,6 +11,7 @@ Rectangle {
 
     property string title: ""
     property string iconText: ""
+    property string iconSource: "qrc:/icons/AppIcon-codexbarx.svg"
     property string windowKind: "settings"
     property bool showMaximize: false
     property bool maximized: false
@@ -63,18 +64,33 @@ Rectangle {
         anchors.rightMargin: 8
         spacing: 10
 
-        Rectangle {
-            Layout.preferredWidth: 20
-            Layout.preferredHeight: 20
-            radius: 5
-            color: AppTheme.accentColor
+        Item {
+            Layout.preferredWidth: 22
+            Layout.preferredHeight: 22
 
-            Label {
-                anchors.centerIn: parent
-                text: root.iconText
-                color: AppTheme.textOnAccent
-                font.pixelSize: 11
-                font.bold: true
+            Image {
+                anchors.fill: parent
+                source: root.iconSource
+                sourceSize.width: 44
+                sourceSize.height: 44
+                fillMode: Image.PreserveAspectFit
+                smooth: true
+                visible: root.iconSource.length > 0
+            }
+
+            Rectangle {
+                anchors.fill: parent
+                radius: 5
+                color: AppTheme.accentColor
+                visible: root.iconSource.length === 0
+
+                Label {
+                    anchors.centerIn: parent
+                    text: root.iconText
+                    color: AppTheme.textOnAccent
+                    font.pixelSize: 11
+                    font.bold: true
+                }
             }
         }
 

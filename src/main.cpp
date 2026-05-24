@@ -4,6 +4,7 @@
 #include <QDesktopServices>
 #include <QDebug>
 #include <QFile>
+#include <QIcon>
 #include <QMessageBox>
 #include <QProcess>
 #include <QQuickItem>
@@ -598,6 +599,7 @@ int main(int argc, char* argv[]) {
 
     app.setApplicationName("CodexBarX");
     app.setOrganizationName("CodexBarX");
+    app.setWindowIcon(QIcon(QStringLiteral(":/icons/AppIcon-codexbarx.svg")));
     app.setQuitOnLastWindowClosed(false);
     const QStringList appArgs = QCoreApplication::arguments();
     for (const auto& arg : appArgs) {

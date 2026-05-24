@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="180" viewBox="0 0 640 180" role="img" aria-labelledby="title desc">
+  <title id="title">CodexBarX quota radar lockup preview</title>
+  <desc id="desc">Horizontal CodexBarX lockup using a glass quota radar icon and compact dashboard marks.</desc>
+  <defs>
+    <linearGradient id="badgeBase" x1="28" y1="16" x2="140" y2="154" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2b2a50"/>
+      <stop offset=".47" stop-color="#181731"/>
+      <stop offset="1" stop-color="#0e1426"/>
+    </linearGradient>
+    <radialGradient id="badgeShine" cx="54" cy="28" r="112" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".28"/>
+      <stop offset=".46" stop-color="#6e72ff" stop-opacity=".09"/>
+      <stop offset="1" stop-color="#050713" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="wordmark" x1="178" y1="54" x2="479" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".47" stop-color="#e7f7ff"/>
+      <stop offset="1" stop-color="#8deff7"/>
+    </linearGradient>
+    <filter id="lockShadow" x="-20%" y="-30%" width="150%" height="170%">
+      <feDropShadow dx="0" dy="14" stdDeviation="15" flood-color="#050713" flood-opacity=".48"/>
+    </filter>
+    <filter id="miniGlow" x="-70%" y="-70%" width="240%" height="240%">
+      <feGaussianBlur stdDeviation="2.8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="640" height="180" rx="28" fill="#101124"/>
+  <path d="M0 0h640v92C540 71 461 94 369 72 256 46 162 12 0 41V0Z" fill="#27264b" opacity=".42"/>
+
+  <g filter="url(#lockShadow)">
+    <rect x="26" y="22" width="136" height="136" rx="32" fill="url(#badgeBase)"/>
+    <rect x="27" y="23" width="134" height="134" rx="31" fill="url(#badgeShine)" stroke="#ffffff" stroke-opacity=".17"/>
+    <circle cx="94" cy="90" r="43" fill="none" stroke="#343456" stroke-width="6" opacity=".84"/>
+    <path d="M94 47 A43 43 0 0 1 133.4 72.8" fill="none" stroke="#82f4ff" stroke-width="6" stroke-linecap="round"/>
+    <path d="M137 90 A43 43 0 0 1 108.2 130.6" fill="none" stroke="#ffc640" stroke-width="6" stroke-linecap="round"/>
+    <path d="M79.8 130.6 A43 43 0 0 1 51 90" fill="none" stroke="#3ae2ad" stroke-width="6" stroke-linecap="round"/>
+    <g stroke="#eafcff" stroke-linecap="round" opacity=".38">
+      <line x1="94" y1="55" x2="94" y2="60" stroke-width="1.7"/>
+      <line x1="94" y1="55" x2="94" y2="60" stroke-width="1.7" transform="rotate(45 94 90)"/>
+      <line x1="94" y1="55" x2="94" y2="60" stroke-width="1.7" transform="rotate(90 94 90)"/>
+      <line x1="94" y1="55" x2="94" y2="60" stroke-width="1.7" transform="rotate(135 94 90)"/>
+      <line x1="94" y1="55" x2="94" y2="60" stroke-width="1.7" transform="rotate(180 94 90)"/>
+      <line x1="94" y1="55" x2="94" y2="60" stroke-width="1.7" transform="rotate(225 94 90)"/>
+      <line x1="94" y1="55" x2="94" y2="60" stroke-width="1.7" transform="rotate(270 94 90)"/>
+      <line x1="94" y1="55" x2="94" y2="60" stroke-width="1.7" transform="rotate(315 94 90)"/>
+    </g>
+    <circle cx="94" cy="90" r="19" fill="#49a3b0" opacity=".55" filter="url(#miniGlow)"/>
+    <circle cx="94" cy="90" r="8" fill="#f7fbff"/>
+    <g stroke="#12182a" stroke-width="2.3">
+      <circle cx="124" cy="58" r="4.1" fill="#85f5ff"/>
+      <circle cx="139" cy="100" r="3.8" fill="#ffd04e"/>
+      <circle cx="58" cy="121" r="3.8" fill="#34e8bb"/>
+      <circle cx="49" cy="76" r="3.8" fill="#62a8ff"/>
+    </g>
+  </g>
+
+  <g>
+    <text x="190" y="86" fill="url(#wordmark)" font-family="Segoe UI, Inter, Arial, sans-serif" font-size="47" font-weight="720">CodexBarX</text>
+    <g transform="translate(193 108)">
+      <rect x="0" y="0" width="250" height="8" rx="4" fill="#282947"/>
+      <rect x="0" y="0" width="96" height="8" rx="4" fill="#49a3b0"/>
+      <rect x="112" y="0" width="74" height="8" rx="4" fill="#34e8bb"/>
+      <rect x="202" y="0" width="48" height="8" rx="4" fill="#ffc640"/>
+      <circle cx="288" cy="4" r="4" fill="#85f5ff"/>
+      <circle cx="308" cy="4" r="4" fill="#a997ff"/>
+      <circle cx="328" cy="4" r="4" fill="#34e8bb"/>
+      <circle cx="348" cy="4" r="4" fill="#ffc640"/>
+    </g>
+    <text x="193" y="142" fill="#9299bc" font-family="Segoe UI, Inter, Arial, sans-serif" font-size="18" font-weight="500">quota radar for AI coding sessions</text>
+  </g>
+</svg>

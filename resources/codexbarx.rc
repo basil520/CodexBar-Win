@@ -1,6 +1,6 @@
 #include <windows.h>
 
-// IDI_WINCODEXBAR ICON "codexbar.ico"
+IDI_CODEXBARX ICON "icons\\AppIcon-codexbarx.ico"
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION     0,1,0,0
@@ -15,10 +15,10 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "CompanyName",      "CodexBar"
-            VALUE "FileDescription",  "CodexBar - AI Usage Tracker"
+            VALUE "CompanyName",      "CodexBarX"
+            VALUE "FileDescription",  "CodexBarX - AI Usage Tracker"
             VALUE "FileVersion",      "0.1.0"
-            VALUE "ProductName",      "WinCodexBar"
+            VALUE "ProductName",      "CodexBarX"
             VALUE "ProductVersion",   "0.1.0"
         END
     END

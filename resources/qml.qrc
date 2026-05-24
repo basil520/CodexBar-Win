@@ -114,6 +114,8 @@
         <file alias="qml/panes/AdvancedPane.qml">../qml/panes/AdvancedPane.qml</file>
         <file alias="qml/panes/AboutPane.qml">../qml/panes/AboutPane.qml</file>
         <file alias="qml/panes/DebugPane.qml">../qml/panes/DebugPane.qml</file>
+        <file alias="branding/CodexBarX-logo.svg">../resources/branding/CodexBarX-logo.svg</file>
+        <file alias="icons/AppIcon-codexbarx.svg">../resources/icons/AppIcon-codexbarx.svg</file>
         <file alias="icons/ProviderIcon-abacus.svg">../resources/icons/ProviderIcon-abacus.svg</file>
         <file alias="icons/ProviderIcon-alibaba.svg">../resources/icons/ProviderIcon-alibaba.svg</file>
         <file alias="icons/ProviderIcon-amp.svg">../resources/icons/ProviderIcon-amp.svg</file>

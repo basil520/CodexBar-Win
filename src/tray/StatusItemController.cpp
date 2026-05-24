@@ -91,7 +91,8 @@ bool StatusItemController::createTrayIcon() {
         return false;
     }
 
-    m_nid.hIcon = LoadIconW(nullptr, IDI_APPLICATION);
+    const int initialIconSize = GetSystemMetrics(SM_CXSMICON);
+    m_nid.hIcon = TrayIconRenderer::makeDefaultIcon().pixmap(initialIconSize, initialIconSize).toImage().toHICON();
     m_nid.uFlags = NIF_ICON;
     Shell_NotifyIconW(NIM_MODIFY, &m_nid);
 
@@ -119,6 +120,7 @@ bool StatusItemController::createTrayIcon() {
 
     retranslateMenu();
     rebuildProviderMenu();
+    applyMergedIcon();
 
     return true;
 #else
@@ -335,7 +337,7 @@ void StatusItemController::applyIcon(const QString& providerId) {
                                        m_settings->trayDisplayMode(),
                                        m_settings->warningThreshold(),
                                        m_settings->criticalThreshold());
-    QString tip = m_store->providerDisplayName(providerId);
+    QString tip = providerId.isEmpty() ? tr("CodexBarX") : m_store->providerDisplayName(providerId);
     if (snap.primary.has_value()) {
         tip += QString(" %1%").arg(static_cast<int>(primary));
     }

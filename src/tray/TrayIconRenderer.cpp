@@ -2,8 +2,10 @@
 
 #include <QPainter>
 #include <QLinearGradient>
+#include <QRadialGradient>
 #include <QFont>
 #include <QtGlobal>
+#include <algorithm>
 
 QColor TrayIconRenderer::s_trackColor = QColor(60, 60, 80);
 
@@ -100,18 +102,61 @@ QPixmap TrayIconRenderer::renderPixmap(
         painter.setPen(primaryColor);
         painter.drawText(QRect(0, 0, size, size), Qt::AlignCenter, text);
     } else {
-        // Default dual progress bars
-        int barHeight = qMax(2, size / 10);
-        int spacing = qMax(1, size / 24);
-        int topY = spacing;
-        int bottomY = spacing + barHeight + spacing;
+        painter.setPen(Qt::NoPen);
+        QLinearGradient base(0, 0, size, size);
+        base.setColorAt(0.0, QColor(43, 42, 80, 235));
+        base.setColorAt(0.48, QColor(24, 23, 49, 235));
+        base.setColorAt(1.0, QColor(14, 20, 38, 235));
+        painter.setBrush(base);
+        painter.drawRoundedRect(QRectF(0.5, 0.5, size - 1.0, size - 1.0), size * 0.22, size * 0.22);
 
-        painter.fillRect(QRect(0, topY, size, barHeight), s_trackColor);
-        painter.fillRect(QRect(0, topY, static_cast<int>(size * pRem), barHeight), primaryColor);
+        const qreal cx = size * 0.5;
+        const qreal cy = size * 0.5;
+        const qreal margin = qMax<qreal>(2.0, size * 0.18);
+        const QRectF arcRect(margin, margin, size - margin * 2.0, size - margin * 2.0);
+        const qreal arcWidth = qMax<qreal>(1.5, size * 0.12);
 
-        barHeight = qMax(1, size / 14);
-        painter.fillRect(QRect(0, bottomY, size, barHeight), s_trackColor);
-        painter.fillRect(QRect(0, bottomY, static_cast<int>(size * wRem), barHeight), weeklyColor);
+        painter.setBrush(Qt::NoBrush);
+        painter.setPen(QPen(s_trackColor, arcWidth, Qt::SolidLine, Qt::RoundCap));
+        painter.drawEllipse(arcRect);
+
+        painter.setPen(QPen(primaryColor, arcWidth, Qt::SolidLine, Qt::RoundCap));
+        painter.drawArc(arcRect, 38 * 16, static_cast<int>(112 * pRem) * 16);
+
+        painter.setPen(QPen(weeklyColor, arcWidth, Qt::SolidLine, Qt::RoundCap));
+        painter.drawArc(arcRect, 190 * 16, static_cast<int>(88 * wRem) * 16);
+
+        painter.setPen(QPen(QColor(255, 198, 64), arcWidth, Qt::SolidLine, Qt::RoundCap));
+        painter.drawArc(arcRect, -50 * 16, -qMax(18, static_cast<int>(62 * std::min(pRem, wRem))) * 16);
+
+        if (size >= 24) {
+            painter.setPen(QPen(QColor(235, 248, 255, stale ? 60 : 95),
+                                qMax<qreal>(1.0, size * 0.04),
+                                Qt::SolidLine,
+                                Qt::RoundCap));
+            painter.drawLine(QPointF(cx, margin + arcWidth),
+                             QPointF(cx, size - margin - arcWidth));
+            painter.drawLine(QPointF(margin + arcWidth, cy),
+                             QPointF(size - margin - arcWidth, cy));
+        }
+
+        QRadialGradient core(cx, cy, size * 0.28);
+        core.setColorAt(0.0, QColor(247, 251, 255, stale ? 120 : 230));
+        core.setColorAt(0.28, QColor(124, 231, 240, stale ? 90 : 190));
+        core.setColorAt(0.78, QColor(73, 163, 176, stale ? 24 : 82));
+        core.setColorAt(1.0, QColor(73, 163, 176, 0));
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(core);
+        painter.drawEllipse(QPointF(cx, cy), size * 0.24, size * 0.24);
+        painter.setBrush(QColor(247, 251, 255, stale ? 130 : 245));
+        painter.drawEllipse(QPointF(cx, cy), qMax<qreal>(1.4, size * 0.06), qMax<qreal>(1.4, size * 0.06));
+
+        if (size >= 24) {
+            painter.setBrush(QColor(133, 245, 255, stale ? 95 : 230));
+            painter.drawEllipse(QPointF(size * 0.72, size * 0.25), size * 0.055, size * 0.055);
+            painter.setBrush(QColor(52, 232, 187, stale ? 95 : 230));
+            painter.drawEllipse(QPointF(size * 0.28, size * 0.76), size * 0.055, size * 0.055);
+        }
     }
 
     painter.end();

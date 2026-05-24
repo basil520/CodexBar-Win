@@ -14,19 +14,13 @@ SettingsPage {
             Layout.fillWidth: true
             spacing: 14
 
-            Rectangle {
+            Image {
                 Layout.preferredWidth: 44
                 Layout.preferredHeight: 44
-                radius: 10
-                color: AppTheme.accentColor
-
-                Label {
-                    anchors.centerIn: parent
-                    text: "C"
-                    color: AppTheme.textPrimary
-                    font.pixelSize: 20
-                    font.bold: true
-                }
+                source: "qrc:/icons/AppIcon-codexbarx.svg"
+                sourceSize.width: 88
+                sourceSize.height: 88
+                fillMode: Image.PreserveAspectFit
             }
 
             ColumnLayout {
@@ -34,7 +28,7 @@ SettingsPage {
                 spacing: 4
 
                 Label {
-                    text: qsTr("CodexBar")
+                    text: qsTr("CodexBarX")
                     color: AppTheme.textPrimary
                     font.pixelSize: AppTheme.fontSizeXl
                     font.bold: true

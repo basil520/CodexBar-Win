@@ -5,13 +5,15 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
-#include <QFont>
 #include <QImage>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLinearGradient>
 #include <QPainter>
+#include <QRadialGradient>
 #include <QStandardPaths>
+#include <cmath>
 
 static constexpr int BRIDGE_PROTOCOL_VERSION = 1;
 static constexpr int DEFAULT_SERVER_PORT = 18765;
@@ -190,29 +192,71 @@ bool BrowserSessionBridgeInstallService::generateIconPng(const QString& filePath
     QPainter painter(&image);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    // Background rounded rect
-    const qreal radius = size * 0.2;
+    const qreal radius = size * 0.22;
     const QRectF rect(0, 0, size, size);
     painter.setPen(Qt::NoPen);
-    painter.setBrush(QColor(QStringLiteral("#4A90D9")));
+    painter.setBrush(QColor(QStringLiteral("#181731")));
     painter.drawRoundedRect(rect, radius, radius);
 
-    // "CB" text
-    QFont font = painter.font();
-    font.setPointSizeF(qMax(6.0, size * 0.35));
-    font.setBold(true);
-    font.setFamily(QStringLiteral("Segoe UI"));
-    painter.setFont(font);
-    painter.setPen(Qt::white);
+    QLinearGradient shine(rect.topLeft(), rect.bottomRight());
+    shine.setColorAt(0.0, QColor(255, 255, 255, 48));
+    shine.setColorAt(0.45, QColor(108, 111, 255, 18));
+    shine.setColorAt(1.0, QColor(5, 7, 19, 0));
+    painter.setBrush(shine);
+    painter.drawRoundedRect(rect.adjusted(1, 1, -1, -1), radius, radius);
 
-    const QString text = QStringLiteral("CB");
-    const QFontMetricsF fm(font);
-    const QRectF textRect = fm.boundingRect(text);
-    const QPointF textPos(
-        (size - textRect.width()) / 2.0,
-        (size + textRect.height()) / 2.0 - fm.descent()
-    );
-    painter.drawText(textPos, text);
+    const qreal cx = size * 0.5;
+    const qreal cy = size * 0.5;
+    const qreal outer = size * 0.33;
+    const QRectF arcRect(cx - outer, cy - outer, outer * 2.0, outer * 2.0);
+    const qreal arcWidth = qMax<qreal>(2.0, size * 0.07);
+
+    painter.setBrush(Qt::NoBrush);
+    painter.setPen(QPen(QColor(QStringLiteral("#353456")), arcWidth, Qt::SolidLine, Qt::RoundCap));
+    painter.drawEllipse(arcRect);
+
+    painter.setPen(QPen(QColor(QStringLiteral("#82f4ff")), arcWidth, Qt::SolidLine, Qt::RoundCap));
+    painter.drawArc(arcRect, 38 * 16, 72 * 16);
+    painter.setPen(QPen(QColor(QStringLiteral("#ffc640")), arcWidth, Qt::SolidLine, Qt::RoundCap));
+    painter.drawArc(arcRect, -48 * 16, -58 * 16);
+    painter.setPen(QPen(QColor(QStringLiteral("#3ae2ad")), arcWidth, Qt::SolidLine, Qt::RoundCap));
+    painter.drawArc(arcRect, 190 * 16, 74 * 16);
+
+    painter.setPen(QPen(QColor(235, 248, 255, 120), qMax<qreal>(1.0, size * 0.012), Qt::SolidLine, Qt::RoundCap));
+    constexpr double kPi = 3.14159265358979323846;
+    for (int i = 0; i < 8; ++i) {
+        const qreal angle = (i * 45.0 - 90.0) * kPi / 180.0;
+        const qreal r1 = outer * 0.72;
+        const qreal r2 = outer * 0.86;
+        painter.drawLine(QPointF(cx + std::cos(angle) * r1, cy + std::sin(angle) * r1),
+                         QPointF(cx + std::cos(angle) * r2, cy + std::sin(angle) * r2));
+    }
+
+    QRadialGradient core(cx, cy, outer * 0.64);
+    core.setColorAt(0.0, QColor(QStringLiteral("#f7fbff")));
+    core.setColorAt(0.26, QColor(QStringLiteral("#7ce7f0")));
+    core.setColorAt(0.68, QColor(73, 163, 176, 80));
+    core.setColorAt(1.0, QColor(73, 163, 176, 0));
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(core);
+    painter.drawEllipse(QPointF(cx, cy), outer * 0.48, outer * 0.48);
+    painter.setBrush(QColor(QStringLiteral("#49a3b0")));
+    painter.drawEllipse(QPointF(cx, cy), qMax<qreal>(2.0, size * 0.09), qMax<qreal>(2.0, size * 0.09));
+    painter.setBrush(QColor(QStringLiteral("#f7fbff")));
+    painter.drawEllipse(QPointF(cx, cy), qMax<qreal>(1.4, size * 0.04), qMax<qreal>(1.4, size * 0.04));
+
+    painter.setPen(Qt::NoPen);
+    const qreal nodeRadius = qMax<qreal>(1.1, size * 0.028);
+    const QVector<QPair<QPointF, QColor>> nodes = {
+        { QPointF(size * 0.73, size * 0.25), QColor(QStringLiteral("#85f5ff")) },
+        { QPointF(size * 0.82, size * 0.58), QColor(QStringLiteral("#ffc640")) },
+        { QPointF(size * 0.29, size * 0.76), QColor(QStringLiteral("#34e8bb")) },
+        { QPointF(size * 0.20, size * 0.42), QColor(QStringLiteral("#62a8ff")) },
+    };
+    for (const auto& node : nodes) {
+        painter.setBrush(node.second);
+        painter.drawEllipse(node.first, nodeRadius, nodeRadius);
+    }
     painter.end();
 
     return image.save(filePath, "PNG");

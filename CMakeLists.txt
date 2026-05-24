@@ -436,12 +436,22 @@ if(WINCODEXBAR_QT_RUNTIME_FOUND)
     )
     if(WIN32)
         list(APPEND CODEXBAR_APP_SOURCES resources/codexbarx.rc)
+    elseif(APPLE)
+        list(APPEND CODEXBAR_APP_SOURCES resources/icons/AppIcon-codexbarx.icns)
+        set_source_files_properties(resources/icons/AppIcon-codexbarx.icns PROPERTIES
+            MACOSX_PACKAGE_LOCATION "Resources"
+        )
     endif()
 
     add_executable(CodexBarX WIN32 MACOSX_BUNDLE ${CODEXBAR_APP_SOURCES})
     set_target_properties(CodexBarX PROPERTIES
         INTERPROCEDURAL_OPTIMIZATION_RELEASE FALSE
     )
+    if(APPLE)
+        set_target_properties(CodexBarX PROPERTIES
+            MACOSX_BUNDLE_ICON_FILE "AppIcon-codexbarx.icns"
+        )
+    endif()
     target_link_libraries(CodexBarX PRIVATE
         codexbar_core
         Qt6::Quick Qt6::Qml Qt6::Widgets

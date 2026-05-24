@@ -7,6 +7,8 @@
   <ProductUrl>https://github.com/basil520/CodexBarX</ProductUrl>
   <InstallerWindowIcon>icon</InstallerWindowIcon>
   <InstallerApplicationIcon>icon</InstallerApplicationIcon>
+  <Logo>logo.png</Logo>
+  <Banner>banner.png</Banner>
   <StartMenuDir>CodexBarX</StartMenuDir>
   <TargetDir>@ApplicationsDirX86@/CodexBarX</TargetDir>
   <RunProgram>@TargetDir@/CodexBarX.exe</RunProgram>

@@ -11,6 +11,23 @@
 class tst_BrowserSessionBridgeInstallService : public QObject {
     Q_OBJECT
 
+    static bool containsColorNear(const QImage& image, const QColor& expected, int tolerance = 24) {
+        for (int y = 0; y < image.height(); ++y) {
+            for (int x = 0; x < image.width(); ++x) {
+                const QColor actual = QColor::fromRgba(image.pixel(x, y));
+                if (actual.alpha() < 180) {
+                    continue;
+                }
+                if (qAbs(actual.red() - expected.red()) <= tolerance
+                    && qAbs(actual.green() - expected.green()) <= tolerance
+                    && qAbs(actual.blue() - expected.blue()) <= tolerance) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 private slots:
     void initTestCase() {
         QStandardPaths::setTestModeEnabled(true);
@@ -85,6 +102,22 @@ private slots:
         QImage img128(iconsDir + "/icon128.png");
         QCOMPARE(img128.width(), 128);
         QCOMPARE(img128.height(), 128);
+    }
+
+    void generatedIconsUseQuotaRadarPalette() {
+        BrowserSessionBridgeInstallService service;
+        QVERIFY(service.ensureExtensionExported());
+
+        const QString iconPath = service.extensionInstallPath() + "/icons/icon128.png";
+        QImage icon(iconPath);
+        QVERIFY(!icon.isNull());
+
+        QVERIFY2(containsColorNear(icon, QColor("#82f4ff")),
+                 "Generated extension icon should include the quota radar cyan arc.");
+        QVERIFY2(containsColorNear(icon, QColor("#3ae2ad")),
+                 "Generated extension icon should include the quota radar green arc.");
+        QVERIFY2(containsColorNear(icon, QColor("#ffc640")),
+                 "Generated extension icon should include the quota radar amber arc.");
     }
 
     void isExtensionExportedReflectsState() {

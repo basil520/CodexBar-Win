@@ -56,6 +56,10 @@ $expectedValues = [ordered]@{
     WizardShowPageList               = "false"
     WizardStyle                      = "Classic"
     TitleColor                       = "#ffffff"
+    InstallerWindowIcon              = "icon"
+    InstallerApplicationIcon         = "icon"
+    Logo                             = "logo.png"
+    Banner                           = "banner.png"
 }
 
 foreach ($entry in $expectedValues.GetEnumerator()) {
@@ -63,12 +67,19 @@ foreach ($entry in $expectedValues.GetEnumerator()) {
     Assert-InstallerValue -Name $entry.Key -Actual $actual -Expected $entry.Value
 }
 
-foreach ($resourceNode in @("StyleSheet", "ControlScript", "Watermark")) {
+foreach ($resourceNode in @("StyleSheet", "ControlScript", "Watermark", "Logo", "Banner")) {
     $relativePath = Get-InstallerValue -Xml $config -Name $resourceNode
     $resourcePath = Join-Path $configDir $relativePath
 
     if (-not (Test-Path -LiteralPath $resourcePath -PathType Leaf)) {
         throw "Installer.$resourceNode references missing file '$relativePath'."
+    }
+}
+
+foreach ($resource in @("icon.ico", "icon.png")) {
+    $resourcePath = Join-Path $configDir $resource
+    if (-not (Test-Path -LiteralPath $resourcePath -PathType Leaf)) {
+        throw "Installer icon resource is missing '$resource'."
     }
 }
 

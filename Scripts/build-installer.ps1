@@ -174,7 +174,11 @@ $releaseDate = Get-Date -Format "yyyy-MM-dd"
 $requiredInstallerResources = @(
     "stylesheet.qss",
     "controller.qs",
-    "watermark.png"
+    "watermark.png",
+    "icon.ico",
+    "icon.png",
+    "logo.png",
+    "banner.png"
 )
 
 foreach ($resource in $requiredInstallerResources) {
@@ -192,6 +196,8 @@ Set-InstallerConfigValue -Xml $configContent -Name "StyleSheet" -Value "styleshe
 Set-InstallerConfigValue -Xml $configContent -Name "TitleColor" -Value "#ffffff"
 Set-InstallerConfigValue -Xml $configContent -Name "WizardShowPageList" -Value "false"
 Set-InstallerConfigValue -Xml $configContent -Name "Watermark" -Value "watermark.png"
+Set-InstallerConfigValue -Xml $configContent -Name "Logo" -Value "logo.png"
+Set-InstallerConfigValue -Xml $configContent -Name "Banner" -Value "banner.png"
 Set-InstallerConfigValue -Xml $configContent -Name "ControlScript" -Value "controller.qs"
 Save-Utf8Xml -Xml $configContent -Path $configXml
 
