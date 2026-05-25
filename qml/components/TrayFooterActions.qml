@@ -18,8 +18,8 @@ SelectiveRadiusRect {
     fillColor: glassEffectActive ? "transparent" : AppTheme.surfaceTitleBar
     topLeftRadius: 0
     topRightRadius: 0
-    bottomLeftRadius: glassEffectActive ? 0 : 12
-    bottomRightRadius: glassEffectActive ? 0 : 12
+    bottomLeftRadius: glassEffectActive ? 8 : 12
+    bottomRightRadius: glassEffectActive ? 8 : 12
 
     Rectangle {
         anchors.top: parent.top

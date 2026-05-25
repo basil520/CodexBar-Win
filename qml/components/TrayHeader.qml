@@ -12,8 +12,8 @@ SelectiveRadiusRect {
 
     implicitHeight: 48
     fillColor: glassEffectActive ? "transparent" : AppTheme.surfaceTitleBar
-    topLeftRadius: glassEffectActive ? 0 : 12
-    topRightRadius: glassEffectActive ? 0 : 12
+    topLeftRadius: glassEffectActive ? 8 : 12
+    topRightRadius: glassEffectActive ? 8 : 12
     bottomLeftRadius: 0
     bottomRightRadius: 0
 

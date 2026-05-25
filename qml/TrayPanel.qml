@@ -11,8 +11,8 @@ Rectangle {
     width: 360
     height: 720
     color: windowBackgroundColor
-    radius: glassEffectActive ? 0 : 12
-    clip: !glassEffectActive
+    radius: glassEffectActive ? 8 : 12
+    clip: true
     antialiasing: true
     border.color: AppTheme.surfaceBorder
     border.width: 1
@@ -125,7 +125,7 @@ Rectangle {
     Rectangle {
         anchors.fill: parent
         anchors.margins: -1
-        radius: glassEffectActive ? 0 : 13
+        radius: glassEffectActive ? 9 : 13
         color: "transparent"
         border.color: AppTheme.surfaceBorder
         border.width: 1

@@ -31,13 +31,6 @@ QColor clearColor(bool enabled, const QColor& fallback)
 
 #ifdef Q_OS_WIN
 
-#ifndef DWMWA_WINDOW_CORNER_PREFERENCE
-#define DWMWA_WINDOW_CORNER_PREFERENCE 33
-#endif
-#ifndef DWMWCP_DONOTROUND
-#define DWMWCP_DONOTROUND 1
-#endif
-
 namespace {
 
 enum AccentState {
@@ -65,6 +58,9 @@ constexpr int WCA_ACCENT_POLICY = 19;
 constexpr DWORD DWMWA_SYSTEMBACKDROP_TYPE_FALLBACK = 38;
 constexpr int DWMSBT_NONE = 1;
 constexpr int DWMSBT_TRANSIENTWINDOW = 3;
+constexpr DWORD DWMWA_WINDOW_CORNER_PREFERENCE = 33;
+constexpr int DWMWCP_DONOTROUND = 1;
+constexpr int DWMWCP_ROUND = 2;
 
 HMODULE moduleHandle(const wchar_t* name)
 {
@@ -97,13 +93,27 @@ DwmSetWindowAttributeFunc dwmSetWindowAttribute()
     return fn;
 }
 
+bool isWindows11BuildOrGreater(int minBuild)
+{
+    using RtlGetVersionFunc = LONG(WINAPI*)(RTL_OSVERSIONINFOW*);
+    HMODULE ntdll = GetModuleHandleW(L"ntdll.dll");
+    if (!ntdll) return false;
+    auto* rtlGetVersion = reinterpret_cast<RtlGetVersionFunc>(
+        GetProcAddress(ntdll, "RtlGetVersion"));
+    if (!rtlGetVersion) return false;
+
+    RTL_OSVERSIONINFOW osvi = {};
+    osvi.dwOSVersionInfoSize = sizeof(osvi);
+    if (rtlGetVersion(&osvi) != 0) return false;
+
+    return osvi.dwMajorVersion > 10 ||
+           (osvi.dwMajorVersion == 10 && osvi.dwBuildNumber >= minBuild);
+}
+
 int tintToAbgr(QColor tint)
 {
     if (!tint.isValid()) {
         tint = QColor(20, 24, 38);
-    }
-    if (tint.alpha() > 220) {
-        tint.setAlpha(150);
     }
 
     return ((tint.alpha() & 0xff) << 24)
@@ -119,6 +129,7 @@ bool applyAccentPolicy(HWND hwnd, bool enabled, const QColor& tint)
 
     AccentPolicy policy;
     policy.accentState = enabled ? ACCENT_ENABLE_ACRYLICBLURBEHIND : ACCENT_DISABLED;
+    policy.accentFlags = enabled ? 2 : 0;  // ACCENT_FLAG_DRAW_ON_ALL_BORDER
     policy.gradientColor = enabled ? tintToAbgr(tint) : 0;
 
     WindowCompositionAttributeData data;
@@ -171,10 +182,13 @@ bool apply(QWindow* window, bool enabled, QColor tint)
     HWND hwnd = reinterpret_cast<HWND>(window->winId());
     if (!hwnd) return false;
 
-    // Force square corners (no rounded corners) on Windows 11 to keep it strictly frameless and square
+    // Win11: let DWM add rounded corners at the compositor level so the
+    // backdrop effect (acrylic/blur) is clipped to the rounded shape.
+    // Win10: no corner preference API, keep DONOTROUND (harmless no-op).
     auto* fnDwm = dwmSetWindowAttribute();
     if (fnDwm) {
-        const int preference = DWMWCP_DONOTROUND;
+        const int preference = enabled && isWindows11BuildOrGreater(22000)
+            ? DWMWCP_ROUND : DWMWCP_DONOTROUND;
         fnDwm(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof(preference));
     }
 
@@ -194,12 +208,24 @@ bool apply(QWindow* window, bool enabled, QColor tint)
         return blurCleared || frameCleared || accentCleared || backdropCleared;
     }
 
+    // Clear any previously-set system backdrop so it doesn't linger
+    // from an older app version or previous toggle.
+    applySystemBackdrop(hwnd, false);
+
     const bool frameExtended = extendFrameIntoClientArea(hwnd, true);
     const bool blurEnabled = enableBlurBehindWindow(hwnd, true);
-    const bool backdropApplied = applySystemBackdrop(hwnd, true);
-    const bool accentApplied = applyAccentPolicy(hwnd, true, tint);
 
-    return frameExtended || blurEnabled || backdropApplied || accentApplied;
+    // Win11 22H2+ (build >= 22621): use the official
+    // DWMWA_SYSTEMBACKDROP_TYPE API for proper Acrylic blur.
+    // Win10 / Win11 21H2: use SetWindowCompositionAttribute with
+    // ACCENT_ENABLE_ACRYLICBLURBEHIND for the tinted glass effect.
+    // The two APIs must not be mixed on the same window.
+    if (isWindows11BuildOrGreater(22621)) {
+        applyAccentPolicy(hwnd, false, tint);
+        return frameExtended || blurEnabled || applySystemBackdrop(hwnd, true);
+    } else {
+        return frameExtended || blurEnabled || applyAccentPolicy(hwnd, true, tint);
+    }
 }
 
 #else
