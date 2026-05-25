@@ -9,6 +9,8 @@
 /_deps/
 /Testing/
 /.ccache/
+*.qm
+
 
 # Installer data (generated during build)
 /installer/packages/*/data/
