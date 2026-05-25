@@ -35,18 +35,27 @@ Rectangle {
         opacity: 0.42
     }
 
-    Rectangle {
+    Canvas {
         id: auroraBlob1
         width: Math.max(200, parent.width * 0.75)
         height: Math.max(200, parent.width * 0.75)
-        radius: width / 2
         opacity: 0.045
         z: -2
 
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: AppTheme.accentColor }
-            GradientStop { position: 1.0; color: "transparent" }
+        onPaint: {
+            var ctx = getContext("2d");
+            ctx.reset();
+            var cx = width / 2;
+            var cy = height / 2;
+            var radius = width / 2;
+            var gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+            gradient.addColorStop(0.0, AppTheme.accentColor);
+            gradient.addColorStop(1.0, "transparent");
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
         }
+        onWidthChanged: requestPaint()
+        onHeightChanged: requestPaint()
 
         SequentialAnimation on x {
             running: root.decorativeMotionEnabled
@@ -63,18 +72,27 @@ Rectangle {
         }
     }
 
-    Rectangle {
+    Canvas {
         id: auroraBlob2
         width: Math.max(200, parent.height * 0.8)
         height: Math.max(200, parent.height * 0.8)
-        radius: width / 2
         opacity: 0.035
         z: -1
 
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: AppTheme.providerBrandColor("claude") }
-            GradientStop { position: 1.0; color: "transparent" }
+        onPaint: {
+            var ctx = getContext("2d");
+            ctx.reset();
+            var cx = width / 2;
+            var cy = height / 2;
+            var radius = width / 2;
+            var gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+            gradient.addColorStop(0.0, AppTheme.providerBrandColor("claude"));
+            gradient.addColorStop(1.0, "transparent");
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
         }
+        onWidthChanged: requestPaint()
+        onHeightChanged: requestPaint()
 
         SequentialAnimation on x {
             running: root.decorativeMotionEnabled

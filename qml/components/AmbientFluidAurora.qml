@@ -17,18 +17,27 @@ Item {
         NumberAnimation { duration: AppTheme.duration(AppTheme.motionPanel); easing.type: Easing.InOutQuad }
     }
 
-    Rectangle {
+    Canvas {
         id: blob1
         width: Math.max(300, parent.width * 0.9)
         height: width
-        radius: width / 2
         opacity: 0.065
         z: -3
 
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: AppTheme.accentColor || "#5e5ce6" }
-            GradientStop { position: 1.0; color: "transparent" }
+        onPaint: {
+            var ctx = getContext("2d");
+            ctx.reset();
+            var cx = width / 2;
+            var cy = height / 2;
+            var radius = width / 2;
+            var gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+            gradient.addColorStop(0.0, AppTheme.accentColor || "#5e5ce6");
+            gradient.addColorStop(1.0, "transparent");
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
         }
+        onWidthChanged: requestPaint()
+        onHeightChanged: requestPaint()
 
         SequentialAnimation on x {
             running: root.decorativeMotionEnabled
@@ -45,18 +54,27 @@ Item {
         }
     }
 
-    Rectangle {
+    Canvas {
         id: blob2
         width: Math.max(260, parent.width * 0.8)
         height: width
-        radius: width / 2
         opacity: 0.05
         z: -2
 
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: AppTheme.providerBrandColor("claude") || "#d97706" }
-            GradientStop { position: 1.0; color: "transparent" }
+        onPaint: {
+            var ctx = getContext("2d");
+            ctx.reset();
+            var cx = width / 2;
+            var cy = height / 2;
+            var radius = width / 2;
+            var gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+            gradient.addColorStop(0.0, AppTheme.providerBrandColor("claude") || "#d97706");
+            gradient.addColorStop(1.0, "transparent");
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
         }
+        onWidthChanged: requestPaint()
+        onHeightChanged: requestPaint()
 
         SequentialAnimation on x {
             running: root.decorativeMotionEnabled
@@ -73,18 +91,27 @@ Item {
         }
     }
 
-    Rectangle {
+    Canvas {
         id: blob3
         width: Math.max(280, parent.width * 0.85)
         height: width
-        radius: width / 2
         opacity: 0.055
         z: -1
 
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: AppTheme.providerBrandColor("deepseek") || "#3b82f6" }
-            GradientStop { position: 1.0; color: "transparent" }
+        onPaint: {
+            var ctx = getContext("2d");
+            ctx.reset();
+            var cx = width / 2;
+            var cy = height / 2;
+            var radius = width / 2;
+            var gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+            gradient.addColorStop(0.0, AppTheme.providerBrandColor("deepseek") || "#3b82f6");
+            gradient.addColorStop(1.0, "transparent");
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
         }
+        onWidthChanged: requestPaint()
+        onHeightChanged: requestPaint()
 
         SequentialAnimation on x {
             running: root.decorativeMotionEnabled
