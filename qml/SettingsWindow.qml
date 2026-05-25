@@ -74,7 +74,7 @@ Rectangle {
             Rectangle {
                 Layout.preferredWidth: 240
                 Layout.fillHeight: true
-                color: settingsWindow.sidebarBackgroundColor
+                color: "transparent"
 
                 Rectangle {
                     anchors.right: parent.right
