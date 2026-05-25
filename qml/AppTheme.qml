@@ -90,17 +90,19 @@ QtObject {
     readonly property string visualEffectsQuality: SettingsStore.visualEffectsQuality
 
     property var providerBrandColors: ({
-        "codex": "#49A3B0", "claude": "#CC7C5E", "cursor": "#5B8DFA",
-        "gemini": "#8860D0", "copilot": "#2DA44E", "zai": "#E85A6A",
-        "opencode": "#E44D26", "warp": "#00BCD4", "mistral": "#F77F00",
-        "openrouter": "#FF6B6B", "ollama": "#E6EF6C", "kilo": "#7C3AED",
-        "kiro": "#F59E0B", "kimik2": "#06B6D4", "minimax": "#EC4899",
-        "perplexity": "#22C55E", "kimi": "#8B5CF6", "abacus": "#6366F1",
+        "codex": "#49A3B0", "claude": "#CC7C5E", "cursor": "#00BFA5",
+        "gemini": "#8860D0", "copilot": "#A855F7", "zai": "#E85A6A",
+        "opencode": "#E44D26", "warp": "#00BCD4", "mistral": "#FF500F",
+        "openrouter": "#6467F2", "ollama": "#888888", "kilo": "#F27027",
+        "kiro": "#FF9900", "kimik2": "#4C00FF", "minimax": "#EC4899",
+        "perplexity": "#22C55E", "kimi": "#FE603C", "abacus": "#6366F1",
         "alibaba": "#F97316", "augment": "#14B8A6", "amp": "#D946EF",
         "factory": "#84CC16", "jetbrains": "#F000F0", "vertexai": "#4285F4",
         "deepseek": "#4D6BFE", "codebuff": "#44FF00", "windsurf": "#34E8BB",
         "antigravity": "#10B981", "synthetic": "#6366F1", "opencodego": "#3B82F6",
-        "qianfan": "#2932E1"
+        "qianfan": "#2932E1", "mimo": "#FF6900", "commandcode": "#000000",
+        "crof": "#2EAB96", "doubao": "#3370FF", "manus": "#6366F1",
+        "stepfun": "#7C3AED", "venice": "#3399FF", "openaiapi": "#0F826B"
     })
 
     function withAlpha(color, alpha) {

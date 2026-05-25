@@ -31,7 +31,7 @@ SelectiveRadiusRect {
         spacing: 8
 
         Text {
-            text: qsTr("CodexBar")
+            text: qsTr("CodexBarX")
             color: AppTheme.textPrimary
             font.pixelSize: AppTheme.fontSizeMd
             font.bold: true
