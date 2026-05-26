@@ -936,7 +936,7 @@ int main(int argc, char* argv[]) {
     appController->win32WorkAreaForTray = win32WorkAreaForTray;
 
     QQuickView settingsView(&qmlEngine, nullptr);
-    settingsView.setTitle(QString());
+    settingsView.setTitle(QStringLiteral(" "));
     settingsView.setMinimumSize(QSize(820, 560));
     settingsView.setResizeMode(QQuickView::SizeRootObjectToView);
     settingsView.setFlags(Qt::Window | Qt::FramelessWindowHint | Qt::CustomizeWindowHint);
@@ -991,7 +991,7 @@ int main(int argc, char* argv[]) {
                      });
 
     QQuickView usageView(&qmlEngine, nullptr);
-    usageView.setTitle(QString());
+    usageView.setTitle(QStringLiteral(" "));
     usageView.resize(800, 600);
     usageView.setMinimumSize(QSize(720, 480));
     usageView.setResizeMode(QQuickView::SizeRootObjectToView);
