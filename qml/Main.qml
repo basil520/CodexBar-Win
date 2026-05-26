@@ -1,4 +1,4 @@
-﻿import QtQuick 2.15
+import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Window 2.15
 import "components" as Components
@@ -7,6 +7,11 @@ ApplicationWindow {
     id: root
     visible: false
     flags: Qt.FramelessWindowHint
+
+    FontLoader {
+        id: jetbrainsMonoLoader
+        source: "qrc:/fonts/JetBrainsMono-Regular.ttf"
+    }
 
     TrayPanel {
         id: trayPanel

@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QFont>
 #include <QClipboard>
 #include <QColor>
 #include <QDesktopServices>
@@ -594,6 +595,17 @@ int main(int argc, char* argv[]) {
     }
 
     QApplication app(argc, argv);
+    {
+        QFont defaultFont = app.font();
+#if defined(Q_OS_WIN)
+        defaultFont.setFamily(QStringLiteral("Segoe UI, Microsoft YaHei"));
+#elif defined(Q_OS_MAC)
+        defaultFont.setFamily(QStringLiteral(".AppleSystemUIFont, PingFang SC"));
+#else
+        defaultFont.setFamily(QStringLiteral("Inter, Noto Sans CJK SC"));
+#endif
+        app.setFont(defaultFont);
+    }
     auto* uiFreezeWatchdog = new UiFreezeWatchdog(&app);
     uiFreezeWatchdog->start();
 

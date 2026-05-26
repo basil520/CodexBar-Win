@@ -92,6 +92,7 @@ Rectangle {
                 text: qsTr("Total: %1").arg(root.formatBytes(root.totalBytes()))
                 color: AppTheme.textInverse
                 font.pixelSize: 10
+                font.family: AppTheme.monoFontFamily
             }
         }
 
@@ -128,6 +129,7 @@ Rectangle {
                             text: root.elidePath(itemData.path, 40)
                             color: AppTheme.textTertiary
                             font.pixelSize: 10
+                            font.family: AppTheme.monoFontFamily
                             Layout.fillWidth: true
                             elide: Text.ElideMiddle
 
@@ -153,6 +155,7 @@ Rectangle {
                             text: itemData.bytesDisplay || root.formatBytes(itemData.bytes)
                             color: AppTheme.textInverse
                             font.pixelSize: 10
+                            font.family: AppTheme.monoFontFamily
                             Layout.preferredWidth: 60
                             horizontalAlignment: Text.AlignRight
                         }
@@ -221,6 +224,7 @@ Rectangle {
                             text: cleanupData.bytesDisplay || root.formatBytes(cleanupData.bytes)
                             color: AppTheme.textInverse
                             font.pixelSize: 10
+                            font.family: AppTheme.monoFontFamily
                         }
                     }
 
@@ -232,6 +236,7 @@ Rectangle {
                             text: root.elidePath(cleanupData.path, 35)
                             color: AppTheme.textInverse
                             font.pixelSize: 9
+                            font.family: AppTheme.monoFontFamily
                             Layout.fillWidth: true
                             elide: Text.ElideMiddle
                         }

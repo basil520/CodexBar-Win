@@ -133,6 +133,20 @@ QtObject {
     property int fontSizeLg: 16
     property int fontSizeXl: 20
 
+    readonly property string fontFamily: {
+        if (Qt.platform.os === "windows") {
+            return "Segoe UI, \"Microsoft YaHei\", sans-serif";
+        } else if (Qt.platform.os === "osx") {
+            return "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"PingFang SC\", sans-serif";
+        } else {
+            return "Inter, \"Noto Sans CJK SC\", sans-serif";
+        }
+    }
+
+    readonly property string monoFontFamily: {
+        return "JetBrains Mono, Consolas, \"Courier New\", monospace";
+    }
+
     property int sidebarWidth: 240
     property int listItemHeight: 48
     property int iconSizeSm: 18

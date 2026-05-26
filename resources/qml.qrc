@@ -154,5 +154,6 @@
         <file alias="browser-session-bridge/popup.html">../resources/browser-session-bridge/popup.html</file>
         <file alias="browser-session-bridge/popup.js">../resources/browser-session-bridge/popup.js</file>
         <file alias="browser-session-bridge/content_scripts/storage_probe.js">../resources/browser-session-bridge/content_scripts/storage_probe.js</file>
+        <file alias="fonts/JetBrainsMono-Regular.ttf">../resources/fonts/JetBrainsMono-Regular.ttf</file>
     </qresource>
 </RCC>
