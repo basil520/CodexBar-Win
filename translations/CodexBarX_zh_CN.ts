@@ -3188,6 +3188,11 @@
         <source>Amethyst</source>
         <translation>紫水晶</translation>
     </message>
+    <message>
+        <location line="+1"/>
+        <source>Light</source>
+        <translation>浅色</translation>
+    </message>
 </context>
 <context>
     <name>TokenAccountsPane</name>

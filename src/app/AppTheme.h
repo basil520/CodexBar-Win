@@ -66,7 +66,8 @@ public:
     enum Theme {
         Dark = 0,
         MidnightBlue = 1,
-        Amethyst = 2
+        Amethyst = 2,
+        Light = 3
     };
     Q_ENUM(Theme)
 

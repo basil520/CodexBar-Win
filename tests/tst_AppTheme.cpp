@@ -8,13 +8,39 @@
 #include <QVariant>
 #include <QVariantMap>
 
+#include <algorithm>
+#include <cmath>
 #include <memory>
+
+namespace {
+
+double srgbToLinear(double channel)
+{
+    return channel <= 0.03928 ? channel / 12.92 : std::pow((channel + 0.055) / 1.055, 2.4);
+}
+
+double relativeLuminance(const QColor& color)
+{
+    return 0.2126 * srgbToLinear(color.redF())
+        + 0.7152 * srgbToLinear(color.greenF())
+        + 0.0722 * srgbToLinear(color.blueF());
+}
+
+double contrastRatio(const QColor& a, const QColor& b)
+{
+    const double lighter = std::max(relativeLuminance(a), relativeLuminance(b));
+    const double darker = std::min(relativeLuminance(a), relativeLuminance(b));
+    return (lighter + 0.05) / (darker + 0.05);
+}
+
+} // namespace
 
 class tst_AppTheme : public QObject {
     Q_OBJECT
 
 private slots:
     void runtimeColorsAreOpaque();
+    void lightThemeProvidesReadableBrightPalette();
     void qmlThemeFileUsesInstalledCppTheme();
     void installedContextThemeExposesMetricsAndColors();
 };
@@ -69,6 +95,28 @@ void tst_AppTheme::runtimeColorsAreOpaque() {
         QVERIFY2(color.isValid(), qPrintable(QString("invalid theme color %1").arg(key)));
         QCOMPARE(color.alpha(), 255);
     }
+}
+
+void tst_AppTheme::lightThemeProvidesReadableBrightPalette() {
+    AppThemeManager theme;
+    theme.setCurrentTheme(AppThemeManager::Light);
+
+    QVERIFY2(theme.bgPrimary().lightnessF() > 0.88,
+             "Light theme primary background must read as a bright application surface.");
+    QVERIFY2(theme.bgCard().lightnessF() > 0.92,
+             "Light theme cards must stay airy instead of becoming gray panels.");
+    QVERIFY2(theme.bgChart().lightnessF() > 0.90,
+             "Light theme charts need a bright canvas for dense chart marks.");
+    QVERIFY2(theme.textPrimary().lightnessF() < 0.24,
+             "Light theme primary text must be dark enough for small tray labels.");
+    QVERIFY2(theme.textSecondary().lightnessF() < 0.45,
+             "Light theme secondary text must remain readable on light cards.");
+    QVERIFY2(contrastRatio(theme.bgPrimary(), theme.textPrimary()) >= 10.0,
+             "Light theme primary text contrast must be comfortably above WCAG AA.");
+    QVERIFY2(contrastRatio(theme.bgCard(), theme.textSecondary()) >= 4.5,
+             "Light theme secondary text contrast must meet WCAG AA on cards.");
+    QVERIFY2(contrastRatio(theme.accentColor(), QColor(Qt::white)) >= 4.5,
+             "Light theme accent must support white text for existing accent buttons.");
 }
 
 void tst_AppTheme::qmlThemeFileUsesInstalledCppTheme() {

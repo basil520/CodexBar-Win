@@ -79,6 +79,7 @@ private slots:
     void nextGenerationSharedComponentsAreRegistered();
     void topLevelWindowsUseSharedWindowTitleBarComponent();
     void displayPaneUsesAppearanceLabComponents();
+    void themeSelectorOffersLightTheme();
     void usageChartsUseSharedChartFrameSystem();
     void ambientEffectsRespectMotionPreferences();
     void providerDetailUsesPhaseFourPanels();
@@ -1761,6 +1762,17 @@ void QmlArchitectureTest::displayPaneUsesAppearanceLabComponents()
         QVERIFY2(!display.contains(color),
                  qPrintable(QStringLiteral("DisplayPane preview must use AppTheme tokens instead of hardcoded color %1.").arg(color)));
     }
+}
+
+void QmlArchitectureTest::themeSelectorOffersLightTheme()
+{
+    const QString header = readFile("src/app/AppTheme.h");
+    const QString selector = readFile("qml/components/display/ThemeSelectorCard.qml");
+
+    QVERIFY2(header.contains(QStringLiteral("Light = 3")),
+             "AppThemeManager must expose Light as a stable persisted theme enum value.");
+    QVERIFY2(selector.contains(QStringLiteral("{ value: 3, label: qsTr(\"Light\") }")),
+             "ThemeSelectorCard must expose the Light theme in the settings picker.");
 }
 
 void QmlArchitectureTest::usageChartsUseSharedChartFrameSystem()

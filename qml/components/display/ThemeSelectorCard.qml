@@ -35,7 +35,8 @@ Components.SettingsGroupBox {
             model: [
                 { value: 0, label: qsTr("Dark") },
                 { value: 1, label: qsTr("Midnight Blue") },
-                { value: 2, label: qsTr("Amethyst") }
+                { value: 2, label: qsTr("Amethyst") },
+                { value: 3, label: qsTr("Light") }
             ]
             selectedValue: SettingsStore.theme
             onValueActivated: function(value) {

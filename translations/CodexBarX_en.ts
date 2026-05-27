@@ -3188,6 +3188,11 @@
         <source>Amethyst</source>
         <translation>Amethyst</translation>
     </message>
+    <message>
+        <location line="+1"/>
+        <source>Light</source>
+        <translation>Light</translation>
+    </message>
 </context>
 <context>
     <name>TokenAccountsPane</name>

@@ -4,6 +4,23 @@
 #include <QQmlEngine>
 #include <QtQml>
 
+namespace {
+
+AppThemeManager::Theme normalizeTheme(int theme)
+{
+    switch (theme) {
+    case AppThemeManager::Dark:
+    case AppThemeManager::MidnightBlue:
+    case AppThemeManager::Amethyst:
+    case AppThemeManager::Light:
+        return static_cast<AppThemeManager::Theme>(theme);
+    default:
+        return AppThemeManager::Dark;
+    }
+}
+
+} // namespace
+
 AppThemeManager::AppThemeManager(QObject* parent)
     : QObject(parent)
 {}
@@ -65,8 +82,9 @@ int AppThemeManager::currentTheme() const {
 }
 
 void AppThemeManager::setCurrentTheme(int theme) {
-    if (m_currentTheme != theme) {
-        m_currentTheme = theme;
+    const int normalizedTheme = normalizeTheme(theme);
+    if (m_currentTheme != normalizedTheme) {
+        m_currentTheme = normalizedTheme;
         m_cacheDirty = true;
         emit themeChanged();
     }
@@ -133,6 +151,32 @@ AppThemeManager::ColorSet AppThemeManager::colorSet(Theme theme) const {
         c.statusUnknown  = QColor(0x88, 0x88, 0x88);
         c.accentColor    = QColor(0xa8, 0x55, 0xf7);
         c.accentHover    = QColor(0xc0, 0x84, 0xfc);
+        break;
+
+    case Light:
+        c.bgPrimary      = QColor(0xf6, 0xf9, 0xfc);
+        c.bgSecondary    = QColor(0xee, 0xf4, 0xf8);
+        c.bgTertiary     = QColor(0xe2, 0xeb, 0xf2);
+        c.bgCard         = QColor(0xff, 0xff, 0xff);
+        c.bgHover        = QColor(0xe7, 0xf0, 0xf6);
+        c.bgSelected     = QColor(0xd7, 0xe8, 0xf1);
+        c.bgPressed      = QColor(0xc7, 0xdc, 0xe8);
+        c.bgTitleBar     = QColor(0xed, 0xf5, 0xfa);
+        c.bgChart        = QColor(0xf8, 0xfb, 0xfd);
+        c.bgTrack        = QColor(0xd7, 0xe2, 0xea);
+        c.borderColor    = QColor(0xc8, 0xd6, 0xe0);
+        c.borderAccent   = QColor(0x7d, 0xb9, 0xc6);
+        c.textPrimary    = QColor(0x11, 0x1f, 0x2e);
+        c.textSecondary  = QColor(0x40, 0x52, 0x61);
+        c.textTertiary   = QColor(0x6f, 0x82, 0x92);
+        c.textDisabled   = QColor(0xa5, 0xb4, 0xc0);
+        c.textInverse    = QColor(0x5d, 0x70, 0x7f);
+        c.statusOk       = QColor(0x16, 0xa3, 0x4a);
+        c.statusDegraded = QColor(0xd9, 0x77, 0x06);
+        c.statusOutage   = QColor(0xdc, 0x26, 0x26);
+        c.statusUnknown  = QColor(0x94, 0xa3, 0xb8);
+        c.accentColor    = QColor(0x0b, 0x72, 0x85);
+        c.accentHover    = QColor(0x09, 0x5f, 0x70);
         break;
 
     case Dark:
