@@ -20,8 +20,11 @@ Canvas {
     onDataPointsChanged: requestPaint()
     onStrokeColorChanged: requestPaint()
     onHoveredChanged: requestPaint()
+    onWidthChanged: requestPaint()
+    onHeightChanged: requestPaint()
 
     onPaint: {
+        if (width <= 0 || height <= 0) return;
         var ctx = getContext("2d");
         ctx.reset();
         ctx.clearRect(0, 0, width, height);

@@ -213,6 +213,7 @@ ColumnLayout {
         property var sparkPoints: [10, 15, 12, 24, 18, 30, 28]
         property bool hovered: metricMouse.containsMouse
 
+        implicitWidth: 160
         implicitHeight: 58
         clip: true
 
@@ -261,7 +262,11 @@ ColumnLayout {
 
             MetricSparkline {
                 Layout.preferredWidth: 68
+                Layout.minimumWidth: 68
+                Layout.fillWidth: false
                 Layout.preferredHeight: 30
+                Layout.minimumHeight: 30
+                Layout.fillHeight: false
                 Layout.alignment: Qt.AlignVCenter
                 strokeColor: metric.accentColor
                 hovered: metric.hovered
