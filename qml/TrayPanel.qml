@@ -4,7 +4,6 @@ import QtQuick.Layouts 1.15
 
 import CodexBarX 1.0
 import "components" as Components
-import "components/tray" as TrayShell
 
 Rectangle {
     id: root
@@ -18,7 +17,7 @@ Rectangle {
     border.width: 1
 
     Behavior on color {
-        ColorAnimation { duration: 300 }
+        ColorAnimation { duration: AppTheme.duration(AppTheme.motionPanel); easing.type: AppTheme.easeStandard }
     }
 
     readonly property bool glassEffectActive: SettingsStore.glassEffectEnabled
@@ -60,8 +59,7 @@ Rectangle {
 
     function openSelectedProviderDetails() {
         if (root.selectedProviderID !== "") {
-            SettingsProvidersModel.selectProvider(root.selectedProviderID)
-            SettingsProvidersModel.requestOpenProvidersTab()
+            SettingsProvidersModel.openProviderDetails(root.selectedProviderID)
         }
         AppController.openSettings()
     }
@@ -150,19 +148,6 @@ Rectangle {
             }
         }
 
-        /*
-        TrayShell.TrayStatusHeader {
-            Layout.fillWidth: true
-            Layout.leftMargin: 12
-            Layout.rightMargin: 12
-            Layout.topMargin: 8
-            providerCount: TrayViewModel.providerCount
-            globalState: root.selectedProviderID === "" ? "ready" : "focused"
-            refreshing: root.isRefreshing
-            freshnessLabel: root.refreshDuration
-        }
-        */
-
         // === Provider Switcher (Phase 2) ===
         Components.ProviderSwitcherRow {
             id: providerSwitcher
@@ -212,44 +197,6 @@ Rectangle {
             onOpenDetailsRequested: AppController.openUsage()
         }
 
-        TrayShell.TrayTodaySnapshot {
-            Layout.fillWidth: true
-            Layout.leftMargin: 12
-            Layout.rightMargin: 12
-            Layout.bottomMargin: 8
-            todayCost: root.displayCostData && root.displayCostData.hasData
-                ? "$" + root.formatCost(root.displayCostData.todayCostUSD || root.displayCostData.sessionCostUSD || 0)
-                : "$0.00"
-            providerCount: TrayViewModel.providerCount.toString()
-            activeProviderName: root.selectedProviderID !== ""
-                ? (detailFlickable.detailData && detailFlickable.detailData.snap
-                    ? (detailFlickable.detailData.snap.displayName || root.selectedProviderID)
-                    : root.selectedProviderID)
-                : ""
-            statusText: root.costExpanded ? qsTr("Usage expanded") : qsTr("Today Snapshot")
-        }
-
-        /*
-        TrayShell.TrayProviderFocus {
-            Layout.fillWidth: true
-            Layout.leftMargin: 12
-            Layout.rightMargin: 12
-            Layout.bottomMargin: 8
-            providerId: root.selectedProviderID
-            providerName: detailFlickable.detailData && detailFlickable.detailData.snap
-                ? (detailFlickable.detailData.snap.displayName || root.selectedProviderID)
-                : root.selectedProviderID
-            state: detailFlickable.detailData && detailFlickable.detailData.snap && detailFlickable.detailData.snap.error
-                ? "error"
-                : "ready"
-            summary: detailFlickable.detailData && detailFlickable.detailData.snap && detailFlickable.detailData.snap.error
-                ? detailFlickable.detailData.snap.error
-                : qsTr("Ready for quick actions")
-            actionText: qsTr("Details")
-            onActionRequested: root.openSelectedProviderDetails()
-        }
-        */
-
         // === Provider List (Overview) ===
         ListView {
             id: providerList
@@ -266,32 +213,8 @@ Rectangle {
             leftMargin: 12
             rightMargin: 12
 
-            ScrollBar.vertical: ScrollBar {
-                id: providerScrollBar
-                policy: ScrollBar.AsNeeded
-                active: hovered || pressed || providerList.moving || providerList.flicking
-
-                background: Rectangle {
-                    color: "transparent"
-                }
-
-                contentItem: Rectangle {
-                    implicitWidth: 4
-                    radius: 2
-                    opacity: providerScrollBar.active ? 1.0 : 0.0
-                    color: providerScrollBar.hovered 
-                        ? AppTheme.textSecondary 
-                        : Qt.rgba(AppTheme.textSecondary.r, AppTheme.textSecondary.g, AppTheme.textSecondary.b, 0.35)
-
-                    Behavior on color { ColorAnimation { duration: 150 } }
-                    Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutQuad } }
-                    Behavior on implicitWidth { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
-                }
-
-                states: State {
-                    name: "hoveredState"; when: providerScrollBar.hovered
-                    PropertyChanges { target: providerScrollBar.contentItem; implicitWidth: 8; radius: 4 }
-                }
+            ScrollBar.vertical: Components.ElegantScrollBar {
+                flickable: providerList
             }
 
             model: TrayViewModel.providers
@@ -324,7 +247,7 @@ Rectangle {
 
                 Behavior on border.color {
                     ColorAnimation {
-                        duration: 250
+                        duration: AppTheme.duration(AppTheme.motionNormal)
                         easing.type: Easing.OutQuad
                     }
                 }
@@ -357,7 +280,7 @@ Rectangle {
                     opacity: mouseArea.containsMouse ? 1.0 : 0.0
                     
                     Behavior on opacity {
-                        NumberAnimation { duration: 250 }
+                        NumberAnimation { duration: AppTheme.duration(AppTheme.motionNormal) }
                     }
 
                     onPaint: {
@@ -484,7 +407,7 @@ Rectangle {
                                 height: parent.height
                                 radius: AppTheme.progressBarHeight / 2
                                 color: cardDelegate.brandColor
-                                Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                                Behavior on width { NumberAnimation { duration: AppTheme.duration(AppTheme.motionPanel); easing.type: Easing.OutCubic } }
                             }
                             Rectangle {
                                 visible: !cardDelegate.isDetailProvider && snap.primaryPacePercent !== undefined && snap.primaryPacePercent >= 0
@@ -493,7 +416,7 @@ Rectangle {
                                 height: parent.height
                                 color: (snap.primaryPaceOnTop !== false) ? AppTheme.statusOk : AppTheme.statusOutage
                                 radius: 1
-                                Behavior on x { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                                Behavior on x { NumberAnimation { duration: AppTheme.duration(AppTheme.motionPanel); easing.type: Easing.OutCubic } }
                             }
                         }
                         Text {
@@ -579,7 +502,7 @@ Rectangle {
                                 height: parent.height
                                 radius: AppTheme.progressBarHeight / 2
                                 color: cardDelegate.brandColor
-                                Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                                Behavior on width { NumberAnimation { duration: AppTheme.duration(AppTheme.motionPanel); easing.type: Easing.OutCubic } }
                             }
                             Rectangle {
                                 visible: snap.secondaryPacePercent !== undefined && snap.secondaryPacePercent >= 0
@@ -588,7 +511,7 @@ Rectangle {
                                 height: parent.height
                                 color: (snap.secondaryPaceOnTop !== false) ? AppTheme.statusOk : AppTheme.statusOutage
                                 radius: 1
-                                Behavior on x { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                                Behavior on x { NumberAnimation { duration: AppTheme.duration(AppTheme.motionPanel); easing.type: Easing.OutCubic } }
                             }
                         }
                         Text {
@@ -659,7 +582,7 @@ Rectangle {
                                 height: parent.height
                                 radius: AppTheme.progressBarHeight / 2
                                 color: cardDelegate.brandColor
-                                Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                                Behavior on width { NumberAnimation { duration: AppTheme.duration(AppTheme.motionPanel); easing.type: Easing.OutCubic } }
                             }
                         }
                         Text {
@@ -758,7 +681,7 @@ Rectangle {
                                 height: parent.height
                                 radius: AppTheme.progressBarHeight / 2
                                 color: AppTheme.statusDegraded
-                                Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                                Behavior on width { NumberAnimation { duration: AppTheme.duration(AppTheme.motionPanel); easing.type: Easing.OutCubic } }
                             }
                         }
                     }
@@ -1035,32 +958,8 @@ Rectangle {
             contentHeight: detailColumn.implicitHeight
             clip: true
 
-            ScrollBar.vertical: ScrollBar {
-                id: detailScrollBar
-                policy: ScrollBar.AsNeeded
-                active: hovered || pressed || detailFlickable.moving || detailFlickable.flicking
-
-                background: Rectangle {
-                    color: "transparent"
-                }
-
-                contentItem: Rectangle {
-                    implicitWidth: 4
-                    radius: 2
-                    opacity: detailScrollBar.active ? 1.0 : 0.0
-                    color: detailScrollBar.hovered 
-                        ? AppTheme.textSecondary 
-                        : Qt.rgba(AppTheme.textSecondary.r, AppTheme.textSecondary.g, AppTheme.textSecondary.b, 0.35)
-
-                    Behavior on color { ColorAnimation { duration: 150 } }
-                    Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutQuad } }
-                    Behavior on implicitWidth { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
-                }
-
-                states: State {
-                    name: "hoveredState"; when: detailScrollBar.hovered
-                    PropertyChanges { target: detailScrollBar.contentItem; implicitWidth: 8; radius: 4 }
-                }
+            ScrollBar.vertical: Components.ElegantScrollBar {
+                flickable: detailFlickable
             }
 
             property var detailData: ({})
@@ -1085,7 +984,7 @@ Rectangle {
                     property: "opacity"
                     from: 0.0
                     to: 1.0
-                    duration: 300
+                    duration: AppTheme.duration(AppTheme.motionPanel)
                     easing.type: Easing.OutCubic
                 }
                 NumberAnimation {
@@ -1093,7 +992,7 @@ Rectangle {
                     property: "x"
                     from: 20
                     to: 0
-                    duration: 300
+                    duration: AppTheme.duration(AppTheme.motionPanel)
                     easing.type: Easing.OutCubic
                 }
             }
@@ -1130,6 +1029,8 @@ Rectangle {
                     statusUrl: detailFlickable.detailData.statusUrl || ""
                     dashboard: detailFlickable.detailData.dashboard || ({})
                     isRefreshing: root.isRefreshing
+                    showDetailsAction: true
+                    onDetailsRequested: root.openSelectedProviderDetails()
                 }
 
                 // TrayMenuActions inside Flickable, right below card

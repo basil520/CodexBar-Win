@@ -9,7 +9,10 @@ ChartFrame {
 
     property string providerId: ""
     property var points: []
-    property color barColor: brandColorFor(providerId)
+    property bool refreshing: false
+    property color accentColor: brandColorFor(providerId)
+    property color barColor: accentColor
+    property bool hoverDetailEnabled: true
     property bool ready: false
 
     readonly property int hoveredIndex: chartHover.hoveredIndex
@@ -19,6 +22,7 @@ ChartFrame {
     implicitHeight: hasData ? 160 : 40
     empty: !hasData
     emptyText: qsTr("No cost history data")
+    loading: root.refreshing
     clip: true
 
     function brandColorFor(pid) {
@@ -197,7 +201,7 @@ ChartFrame {
                 id: hoverDetail
                 floating: true
                 accentColor: root.barColor
-                visible: hoveredIndex >= 0 && activePoint !== null
+                visible: root.hoverDetailEnabled && hoveredIndex >= 0 && activePoint !== null
                 width: implicitWidth
                 height: implicitHeight
                 property var activePoint: hoveredIndex >= 0 && hoveredIndex < points.length ? points[hoveredIndex] : null

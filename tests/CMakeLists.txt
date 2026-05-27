@@ -73,6 +73,7 @@ target_include_directories(tst_Localization PRIVATE ${COMMON_INCLUDE})
 target_compile_definitions(tst_Localization PRIVATE
     ${COMMON_DEFINES}
     TEST_TRANSLATION_DIR="${CMAKE_BINARY_DIR}/translations"
+    PROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
 )
 target_link_libraries(tst_Localization PRIVATE Qt6::Core Qt6::Test Qt6::Qml)
 if(TARGET translations)

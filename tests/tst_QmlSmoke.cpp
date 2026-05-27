@@ -678,6 +678,7 @@ class MockSettingsProvidersModel : public QObject {
     Q_PROPERTY(QVariantMap tokenAccountOperationState READ tokenAccountOperationState NOTIFY tokenAccountOperationStateChanged)
     Q_PROPERTY(QVariantMap codexAccountState READ codexAccountState NOTIFY codexAccountStateChanged)
     Q_PROPERTY(QVariantMap codexProjection READ codexProjection NOTIFY codexProjectionChanged)
+    Q_PROPERTY(QString pendingProviderDetailsProvider READ pendingProviderDetailsProvider NOTIFY pendingProviderDetailsProviderChanged)
 public:
     void setUsageStore(MockUsageStore* usage) {
         if (mockUsage == usage) {
@@ -731,6 +732,7 @@ public:
     QVariantMap tokenAccountOperationState() const { return tokenAccountOperationStateValue; }
     QVariantMap codexAccountState() const { return codexAccountStateValue; }
     QVariantMap codexProjection() const { return codexProjectionValue; }
+    QString pendingProviderDetailsProvider() const { return pendingProviderDetailsProviderValue; }
 
     Q_INVOKABLE void requestOpenProvidersTab() {
         ++requestOpenProvidersTabCalls;
@@ -741,6 +743,27 @@ public:
         mockUsage->requestProviderList();
         syncProviderList();
         selectFirstProviderIfNeeded();
+    }
+
+    Q_INVOKABLE void openProviderDetails(const QString& providerId) {
+        ++openProviderDetailsCalls;
+        lastProviderDetailsProvider = providerId;
+        if (!providerId.isEmpty()) {
+            pendingProviderDetailsProviderValue = providerId;
+            emit pendingProviderDetailsProviderChanged();
+            selectProvider(providerId);
+        }
+        requestOpenProvidersTab();
+    }
+
+    Q_INVOKABLE QString consumePendingProviderDetailsProvider() {
+        ++consumePendingProviderDetailsProviderCalls;
+        const QString providerId = pendingProviderDetailsProviderValue;
+        if (!pendingProviderDetailsProviderValue.isEmpty()) {
+            pendingProviderDetailsProviderValue.clear();
+            emit pendingProviderDetailsProviderChanged();
+        }
+        return providerId;
     }
 
     Q_INVOKABLE void selectProvider(const QString& providerId) {
@@ -841,7 +864,10 @@ public:
         tokenAccountOperationStateValue.clear();
         codexAccountStateValue.clear();
         codexProjectionValue.clear();
+        pendingProviderDetailsProviderValue.clear();
         requestOpenProvidersTabCalls = 0;
+        openProviderDetailsCalls = 0;
+        consumePendingProviderDetailsProviderCalls = 0;
         moveProviderCalls = 0;
         setProviderEnabledCalls = 0;
         testConnectionCalls = 0;
@@ -852,6 +878,7 @@ public:
         reauthenticateCodexAccountCalls = 0;
         promoteCodexAccountCalls = 0;
         lastCodexAccountId.clear();
+        lastProviderDetailsProvider.clear();
         emit providersChanged();
         emit selectedProviderChanged();
         emit selectedDescriptorChanged();
@@ -864,6 +891,7 @@ public:
         emit tokenAccountOperationStateChanged();
         emit codexAccountStateChanged();
         emit codexProjectionChanged();
+        emit pendingProviderDetailsProviderChanged();
     }
 
 signals:
@@ -880,6 +908,7 @@ signals:
     void tokenAccountOperationStateChanged();
     void codexAccountStateChanged();
     void codexProjectionChanged();
+    void pendingProviderDetailsProviderChanged();
 
 private:
     void syncProviderList() {
@@ -992,9 +1021,12 @@ private:
     QVariantMap tokenAccountOperationStateValue;
     QVariantMap codexAccountStateValue;
     QVariantMap codexProjectionValue;
+    QString pendingProviderDetailsProviderValue;
 
 public:
     int requestOpenProvidersTabCalls = 0;
+    int openProviderDetailsCalls = 0;
+    int consumePendingProviderDetailsProviderCalls = 0;
     int moveProviderCalls = 0;
     int setProviderEnabledCalls = 0;
     int testConnectionCalls = 0;
@@ -1005,6 +1037,7 @@ public:
     int reauthenticateCodexAccountCalls = 0;
     int promoteCodexAccountCalls = 0;
     QString lastCodexAccountId;
+    QString lastProviderDetailsProvider;
 };
 
 class MockTrayViewModel : public QObject {
@@ -1367,7 +1400,7 @@ public:
     bool isSettingsVisible() const { return false; }
     bool isSettingsMaximized() const { return false; }
     bool isUsageVisible() const { return false; }
-    Q_INVOKABLE void openSettings() {}
+    Q_INVOKABLE void openSettings() { ++openSettingsCalls; }
     Q_INVOKABLE void closeSettings() {}
     Q_INVOKABLE void toggleSettings() {}
     Q_INVOKABLE void startSettingsMove() {}
@@ -1384,6 +1417,8 @@ public:
     Q_INVOKABLE void openExternalUrl(const QString&) {}
     Q_INVOKABLE void copyText(const QString&) {}
     Q_INVOKABLE void copyWithFeedback(const QString&) {}
+
+    int openSettingsCalls = 0;
 
 signals:
     void settingsVisibleChanged();
@@ -1482,6 +1517,8 @@ private slots:
     void providerDetailControlsStayWithinNarrowViewport();
     void settingsWindowDefersProviderWorkUntilProvidersTab();
     void trayPanelLoads();
+    void trayDetailsButtonRoutesToCurrentProvider();
+    void settingsWindowConsumesPendingProviderDetailsRoute();
     void trayPanelDefersCostBreakdownOnFirstPaint();
     void trayPanelSwitchesTokenAccount();
     void usageWindowDefersTokenUsagePaneUntilShown();
@@ -1629,6 +1666,54 @@ private slots:
         QQuickItem* root = qobject_cast<QQuickItem*>(component.create());
         QVERIFY(root != nullptr);
         delete root;
+    }
+
+    void trayDetailsButtonRoutesToCurrentProvider() {
+        QQuickView view;
+        mockSettingsProviders.resetState();
+        mockTray.resetCounters();
+        mockAppCtrl.openSettingsCalls = 0;
+        mockTray.m_selectedProviderID = QStringLiteral("codex");
+        setupEngine(*view.engine());
+
+        view.resize(360, 720);
+        view.setSource(QUrl("qrc:/qml/TrayPanel.qml"));
+        QVERIFY2(view.status() == QQuickView::Ready,
+                 qPrintable(view.errors().isEmpty() ? QString() : view.errors().first().toString()));
+        QQuickItem* root = view.rootObject();
+        QVERIFY(root != nullptr);
+
+        QVERIFY(QMetaObject::invokeMethod(root, "openSelectedProviderDetails"));
+
+        QCOMPARE(mockSettingsProviders.openProviderDetailsCalls, 1);
+        QCOMPARE(mockSettingsProviders.lastProviderDetailsProvider, QStringLiteral("codex"));
+        QCOMPARE(mockAppCtrl.openSettingsCalls, 1);
+    }
+
+    void settingsWindowConsumesPendingProviderDetailsRoute() {
+        QQuickView view;
+        mockSettingsProviders.resetState();
+        mockAppCtrl.openSettingsCalls = 0;
+        setupEngine(*view.engine());
+
+        mockSettingsProviders.openProviderDetails(QStringLiteral("claude"));
+        QCOMPARE(mockSettingsProviders.pendingProviderDetailsProvider(), QStringLiteral("claude"));
+
+        view.resize(960, 640);
+        view.setSource(QUrl("qrc:/qml/SettingsWindow.qml"));
+        QVERIFY2(view.status() == QQuickView::Ready,
+                 qPrintable(view.errors().isEmpty() ? QString() : view.errors().first().toString()));
+        view.show();
+        QTest::qWait(250);
+
+        QObject* tabList = findObjectByStringProperty(view.rootObject(), "objectName", "settingsTabList");
+        QVERIFY(tabList != nullptr);
+        QTRY_COMPARE(tabList->property("currentIndex").toInt(), 1);
+        QTRY_VERIFY(mockSettingsProviders.consumePendingProviderDetailsProviderCalls > 0);
+        QCOMPARE(mockSettingsProviders.pendingProviderDetailsProvider(), QString());
+        QCOMPARE(mockSettingsProviders.selectedProvider(), QStringLiteral("claude"));
+
+        view.hide();
     }
 
     void trayPanelDefersCostBreakdownOnFirstPaint() {

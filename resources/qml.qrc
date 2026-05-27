@@ -66,6 +66,7 @@
         <file alias="qml/components/InlineFeedback.qml">../qml/components/InlineFeedback.qml</file>
         <file alias="qml/components/SkeletonBlock.qml">../qml/components/SkeletonBlock.qml</file>
         <file alias="qml/components/FocusRing.qml">../qml/components/FocusRing.qml</file>
+        <file alias="qml/components/ElegantScrollBar.qml">../qml/components/ElegantScrollBar.qml</file>
         <file alias="qml/components/TrayProviderDock.qml">../qml/components/TrayProviderDock.qml</file>
         <file alias="qml/components/TrayHeader.qml">../qml/components/TrayHeader.qml</file>
         <file alias="qml/components/TrayUsageSummary.qml">../qml/components/TrayUsageSummary.qml</file>

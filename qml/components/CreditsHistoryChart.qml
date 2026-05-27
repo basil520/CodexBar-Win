@@ -8,7 +8,10 @@ ChartFrame {
     id: root
 
     property var points: []
-    property color barColor: AppTheme.accentColor
+    property bool refreshing: false
+    property color accentColor: AppTheme.accentColor
+    property color barColor: accentColor
+    property bool hoverDetailEnabled: true
 
     readonly property int hoveredIndex: chartHover.hoveredIndex
     readonly property bool hasData: points.length > 0
@@ -17,6 +20,7 @@ ChartFrame {
     implicitHeight: hasData ? 160 : 40
     empty: !hasData
     emptyText: qsTr("No credits history data")
+    loading: root.refreshing
     clip: true
 
     Text {
@@ -126,7 +130,7 @@ ChartFrame {
                 id: hoverDetail
                 floating: true
                 accentColor: root.barColor
-                visible: hoveredIndex >= 0 && activePoint !== null
+                visible: root.hoverDetailEnabled && hoveredIndex >= 0 && activePoint !== null
                 width: implicitWidth
                 height: implicitHeight
                 property var activePoint: hoveredIndex >= 0 && hoveredIndex < points.length ? points[hoveredIndex] : null

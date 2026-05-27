@@ -50,25 +50,14 @@ Rectangle {
                 font.bold: true
             }
 
-            Button {
+            ActionButton {
                 text: root.isAuthenticating && root.authenticatingAccountID === ""
                     ? qsTr("Adding...")
                     : qsTr("Add Account")
+                variant: "primary"
+                compact: true
                 enabled: !root.hasUnreadableStore && !root.isAuthenticating && !root.isRemoving
                 onClicked: root.addAccount()
-
-                background: Rectangle {
-                    color: parent.enabled ? AppTheme.accentColor : AppTheme.surfaceControl
-                    radius: 4
-                }
-                contentItem: Text {
-                    text: parent.text
-                    color: parent.enabled ? AppTheme.textOnAccent : AppTheme.textSecondary
-                    font.pixelSize: 12
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                    elide: Text.ElideRight
-                }
             }
         }
 
@@ -106,20 +95,26 @@ Rectangle {
                 }
             }
 
-            Button {
+            ActionButton {
                 text: qsTr("Open")
+                compact: true
+                variant: "secondary"
                 enabled: root.verificationUri !== ""
                 onClicked: root.openVerificationUrl(root.verificationUri)
             }
 
-            Button {
+            ActionButton {
                 text: qsTr("Copy")
+                compact: true
+                variant: "secondary"
                 enabled: root.userCode !== "" || root.verificationUri !== ""
                 onClicked: root.copyText(root.userCode !== "" ? root.userCode : root.verificationUri)
             }
 
-            Button {
+            ActionButton {
                 text: qsTr("Cancel")
+                compact: true
+                variant: "ghost"
                 enabled: root.isAuthenticating
                 onClicked: root.cancelAuthentication()
             }
@@ -270,101 +265,72 @@ Rectangle {
                         Layout.alignment: Qt.AlignTop
                         spacing: 4
 
-                        Button {
+                        ActionButton {
                             Layout.preferredWidth: 46
-                            Layout.preferredHeight: 28
+                            Layout.preferredHeight: 32
                             width: 46
-                            height: 28
+                            height: 32
                             visible: !modelData.isActive
                             enabled: !root.isAuthenticating && !root.isRemoving
+                            text: qsTr("Use")
+                            compact: true
+                            variant: "ghost"
                             onClicked: root.setActiveAccount(modelData.id)
 
-                            background: Rectangle {
-                                color: parent.hovered ? AppTheme.surfaceHover : "transparent"
-                                radius: 4
-                            }
-                            contentItem: Text {
-                                text: qsTr("Use")
-                                color: AppTheme.accentColor
-                                font.pixelSize: 11
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                                elide: Text.ElideRight
-                            }
-
                             ToolTip.text: qsTr("Set as active")
-                            ToolTip.visible: hovered
+                            ToolTip.visible: visible && activeFocus
                         }
 
-                        Button {
+                        ActionButton {
                             Layout.preferredWidth: 46
-                            Layout.preferredHeight: 28
+                            Layout.preferredHeight: 32
                             width: 46
-                            height: 28
+                            height: 32
                             visible: modelData.canReauthenticate
                             enabled: !root.isAuthenticating && !root.isRemoving
+                            text: root.isAuthenticating && root.authenticatingAccountID === modelData.id
+                                ? qsTr("Auth...")
+                                : qsTr("Auth")
+                            compact: true
+                            variant: "ghost"
                             onClicked: root.reauthenticateAccount(modelData.id)
-
-                            background: Rectangle {
-                                color: parent.hovered ? AppTheme.surfaceHover : "transparent"
-                                radius: 4
-                            }
-                            contentItem: Text {
-                                text: qsTr("Auth")
-                                color: AppTheme.textSecondary
-                                font.pixelSize: 11
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                                elide: Text.ElideRight
-                            }
 
                             ToolTip.text: root.isAuthenticating && root.authenticatingAccountID === modelData.id
                                 ? qsTr("Re-authenticating...")
                                 : qsTr("Re-authenticate")
-                            ToolTip.visible: hovered
+                            ToolTip.visible: visible && activeFocus
                         }
 
-                        Button {
+                        ActionButton {
                             Layout.preferredWidth: 58
-                            Layout.preferredHeight: 28
+                            Layout.preferredHeight: 32
                             width: 58
-                            height: 28
+                            height: 32
                             visible: modelData.canReauthenticate
                             enabled: !root.isAuthenticating && !root.isRemoving && !root.isPromoting
+                            text: root.isPromoting && root.promotingAccountID === modelData.id
+                                ? qsTr("...")
+                                : qsTr("Promote")
+                            compact: true
+                            variant: "ghost"
                             onClicked: root.promoteAccount(modelData.id)
-
-                            background: Rectangle {
-                                color: root.isPromoting && root.promotingAccountID === modelData.id
-                                    ? AppTheme.surfaceHover
-                                    : (parent.hovered ? AppTheme.statusOk : "transparent")
-                                radius: 4
-                            }
-                            contentItem: Text {
-                                text: root.isPromoting && root.promotingAccountID === modelData.id
-                                    ? qsTr("...")
-                                    : qsTr("Promote")
-                                color: root.isPromoting && root.promotingAccountID === modelData.id
-                                    ? AppTheme.textSecondary
-                                    : (parent.hovered ? AppTheme.textOnAccent : AppTheme.statusOk)
-                                font.pixelSize: 11
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                                elide: Text.ElideRight
-                            }
 
                             ToolTip.text: root.isPromoting && root.promotingAccountID === modelData.id
                                 ? qsTr("Promoting...")
                                 : qsTr("Promote to system account")
-                            ToolTip.visible: hovered
+                            ToolTip.visible: visible && activeFocus
                         }
 
-                        Button {
+                        ActionButton {
                             Layout.preferredWidth: 58
-                            Layout.preferredHeight: 28
+                            Layout.preferredHeight: 32
                             width: 58
-                            height: 28
+                            height: 32
                             visible: modelData.canRemove
                             enabled: !root.isAuthenticating && !root.isRemoving
+                            text: qsTr("Remove")
+                            compact: true
+                            variant: "danger"
                             onClicked: {
                                 removeDialog.accountEmail = modelData.email || modelData.displayName || ""
                                 removeDialog.accountWorkspace = modelData.workspaceLabel || ""
@@ -372,25 +338,10 @@ Rectangle {
                                 removeDialog.open()
                             }
 
-                            background: Rectangle {
-                                color: parent.hovered ? AppTheme.statusOutage : "transparent"
-                                radius: 4
-                            }
-                            contentItem: Text {
-                                text: qsTr("Remove")
-                                color: root.isRemoving && root.removingAccountID === modelData.id
-                                    ? AppTheme.textSecondary
-                                    : (parent.hovered ? AppTheme.textOnAccent : AppTheme.statusOutage)
-                                font.pixelSize: 11
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                                elide: Text.ElideRight
-                            }
-
                             ToolTip.text: root.isRemoving && root.removingAccountID === modelData.id
                                 ? qsTr("Removing...")
                                 : qsTr("Remove account")
-                            ToolTip.visible: hovered
+                            ToolTip.visible: visible && activeFocus
                         }
                     }
                 }

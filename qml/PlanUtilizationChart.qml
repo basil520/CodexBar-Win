@@ -17,6 +17,9 @@ Components.ChartFrame {
     property int rev: LanguageManager.translationRevision
     property int dataRevision: 0
     property bool ready: false
+    property bool refreshing: false
+    property color accentColor: AppTheme.accentColor
+    property bool hoverDetailEnabled: true
 
     property real animationFactor: 0.0
     Behavior on animationFactor {
@@ -30,6 +33,7 @@ Components.ChartFrame {
     implicitHeight: 160
     empty: chartPoints.length === 0
     emptyText: chartRoot.noDataText
+    loading: chartRoot.refreshing
 
     function seriesModel() {
         var items = [
@@ -233,66 +237,47 @@ Components.ChartFrame {
                 }
             }
 
-            Rectangle {
-                id: hoverTooltip
-                visible: false
-                width: tooltipLabel.implicitWidth + 16
-                height: 22
-                radius: 6
-                color: AppTheme.withAlpha(AppTheme.chartHover, 0.75)
-                border.color: AppTheme.withAlpha(AppTheme.accentColor, 0.35)
-                border.width: 1
-                clip: true
-                z: 50
-
-                onVisibleChanged: {
-                    if (visible) {
-                        shimmerAnim.restart()
-                    }
+            Components.ChartHoverDetail {
+                id: hoverDetail
+                floating: true
+                accentColor: chartRoot.accentColor
+                visible: chartRoot.hoverDetailEnabled && chartMouse.hoveredIndex >= 0 && chartMouse.activePoint !== null
+                width: implicitWidth
+                height: implicitHeight
+                x: Math.max(4, Math.min(chartMouse.hoverX + 10, parent.width - width - 4))
+                y: {
+                    var above = chartMouse.hoverY - height - 10
+                    if (above >= 4) return above
+                    return Math.max(4, Math.min(chartMouse.hoverY + 12, parent.height - height - 4))
                 }
-
-                Behavior on x { NumberAnimation { duration: AppTheme.duration(AppTheme.motionFast); easing.type: Easing.OutQuad } }
-                Behavior on y { NumberAnimation { duration: AppTheme.duration(AppTheme.motionFast); easing.type: Easing.OutQuad } }
-
-                Rectangle {
-                    id: shimmerBar
-                    width: parent.width * 0.5
-                    height: parent.height * 2
-                    rotation: 45
-                    y: -parent.height * 0.5
-                    x: -width
-                    gradient: Gradient {
-                        orientation: Gradient.Horizontal
-                        GradientStop { position: 0.0; color: "transparent" }
-                        GradientStop { position: 0.5; color: Qt.rgba(255, 255, 255, 0.25) }
-                        GradientStop { position: 1.0; color: "transparent" }
-                    }
-                }
-
-                PropertyAnimation {
-                    id: shimmerAnim
-                    target: shimmerBar
-                    property: "x"
-                    from: -shimmerBar.width
-                    to: hoverTooltip.width + shimmerBar.width
-                    duration: AppTheme.duration(AppTheme.motionPanel)
-                    easing.type: Easing.OutCubic
-                }
-
-                Label {
-                    id: tooltipLabel
-                    anchors.centerIn: parent
-                    color: AppTheme.textPrimary
-                    font.pixelSize: 10
-                    z: 2
-                }
+                primaryText: chartMouse.activePoint
+                    ? qsTr("%1: %2% used")
+                        .arg(chartMouse.activePoint.dateLabel)
+                        .arg(Number(chartMouse.activePoint.usedPercent || 0).toFixed(1))
+                    : ""
+                secondaryText: chartRoot.currentSeries === "weekly"
+                    ? qsTr("Weekly utilization")
+                    : chartRoot.currentSeries === "session"
+                        ? qsTr("Session utilization")
+                        : chartRoot.tertiarySeriesLabel
             }
 
             MouseArea {
+                id: chartMouse
                 anchors.fill: parent
                 hoverEnabled: true
+                property int hoveredIndex: -1
+                property real hoverX: 0
+                property real hoverY: 0
+                property var activePoint: null
                 onPositionChanged: function(mouse) {
-                    if (chartPoints.length === 0) return;
+                    hoverX = mouse.x;
+                    hoverY = mouse.y;
+                    if (chartPoints.length === 0) {
+                        hoveredIndex = -1;
+                        activePoint = null;
+                        return;
+                    }
 
                     var paddingLeft = 28;
                     var paddingRight = 8;
@@ -315,25 +300,16 @@ Components.ChartFrame {
 
                     var idx = Math.floor((mouse.x - paddingLeft) / (barWidth + gap));
                     if (idx >= 0 && idx < chartPoints.length) {
-                        var labelText = qsTr("%1: %2% used")
-                            .arg(chartPoints[idx].dateLabel)
-                            .arg(chartPoints[idx].usedPercent.toFixed(1));
-                        
-                        tooltipLabel.text = labelText;
-                        hoverTooltip.visible = true;
-                        
-                        var targetX = paddingLeft + idx * (barWidth + gap) + barWidth / 2 - hoverTooltip.width / 2;
-                        hoverTooltip.x = Math.max(2, Math.min(chartCanvas.width - hoverTooltip.width - 2, targetX));
-                        
-                        var pct = chartPoints[idx].usedPercent;
-                        var barHeight = Math.max(1, (pct / 100.0) * renderHeight * chartRoot.animationFactor);
-                        hoverTooltip.y = chartCanvas.height - paddingBottom - barHeight - hoverTooltip.height - 4;
+                        hoveredIndex = idx;
+                        activePoint = chartPoints[idx];
                     } else {
-                        hoverTooltip.visible = false;
+                        hoveredIndex = -1;
+                        activePoint = null;
                     }
                 }
                 onExited: {
-                    hoverTooltip.visible = false;
+                    hoveredIndex = -1;
+                    activePoint = null;
                 }
             }
         }

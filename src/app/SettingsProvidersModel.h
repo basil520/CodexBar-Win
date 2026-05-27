@@ -49,6 +49,7 @@ class SettingsProvidersModel : public QObject {
     Q_PROPERTY(QVariantMap tokenAccountOperationState READ tokenAccountOperationState NOTIFY tokenAccountOperationStateChanged)
     Q_PROPERTY(QVariantMap codexAccountState READ codexAccountState NOTIFY codexAccountStateChanged)
     Q_PROPERTY(QVariantMap codexProjection READ codexProjection NOTIFY codexProjectionChanged)
+    Q_PROPERTY(QString pendingProviderDetailsProvider READ pendingProviderDetailsProvider NOTIFY pendingProviderDetailsProviderChanged)
 
 public:
     explicit SettingsProvidersModel(UsageStore* store, QObject* parent = nullptr);
@@ -67,8 +68,11 @@ public:
     QVariantMap tokenAccountOperationState() const { return m_tokenAccountOperationState; }
     QVariantMap codexAccountState() const { return m_codexAccountState; }
     QVariantMap codexProjection() const { return m_codexProjection; }
+    QString pendingProviderDetailsProvider() const { return m_pendingProviderDetailsProvider; }
 
     Q_INVOKABLE void requestOpenProvidersTab();
+    Q_INVOKABLE void openProviderDetails(const QString& providerId);
+    Q_INVOKABLE QString consumePendingProviderDetailsProvider();
     Q_INVOKABLE void selectProvider(const QString& providerId);
     Q_INVOKABLE void moveProvider(int fromIndex, int toIndex);
     Q_INVOKABLE void setProviderEnabled(const QString& providerId, bool enabled);
@@ -106,6 +110,7 @@ signals:
     void tokenAccountOperationStateChanged();
     void codexAccountStateChanged();
     void codexProjectionChanged();
+    void pendingProviderDetailsProviderChanged();
 
 private:
     void syncProviderList();
@@ -120,6 +125,7 @@ private:
     void syncCodexState();
     void syncCodexProjection();
     void setDetailState(const QString& state);
+    void setPendingProviderDetailsProvider(const QString& providerId);
     void selectFirstProviderIfNeeded();
 
     QPointer<UsageStore> m_store;
@@ -137,4 +143,5 @@ private:
     QVariantMap m_tokenAccountOperationState;
     QVariantMap m_codexAccountState;
     QVariantMap m_codexProjection;
+    QString m_pendingProviderDetailsProvider;
 };

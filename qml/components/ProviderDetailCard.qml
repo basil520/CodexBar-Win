@@ -76,6 +76,9 @@ Rectangle {
 
     property bool isRefreshing: false
     property bool embedded: false
+    property bool showDetailsAction: false
+
+    signal detailsRequested()
 
     readonly property bool glassEffectActive: SettingsStore.glassEffectEnabled
 
@@ -130,6 +133,15 @@ Rectangle {
                 color: AppTheme.textTertiary
                 font.pixelSize: 10
                 visible: !!snap.loginMethod && snap.loginMethod !== ""
+            }
+            ActionButton {
+                objectName: "providerDetailsButton_" + root.providerId
+                visible: root.showDetailsAction
+                text: qsTr("Details")
+                variant: "ghost"
+                compact: true
+                Layout.preferredHeight: 28
+                onClicked: root.detailsRequested()
             }
         }
 
@@ -236,7 +248,7 @@ Rectangle {
                     height: parent.height
                     radius: 3
                     color: root.brandColor
-                    Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                    Behavior on width { NumberAnimation { duration: AppTheme.duration(AppTheme.motionPanel); easing.type: Easing.OutCubic } }
                 }
                 Rectangle {
                     visible: !root.isDetailProvider && snap.primaryPacePercent !== undefined && snap.primaryPacePercent >= 0
@@ -245,7 +257,7 @@ Rectangle {
                     height: parent.height
                     color: (snap.primaryPaceOnTop !== false) ? AppTheme.statusOk : AppTheme.statusOutage
                     radius: 1
-                    Behavior on x { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                    Behavior on x { NumberAnimation { duration: AppTheme.duration(AppTheme.motionPanel); easing.type: Easing.OutCubic } }
                 }
             }
             Text {
@@ -331,7 +343,7 @@ Rectangle {
                     height: parent.height
                     radius: 3
                     color: root.brandColor
-                    Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                    Behavior on width { NumberAnimation { duration: AppTheme.duration(AppTheme.motionPanel); easing.type: Easing.OutCubic } }
                 }
                 Rectangle {
                     visible: snap.secondaryPacePercent !== undefined && snap.secondaryPacePercent >= 0
@@ -340,7 +352,7 @@ Rectangle {
                     height: parent.height
                     color: (snap.secondaryPaceOnTop !== false) ? AppTheme.statusOk : AppTheme.statusOutage
                     radius: 1
-                    Behavior on x { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                    Behavior on x { NumberAnimation { duration: AppTheme.duration(AppTheme.motionPanel); easing.type: Easing.OutCubic } }
                 }
             }
             Text {
@@ -411,7 +423,7 @@ Rectangle {
                     height: parent.height
                     radius: 3
                     color: root.brandColor
-                    Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                    Behavior on width { NumberAnimation { duration: AppTheme.duration(AppTheme.motionPanel); easing.type: Easing.OutCubic } }
                 }
             }
             Text {
@@ -471,7 +483,7 @@ Rectangle {
                             height: parent.height
                             radius: 3
                             color: root.brandColor
-                            Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                            Behavior on width { NumberAnimation { duration: AppTheme.duration(AppTheme.motionPanel); easing.type: Easing.OutCubic } }
                         }
                     }
                     Text {
@@ -572,7 +584,7 @@ Rectangle {
                     height: parent.height
                     radius: 3
                     color: AppTheme.statusDegraded
-                    Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                    Behavior on width { NumberAnimation { duration: AppTheme.duration(AppTheme.motionPanel); easing.type: Easing.OutCubic } }
                 }
             }
         }
@@ -705,7 +717,7 @@ Rectangle {
                     return 130;
                 }
                 Behavior on Layout.preferredHeight {
-                    NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
+                    NumberAnimation { duration: AppTheme.duration(AppTheme.motionPanel); easing.type: Easing.OutCubic }
                 }
                 active: (root.providerId === "codex" || root.providerId === "claude") && root.chartSegments.length > 0
                 
@@ -946,7 +958,7 @@ Rectangle {
                 property: "opacity"
                 from: 0
                 to: 1
-                duration: 300
+                duration: AppTheme.duration(AppTheme.motionPanel)
                 easing.type: Easing.OutCubic
             }
             NumberAnimation {
@@ -954,7 +966,7 @@ Rectangle {
                 property: "x"
                 from: 20
                 to: 0
-                duration: 300
+                duration: AppTheme.duration(AppTheme.motionPanel)
                 easing.type: Easing.OutCubic
             }
         }

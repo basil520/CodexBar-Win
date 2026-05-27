@@ -204,9 +204,10 @@ SettingsGroupBox {
             message: root.unavailableReason()
         }
 
-        SettingsButton {
+        ActionButton {
             text: root.refreshKey >= 0 && BridgeViewModel.importBusy(root.providerId) ? qsTr("Importing...") : qsTr("Import Now")
-            primary: true
+            variant: "primary"
+            compact: true
             enabled: root.canImport()
             onClicked: BridgeViewModel.requestImport(root.providerId)
         }

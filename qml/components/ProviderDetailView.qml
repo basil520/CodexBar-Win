@@ -47,33 +47,8 @@ ScrollView {
     contentWidth: availableWidth
     contentHeight: body.implicitHeight + 48
 
-    ScrollBar.vertical: ScrollBar {
-        id: elegantScrollBar
-        policy: ScrollBar.AsNeeded
-        active: hovered || pressed
-            || (root.contentItem && (root.contentItem.moving === true || root.contentItem.flicking === true))
-
-        background: Rectangle {
-            color: "transparent"
-        }
-
-        contentItem: Rectangle {
-            implicitWidth: 4
-            radius: 2
-            opacity: elegantScrollBar.active ? 1.0 : 0.0
-            color: elegantScrollBar.hovered 
-                ? AppTheme.textSecondary 
-                : Qt.rgba(AppTheme.textSecondary.r, AppTheme.textSecondary.g, AppTheme.textSecondary.b, 0.35)
-
-            Behavior on color { ColorAnimation { duration: 150 } }
-            Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutQuad } }
-            Behavior on implicitWidth { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
-        }
-
-        states: State {
-            name: "hoveredState"; when: elegantScrollBar.hovered
-            PropertyChanges { target: elegantScrollBar.contentItem; implicitWidth: 8; radius: 4 }
-        }
+    ScrollBar.vertical: ElegantScrollBar {
+        flickable: root.contentItem
     }
     ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
@@ -274,149 +249,6 @@ ScrollView {
                 connectionState: root.connectionState
                 connectionMessage: root.connectionMessage
                 onTestConnectionRequested: root.testConnectionRequested()
-            }
-
-            SettingsGroupBox {
-                visible: false
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 10
-
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: 10
-
-                        SectionTitle {
-                            text: qsTr("Connection")
-                            Layout.fillWidth: true
-                            Layout.minimumWidth: 0
-                        }
-
-                        ConnectionStatus {
-                            statusState: root.connectionState
-                            message: root.connectionState === "idle" ? qsTr("Not tested") : root.connectionMessage
-                        }
-
-                        SettingsButton {
-                            text: root.connectionState === "testing" ? qsTr("Testing...") : qsTr("Test Connection")
-                            primary: true
-                            enabled: root.connectionState !== "testing"
-                            onClicked: root.testConnectionRequested()
-                        }
-                    }
-
-                    Rectangle {
-                        Layout.fillWidth: true
-                        implicitHeight: connectionPanel.implicitHeight + 20
-                        radius: 7
-                        visible: root.connectionState !== "idle"
-                        color: root.connectionState === "failed"
-                            ? AppTheme.surfaceDangerSoft
-                            : (root.connectionState === "succeeded"
-                                ? AppTheme.surfaceSuccessSoft
-                                : AppTheme.surfaceWarningSoft)
-                        border.width: 1
-                        border.color: AppTheme.withAlpha(root.statusColor(root.connectionState),
-                                                          root.glassEffectActive ? 0.34 : 0.48)
-
-                        ColumnLayout {
-                            id: connectionPanel
-                            anchors.fill: parent
-                            anchors.margins: 10
-                            spacing: 8
-
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 8
-
-                                Rectangle {
-                                    Layout.preferredWidth: 8
-                                    Layout.preferredHeight: 8
-                                    radius: 4
-                                    color: root.statusColor(root.connectionState)
-                                }
-
-                                Label {
-                                    Layout.fillWidth: true
-                                    text: root.connectionTitle()
-                                    color: AppTheme.textPrimary
-                                    font.pixelSize: AppTheme.fontSizeMd
-                                    font.bold: true
-                                    elide: Text.ElideRight
-                                }
-
-                                Label {
-                                    text: root.durationLabel(root.connectionTest ? root.connectionTest.durationMs : 0)
-                                    color: AppTheme.textSecondary
-                                    font.pixelSize: AppTheme.fontSizeSm
-                                    visible: text !== ""
-                                }
-                            }
-
-                            Label {
-                                Layout.fillWidth: true
-                                text: root.connectionMessage
-                                    || (root.connectionState === "testing" ? qsTr("Running one non-interactive provider refresh.") : "")
-                                color: AppTheme.textSecondary
-                                font.pixelSize: AppTheme.fontSizeSm
-                                wrapMode: Text.WrapAnywhere
-                                maximumLineCount: 3
-                                elide: Text.ElideRight
-                                visible: text !== ""
-                            }
-
-                            Label {
-                                Layout.fillWidth: true
-                                text: {
-                                    var ts = root.timeLabel(root.connectionTest ? root.connectionTest.finishedAt : 0)
-                                    return ts === "" ? "" : qsTr("Last tested: ") + ts
-                                }
-                                color: AppTheme.textTertiary
-                                font.pixelSize: AppTheme.fontSizeSm
-                                visible: text !== ""
-                            }
-
-                            Label {
-                                Layout.fillWidth: true
-                                text: root.connectionTest && root.connectionTest.details
-                                    ? root.connectionTest.details
-                                    : root.connectionMessage
-                                color: AppTheme.textSecondary
-                                font.pixelSize: AppTheme.fontSizeSm
-                                wrapMode: Text.WrapAnywhere
-                                maximumLineCount: 8
-                                elide: Text.ElideRight
-                                visible: root.connectionState === "failed" && root.detailsExpanded
-                            }
-
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 8
-                                visible: root.connectionState === "failed"
-
-                                SettingsButton {
-                                    text: root.detailsExpanded ? qsTr("Hide Details") : qsTr("Show Details")
-                                    onClicked: root.detailsExpanded = !root.detailsExpanded
-                                }
-
-                                SettingsButton {
-                                    text: qsTr("Copy")
-                                    onClicked: AppController.copyText((root.connectionTest && root.connectionTest.details)
-                                        ? root.connectionTest.details
-                                        : root.connectionMessage)
-                                }
-
-                                Item { Layout.fillWidth: true }
-
-                                SettingsButton {
-                                    text: qsTr("Retry")
-                                    primary: true
-                                    onClicked: root.testConnectionRequested()
-                                }
-                            }
-                        }
-                    }
-                }
             }
 
             SettingsGroupBox {
@@ -792,30 +624,16 @@ ScrollView {
                     }
 
                     // Buy Credits button (when rate lane exhausted)
-                    Button {
+                    ActionButton {
                         Layout.fillWidth: true
                         visible: root.codexProjection
                             && root.codexProjection.canShowBuyCredits
                             && root.codexProjection.hasExhaustedRateLane
                         text: qsTr("Buy More Credits")
+                        variant: "primary"
                         onClicked: root.descriptor && root.descriptor.dashboardURL
                             ? AppController.openExternalUrl(root.descriptor.dashboardURL)
                             : {}
-
-                        background: Rectangle {
-                            color: parent.hovered ? AppTheme.statusOk : Qt.rgba(0.30, 0.65, 0.31, 0.35)
-                            radius: 6
-                            border.color: AppTheme.statusOk
-                            border.width: 1
-                        }
-                        contentItem: Label {
-                            text: parent.text
-                            color: AppTheme.statusOk
-                            font.pixelSize: 13
-                            font.bold: true
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                        }
                     }
 
                     // Supplemental metrics

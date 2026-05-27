@@ -67,6 +67,10 @@ private slots:
     void tokenUsagePaneUsesProductionUsageProviderRow();
     void commandCenterControlsMeetPhaseSixAccessibility();
     void finalUiPolishGuardsStayInPlace();
+    void sharedScrollBarComponentIsUsedByScrollableShells();
+    void usageChartsExposeUnifiedInteractiveApi();
+    void trayMissionControlAvoidsRedundantSummaryCards();
+    void providerDetailHighFrequencyActionsUseActionButton();
     void settingsPageKeepsScrollableContentItem();
     void scrollBarsAvoidPermanentActiveState();
     void appThemeExposesInteractionPolishTokens();
@@ -85,7 +89,7 @@ private slots:
     void providerSwitcherUsesAvatarDockPattern();
     void disruptiveExperienceComponentsAreRegistered();
     void disruptiveExperienceShellsUseNewEntryPoints();
-    void trayProviderFocusDetailsRoutesToSelectedProvider();
+    void trayProviderDetailsRoutesToSelectedProvider();
     void stateSpineComponentsExposeNarrativeContract();
     void appQmlResourceBypassesMultiConfigAutoRcc();
 };
@@ -557,7 +561,8 @@ void QmlArchitectureTest::costHistoryChartUsesSharedHoverDetail()
              "CostHistoryChart must not keep a duplicate inline detailArea implementation.");
     QVERIFY2(chartContents.contains(QStringLiteral("floating: true")),
              "CostHistoryChart must use ChartHoverDetail as a floating hover panel instead of a fixed footer row.");
-    QVERIFY2(chartContents.contains(QStringLiteral("visible: hoveredIndex >= 0")),
+    QVERIFY2(chartContents.contains(QStringLiteral("visible: hoveredIndex >= 0"))
+                 || chartContents.contains(QStringLiteral("visible: root.hoverDetailEnabled && hoveredIndex >= 0")),
              "CostHistoryChart hover detail must appear only while hovering a chart point.");
     QVERIFY2(chartContents.contains(QStringLiteral("width: implicitWidth")),
              "Floating ChartHoverDetail must bind width to implicitWidth because it is outside a Layout.");
@@ -1411,6 +1416,123 @@ void QmlArchitectureTest::finalUiPolishGuardsStayInPlace()
     }
 }
 
+void QmlArchitectureTest::sharedScrollBarComponentIsUsedByScrollableShells()
+{
+    const QString qrc = readFile("resources/qml.qrc");
+    QVERIFY2(qrc.contains(QStringLiteral("qml/components/ElegantScrollBar.qml")),
+             "ElegantScrollBar must be shipped once scroll chrome is shared.");
+
+    const QString scrollBar = readFile("qml/components/ElegantScrollBar.qml");
+    QVERIFY2(scrollBar.contains(QStringLiteral("property var flickable")),
+             "ElegantScrollBar must accept the owning Flickable/ScrollView content item.");
+    QVERIFY2(scrollBar.contains(QStringLiteral("moving")) && scrollBar.contains(QStringLiteral("flicking")),
+             "ElegantScrollBar must remain active while the owning view is moving or flicking.");
+    QVERIFY2(scrollBar.contains(QStringLiteral("AppTheme.duration(")),
+             "ElegantScrollBar motion must respect reduce-motion through AppTheme.duration().");
+
+    const QStringList scrollFiles = {
+        QStringLiteral("qml/TrayPanel.qml"),
+        QStringLiteral("qml/panes/TokenUsagePane.qml"),
+        QStringLiteral("qml/panes/ProvidersPane.qml"),
+        QStringLiteral("qml/components/ProviderDetailView.qml"),
+        QStringLiteral("qml/components/SettingsPage.qml"),
+    };
+
+    for (const QString& path : scrollFiles) {
+        const QString contents = readFile(path);
+        QVERIFY2(contents.contains(QStringLiteral("ElegantScrollBar")),
+                 qPrintable(path + QStringLiteral(" must use the shared ElegantScrollBar component.")));
+        QVERIFY2(!contents.contains(QStringLiteral("ScrollBar.vertical: ScrollBar")),
+                 qPrintable(path + QStringLiteral(" must not keep a duplicated inline ScrollBar implementation.")));
+    }
+}
+
+void QmlArchitectureTest::usageChartsExposeUnifiedInteractiveApi()
+{
+    const QStringList chartFiles = {
+        QStringLiteral("qml/components/CostHistoryChart.qml"),
+        QStringLiteral("qml/components/CreditsHistoryChart.qml"),
+        QStringLiteral("qml/components/UsageBreakdownChart.qml"),
+        QStringLiteral("qml/PlanUtilizationChart.qml"),
+    };
+
+    for (const QString& path : chartFiles) {
+        const QString contents = readFile(path);
+        const QStringList requiredApi = {
+            QStringLiteral("property bool refreshing"),
+            QStringLiteral("property color accentColor"),
+            QStringLiteral("property bool hoverDetailEnabled"),
+        };
+        for (const QString& api : requiredApi) {
+            QVERIFY2(contents.contains(api),
+                     qPrintable(path + QStringLiteral(" must expose unified chart API property: ") + api));
+        }
+        QVERIFY2(contents.contains(QStringLiteral("emptyText:")),
+                 qPrintable(path + QStringLiteral(" must bind the inherited ChartFrame emptyText property.")));
+        QVERIFY2(contents.contains(QStringLiteral("ChartHoverDetail")),
+                 qPrintable(path + QStringLiteral(" must render hover state through ChartHoverDetail.")));
+        QVERIFY2(contents.contains(QStringLiteral("loading: root.refreshing"))
+                     || contents.contains(QStringLiteral("loading: chartRoot.refreshing")),
+                 qPrintable(path + QStringLiteral(" must route refreshing state into ChartFrame.loading.")));
+    }
+
+    const QString breakdown = readFile("qml/components/UsageBreakdownChart.qml");
+    const QStringList forbiddenHardcodedServiceColors = {
+        QStringLiteral("#4260F0"),
+        QStringLiteral("#F0882E"),
+        QStringLiteral("#4CAF50"),
+        QStringLiteral("#9C27B0"),
+        QStringLiteral("#E91E63"),
+        QStringLiteral("#00BCD4"),
+        QStringLiteral("#795548"),
+        QStringLiteral("#FF9800"),
+        QStringLiteral("#607D8B"),
+        QStringLiteral("#CDDC39"),
+        QStringLiteral("#3F51B5"),
+    };
+    for (const QString& color : forbiddenHardcodedServiceColors) {
+        QVERIFY2(!breakdown.contains(color),
+                 qPrintable(QStringLiteral("UsageBreakdownChart must use AppTheme chart/service color helpers instead of hardcoded color %1.").arg(color)));
+    }
+    QVERIFY2(breakdown.contains(QStringLiteral("AppTheme.chartServiceColor")),
+             "UsageBreakdownChart must obtain service colors through AppTheme.chartServiceColor().");
+}
+
+void QmlArchitectureTest::trayMissionControlAvoidsRedundantSummaryCards()
+{
+    const QString tray = readFile("qml/TrayPanel.qml");
+    QVERIFY2(!tray.contains(QStringLiteral("TrayShell.TrayStatusHeader")),
+             "TrayPanel must not spend vertical space on the redundant status header card.");
+    QVERIFY2(!tray.contains(QStringLiteral("TrayShell.TrayTodaySnapshot")),
+             "TrayPanel must not spend vertical space on the redundant today snapshot card.");
+    QVERIFY2(!tray.contains(QStringLiteral("TrayShell.TrayProviderFocus")),
+             "TrayPanel must merge provider Details into the provider detail surface instead of a separate focus card.");
+}
+
+void QmlArchitectureTest::providerDetailHighFrequencyActionsUseActionButton()
+{
+    const QString detail = readFile("qml/components/ProviderDetailView.qml");
+    const QString connection = readFile("qml/components/provider/ProviderConnectionPanel.qml");
+    const QString browserCard = readFile("qml/components/BrowserSessionCard.qml");
+    const QString tokenAccounts = readFile("qml/components/TokenAccountsPane.qml");
+    const QString codexAccounts = readFile("qml/components/CodexAccountsPane.qml");
+    const QString combined = detail + connection + browserCard + tokenAccounts + codexAccounts;
+
+    QVERIFY2(combined.contains(QStringLiteral("ActionButton")),
+             "Provider detail and account flows must use ActionButton for high-frequency commands.");
+    const QStringList forbiddenLegacyButtons = {
+        QStringLiteral("SettingsButton {\n                            text: root.connectionState === \"testing\""),
+        QStringLiteral("SettingsButton {\n            text: root.refreshKey >= 0 && BridgeViewModel.importBusy"),
+    };
+    for (const QString& snippet : forbiddenLegacyButtons) {
+        QVERIFY2(!combined.contains(snippet),
+                 qPrintable(QStringLiteral("Provider/account high-frequency actions must not keep legacy button snippet: %1").arg(snippet)));
+    }
+    const QRegularExpression rawControlsButton(QStringLiteral("\\n\\s+Button\\s*\\{"));
+    QVERIFY2(!combined.contains(rawControlsButton),
+             "Provider/account high-frequency actions must not use raw Qt Quick Controls Button blocks.");
+}
+
 void QmlArchitectureTest::settingsPageKeepsScrollableContentItem()
 {
     const QString page = readFile("qml/components/SettingsPage.qml");
@@ -1438,7 +1560,8 @@ void QmlArchitectureTest::scrollBarsAvoidPermanentActiveState()
         const QRegularExpression pinnedActive(QStringLiteral("\\bactive\\s*:\\s*true\\b"));
         QVERIFY2(!contents.contains(pinnedActive),
                  qPrintable(path + QStringLiteral(" must not pin ScrollBar.active to true; scrollbars should fade when idle.")));
-        QVERIFY2(contents.contains(QStringLiteral("moving")) || contents.contains(QStringLiteral("flicking")),
+        const bool usesSharedScrollBar = contents.contains(QStringLiteral("ElegantScrollBar"));
+        QVERIFY2(usesSharedScrollBar || contents.contains(QStringLiteral("moving")) || contents.contains(QStringLiteral("flicking")),
                  qPrintable(path + QStringLiteral(" must keep scrollbars discoverable while the view is scrolling or flicking.")));
 
         const auto countMatches = [](const QRegularExpression& expression, const QString& text) {
@@ -1454,7 +1577,7 @@ void QmlArchitectureTest::scrollBarsAvoidPermanentActiveState()
         const QRegularExpression activeOpacity(QStringLiteral("opacity\\s*:\\s*\\w+ScrollBar\\.active\\s*\\?\\s*1(?:\\.0)?\\s*:\\s*0(?:\\.0)?"));
         const int scrollBarCount = countMatches(verticalScrollBars, contents);
         const int opacityBindingCount = countMatches(activeOpacity, contents);
-        QVERIFY2(opacityBindingCount >= scrollBarCount,
+        QVERIFY2(usesSharedScrollBar || opacityBindingCount >= scrollBarCount,
                  qPrintable(path + QStringLiteral(" custom ScrollBar contentItem must bind opacity to ScrollBar.active so idle scrollbars are not visible.")));
     }
 }
@@ -1886,10 +2009,12 @@ void QmlArchitectureTest::disruptiveExperienceShellsUseNewEntryPoints()
 
     QVERIFY2(tray.contains(QStringLiteral("Components.TrayMissionControl")),
              "TrayPanel must be reduced to a Mission Control shell entry point.");
-    QVERIFY2(tray.contains(QStringLiteral("TrayShell.TrayStatusHeader"))
-             && tray.contains(QStringLiteral("TrayShell.TrayTodaySnapshot"))
-             && tray.contains(QStringLiteral("TrayShell.TrayProviderFocus")),
-             "TrayPanel must compose the Mission Control status, snapshot, and focus regions.");
+    QVERIFY2(tray.contains(QStringLiteral("Components.ProviderDetailCard")),
+             "TrayPanel must keep the selected-provider view centered on ProviderDetailCard.");
+    QVERIFY2(!tray.contains(QStringLiteral("TrayShell.TrayStatusHeader"))
+             && !tray.contains(QStringLiteral("TrayShell.TrayTodaySnapshot"))
+             && !tray.contains(QStringLiteral("TrayShell.TrayProviderFocus")),
+             "TrayPanel must not compose redundant summary/focus cards in the main tray.");
 
     QVERIFY2(providerDetail.contains(QStringLiteral("ProviderPanels.ProviderWorkbench")),
              "ProviderDetailView must route the Settings provider detail through ProviderWorkbench.");
@@ -1908,7 +2033,7 @@ void QmlArchitectureTest::disruptiveExperienceShellsUseNewEntryPoints()
              "Main.qml must expose the unified Command Palette entry point.");
 }
 
-void QmlArchitectureTest::trayProviderFocusDetailsRoutesToSelectedProvider()
+void QmlArchitectureTest::trayProviderDetailsRoutesToSelectedProvider()
 {
     const QString tray = readFile("qml/TrayPanel.qml");
     const QString settingsWindow = readFile("qml/SettingsWindow.qml");
@@ -1917,24 +2042,32 @@ void QmlArchitectureTest::trayProviderFocusDetailsRoutesToSelectedProvider()
 
     QVERIFY2(tray.contains(QStringLiteral("function openSelectedProviderDetails()")),
              "Tray Details must use an explicit provider-aware route helper.");
-    QVERIFY2(tray.contains(QStringLiteral("SettingsProvidersModel.selectProvider(root.selectedProviderID)")),
-             "Tray Details must select the currently focused provider before opening Settings.");
-    QVERIFY2(tray.contains(QStringLiteral("SettingsProvidersModel.requestOpenProvidersTab()")),
-             "Tray Details must request the Providers tab, not just the generic settings page.");
+    QVERIFY2(tray.contains(QStringLiteral("SettingsProvidersModel.openProviderDetails(root.selectedProviderID)")),
+             "Tray Details must use the atomic provider details route.");
+    QVERIFY2(!tray.contains(QStringLiteral("SettingsProvidersModel.selectProvider(root.selectedProviderID)")),
+             "Tray Details must not depend on a manual selectProvider/requestOpenProvidersTab ordering.");
+    QVERIFY2(!tray.contains(QStringLiteral("SettingsProvidersModel.requestOpenProvidersTab()")),
+             "Tray Details must not manually request the Providers tab from TrayPanel.");
     QVERIFY2(tray.contains(QStringLiteral("AppController.openSettings()")),
              "Tray Details must open/raise Settings without toggling an already-open window closed.");
-    QVERIFY2(tray.contains(QStringLiteral("onActionRequested: root.openSelectedProviderDetails()")),
-             "TrayProviderFocus Details action must route through the provider-aware helper.");
+    QVERIFY2(tray.contains(QStringLiteral("onDetailsRequested: root.openSelectedProviderDetails()")),
+             "ProviderDetailCard Details action must route through the provider-aware helper.");
     QVERIFY2(!tray.contains(QStringLiteral("onActionRequested: AppController.toggleSettings()")),
-             "TrayProviderFocus Details must not be a generic settings toggle.");
+             "Provider Details must not be a generic settings toggle.");
 
+    QVERIFY2(settingsModelHeader.contains(QStringLiteral("pendingProviderDetailsProvider"))
+             && settingsModelHeader.contains(QStringLiteral("openProviderDetails"))
+             && settingsModelHeader.contains(QStringLiteral("consumePendingProviderDetailsProvider")),
+             "SettingsProvidersModel must expose a persistent provider-details route for windows created after the request.");
     QVERIFY2(settingsModelHeader.contains(QStringLiteral("openProvidersTabRequested")),
              "SettingsProvidersModel must expose a signal for routing SettingsWindow to the Providers tab.");
-    QVERIFY2(settingsModelSource.contains(QStringLiteral("emit openProvidersTabRequested()")),
-             "requestOpenProvidersTab() must notify SettingsWindow to switch to the Providers tab.");
-    QVERIFY2(settingsWindow.contains(QStringLiteral("function onOpenProvidersTabRequested()"))
+    QVERIFY2(settingsModelSource.contains(QStringLiteral("void SettingsProvidersModel::openProviderDetails"))
+             && settingsModelSource.contains(QStringLiteral("emit openProvidersTabRequested()")),
+             "SettingsProvidersModel must notify SettingsWindow and retain the selected provider details target.");
+    QVERIFY2(settingsWindow.contains(QStringLiteral("function applyPendingProviderDetailsRoute()"))
+             && settingsWindow.contains(QStringLiteral("consumePendingProviderDetailsProvider()"))
              && settingsWindow.contains(QStringLiteral("tabList.currentIndex = 1")),
-             "SettingsWindow must switch to the Providers tab when a provider details route is requested.");
+             "SettingsWindow must consume pending provider detail routes after creation and async loading.");
 }
 
 void QmlArchitectureTest::stateSpineComponentsExposeNarrativeContract()

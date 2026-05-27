@@ -79,6 +79,21 @@ QtObject {
     property color chartBarMuted: withAlpha(textSecondary, 0.36)
     property color chartForecast: statusDegraded
     property color chartHover: surfacePopup
+    property var chartServiceColors: ({
+        "CLI": chartBarPrimary,
+        "GitHub Review": statusDegraded,
+        "API": statusOk,
+        "Codex": accentColor,
+        "Codex CLI": statusOutage,
+        "Dashboard": chartBarSecondary,
+        "Storage": chartBarMuted
+    })
+    property var chartFallbackColors: [
+        statusDegraded,
+        textSecondary,
+        statusOk,
+        accentColor
+    ]
 
     // Profound Smooth Physics Tuning (iOS/macOS Style Physics)
     property int maxScrollVelocity: 4500
@@ -115,6 +130,18 @@ QtObject {
 
     function providerBrandColor(providerId) {
         return providerBrandColors[providerId] || accentColor
+    }
+
+    function chartServiceColor(name) {
+        if (chartServiceColors[name] !== undefined) {
+            return chartServiceColors[name]
+        }
+        var value = (name || "").toString()
+        var h = 0
+        for (var i = 0; i < value.length; i++) {
+            h = ((h << 5) - h) + value.charCodeAt(i)
+        }
+        return chartFallbackColors[Math.abs(h) % chartFallbackColors.length]
     }
 
     function duration(milliseconds) {

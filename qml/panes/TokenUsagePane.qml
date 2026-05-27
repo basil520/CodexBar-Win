@@ -25,33 +25,8 @@ Rectangle {
         anchors.margins: 16
         clip: true
 
-        ScrollBar.vertical: ScrollBar {
-            id: elegantScrollBar
-            policy: ScrollBar.AsNeeded
-            active: hovered || pressed
-                || (scroll.contentItem && (scroll.contentItem.moving === true || scroll.contentItem.flicking === true))
-
-            background: Rectangle {
-                color: "transparent"
-            }
-
-            contentItem: Rectangle {
-                implicitWidth: 4
-                radius: 2
-                opacity: elegantScrollBar.active ? 1.0 : 0.0
-                color: elegantScrollBar.hovered 
-                    ? AppTheme.textSecondary 
-                    : Qt.rgba(AppTheme.textSecondary.r, AppTheme.textSecondary.g, AppTheme.textSecondary.b, 0.35)
-
-                Behavior on color { ColorAnimation { duration: 150 } }
-                Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutQuad } }
-                Behavior on implicitWidth { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
-            }
-
-            states: State {
-                name: "hoveredState"; when: elegantScrollBar.hovered
-                PropertyChanges { target: elegantScrollBar.contentItem; implicitWidth: 8; radius: 4 }
-            }
+        ScrollBar.vertical: ElegantScrollBar {
+            flickable: scroll.contentItem
         }
 
         UsageComponents.UsageTrendDeck {

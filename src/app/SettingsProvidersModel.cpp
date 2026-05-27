@@ -147,6 +147,25 @@ void SettingsProvidersModel::requestOpenProvidersTab()
     selectFirstProviderIfNeeded();
 }
 
+void SettingsProvidersModel::openProviderDetails(const QString& providerId)
+{
+    const QString targetProvider = providerId.trimmed();
+    setPendingProviderDetailsProvider(targetProvider);
+    if (!targetProvider.isEmpty()) {
+        selectProvider(targetProvider);
+    }
+    requestOpenProvidersTab();
+}
+
+QString SettingsProvidersModel::consumePendingProviderDetailsProvider()
+{
+    const QString targetProvider = m_pendingProviderDetailsProvider;
+    if (!targetProvider.isEmpty()) {
+        setPendingProviderDetailsProvider({});
+    }
+    return targetProvider;
+}
+
 void SettingsProvidersModel::selectProvider(const QString& providerId)
 {
     if (m_selectedProvider == providerId) {
@@ -468,6 +487,15 @@ void SettingsProvidersModel::setDetailState(const QString& state)
     }
     m_detailState = state;
     emit detailStateChanged();
+}
+
+void SettingsProvidersModel::setPendingProviderDetailsProvider(const QString& providerId)
+{
+    if (m_pendingProviderDetailsProvider == providerId) {
+        return;
+    }
+    m_pendingProviderDetailsProvider = providerId;
+    emit pendingProviderDetailsProviderChanged();
 }
 
 void SettingsProvidersModel::selectFirstProviderIfNeeded()

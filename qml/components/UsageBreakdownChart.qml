@@ -6,6 +6,9 @@ ChartFrame {
     id: root
 
     property var points: []
+    property bool refreshing: false
+    property color accentColor: AppTheme.accentColor
+    property bool hoverDetailEnabled: true
 
     readonly property int hoveredIndex: chartHover.hoveredIndex
     readonly property bool hasData: points.length > 0
@@ -14,23 +17,10 @@ ChartFrame {
     implicitHeight: hasData ? 160 + legendArea.implicitHeight + 8 + (legendArea.visible ? 12 : 0) : 40
     empty: !hasData
     emptyText: qsTr("No breakdown data")
+    loading: root.refreshing
     clip: true
 
-    // Service color map
-    property var serviceColors: ({
-        "CLI": "#4260F0", "GitHub Review": "#F0882E", "API": "#4CAF50",
-        "Codex": "#9C27B0", "Codex CLI": "#E91E63", "Dashboard": "#00BCD4",
-        "Storage": "#795548"
-    })
-
-    function hashColor(name) {
-        var h = 0
-        for (var i = 0; i < name.length; i++) h = ((h << 5) - h) + name.charCodeAt(i)
-        var colors = ["#FF9800", "#607D8B", "#CDDC39", "#3F51B5"]
-        return colors[Math.abs(h) % colors.length]
-    }
-
-    function svcColor(name) { return serviceColors[name] || hashColor(name) }
+    function svcColor(name) { return AppTheme.chartServiceColor(name) }
 
     // Build flat legend from all days
     function allLegendItems() {
@@ -160,8 +150,8 @@ ChartFrame {
             ChartHoverDetail {
                 id: hoverDetail
                 floating: true
-                accentColor: AppTheme.accentColor
-                visible: hoveredIndex >= 0 && activePoint !== null
+                accentColor: root.accentColor
+                visible: root.hoverDetailEnabled && hoveredIndex >= 0 && activePoint !== null
                 width: implicitWidth
                 height: implicitHeight
                 property var activePoint: hoveredIndex >= 0 && hoveredIndex < points.length ? points[hoveredIndex] : null

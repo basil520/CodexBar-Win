@@ -65,9 +65,10 @@ Components.SettingsGroupBox {
                 message: root.connectionState === "idle" ? qsTr("Not tested") : root.connectionMessage
             }
 
-            Components.SettingsButton {
+            Components.ActionButton {
                 text: root.connectionState === "testing" ? qsTr("Testing...") : qsTr("Test Connection")
-                primary: true
+                variant: "primary"
+                compact: true
                 enabled: root.connectionState !== "testing"
                 onClicked: root.testConnectionRequested()
             }
@@ -106,13 +107,17 @@ Components.SettingsGroupBox {
             spacing: 8
             visible: root.connectionState === "failed"
 
-            Components.SettingsButton {
+            Components.ActionButton {
                 text: root.detailsExpanded ? qsTr("Hide Details") : qsTr("Show Details")
+                compact: true
+                variant: "ghost"
                 onClicked: root.detailsExpanded = !root.detailsExpanded
             }
 
-            Components.SettingsButton {
+            Components.ActionButton {
                 text: qsTr("Copy")
+                compact: true
+                variant: "ghost"
                 onClicked: AppController.copyText((root.connectionTest && root.connectionTest.details)
                     ? root.connectionTest.details
                     : root.connectionMessage)

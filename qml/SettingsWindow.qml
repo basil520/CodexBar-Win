@@ -30,11 +30,25 @@ Rectangle {
         return items
     }
 
+    function openProvidersTab() {
+        settingsWindow.providersPaneLoaded = true
+        tabList.currentIndex = 1
+    }
+
+    function applyPendingProviderDetailsRoute() {
+        var providerId = SettingsProvidersModel.consumePendingProviderDetailsProvider()
+        if (providerId === "") return
+        settingsWindow.openProvidersTab()
+        SettingsProvidersModel.selectProvider(providerId)
+    }
+
+    Component.onCompleted: Qt.callLater(settingsWindow.applyPendingProviderDetailsRoute)
+
     Connections {
         target: SettingsProvidersModel
         function onOpenProvidersTabRequested() {
-            settingsWindow.providersPaneLoaded = true
-            tabList.currentIndex = 1
+            settingsWindow.openProvidersTab()
+            Qt.callLater(settingsWindow.applyPendingProviderDetailsRoute)
         }
     }
 
@@ -113,6 +127,7 @@ Rectangle {
 
                     ListView {
                         id: tabList
+                        objectName: "settingsTabList"
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         maximumFlickVelocity: AppTheme.maxScrollVelocity

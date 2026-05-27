@@ -146,11 +146,11 @@ ColumnLayout {
                 visible: !root.requiresApiKey()
             }
 
-            SettingsButton {
+            ActionButton {
                 objectName: "addAccountButton"
                 compact: root.compactLayout
                 text: qsTr("Add Account")
-                primary: true
+                variant: "primary"
                 enabled: !root.busy
                     && accountNameField.text.trim() !== ""
                     && (!root.requiresApiKey() || accountApiKeyField.text.trim() !== "")
@@ -232,17 +232,18 @@ ColumnLayout {
                     }
                 }
 
-                SettingsButton {
+                ActionButton {
                     compact: root.compactLayout
                     text: qsTr("Use")
+                    variant: "secondary"
                     enabled: !root.busy && modelData.accountId !== root.defaultAccountId
                     onClicked: root.setDefaultAccount(modelData.accountId)
                 }
 
-                SettingsButton {
+                ActionButton {
                     compact: root.compactLayout
                     text: qsTr("Remove")
-                    danger: true
+                    variant: "danger"
                     enabled: !root.busy
                     onClicked: root.removeAccount(modelData.accountId)
                 }
