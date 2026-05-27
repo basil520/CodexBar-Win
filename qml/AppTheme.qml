@@ -135,7 +135,7 @@ QtObject {
 
     readonly property string fontFamily: {
         if (Qt.platform.os === "windows") {
-            return "Segoe UI, \"Microsoft YaHei\", sans-serif";
+            return "\"Segoe UI Variable Text\", \"Segoe UI\", \"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif";
         } else if (Qt.platform.os === "osx") {
             return "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"PingFang SC\", sans-serif";
         } else {

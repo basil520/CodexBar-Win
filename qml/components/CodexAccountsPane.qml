@@ -1,4 +1,4 @@
-﻿import QtQuick 2.15
+import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
 import CodexBarX 1.0
@@ -7,7 +7,7 @@ import ".."
 Rectangle {
     id: root
     color: AppTheme.surfacePane
-    radius: 8
+    radius: AppTheme.radiusLg
 
     property var accounts: []
     property string activeAccountID: ""

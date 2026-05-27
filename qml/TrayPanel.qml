@@ -296,9 +296,9 @@ Rectangle {
                 id: cardDelegate
                 width: providerList.width - 24
                 height: cardContent.height + 24
-                radius: 10
+                radius: AppTheme.radiusLg
                 color: mouseArea.containsMouse ? AppTheme.surfaceHover : root.cardBackgroundColor
-                border.color: mouseArea.containsMouse ? cardDelegate.brandColor : AppTheme.surfaceBorder
+                border.color: mouseArea.containsMouse ? AppTheme.withAlpha(cardDelegate.brandColor, 0.48) : AppTheme.surfaceBorder
                 border.width: 1
 
                 property string providerId: model.providerId || ""
@@ -473,13 +473,13 @@ Rectangle {
                         }
                         Rectangle {
                             Layout.fillWidth: true
-                            height: 6
-                            radius: 3
+                            height: AppTheme.progressBarHeight
+                            radius: AppTheme.progressBarHeight / 2
                             color: AppTheme.surfaceBorder
                             Rectangle {
                                 width: Math.max(0, parent.width * (cardDelegate.isDetailProvider ? snap.primaryRemaining : snap.primaryUsed) / 100)
                                 height: parent.height
-                                radius: 3
+                                radius: AppTheme.progressBarHeight / 2
                                 color: cardDelegate.brandColor
                                 Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
                             }
@@ -568,13 +568,13 @@ Rectangle {
                         }
                         Rectangle {
                             Layout.fillWidth: true
-                            height: 6
-                            radius: 3
+                            height: AppTheme.progressBarHeight
+                            radius: AppTheme.progressBarHeight / 2
                             color: AppTheme.surfaceBorder
                             Rectangle {
                                 width: Math.max(0, parent.width * snap.secondaryUsed / 100)
                                 height: parent.height
-                                radius: 3
+                                radius: AppTheme.progressBarHeight / 2
                                 color: cardDelegate.brandColor
                                 Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
                             }
@@ -648,13 +648,13 @@ Rectangle {
                         }
                         Rectangle {
                             Layout.fillWidth: true
-                            height: 6
-                            radius: 3
+                            height: AppTheme.progressBarHeight
+                            radius: AppTheme.progressBarHeight / 2
                             color: AppTheme.surfaceBorder
                             Rectangle {
                                 width: Math.max(0, parent.width * (snap.tertiaryUsed || 0) / 100)
                                 height: parent.height
-                                radius: 3
+                                radius: AppTheme.progressBarHeight / 2
                                 color: cardDelegate.brandColor
                                 Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
                             }
@@ -692,7 +692,7 @@ Rectangle {
                         Layout.preferredHeight: 28
                         visible: cardDelegate.providerId === "codex" && snap.hasCredits === true
                         color: root.cardBackgroundColor
-                        radius: 6
+                        radius: AppTheme.radiusMd
 
                         RowLayout {
                             anchors.fill: parent
@@ -747,13 +747,13 @@ Rectangle {
                         }
                         Rectangle {
                             Layout.fillWidth: true
-                            height: 6
-                            radius: 3
+                            height: AppTheme.progressBarHeight
+                            radius: AppTheme.progressBarHeight / 2
                             color: AppTheme.surfaceBorder
                             Rectangle {
                                 width: Math.max(0, parent.width * Math.min(100, (snap.providerCostUsed || 0) / Math.max(1, snap.providerCostLimit || 1) * 100) / 100)
                                 height: parent.height
-                                radius: 3
+                                radius: AppTheme.progressBarHeight / 2
                                 color: AppTheme.statusDegraded
                                 Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
                             }
