@@ -382,6 +382,3 @@ This project is open-sourced under the [MIT License](LICENSE).
 
 ---
 
-<p align="center">
-  Made with ❤️ for AI developers
-</p>
