@@ -34,14 +34,50 @@ Canvas {
 
         var stepX = width / (dataPoints.length - 1);
 
-        // Draw transparent gradient background
-        ctx.beginPath();
-        ctx.moveTo(0, height);
+        // 1. Calculate all trend coordinate points
+        var points = [];
         for (var i = 0; i < dataPoints.length; i++) {
             var normY = (dataPoints[i] - minVal) / range;
             var plotX = i * stepX;
             var plotY = height - 2 - normY * (height - 6);
-            ctx.lineTo(plotX, plotY);
+            points.push({x: plotX, y: plotY});
+        }
+
+        // 2. Pre-calculate Catmull-Rom spline tangent vectors for each point
+        var tangents = [];
+        var tension = 0.5; // Standard cardinal spline tension
+        for (var i = 0; i < points.length; i++) {
+            var tx = 0;
+            var ty = 0;
+            if (i === 0) {
+                tx = tension * (points[1].x - points[0].x);
+                ty = tension * (points[1].y - points[0].y);
+            } else if (i === points.length - 1) {
+                tx = tension * (points[points.length - 1].x - points[points.length - 2].x);
+                ty = tension * (points[points.length - 1].y - points[points.length - 2].y);
+            } else {
+                tx = tension * (points[i + 1].x - points[i - 1].x);
+                ty = tension * (points[i + 1].y - points[i - 1].y);
+            }
+            tangents.push({x: tx, y: ty});
+        }
+
+        // 3. Draw mathematically smooth transparent gradient area fill
+        ctx.beginPath();
+        ctx.moveTo(0, height);
+        ctx.lineTo(points[0].x, points[0].y);
+        for (var i = 0; i < points.length - 1; i++) {
+            var A = points[i];
+            var B = points[i + 1];
+            var Ta = tangents[i];
+            var Tb = tangents[i + 1];
+
+            var cp1x = A.x + Ta.x / 3;
+            var cp1y = A.y + Ta.y / 3;
+            var cp2x = B.x - Tb.x / 3;
+            var cp2y = B.y - Tb.y / 3;
+
+            ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, B.x, B.y);
         }
         ctx.lineTo(width, height);
         ctx.closePath();
@@ -52,23 +88,26 @@ Canvas {
         ctx.fillStyle = fillGrad;
         ctx.fill();
 
-        // Draw line
+        // 4. Draw mathematically smooth high-precision curve trend line
         ctx.beginPath();
-        ctx.lineWidth = 1.2;
+        ctx.lineWidth = 1.25;
         ctx.strokeStyle = strokeColor;
         ctx.lineJoin = "round";
         ctx.lineCap = "round";
 
-        for (var i = 0; i < dataPoints.length; i++) {
-            var normY = (dataPoints[i] - minVal) / range;
-            var plotX = i * stepX;
-            var plotY = height - 2 - normY * (height - 6);
-            
-            if (i === 0) {
-                ctx.moveTo(plotX, plotY);
-            } else {
-                ctx.lineTo(plotX, plotY);
-            }
+        ctx.moveTo(points[0].x, points[0].y);
+        for (var i = 0; i < points.length - 1; i++) {
+            var A = points[i];
+            var B = points[i + 1];
+            var Ta = tangents[i];
+            var Tb = tangents[i + 1];
+
+            var cp1x = A.x + Ta.x / 3;
+            var cp1y = A.y + Ta.y / 3;
+            var cp2x = B.x - Tb.x / 3;
+            var cp2y = B.y - Tb.y / 3;
+
+            ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, B.x, B.y);
         }
         ctx.stroke();
 
