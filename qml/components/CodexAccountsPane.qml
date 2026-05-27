@@ -145,6 +145,9 @@ Rectangle {
             id: accountList
             Layout.fillWidth: true
             Layout.fillHeight: true
+            maximumFlickVelocity: AppTheme.maxScrollVelocity
+            flickDeceleration: AppTheme.scrollDeceleration
+            boundsBehavior: Flickable.DragAndOvershootBounds
             clip: true
             model: root.accounts
             spacing: 8

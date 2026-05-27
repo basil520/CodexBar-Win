@@ -115,6 +115,9 @@ Rectangle {
                         id: tabList
                         Layout.fillWidth: true
                         Layout.fillHeight: true
+                        maximumFlickVelocity: AppTheme.maxScrollVelocity
+                        flickDeceleration: AppTheme.scrollDeceleration
+                        boundsBehavior: Flickable.DragAndOvershootBounds
                         currentIndex: 0
                         spacing: 8
                         clip: true

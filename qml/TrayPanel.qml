@@ -255,6 +255,9 @@ Rectangle {
             id: providerList
             Layout.fillWidth: true
             Layout.fillHeight: true
+            maximumFlickVelocity: AppTheme.maxScrollVelocity
+            flickDeceleration: AppTheme.scrollDeceleration
+            boundsBehavior: Flickable.DragAndOvershootBounds
             visible: root.selectedProviderID === ""
             clip: true
             spacing: 6
@@ -1024,6 +1027,9 @@ Rectangle {
             id: detailFlickable
             Layout.fillWidth: true
             Layout.fillHeight: true
+            maximumFlickVelocity: AppTheme.maxScrollVelocity
+            flickDeceleration: AppTheme.scrollDeceleration
+            boundsBehavior: Flickable.DragAndOvershootBounds
             visible: root.selectedProviderID !== ""
             contentWidth: width
             contentHeight: detailColumn.implicitHeight

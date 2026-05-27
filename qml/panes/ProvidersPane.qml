@@ -91,6 +91,9 @@ Rectangle {
                     id: providerList
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    maximumFlickVelocity: AppTheme.maxScrollVelocity
+                    flickDeceleration: AppTheme.scrollDeceleration
+                    boundsBehavior: Flickable.DragAndOvershootBounds
                     clip: true
                     model: root.providers
                     spacing: 4

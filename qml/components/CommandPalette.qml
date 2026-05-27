@@ -104,6 +104,9 @@ Item {
                 id: commandList
                 Layout.fillWidth: true
                 Layout.preferredHeight: Math.min(320, Math.max(46, contentHeight))
+                maximumFlickVelocity: AppTheme.maxScrollVelocity
+                flickDeceleration: AppTheme.scrollDeceleration
+                boundsBehavior: Flickable.DragAndOvershootBounds
                 clip: true
                 model: root.filteredCommands()
                 spacing: 6

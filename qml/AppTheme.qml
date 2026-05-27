@@ -80,6 +80,10 @@ QtObject {
     property color chartForecast: statusDegraded
     property color chartHover: surfacePopup
 
+    // Profound Smooth Physics Tuning (iOS/macOS Style Physics)
+    property int maxScrollVelocity: 4500
+    property int scrollDeceleration: 1800
+
     property int motionFast: 90
     property int motionNormal: 150
     property int motionSlow: 240
