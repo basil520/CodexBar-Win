@@ -15,6 +15,7 @@
         <file alias="qml/components/SettingsGroupBox.qml">../qml/components/SettingsGroupBox.qml</file>
         <file alias="qml/components/SettingsButton.qml">../qml/components/SettingsButton.qml</file>
         <file alias="qml/components/SettingsComboBox.qml">../qml/components/SettingsComboBox.qml</file>
+        <file alias="qml/components/SettingsComboRow.qml">../qml/components/SettingsComboRow.qml</file>
         <file alias="qml/components/SettingsPage.qml">../qml/components/SettingsPage.qml</file>
         <file alias="qml/components/SettingsSectionHeader.qml">../qml/components/SettingsSectionHeader.qml</file>
         <file alias="qml/components/SettingsSwitch.qml">../qml/components/SettingsSwitch.qml</file>

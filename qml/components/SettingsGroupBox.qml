@@ -6,7 +6,7 @@ import ".."
 Rectangle {
     id: root
     color: AppTheme.surfaceCard
-    radius: AppTheme.radiusMd
+    radius: AppTheme.radiusLg
     border.width: 1
     border.color: AppTheme.surfaceBorder
     Layout.fillWidth: true

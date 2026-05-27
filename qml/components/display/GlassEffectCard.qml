@@ -71,41 +71,18 @@ Components.SettingsGroupBox {
         }
     }
 
-    RowLayout {
-        Layout.fillWidth: true
-        spacing: AppTheme.spacingMd
-
-        ColumnLayout {
-            Layout.fillWidth: true
-            spacing: 2
-
-            Label {
-                text: qsTr("Visual Effects Quality")
-                color: AppTheme.textPrimary
-                font.pixelSize: AppTheme.fontSizeMd
-                font.bold: true
-            }
-
-            Label {
-                Layout.fillWidth: true
-                text: qsTr("Lower quality reduces ambient animation and layered effects.")
-                color: AppTheme.textSecondary
-                font.pixelSize: AppTheme.fontSizeSm
-                wrapMode: Text.WordWrap
-            }
-        }
-
-        Components.SettingsComboBox {
-            Layout.preferredWidth: 190
-            model: [
-                { value: "high", label: qsTr("High") },
-                { value: "balanced", label: qsTr("Balanced") },
-                { value: "low", label: qsTr("Low") }
-            ]
-            selectedValue: SettingsStore.visualEffectsQuality
-            onValueActivated: function(value) {
-                SettingsStore.visualEffectsQuality = value
-            }
+    Components.SettingsComboRow {
+        title: qsTr("Visual Effects Quality")
+        subtitle: qsTr("Lower quality reduces ambient animation and layered effects.")
+        comboBoxWidth: 190
+        model: [
+            { value: "high", label: qsTr("High") },
+            { value: "balanced", label: qsTr("Balanced") },
+            { value: "low", label: qsTr("Low") }
+        ]
+        selectedValue: SettingsStore.visualEffectsQuality
+        onValueActivated: function(value) {
+            SettingsStore.visualEffectsQuality = value
         }
     }
 }
