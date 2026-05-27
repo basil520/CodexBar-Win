@@ -29,13 +29,26 @@ Canvas {
         ctx.reset();
         ctx.clearRect(0, 0, width, height);
 
-        if (dataPoints.length < 2) return;
+        if (!dataPoints || dataPoints.length < 2) return;
 
-        var maxVal = Math.max.apply(null, dataPoints);
-        var minVal = Math.min.apply(null, dataPoints);
+        var maxVal = dataPoints[0];
+        var minVal = dataPoints[0];
+        for (var idx = 1; idx < dataPoints.length; idx++) {
+            var val = dataPoints[idx];
+            if (val > maxVal) maxVal = val;
+            if (val < minVal) minVal = val;
+        }
         var range = maxVal - minVal || 1.0;
 
         var stepX = width / (dataPoints.length - 1);
+
+        // Convert QML color to CSS compatible rgba/rgb format
+        var r = Math.round(strokeColor.r * 255);
+        var g = Math.round(strokeColor.g * 255);
+        var b = Math.round(strokeColor.b * 255);
+        var strokeColorCss = "rgb(" + r + "," + g + "," + b + ")";
+        var fillGradStartCss = "rgba(" + r + "," + g + "," + b + ", 0.15)";
+        var hoverRingCss = "rgba(" + r + "," + g + "," + b + ", 0.40)";
 
         // 1. Calculate all trend coordinate points
         var points = [];
@@ -86,7 +99,7 @@ Canvas {
         ctx.closePath();
 
         var fillGrad = ctx.createLinearGradient(0, 0, 0, height);
-        fillGrad.addColorStop(0.0, AppTheme.withAlpha(strokeColor, 0.15));
+        fillGrad.addColorStop(0.0, fillGradStartCss);
         fillGrad.addColorStop(1.0, "transparent");
         ctx.fillStyle = fillGrad;
         ctx.fill();
@@ -94,7 +107,7 @@ Canvas {
         // 4. Draw mathematically smooth high-precision curve trend line
         ctx.beginPath();
         ctx.lineWidth = 1.25;
-        ctx.strokeStyle = strokeColor;
+        ctx.strokeStyle = strokeColorCss;
         ctx.lineJoin = "round";
         ctx.lineCap = "round";
 
@@ -122,12 +135,12 @@ Canvas {
             
             ctx.beginPath();
             ctx.arc(lastX - 2, lastY, 2.5, 0, 2 * Math.PI);
-            ctx.fillStyle = strokeColor;
+            ctx.fillStyle = strokeColorCss;
             ctx.fill();
 
             ctx.beginPath();
             ctx.arc(lastX - 2, lastY, 4.5, 0, 2 * Math.PI);
-            ctx.strokeStyle = AppTheme.withAlpha(strokeColor, 0.4);
+            ctx.strokeStyle = hoverRingCss;
             ctx.lineWidth = 1;
             ctx.stroke();
         }
