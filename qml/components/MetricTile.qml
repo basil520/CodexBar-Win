@@ -12,7 +12,7 @@ SurfaceCard {
     property color accentColor: AppTheme.accentColor
 
     implicitHeight: 84
-    radius: AppTheme.radiusMd
+    radius: AppTheme.radiusLg
 
     ColumnLayout {
         anchors.fill: parent

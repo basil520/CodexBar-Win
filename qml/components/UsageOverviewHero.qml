@@ -118,7 +118,7 @@ ColumnLayout {
         Layout.fillWidth: true
         Layout.preferredHeight: 166
         implicitHeight: 166
-        radius: AppTheme.radiusMd
+        radius: AppTheme.radiusLg
         clip: true
 
         Rectangle {
