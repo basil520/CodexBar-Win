@@ -71,6 +71,12 @@ if ([string]::IsNullOrEmpty($QtIFWPath)) {
     if (-not [string]::IsNullOrEmpty($env:Qt6_DIR)) {
         $qtToolsRoots += Join-Path $env:Qt6_DIR "..\..\Tools\QtInstallerFramework"
     }
+    if (-not [string]::IsNullOrEmpty($env:QT_ROOT_DIR)) {
+        $qtToolsRoots += Join-Path $env:QT_ROOT_DIR "..\..\Tools\QtInstallerFramework"
+    }
+    if (-not [string]::IsNullOrEmpty($env:IQTA_TOOLS)) {
+        $qtToolsRoots += Join-Path $env:IQTA_TOOLS "QtInstallerFramework"
+    }
 
     foreach ($root in $qtToolsRoots) {
         if (Test-Path $root) {
