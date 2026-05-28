@@ -33,7 +33,7 @@ jobs:
           host: 'windows'
           target: 'desktop'
           arch: 'win64_msvc2019_64'
-          tools: 'tools_qtinstallerfw'
+          tools: 'tools_ifw'
           cache: true
 
       - name: Setup MSVC environment
