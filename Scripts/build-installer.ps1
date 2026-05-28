@@ -60,6 +60,52 @@ function Save-Utf8Xml {
     }
 }
 
+function Remove-InstallerPayloadBloat {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$PayloadPath
+    )
+
+    $prunedFiles = @(
+        "opengl32sw.dll",
+        "D3Dcompiler_47.dll",
+        "Qt63DExtras.dll",
+        "Qt6Quick3DUtils.dll"
+    )
+
+    $prunedDirectories = @(
+        "qmltooling",
+        "generic",
+        "sceneparsers",
+        "geometryloaders",
+        "renderplugins"
+    )
+
+    foreach ($fileName in $prunedFiles) {
+        $filePath = Join-Path $PayloadPath $fileName
+        if (Test-Path -LiteralPath $filePath -PathType Leaf) {
+            Remove-Item -LiteralPath $filePath -Force
+        }
+    }
+
+    Get-ChildItem -LiteralPath $PayloadPath -Filter "vc_redist*.exe" -File -ErrorAction SilentlyContinue |
+        Remove-Item -Force
+
+    foreach ($directoryName in $prunedDirectories) {
+        $directoryPath = Join-Path $PayloadPath $directoryName
+        if (Test-Path -LiteralPath $directoryPath -PathType Container) {
+            Remove-Item -LiteralPath $directoryPath -Recurse -Force
+        }
+    }
+
+    $translationsPath = Join-Path $PayloadPath "translations"
+    if (Test-Path -LiteralPath $translationsPath -PathType Container) {
+        Get-ChildItem -LiteralPath $translationsPath -Filter "*.qm" -File |
+            Where-Object { $_.Name -notmatch '_(en|zh_CN)\.qm$' } |
+            Remove-Item -Force
+    }
+}
+
 Write-Host "=== CodexBarX Installer Builder ===" -ForegroundColor Cyan
 Write-Host "Version: $Version"
 Write-Host "Build Type: $BuildType"
@@ -163,6 +209,16 @@ if (Test-Path $translationsSrc) {
     Write-Host "Copied translation files"
 }
 
+$copyVcRuntimeScript = Join-Path $scriptDir "Copy-AppLocalVcRuntime.ps1"
+if (-not (Test-Path -LiteralPath $copyVcRuntimeScript -PathType Leaf)) {
+    Write-Host "ERROR: VC runtime deployment script not found: $copyVcRuntimeScript" -ForegroundColor Red
+    exit 1
+}
+
+& $copyVcRuntimeScript -TargetDir $dataDir -Architecture x64
+
+Remove-InstallerPayloadBloat -PayloadPath $dataDir
+
 # Update version in config files
 Write-Host "`n=== Updating version information ===" -ForegroundColor Cyan
 
@@ -207,7 +263,7 @@ if (-not (Test-Path $configValidationScript -PathType Leaf)) {
     exit 1
 }
 
-& $configValidationScript -ConfigPath $configXml
+& $configValidationScript -ConfigPath $configXml -PayloadPath $dataDir
 
 # Update package.xml
 $packageContent = Get-Content $packageXml -Raw

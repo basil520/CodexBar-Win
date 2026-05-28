@@ -2,6 +2,41 @@ function Component() {
     // Constructor
 }
 
+var uninstallRegistryKey = "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CodexBarX";
+
+function addRegistrySetOperation(name, type, value) {
+    component.addOperation("Execute", [
+        "reg.exe",
+        "ADD",
+        uninstallRegistryKey,
+        "/v",
+        name,
+        "/t",
+        type,
+        "/d",
+        value,
+        "/f",
+        "UNDOEXECUTE",
+        "reg.exe",
+        "DELETE",
+        uninstallRegistryKey,
+        "/v",
+        name,
+        "/f"
+    ]);
+}
+
+function addUninstallRegistryOperations() {
+    addRegistrySetOperation("DisplayName", "REG_SZ", "CodexBarX");
+    addRegistrySetOperation("DisplayVersion", "REG_SZ", "@Version@");
+    addRegistrySetOperation("Publisher", "REG_SZ", "CodexBarX");
+    addRegistrySetOperation("UninstallString", "REG_SZ", "\"@TargetDir@/@MaintenanceToolName@.exe\"");
+    addRegistrySetOperation("InstallLocation", "REG_SZ", "@TargetDir@");
+    addRegistrySetOperation("DisplayIcon", "REG_SZ", "\"@TargetDir@/CodexBarX.exe\",0");
+    addRegistrySetOperation("NoModify", "REG_DWORD", "1");
+    addRegistrySetOperation("NoRepair", "REG_DWORD", "1");
+}
+
 Component.prototype.createOperations = function() {
     try {
         component.createOperations();
@@ -35,58 +70,7 @@ Component.prototype.createOperations = function() {
                 "CodexBarX Application"
             );
 
-            component.addElevatedOperation("Settings",
-                "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CodexBarX",
-                "DisplayName", "CodexBarX",
-                "string"
-            );
-
-            component.addElevatedOperation("Settings",
-                "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CodexBarX",
-                "DisplayVersion", "@Version@",
-                "string"
-            );
-
-            component.addElevatedOperation("Settings",
-                "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CodexBarX",
-                "Publisher", "CodexBarX",
-                "string"
-            );
-
-            component.addElevatedOperation("Settings",
-                "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CodexBarX",
-                "UninstallString",
-                "@TargetDir@/@MaintenanceToolName@.exe",
-                "string"
-            );
-
-            component.addElevatedOperation("Settings",
-                "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CodexBarX",
-                "InstallLocation",
-                "@TargetDir@",
-                "string"
-            );
-
-            component.addElevatedOperation("Settings",
-                "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CodexBarX",
-                "DisplayIcon",
-                "@TargetDir@/CodexBarX.exe,0",
-                "string"
-            );
-
-            component.addElevatedOperation("Settings",
-                "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CodexBarX",
-                "NoModify",
-                "1",
-                "dword"
-            );
-
-            component.addElevatedOperation("Settings",
-                "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\CodexBarX",
-                "NoRepair",
-                "1",
-                "dword"
-            );
+            addUninstallRegistryOperations();
         }
     } catch (e) {
         print("Error in createOperations: " + e);

@@ -459,9 +459,27 @@ if(WINCODEXBAR_QT_RUNTIME_FOUND)
 
     if(WIN32 AND TARGET Qt6::windeployqt)
         add_custom_command(TARGET CodexBarX POST_BUILD
-            COMMAND Qt6::windeployqt --qmldir "${CMAKE_CURRENT_SOURCE_DIR}/qml" "$<TARGET_FILE:CodexBarX>"
+            COMMAND Qt6::windeployqt
+                --release
+                --no-opengl-sw
+                --no-system-d3d-compiler
+                --no-compiler-runtime
+                --translations en,zh_CN
+                --skip-plugin-types qmltooling,generic,sceneparsers,geometryloaders,renderplugins
+                --qmldir "${CMAKE_CURRENT_SOURCE_DIR}/qml"
+                "$<TARGET_FILE:CodexBarX>"
             COMMENT "Deploying Qt runtime and QML modules"
         )
+
+        if(MSVC)
+            add_custom_command(TARGET CodexBarX POST_BUILD
+                COMMAND powershell -NoProfile -ExecutionPolicy Bypass
+                    -File "${CMAKE_CURRENT_SOURCE_DIR}/Scripts/Copy-AppLocalVcRuntime.ps1"
+                    -TargetDir "$<TARGET_FILE_DIR:CodexBarX>"
+                    -Architecture x64
+                COMMENT "Deploying app-local VC runtime"
+            )
+        endif()
     endif()
 
     # Compile .ts to .qm using lrelease
