@@ -6,9 +6,11 @@ Loader {
     id: root
 
     property string providerId: ""
+    property string diagnosticText: ""
 
     active: SettingsStore.browserSessionBridgeEnabled
-        && BridgeViewModel.isProviderSupported(providerId)
+        && (BridgeViewModel.shouldShowProviderPanel(providerId)
+            || BridgeViewModel.shouldSuggestFallback(providerId, diagnosticText))
     visible: active
 
     sourceComponent: Components.BrowserSessionCard {

@@ -1,6 +1,7 @@
 ﻿import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
+import CodexBarX 1.0
 import ".."
 
 RowLayout {
@@ -34,7 +35,7 @@ RowLayout {
         placeholderText: {
             if (root.secretStatus.configured) {
                 if (root.secretStatus.source === "env") return qsTr("Configured by environment")
-                return qsTr("Stored in Windows Credential Manager")
+                return qsTr("Stored in %1").arg(PlatformSettings.secureStoreDisplayName)
             }
             return root.placeholder || qsTr("Enter value...")
         }

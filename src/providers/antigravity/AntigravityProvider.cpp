@@ -2,11 +2,13 @@
 #include "../../network/NetworkManager.h"
 
 #include <QProcess>
+#include <QHostAddress>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QRegularExpression>
 #include <QMutexLocker>
+#include <QTcpSocket>
 
 // Cache isAvailable() for 30s to avoid repeated PowerShell calls blocking the thread pool.
 static constexpr int ANTIGRAVITY_AVAIL_CACHE_MS = 30000;
@@ -23,13 +25,48 @@ QVector<IFetchStrategy*> AntigravityProvider::createStrategies(const ProviderFet
 
 AntigravityLocalStrategy::AntigravityLocalStrategy(QObject* parent) : IFetchStrategy(parent) {}
 
-bool AntigravityLocalStrategy::findProcess(int& port, QString& csrfToken) {
-    // Use PowerShell to find antigravity process and extract command line
+namespace {
+
+QString antigravityCommandLine()
+{
     QProcess proc;
-    proc.start("powershell", {"-Command",
-        "Get-CimInstance Win32_Process | Where-Object {$_.Name -like 'antigravity*'} | Select-Object -First 1 -ExpandProperty CommandLine"});
+#ifdef Q_OS_WIN
+    proc.start(QStringLiteral("powershell"),
+               {QStringLiteral("-NoProfile"),
+                QStringLiteral("-Command"),
+                QStringLiteral("Get-CimInstance Win32_Process | Where-Object {$_.Name -like 'antigravity*'} | Select-Object -First 1 -ExpandProperty CommandLine")});
+#else
+    proc.start(QStringLiteral("ps"), {QStringLiteral("ax"), QStringLiteral("-o"), QStringLiteral("command=")});
+#endif
     proc.waitForFinished(1000);
-    QString cmdline = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
+
+    const QString output = QString::fromUtf8(proc.readAllStandardOutput()).trimmed();
+#ifdef Q_OS_WIN
+    return output;
+#else
+    const QStringList lines = output.split(QLatin1Char('\n'), Qt::SkipEmptyParts);
+    for (const QString& line : lines) {
+        const QString trimmed = line.trimmed();
+        if (trimmed.contains(QStringLiteral("antigravity"), Qt::CaseInsensitive)
+            && !trimmed.contains(QStringLiteral("ps ax -o command="))) {
+            return trimmed;
+        }
+    }
+    return {};
+#endif
+}
+
+bool canConnectLocalPort(int port)
+{
+    QTcpSocket socket;
+    socket.connectToHost(QHostAddress::LocalHost, static_cast<quint16>(port));
+    return socket.waitForConnected(250);
+}
+
+} // namespace
+
+bool AntigravityLocalStrategy::findProcess(int& port, QString& csrfToken) {
+    QString cmdline = antigravityCommandLine();
 
     if (cmdline.isEmpty()) return false;
 
@@ -41,12 +78,7 @@ bool AntigravityLocalStrategy::findProcess(int& port, QString& csrfToken) {
     } else {
         // Fallback: scan a small set of common ports quickly
         for (int p = 3000; p <= 3004; p++) {
-            QProcess probe;
-            probe.start("powershell", {"-Command",
-                QString("Test-NetConnection -ComputerName 127.0.0.1 -Port %1 -WarningAction SilentlyContinue | Select-Object -ExpandProperty TcpTestSucceeded").arg(p)});
-            probe.waitForFinished(300);
-            QString result = QString::fromUtf8(probe.readAllStandardOutput()).trimmed().toLower();
-            if (result == "true") {
+            if (canConnectLocalPort(p)) {
                 port = p;
                 break;
             }

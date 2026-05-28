@@ -35,6 +35,13 @@ jobs:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       CCACHE_MAXSIZE: 2G
       CCACHE_COMPRESS: "1"
+      MACOS_CERTIFICATE_P12: ${{ secrets.MACOS_CERTIFICATE_P12 }}
+      MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+      MACOS_DEVELOPER_ID_APPLICATION: ${{ secrets.MACOS_DEVELOPER_ID_APPLICATION }}
+      MACOS_NOTARY_APPLE_ID: ${{ secrets.MACOS_NOTARY_APPLE_ID }}
+      MACOS_NOTARY_TEAM_ID: ${{ secrets.MACOS_NOTARY_TEAM_ID }}
+      MACOS_NOTARY_PASSWORD: ${{ secrets.MACOS_NOTARY_PASSWORD }}
+      MACOS_KEYCHAIN_PASSWORD: codexbarx-${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Checkout repository
@@ -121,9 +128,26 @@ jobs:
             echo "No translation .qm files found; skipping translation copy."
           fi
 
-      - name: Ad-hoc sign the bundle
+      - name: Import Developer ID certificate
+        if: env.MACOS_CERTIFICATE_P12 != '' && env.MACOS_CERTIFICATE_PASSWORD != '' && env.MACOS_DEVELOPER_ID_APPLICATION != ''
         run: |
-          codesign --deep --force --sign - build/CodexBarX.app
+          KEYCHAIN="$RUNNER_TEMP/codexbarx-signing.keychain-db"
+          CERTIFICATE="$RUNNER_TEMP/codexbarx-certificate.p12"
+          echo "$MACOS_CERTIFICATE_P12" | base64 --decode > "$CERTIFICATE"
+          security create-keychain -p "$MACOS_KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$MACOS_KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import "$CERTIFICATE" -k "$KEYCHAIN" -P "$MACOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr -d '"')
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_KEYCHAIN_PASSWORD" "$KEYCHAIN"
+
+      - name: Sign the bundle
+        run: |
+          if [ -n "$MACOS_DEVELOPER_ID_APPLICATION" ] && [ -f "$RUNNER_TEMP/codexbarx-signing.keychain-db" ]; then
+            codesign --deep --force --options runtime --timestamp --sign "$MACOS_DEVELOPER_ID_APPLICATION" build/CodexBarX.app
+          else
+            codesign --deep --force --sign - build/CodexBarX.app
+          fi
           codesign --verify --deep --strict --verbose=2 build/CodexBarX.app
 
       - name: Create ZIP package
@@ -141,6 +165,19 @@ jobs:
             -srcfolder dmg_staging \
             -ov -format UDZO \
             "CodexBarX-${VERSION_TAG}-macOS.dmg"
+          if [ -n "$MACOS_DEVELOPER_ID_APPLICATION" ] && [ -f "$RUNNER_TEMP/codexbarx-signing.keychain-db" ]; then
+            codesign --force --timestamp --sign "$MACOS_DEVELOPER_ID_APPLICATION" "CodexBarX-${VERSION_TAG}-macOS.dmg"
+          fi
+
+      - name: Notarize DMG
+        if: env.MACOS_DEVELOPER_ID_APPLICATION != '' && env.MACOS_NOTARY_APPLE_ID != '' && env.MACOS_NOTARY_TEAM_ID != '' && env.MACOS_NOTARY_PASSWORD != ''
+        run: |
+          xcrun notarytool submit "CodexBarX-${VERSION_TAG}-macOS.dmg" \
+            --apple-id "$MACOS_NOTARY_APPLE_ID" \
+            --team-id "$MACOS_NOTARY_TEAM_ID" \
+            --password "$MACOS_NOTARY_PASSWORD" \
+            --wait
+          xcrun stapler staple "CodexBarX-${VERSION_TAG}-macOS.dmg"
 
       - name: Wait for release to be created
         if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.upload_to_release)

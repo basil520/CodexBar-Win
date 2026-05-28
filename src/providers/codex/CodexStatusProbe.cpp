@@ -45,11 +45,6 @@ CodexStatusProbe::ProbeResult CodexStatusProbe::fetchInternal(int cols, int rows
         return result;
     }
 
-    if (!ConPTYSession::isConPtyAvailable()) {
-        result.errorMessage = "ConPTY is not available on this Windows version (requires Windows 10 1809+).";
-        return result;
-    }
-
     ConPTYSession session;
     QStringList args;
     args << "--no-alt-screen";
@@ -59,9 +54,9 @@ CodexStatusProbe::ProbeResult CodexStatusProbe::fetchInternal(int cols, int rows
         processEnv.insert(it.key(), it.value());
     }
 
-    qDebug() << "[CodexStatusProbe] Starting ConPTY session:" << binary << args.join(' ');
+    qDebug() << "[CodexStatusProbe] Starting terminal capture session:" << binary << args.join(' ');
     if (!session.start(binary, args, processEnv, cols, rows)) {
-        result.errorMessage = "Failed to start ConPTY session for codex CLI";
+        result.errorMessage = "CLI terminal capture failed for codex status probe.";
         return result;
     }
 
@@ -114,7 +109,7 @@ CodexStatusProbe::ProbeResult CodexStatusProbe::fetchInternal(int cols, int rows
 
     QString lower = combined.toLower();
     if (lower.contains("stdin is not a terminal")) {
-        result.errorMessage = "codex CLI still reports 'stdin is not a terminal' even with ConPTY.";
+        result.errorMessage = "codex CLI still reports 'stdin is not a terminal' during terminal capture.";
         return result;
     }
 

@@ -45,7 +45,7 @@ private:
     static bool findProcess(int& port, QString& csrfToken);
     static ProviderFetchResult queryStatus(int port, const QString& csrfToken);
 
-    // Cache isAvailable() result to avoid blocking the thread pool with repeated PowerShell calls.
+    // Cache isAvailable() result to avoid blocking the thread pool with repeated process probes.
     struct AvailabilityCache {
         bool available = false;
         int port = 0;

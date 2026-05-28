@@ -120,7 +120,7 @@ CodexPersistentCLISession::CaptureResult CodexPersistentCLISession::captureStatu
         return result;
     }
 
-    // Wait for session to stabilize (reduced from 400ms after ConPTY event-driven optimization)
+    // Wait for session to stabilize after terminal capture startup.
     QThread::msleep(200);
     drainOutput();
 

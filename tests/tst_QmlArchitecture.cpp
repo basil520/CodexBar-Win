@@ -53,6 +53,7 @@ private slots:
     void highRiskQmlDoesNotUseLegacyHardcodedSurfaceColors();
     void framelessGlassWindowsDoNotExposeNativeCaptionText();
     void usageStoreDoesNotInjectBridgeLookupWhenDisabled();
+    void browserSessionBridgeCopyTreatsMacAsOptionalEnhancement();
     void browserSessionBridgeExtensionUsesCanonicalWireProtocol();
     void providerUiBuildersUseCatalogSnapshot();
     void costUsageScanUsesCostUsageService();
@@ -915,6 +916,22 @@ void QmlArchitectureTest::usageStoreDoesNotInjectBridgeLookupWhenDisabled()
              "The Browser Session Bridge lookup guard must read the global SettingsStore value.");
     QVERIFY2(guardedRegion.contains(QStringLiteral("browserSessionBridgeEnabled()")),
              "UsageStore must guard Browser Session Bridge lookup with SettingsStore::browserSessionBridgeEnabled().");
+}
+
+void QmlArchitectureTest::browserSessionBridgeCopyTreatsMacAsOptionalEnhancement()
+{
+    const QString guide = readFile(QStringLiteral("qml/components/BrowserSessionInstallGuide.qml"));
+    const QString card = readFile(QStringLiteral("qml/components/BrowserSessionCard.qml"));
+    const QString panel = readFile(QStringLiteral("qml/components/provider/ProviderBrowserSessionPanel.qml"));
+
+    QVERIFY2(!guide.contains(QStringLiteral("Load the unpacked extension in Chrome or Edge")),
+             "Browser Session Bridge guide must not present the extension as the default macOS import path.");
+    QVERIFY2(guide.contains(QStringLiteral("Optional")) || guide.contains(QStringLiteral("optional")),
+             "Browser Session Bridge guide must describe the bridge as optional/enhanced import.");
+    QVERIFY2(card.contains(QStringLiteral("optional")) || card.contains(QStringLiteral("fallback")),
+             "Browser Session Bridge card must make fallback/optional semantics discoverable.");
+    QVERIFY2(panel.contains(QStringLiteral("shouldShowProviderPanel")),
+             "Provider detail pages must ask BridgeViewModel whether the bridge panel should be visible on this platform.");
 }
 
 void QmlArchitectureTest::browserSessionBridgeExtensionUsesCanonicalWireProtocol()

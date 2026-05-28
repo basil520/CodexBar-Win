@@ -1,5 +1,6 @@
 #include "CodexDashboardAuthorityContext.h"
 #include "../ProviderFetchContext.h"
+#include "../../app/PlatformSettings.h"
 
 #include <QSettings>
 
@@ -16,7 +17,7 @@ QVector<CodexDashboardKnownOwnerCandidate> CodexDashboardAuthorityContext::loadK
 {
     QVector<CodexDashboardKnownOwnerCandidate> owners;
 
-    QSettings settings("HKEY_CURRENT_USER\\Software\\CodexBar", QSettings::NativeFormat);
+    QSettings settings = PlatformSettings::appSettings();
     settings.beginGroup("codex");
     QStringList knownOwnerEmails = settings.value("dashboardAuthorityKnownOwners").toStringList();
     settings.endGroup();

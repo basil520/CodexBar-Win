@@ -46,6 +46,7 @@
 #include "zai/ZaiProvider.h"
 
 #include "../app/SettingsStore.h"
+#include "../app/PlatformSettings.h"
 #include "../app/UsageStore.h"
 #include "../runtime/ProviderRuntimeManager.h"
 
@@ -79,7 +80,7 @@ void applyStoredProviderEnabledStates(SettingsStore* settings, UsageStore* usage
     Q_UNUSED(settings)
     auto& registry = ProviderRegistry::instance();
     const ProviderCatalogSnapshot catalog = ProviderCatalogSnapshot::fromRegistry(registry, 0);
-    QSettings reg(QStringLiteral("HKEY_CURRENT_USER\\Software\\CodexBar"), QSettings::NativeFormat);
+    QSettings reg = PlatformSettings::appSettings();
     for (const auto& provider : catalog.providers()) {
         const QString& id = provider.id;
         const QString key = QStringLiteral("providers/") + id + QStringLiteral("/enabled");

@@ -90,11 +90,6 @@ ClaudeCLISession::CaptureResult ClaudeCLISession::captureInternal(const QString&
         return result;
     }
 
-    if (!ConPTYSession::isConPtyAvailable()) {
-        result.errorMessage = "ConPTY is not available on this Windows version (requires Windows 10 1809+).";
-        return result;
-    }
-
     ConPTYSession session;
     QStringList args;
     args << "--no-alt-screen";
@@ -104,9 +99,9 @@ ClaudeCLISession::CaptureResult ClaudeCLISession::captureInternal(const QString&
         processEnv.insert(it.key(), it.value());
     }
 
-    qDebug() << "[ClaudeCLISession] Starting ConPTY session:" << binary << args.join(' ');
+    qDebug() << "[ClaudeCLISession] Starting terminal capture session:" << binary << args.join(' ');
     if (!session.start(binary, args, processEnv, m_cols, m_rows)) {
-        result.errorMessage = "Failed to start Claude CLI session";
+        result.errorMessage = "CLI terminal capture failed for Claude CLI.";
         return result;
     }
 

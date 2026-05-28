@@ -1,5 +1,6 @@
 #include "ProviderUIService.h"
 #include "Localization.h"
+#include "PlatformSettings.h"
 #include "UsageBackend.h"
 #include "UsageBackendTypes.h"
 #include "../models/UsagePace.h"
@@ -176,6 +177,9 @@ QVariantList buildProviderSettingsFieldsFromInputs(const QVector<ProviderSetting
     QVariantList list;
     for (const auto& input : inputs) {
         const auto& d = input.descriptor;
+        QString helpText = d.helpText;
+        helpText.replace(QStringLiteral("Windows Credential Manager"),
+                         PlatformSettings::secureStoreDisplayName());
         QVariantMap field;
         field[QStringLiteral("key")] = d.key;
         field[QStringLiteral("label")] = Localization::providerSettingLabel(d.label);
@@ -185,7 +189,7 @@ QVariantList buildProviderSettingsFieldsFromInputs(const QVector<ProviderSetting
         field[QStringLiteral("credentialTarget")] = d.credentialTarget;
         field[QStringLiteral("envVar")] = d.envVar;
         field[QStringLiteral("placeholder")] = d.placeholder;
-        field[QStringLiteral("helpText")] = d.helpText;
+        field[QStringLiteral("helpText")] = helpText;
         field[QStringLiteral("multiline")] = d.multiline;
         field[QStringLiteral("sensitive")] = d.sensitive;
         if (d.sensitive) {

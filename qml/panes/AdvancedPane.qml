@@ -37,7 +37,7 @@ SettingsPage {
 
         SettingsToggleRow {
             title: qsTr("Cookies Import")
-            subtitle: qsTr("Enable Browser Session Bridge import UI and extension connections.")
+            subtitle: qsTr("Enable optional Browser Session Bridge fallback for live localStorage and blocked native cookie import.")
             checked: SettingsStore.browserSessionBridgeEnabled
             onToggled: function(checked) {
                 SettingsStore.browserSessionBridgeEnabled = checked

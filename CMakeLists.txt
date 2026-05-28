@@ -161,6 +161,8 @@ set(CORE_SOURCES
     src/app/ChartDataProvider.cpp
     src/app/ProviderStorageScanner.cpp
     src/app/CostUsageService.cpp
+    src/app/PlatformSettings.cpp
+    src/app/LaunchAtLoginController.cpp
     src/app/SettingsStore.cpp
     src/app/SettingsProvidersModel.cpp
     src/app/WindowGlassEffect.cpp
@@ -314,6 +316,8 @@ set(CORE_HEADERS
 
     src/providers/shared/WindowsCredentialStore.h
     src/providers/shared/ProviderCredentialStore.h
+    src/providers/shared/MacOSChromiumCookieDecryptor.h
+    src/providers/shared/MacOSCredentialStore.h
     src/providers/shared/CookieImporter.h
     src/providers/shared/ConPTYSession.h
     src/providers/shared/BrowserDetection.h
@@ -326,9 +330,12 @@ set(CORE_HEADERS
     src/app/ChartDataProvider.h
     src/app/ProviderStorageScanner.h
     src/app/CostUsageService.h
+    src/app/PlatformSettings.h
+    src/app/LaunchAtLoginController.h
     src/app/SettingsStore.h
     src/app/SettingsProvidersModel.h
     src/app/WindowGlassEffect.h
+    src/app/MacOSWindowGlassEffect.h
     src/app/BridgeViewModel.h
     src/app/UsageStore.h
     src/app/TrayProviderListModel.h
@@ -409,8 +416,16 @@ if(WIN32)
         advapi32 crypt32 bcrypt shell32 user32 dwmapi
     )
 elseif(APPLE)
-    target_sources(codexbar_core PRIVATE src/providers/shared/MacOSCredentialStore.mm)
-    target_link_libraries(codexbar_core PRIVATE "-framework Security")
+    target_sources(codexbar_core PRIVATE
+        src/app/MacOSWindowGlassEffect.mm
+        src/providers/shared/MacOSChromiumCookieDecryptor.mm
+        src/providers/shared/MacOSCredentialStore.mm
+    )
+    target_link_libraries(codexbar_core PRIVATE
+        "-framework Security"
+        "-framework AppKit"
+        "-framework Foundation"
+    )
 endif()
 
 if(WINCODEXBAR_QT_RUNTIME_FOUND)
@@ -454,6 +469,7 @@ if(WINCODEXBAR_QT_RUNTIME_FOUND)
     if(APPLE)
         set_target_properties(CodexBarX PROPERTIES
             MACOSX_BUNDLE_ICON_FILE "AppIcon-codexbarx.icns"
+            MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/resources/macos/Info.plist.in"
         )
     endif()
     target_link_libraries(CodexBarX PRIVATE

@@ -17,21 +17,18 @@ QVector<IFetchStrategy*> JetBrainsProvider::createStrategies(const ProviderFetch
 JetBrainsLocalStrategy::JetBrainsLocalStrategy(QObject* parent) : IFetchStrategy(parent) {}
 
 QString JetBrainsLocalStrategy::findQuotaXml() {
-    QString appData = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
-    if (appData.isEmpty()) appData = QDir::homePath() + "/.local/share";
-
-    // On Windows, GenericDataLocation is usually %LOCALAPPDATA%
-    // But JetBrains uses %APPDATA%
-    QString jetbrainsDir = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
-    if (jetbrainsDir.isEmpty()) jetbrainsDir = QDir::homePath() + "/.config";
-
-    // Windows: %APPDATA%/JetBrains
-    #ifdef Q_OS_WIN
+    QStringList jetbrainsDirs;
+#ifdef Q_OS_WIN
     QString appDataEnv = qEnvironmentVariable("APPDATA");
-    if (!appDataEnv.isEmpty()) jetbrainsDir = appDataEnv;
-    #endif
+    if (!appDataEnv.isEmpty()) jetbrainsDirs.append(QDir::fromNativeSeparators(appDataEnv) + QStringLiteral("/JetBrains"));
+#elif defined(Q_OS_MACOS)
+    jetbrainsDirs.append(QDir::homePath() + QStringLiteral("/Library/Application Support/JetBrains"));
+#endif
 
-    jetbrainsDir += "/JetBrains";
+    QString genericConfig = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
+    if (genericConfig.isEmpty()) genericConfig = QDir::homePath() + QStringLiteral("/.config");
+    jetbrainsDirs.append(genericConfig + QStringLiteral("/JetBrains"));
+    jetbrainsDirs.removeDuplicates();
 
     QStringList idePatterns = {
         "IntelliJIdea*", "PyCharm*", "WebStorm*", "GoLand*", "CLion*",
@@ -39,14 +36,16 @@ QString JetBrainsLocalStrategy::findQuotaXml() {
         "Fleet*", "RustRover*", "Aqua*", "DataSpell*"
     };
 
-    QDir baseDir(jetbrainsDir);
-    if (!baseDir.exists()) return {};
+    for (const QString& jetbrainsDir : jetbrainsDirs) {
+        QDir baseDir(jetbrainsDir);
+        if (!baseDir.exists()) continue;
 
-    for (const auto& pattern : idePatterns) {
-        QStringList entries = baseDir.entryList({pattern}, QDir::Dirs, QDir::Name);
-        for (const auto& entry : entries) {
-            QString xmlPath = jetbrainsDir + "/" + entry + "/options/AIAssistantQuotaManager2.xml";
-            if (QFile::exists(xmlPath)) return xmlPath;
+        for (const auto& pattern : idePatterns) {
+            QStringList entries = baseDir.entryList({pattern}, QDir::Dirs, QDir::Name);
+            for (const auto& entry : entries) {
+                QString xmlPath = jetbrainsDir + "/" + entry + "/options/AIAssistantQuotaManager2.xml";
+                if (QFile::exists(xmlPath)) return xmlPath;
+            }
         }
     }
     return {};

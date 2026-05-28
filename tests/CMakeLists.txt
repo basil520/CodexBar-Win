@@ -81,6 +81,21 @@ if(TARGET translations)
 endif()
 add_wincodexbar_test(tst_Localization tst_Localization)
 
+add_executable(tst_PlatformSupport tst_PlatformSupport.cpp)
+target_include_directories(tst_PlatformSupport PRIVATE ${COMMON_INCLUDE})
+target_compile_definitions(tst_PlatformSupport PRIVATE ${COMMON_DEFINES})
+target_link_libraries(tst_PlatformSupport PRIVATE codexbar_core Qt6::Core Qt6::Test)
+add_wincodexbar_test(tst_PlatformSupport tst_PlatformSupport)
+
+add_executable(tst_MacOSAdaptationArchitecture tst_MacOSAdaptationArchitecture.cpp)
+target_include_directories(tst_MacOSAdaptationArchitecture PRIVATE ${COMMON_INCLUDE})
+target_compile_definitions(tst_MacOSAdaptationArchitecture PRIVATE
+    ${COMMON_DEFINES}
+    PROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
+)
+target_link_libraries(tst_MacOSAdaptationArchitecture PRIVATE Qt6::Core Qt6::Test)
+add_wincodexbar_test(tst_MacOSAdaptationArchitecture tst_MacOSAdaptationArchitecture)
+
 add_executable(tst_AppTheme
     tst_AppTheme.cpp
 )
@@ -466,6 +481,14 @@ target_include_directories(tst_ChromiumLocalStorageReader PRIVATE ${COMMON_INCLU
 target_compile_definitions(tst_ChromiumLocalStorageReader PRIVATE ${COMMON_DEFINES})
 target_link_libraries(tst_ChromiumLocalStorageReader PRIVATE codexbar_core Qt6::Core Qt6::Test)
 add_wincodexbar_test(tst_ChromiumLocalStorageReader tst_ChromiumLocalStorageReader)
+
+if(APPLE)
+    add_executable(tst_MacOSChromiumCookieDecryptor tst_MacOSChromiumCookieDecryptor.cpp)
+    target_include_directories(tst_MacOSChromiumCookieDecryptor PRIVATE ${COMMON_INCLUDE})
+    target_compile_definitions(tst_MacOSChromiumCookieDecryptor PRIVATE ${COMMON_DEFINES})
+    target_link_libraries(tst_MacOSChromiumCookieDecryptor PRIVATE codexbar_core Qt6::Core Qt6::Test)
+    add_wincodexbar_test(tst_MacOSChromiumCookieDecryptor tst_MacOSChromiumCookieDecryptor)
+endif()
 
 # CostUsageCache unit tests
 add_executable(tst_CostUsageCache tst_CostUsageCache.cpp)

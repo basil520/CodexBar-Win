@@ -31,7 +31,7 @@ SettingsGroupBox {
                     ? qsTr("Browser Session Bridge connected")
                     : (BridgeViewModel.extensionInstalled
                         ? qsTr("Extension prepared, waiting for browser")
-                        : qsTr("Prepare the browser extension"))
+                        : qsTr("Prepare optional browser extension"))
                 color: AppTheme.textPrimary
                 font.pixelSize: AppTheme.fontSizeMd
                 font.bold: true
@@ -42,7 +42,7 @@ SettingsGroupBox {
         Label {
             Layout.fillWidth: true
             visible: !root.compact
-            text: qsTr("Load the unpacked extension in Chrome or Edge, then keep CodexBarX open. The bridge uses the extension API instead of reading encrypted Chrome 127+ cookie databases.")
+            text: qsTr("Optional enhanced import: load the unpacked extension in Chrome, Edge, or Brave when native cookie import needs a fallback or a provider requires live localStorage.")
             color: AppTheme.textSecondary
             font.pixelSize: AppTheme.fontSizeSm
             wrapMode: Text.WordWrap
@@ -70,7 +70,7 @@ SettingsGroupBox {
             spacing: 8
 
             SettingsButton {
-                text: BridgeViewModel.extensionPreparing ? qsTr("Preparing...") : qsTr("Prepare Extension")
+                text: BridgeViewModel.extensionPreparing ? qsTr("Preparing...") : qsTr("Prepare Optional Extension")
                 primary: !BridgeViewModel.extensionInstalled
                 enabled: !BridgeViewModel.extensionPreparing
                 onClicked: BridgeViewModel.prepareExtension()

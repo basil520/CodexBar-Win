@@ -1008,6 +1008,11 @@ QStringList WindsurfLocalStrategy::candidateStateDBPaths(const ProviderFetchCont
                      + QStringLiteral("/Windsurf/User/globalStorage/state.vscdb"));
     }
 
+#ifdef Q_OS_MACOS
+    paths.append(QDir::homePath()
+                 + QStringLiteral("/Library/Application Support/Windsurf/User/globalStorage/state.vscdb"));
+#endif
+
     const QString genericConfig = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
     if (!genericConfig.isEmpty()) {
         paths.append(genericConfig + QStringLiteral("/Windsurf/User/globalStorage/state.vscdb"));

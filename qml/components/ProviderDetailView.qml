@@ -428,6 +428,7 @@ ScrollView {
             ProviderPanels.ProviderBrowserSessionPanel {
                 Layout.fillWidth: true
                 providerId: root.providerId
+                diagnosticText: root.providerError || root.connectionMessage || ""
             }
 
             SettingsGroupBox {

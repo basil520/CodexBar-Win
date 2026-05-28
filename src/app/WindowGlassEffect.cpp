@@ -6,6 +6,8 @@
 #ifdef Q_OS_WIN
 #include <windows.h>
 #include <dwmapi.h>
+#elif defined(Q_OS_MACOS)
+#include "MacOSWindowGlassEffect.h"
 #endif
 
 namespace WindowGlassEffect {
@@ -226,6 +228,18 @@ bool apply(QWindow* window, bool enabled, QColor tint)
     } else {
         return frameExtended || blurEnabled || applyAccentPolicy(hwnd, true, tint);
     }
+}
+
+#elif defined(Q_OS_MACOS)
+
+bool isAvailable()
+{
+    return macOSGlassEffectIsAvailable();
+}
+
+bool apply(QWindow* window, bool enabled, QColor tint)
+{
+    return applyMacOSGlassEffect(window, enabled, tint);
 }
 
 #else

@@ -33,6 +33,7 @@ public:
     bool isRunning() const;
 
     static bool isConPtyAvailable();
+    static bool isTerminalCaptureAvailable();
     static QString quoteArg(const QString& arg);
 
 signals:

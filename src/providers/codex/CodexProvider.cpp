@@ -671,16 +671,12 @@ ProviderFetchResult CodexCLIPtyStrategy::fetchSync(const ProviderFetchContext& c
         return result;
     }
 
-    if (!ConPTYSession::isConPtyAvailable()) {
-        result.errorMessage = "ConPTY is not available on this Windows version (requires Windows 10 1809+). codex CLI needs a terminal.";
-        return result;
-    }
-
     auto& session = CodexPersistentCLISession::instance();
     auto captureResult = session.captureStatus(binary, 200, 60, 15000, ctx.env);
 
     if (!captureResult.success) {
-        result.errorMessage = captureResult.errorMessage;
+        result.errorMessage = QStringLiteral("CLI terminal capture failed for codex CLI: %1")
+                                  .arg(captureResult.errorMessage);
         return result;
     }
 
@@ -690,7 +686,7 @@ ProviderFetchResult CodexCLIPtyStrategy::fetchSync(const ProviderFetchContext& c
 
     QString lower = combined.toLower();
     if (lower.contains("stdin is not a terminal")) {
-        result.errorMessage = "codex CLI still reports 'stdin is not a terminal' even with ConPTY.";
+        result.errorMessage = "codex CLI still reports 'stdin is not a terminal' during terminal capture.";
         return result;
     }
 
@@ -1119,11 +1115,20 @@ ProviderFetchResult CodexWebDashboardStrategy::fetchSync(const ProviderFetchCont
     qDebug() << "[CodexWeb] Cookie header length:" << cookieHeader.length();
     if (cookieHeader.isEmpty()) {
         result.success = false;
+#ifdef Q_OS_WIN
         result.errorMessage = "No cookie header available. Modern browsers (Chrome 127+, Edge 127+) use "
                               "App-Bound Encryption (v20) which prevents automatic cookie import. "
                               "Please manually configure the cookie header in Settings > Providers > Codex > Manual cookie header. "
                               "To get the cookie: open https://chatgpt.com/codex/settings/usage in your browser, "
                               "press F12 > Application > Cookies, copy all cookies as a header string.";
+#elif defined(Q_OS_MACOS)
+        result.errorMessage = "No cookie header available. Allow macOS Keychain access for browser cookie import, "
+                              "confirm you are signed in to ChatGPT in a supported browser, or use the optional "
+                              "Browser Session Bridge fallback.";
+#else
+        result.errorMessage = "No cookie header available. Sign in to ChatGPT in a supported browser or configure "
+                              "the cookie header manually in Settings > Providers > Codex.";
+#endif
         return result;
     }
 

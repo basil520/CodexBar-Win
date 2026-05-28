@@ -1,6 +1,9 @@
 #include "SettingsStore.h"
+#include "LaunchAtLoginController.h"
+#include "PlatformSettings.h"
 
 #include <QCoreApplication>
+#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QJsonArray>
@@ -11,7 +14,7 @@
 
 SettingsStore::SettingsStore(QObject* parent)
     : QObject(parent)
-    , m_settings("HKEY_CURRENT_USER\\Software\\CodexBar", QSettings::NativeFormat)
+    , m_settings(PlatformSettings::appSettings())
 {
     m_refreshFrequency = m_settings.value("refreshFrequency", 5).toInt();
     m_launchAtLogin = m_settings.value("launchAtLogin", false).toBool();
@@ -62,15 +65,14 @@ void SettingsStore::setRefreshFrequency(int minutes) {
 
 void SettingsStore::setLaunchAtLogin(bool enable) {
     if (m_launchAtLogin != enable) {
-        m_launchAtLogin = enable;
-        m_settings.setValue("launchAtLogin", enable);
-        QSettings runReg("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
-                         QSettings::NativeFormat);
-        if (enable) {
-            runReg.setValue("CodexBarX", QDir::toNativeSeparators(QCoreApplication::applicationFilePath()));
-        } else {
-            runReg.remove("CodexBarX");
+        QString error;
+        const bool applied = LaunchAtLoginController::setEnabled(enable, &error);
+        const bool storedValue = applied ? enable : false;
+        if (!applied && !error.isEmpty()) {
+            qWarning() << "Failed to update launch-at-login:" << error;
         }
+        m_launchAtLogin = storedValue;
+        m_settings.setValue("launchAtLogin", storedValue);
         emit launchAtLoginChanged();
     }
 }

@@ -34,6 +34,7 @@
 
 #include "cli/CLIEntry.h"
 #include "app/AppTheme.h"
+#include "app/PlatformSettings.h"
 #include "app/WindowGlassEffect.h"
 #include "tray/TrayIconRenderer.h"
 
@@ -73,6 +74,23 @@ static void fileMessageHandler(QtMsgType type, const QMessageLogContext& context
         g_previousMessageHandler(type, context, message);
     }
 }
+
+#ifdef QT_DEBUG
+static void debugLogImpl(const QString& msg) {
+    static QString logPath = QDir::tempPath() + "/CodexBarX_MonitorDebug.log";
+    QFile f(logPath);
+    if (f.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
+        f.write(QDateTime::currentDateTime().toString("hh:mm:ss.zzz").toUtf8());
+        f.write(" ");
+        f.write(msg.toUtf8());
+        f.write("\n");
+    }
+    qDebug().noquote() << msg;
+}
+#define debugLog(msg) debugLogImpl(msg)
+#else
+#define debugLog(msg) ((void)0)
+#endif
 
 #include "app/SettingsStore.h"
 #include "app/SettingsProvidersModel.h"
@@ -191,23 +209,6 @@ static void updateTrayPanelWindowShape(QQuickView* view, bool glassEnabled)
     }
 }
 
-#ifdef QT_DEBUG
-static void debugLogImpl(const QString& msg) {
-    static QString logPath = QDir::tempPath() + "/CodexBarX_MonitorDebug.log";
-    QFile f(logPath);
-    if (f.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
-        f.write(QDateTime::currentDateTime().toString("hh:mm:ss.zzz").toUtf8());
-        f.write(" ");
-        f.write(msg.toUtf8());
-        f.write("\n");
-    }
-    qDebug().noquote() << msg;
-}
-#define debugLog(msg) debugLogImpl(msg)
-#else
-#define debugLog(msg) ((void)0)
-#endif
-
 // Get the work area (available geometry excluding taskbar) of the monitor
 // that contains the given point, using Win32 APIs directly.
 // Returns coordinates in virtual-desktop logical pixels (same as Qt uses).
@@ -302,6 +303,11 @@ static void forceWindowPosition(QWindow* window, int x, int y) {
 static void applyRoundedWindowRegion(QWindow* window, int radius) {
     Q_UNUSED(window);
     Q_UNUSED(radius);
+}
+static void updateTrayPanelWindowShape(QQuickView* view, bool glassEnabled)
+{
+    Q_UNUSED(view);
+    Q_UNUSED(glassEnabled);
 }
 static void forceWindowPosition(QWindow* window, int x, int y) {
     Q_UNUSED(window);
@@ -508,8 +514,16 @@ public:
 
     Q_INVOKABLE void openTerminal(const QString& command) {
 #ifdef Q_OS_WIN
-        QString cmd = QString("start cmd /k \"%1\"").arg(command);
         QProcess::startDetached("cmd", {"/c", QString("start cmd /k %1").arg(command)});
+#elif defined(Q_OS_MACOS)
+        QString escaped = command;
+        escaped.replace("\\", "\\\\");
+        escaped.replace("\"", "\\\"");
+        QProcess::startDetached(QStringLiteral("osascript"),
+                                {QStringLiteral("-e"),
+                                 QStringLiteral("tell application \"Terminal\" to activate"),
+                                 QStringLiteral("-e"),
+                                 QStringLiteral("tell application \"Terminal\" to do script \"%1\"").arg(escaped)});
 #else
         QProcess::startDetached("x-terminal-emulator", {"-e", command});
 #endif
@@ -695,6 +709,9 @@ int main(int argc, char* argv[]) {
     auto* providerErrorClassifier = new ProviderErrorClassifier(&app);
     qmlRegisterSingletonInstance("CodexBarX", 1, 0, "ProviderErrorClassifier", providerErrorClassifier);
 
+    auto* platformSettings = new PlatformSettings(&app);
+    qmlRegisterSingletonInstance("CodexBarX", 1, 0, "PlatformSettings", platformSettings);
+
     AppController* appController = new AppController(&app);
     qmlRegisterSingletonInstance("CodexBarX", 1, 0, "AppController", appController);
 
@@ -849,6 +866,7 @@ int main(int argc, char* argv[]) {
             debugLog(QString("[showPanel] DEFERRED(100ms) trayView pos=(%1 %2) screen=%3")
                 .arg(trayView.x()).arg(trayView.y())
                 .arg(trayView.screen() ? trayView.screen()->name() : "null"));
+#ifdef Q_OS_WIN
             HWND hwnd = reinterpret_cast<HWND>(trayView.winId());
             if (hwnd) {
                 RECT r;
@@ -856,6 +874,7 @@ int main(int argc, char* argv[]) {
                 debugLog(QString("[showPanel] DEFERRED(100ms) Win32 rect=(%1 %2 %3 %4)")
                     .arg(r.left).arg(r.top).arg(r.right).arg(r.bottom));
             }
+#endif
         });
     };
 
@@ -1058,7 +1077,7 @@ int main(int argc, char* argv[]) {
             .arg(QCoreApplication::translate("App", "CodexBarX v0.1.0"),
                  QCoreApplication::translate(
                      "App",
-                     "Windows system tray app for tracking AI provider usage limits."),
+                     "Menu bar and tray app for tracking AI provider usage limits."),
                  QCoreApplication::translate("App", "Built with Qt 6.5 + QML"),
                  QStringLiteral("github.com/basil520/CodexBarX"));
         QMessageBox::about(nullptr,
@@ -1077,7 +1096,7 @@ int main(int argc, char* argv[]) {
     // Fast quit path: immediately hide all UI, destroy tray icon, and force exit.
     // Do NOT go through QCoreApplication::quit() → app.exec() return, because Qt's
     // event-loop shutdown can be blocked by background threads for 20+ seconds.
-    auto forceQuit = [&trayView, &settingsView, &usageView, &trayCtrl, usageStore, bridgeService]() {
+    auto forceQuit = [&app, &trayView, &settingsView, &usageView, &trayCtrl, usageStore, bridgeService]() {
         // Set shuttingDown flags so background threads can check and exit early
         if (bridgeService) bridgeService->stop();
         usageStore->shutdown();
@@ -1087,6 +1106,9 @@ int main(int argc, char* argv[]) {
         trayCtrl.destroyTrayIcon();
 #ifdef Q_OS_WIN
         ExitProcess(0);
+#elif defined(Q_OS_MACOS)
+        QTimer::singleShot(5000, []() { _exit(0); });
+        app.quit();
 #else
         _exit(0);
 #endif
@@ -1124,6 +1146,8 @@ int main(int argc, char* argv[]) {
 
 #ifdef Q_OS_WIN
     ExitProcess(static_cast<UINT>(exitCode));
+#elif defined(Q_OS_MACOS)
+    return exitCode;
 #else
     _exit(exitCode);
 #endif

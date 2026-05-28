@@ -35,4 +35,6 @@ public:
     static QVector<Browser> importOrder();
     static bool isBrowserInstalled(Browser browser);
     static bool hasUsableProfileData(Browser browser);
+    static QString lastImportError();
+    static void clearLastImportError();
 };

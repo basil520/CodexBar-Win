@@ -2,6 +2,7 @@
 
 #include "BrowserSessionBridgeCatalog.h"
 #include "BrowserSessionBridgeInstallService.h"
+#include "../app/PlatformSettings.h"
 #include "../providers/shared/ProviderCredentialStore.h"
 
 #include <QDebug>
@@ -617,7 +618,8 @@ void BrowserSessionBridgeService::onImportResultReceived(const ImportResultPaylo
         const bool persisted = store.saveImportedMaterial(material);
         QMetaObject::invokeMethod(this, [this, material, persisted]() {
             if (!persisted) {
-                const QString message = QStringLiteral("Failed to persist imported browser session. Windows Credential Manager may have rejected the session payload; try importing again after reloading the extension.");
+                const QString message = QStringLiteral("Failed to persist imported browser session. %1 may have rejected the session payload; try importing again after reloading the extension.")
+                                            .arg(PlatformSettings::secureStoreDisplayName());
                 setLastError(message);
                 emit providerImportCompleted(material.providerId, false, message);
                 return;

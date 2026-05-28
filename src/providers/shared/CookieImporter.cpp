@@ -1,6 +1,10 @@
 #include "CookieImporter.h"
 #include "BrowserDetection.h"
 
+#ifdef Q_OS_MACOS
+#include "MacOSChromiumCookieDecryptor.h"
+#endif
+
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
@@ -39,6 +43,21 @@ struct CookieCacheEntry {
 
 static QHash<QString, CookieCacheEntry> s_cookieCache;
 static QMutex s_cookieCacheMutex;
+static QString s_lastImportError;
+static QMutex s_lastImportErrorMutex;
+
+void clearLastImportErrorState()
+{
+    QMutexLocker locker(&s_lastImportErrorMutex);
+    s_lastImportError.clear();
+}
+
+void setLastImportErrorState(const QString& message)
+{
+    if (message.isEmpty()) return;
+    QMutexLocker locker(&s_lastImportErrorMutex);
+    s_lastImportError = message;
+}
 
 QString cacheKeyFor(CookieImporter::Browser browser, const QStringList& domains) {
     QStringList sortedDomains = domains;
@@ -233,6 +252,27 @@ QByteArray decryptChromiumCookie(CookieImporter::Browser browser,
     if (!value.isEmpty()) return value;
     if (encryptedValue.isEmpty()) return {};
 
+#ifdef Q_OS_MACOS
+    Q_UNUSED(masterKey)
+    if (encryptedValue.startsWith("v10")) {
+        const auto result = MacOSChromiumCookieDecryptor::decryptCookie(browser, encryptedValue);
+        if (result.success()) {
+            return result.plaintext;
+        }
+
+        const QString message = QStringLiteral("macOS browser cookie import needs Keychain access: %1")
+            .arg(result.errorMessage);
+        setLastImportErrorState(message);
+        qWarning().noquote() << "[CookieImporter]" << message;
+        return {};
+    }
+
+    const QString message = QStringLiteral("Unsupported macOS Chromium cookie encryption format.");
+    setLastImportErrorState(message);
+    qWarning().noquote() << "[CookieImporter]" << message;
+    Q_UNUSED(browser)
+    return {};
+#else
     if (encryptedValue.startsWith("v20")) {
         // v20 is App-Bound Encryption (Chrome 127+, Edge 127+)
         // This requires system-level access and cannot be decrypted by third-party apps
@@ -252,6 +292,7 @@ QByteArray decryptChromiumCookie(CookieImporter::Browser browser,
 
     Q_UNUSED(browser)
     return decryptDpapi(encryptedValue);
+#endif
 }
 
 QDateTime chromiumExpiry(qint64 chromeTime) {
@@ -379,6 +420,7 @@ QVector<QNetworkCookie> CookieImporter::importCookies(
     Q_UNUSED(parent)
     QVector<QNetworkCookie> result;
     if (domains.isEmpty()) return result;
+    clearLastImportErrorState();
 
     // Check cache first to avoid expensive SQLite I/O on every refresh.
     auto cached = tryCache(browser, domains);
@@ -398,9 +440,15 @@ QVector<QNetworkCookie> CookieImporter::importCookies(
         return result;
     }
 
+#ifdef Q_OS_MACOS
+    std::optional<QByteArray> masterKey = std::nullopt;
+    qDebug() << "[CookieImporter] Chromium browser" << static_cast<int>(browser)
+             << "using macOS Keychain Safe Storage decryptor";
+#else
     auto masterKey = chromiumMasterKey(browser);
     qDebug() << "[CookieImporter] Chromium browser" << static_cast<int>(browser)
              << "master key available:" << masterKey.has_value();
+#endif
     for (const auto& profile : BrowserDetection::profilePaths(browser)) {
         QString dbPath = profile + "/Network/Cookies";
         if (!QFileInfo::exists(dbPath)) dbPath = profile + "/Cookies";
@@ -422,4 +470,15 @@ bool CookieImporter::isBrowserInstalled(Browser browser) {
 
 bool CookieImporter::hasUsableProfileData(Browser browser) {
     return !BrowserDetection::profilePaths(browser).isEmpty();
+}
+
+QString CookieImporter::lastImportError()
+{
+    QMutexLocker locker(&s_lastImportErrorMutex);
+    return s_lastImportError;
+}
+
+void CookieImporter::clearLastImportError()
+{
+    clearLastImportErrorState();
 }

@@ -294,6 +294,15 @@ bool ConPTYSession::isConPtyAvailable()
 #endif
 }
 
+bool ConPTYSession::isTerminalCaptureAvailable()
+{
+#ifdef Q_OS_WIN
+    return isConPtyAvailable();
+#else
+    return true;
+#endif
+}
+
 #ifdef Q_OS_WIN
 void ConPTYSession::readerLoop()
 {

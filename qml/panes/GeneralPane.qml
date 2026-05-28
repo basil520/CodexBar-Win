@@ -13,7 +13,7 @@ SettingsPage {
     SettingsGroupBox {
         SettingsToggleRow {
             title: qsTr("Launch at Login")
-            subtitle: qsTr("Start CodexBar automatically when Windows starts.")
+            subtitle: qsTr("Start CodexBarX automatically when you sign in.")
             checked: SettingsStore.launchAtLogin
             onToggled: function(checked) {
                 SettingsStore.launchAtLogin = checked

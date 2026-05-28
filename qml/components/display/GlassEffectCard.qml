@@ -8,7 +8,7 @@ import ".." as Components
 Components.SettingsGroupBox {
     Components.SettingsToggleRow {
         title: qsTr("Glass Effect")
-        subtitle: qsTr("Use native Windows acrylic blur behind app windows.")
+        subtitle: qsTr("Use native system glass behind app windows when available.")
         checked: SettingsStore.glassEffectEnabled
         onToggled: function(checked) {
             SettingsStore.glassEffectEnabled = checked

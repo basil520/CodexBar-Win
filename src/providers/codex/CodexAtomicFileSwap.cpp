@@ -10,6 +10,8 @@
 #include <io.h>
 #include <fcntl.h>
 #else
+#include <cerrno>
+#include <cstring>
 #include <unistd.h>
 #endif
 

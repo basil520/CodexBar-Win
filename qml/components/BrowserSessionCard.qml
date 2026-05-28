@@ -109,7 +109,7 @@ SettingsGroupBox {
 
             Label {
                 Layout.fillWidth: true
-                text: qsTr("Browser Session Bridge")
+                text: qsTr("Browser Session Bridge (optional fallback)")
                 color: AppTheme.textPrimary
                 font.pixelSize: AppTheme.fontSizeMd
                 font.bold: true

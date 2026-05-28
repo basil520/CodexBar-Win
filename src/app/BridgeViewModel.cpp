@@ -104,6 +104,40 @@ bool BridgeViewModel::isProviderSupported(const QString& providerId) const
     return BrowserSessionBridgeCatalog::specForProvider(providerId).has_value();
 }
 
+bool BridgeViewModel::shouldShowProviderPanel(const QString& providerId) const
+{
+    const auto spec = BrowserSessionBridgeCatalog::specForProvider(providerId);
+    if (!spec.has_value()) return false;
+
+#ifdef Q_OS_MACOS
+    return spec->materialKind != BridgeMaterialKind::Cookies;
+#else
+    return true;
+#endif
+}
+
+bool BridgeViewModel::shouldSuggestFallback(const QString& providerId, const QString& lastError) const
+{
+    const auto spec = BrowserSessionBridgeCatalog::specForProvider(providerId);
+    if (!spec.has_value()) return false;
+
+#ifdef Q_OS_MACOS
+    if (spec->materialKind != BridgeMaterialKind::Cookies) {
+        return true;
+    }
+
+    const QString normalized = lastError.toLower();
+    return normalized.contains(QStringLiteral("keychain"))
+        || normalized.contains(QStringLiteral("safe storage"))
+        || normalized.contains(QStringLiteral("native browser cookie import"))
+        || normalized.contains(QStringLiteral("access was denied"))
+        || normalized.contains(QStringLiteral("authorization"));
+#else
+    Q_UNUSED(lastError)
+    return true;
+#endif
+}
+
 QStringList BridgeViewModel::supportedProviders() const
 {
     QStringList result;

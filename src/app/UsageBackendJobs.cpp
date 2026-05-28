@@ -5,6 +5,7 @@
 #include "../providers/ProviderPipeline.h"
 #include "../providers/ProviderRegistry.h"
 #include "../providers/ProviderSourceMode.h"
+#include "../providers/shared/CookieImporter.h"
 #include "../providers/shared/ProviderCredentialStore.h"
 #include "../runtime/IProviderRuntime.h"
 #include "../runtime/ProviderRuntimeManager.h"
@@ -214,6 +215,21 @@ ProviderFetchResult fetchProvider(IProvider* provider, const ProviderFetchContex
     return pipeline.executeProvider(provider, ctx);
 }
 
+void appendCookieImportDiagnostic(ProviderFetchResult& result)
+{
+    if (result.success) return;
+
+    const QString cookieError = CookieImporter::lastImportError();
+    if (cookieError.isEmpty() || result.errorMessage.contains(cookieError)) {
+        return;
+    }
+
+    if (!result.errorMessage.isEmpty()) {
+        result.errorMessage += QStringLiteral(" ");
+    }
+    result.errorMessage += QStringLiteral("Native browser cookie import: %1").arg(cookieError);
+}
+
 } // namespace
 
 ProviderRefreshPayload refreshProvider(IProvider* provider,
@@ -223,7 +239,9 @@ ProviderRefreshPayload refreshProvider(IProvider* provider,
 
     ProviderRefreshPayload payload;
     payload.providerId = input.providerId;
+    CookieImporter::clearLastImportError();
     payload.fetchResult = fetchProvider(provider, build.context, true);
+    appendCookieImportDiagnostic(payload.fetchResult);
     payload.credentialUpdates = build.credentialUpdates;
     return payload;
 }
@@ -237,7 +255,9 @@ ProviderConnectionTestPayload testProviderConnection(IProvider* provider,
 
     ProviderConnectionTestPayload payload;
     payload.providerId = input.providerId;
+    CookieImporter::clearLastImportError();
     payload.fetchResult = fetchProvider(provider, build.context, false);
+    appendCookieImportDiagnostic(payload.fetchResult);
     if (!payload.fetchResult.success
         && payload.fetchResult.errorMessage.startsWith(QLatin1String("unsupported source mode:"))) {
         payload.fetchResult.errorMessage.replace(0, 1, QStringLiteral("U"));

@@ -41,7 +41,7 @@ SettingsPage {
                 }
 
                 Label {
-                    text: qsTr("Windows system tray app for tracking AI provider usage limits.")
+                    text: qsTr("Menu bar and tray app for tracking AI provider usage limits.")
                     color: AppTheme.textSecondary
                     font.pixelSize: AppTheme.fontSizeSm
                     wrapMode: Text.WordWrap

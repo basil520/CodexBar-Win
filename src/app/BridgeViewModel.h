@@ -37,6 +37,8 @@ public:
     void setInstallGuideSeen(bool seen);
 
     Q_INVOKABLE bool isProviderSupported(const QString& providerId) const;
+    Q_INVOKABLE bool shouldShowProviderPanel(const QString& providerId) const;
+    Q_INVOKABLE bool shouldSuggestFallback(const QString& providerId, const QString& lastError) const;
     Q_INVOKABLE QStringList supportedProviders() const;
     Q_INVOKABLE QVariantMap bindingForProvider(const QString& providerId) const;
     Q_INVOKABLE QVariantList bindingOptions(const QString& providerId) const;
