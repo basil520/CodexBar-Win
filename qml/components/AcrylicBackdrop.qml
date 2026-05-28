@@ -10,6 +10,7 @@ Rectangle {
     property color tint: AppTheme.bgPrimary
     readonly property real materialOpacity: AppTheme.glassMaterialOpacity
     readonly property bool decorativeMotionEnabled: !AppTheme.reduceMotion && SettingsStore.visualEffectsQuality === "high"
+    readonly property bool noisePaintEnabled: PerformanceState.anyUiVisible && SettingsStore.visualEffectsQuality !== "low"
     readonly property color surfaceScrimOverlay: AppTheme.surfaceScrim
     readonly property color tintScrim: Qt.rgba(root.tint.r, root.tint.g, root.tint.b,
                                               Math.min(0.54, Math.max(0.28, root.materialOpacity * 0.62)))
@@ -47,17 +48,19 @@ Rectangle {
     Canvas {
         id: noiseCanvas
         anchors.fill: parent
+        visible: root.noisePaintEnabled
         opacity: 0.10 + (1.0 - root.materialOpacity) * 0.18
 
-        onWidthChanged: requestPaint()
-        onHeightChanged: requestPaint()
+        onWidthChanged: if (root.noisePaintEnabled) requestPaint()
+        onHeightChanged: if (root.noisePaintEnabled) requestPaint()
         onPaint: {
             var ctx = getContext("2d")
             ctx.clearRect(0, 0, width, height)
-            if (width <= 0 || height <= 0) return
+            if (width <= 0 || height <= 0 || !root.noisePaintEnabled) return
 
             var seed = 2463534242
-            var count = Math.max(800, Math.floor(width * height / 28))
+            var density = SettingsStore.visualEffectsQuality === "high" ? 28 : 72
+            var count = Math.max(240, Math.floor(width * height / density))
             for (var i = 0; i < count; ++i) {
                 seed = (seed * 1664525 + 1013904223) >>> 0
                 var x = seed % width
@@ -67,6 +70,15 @@ Rectangle {
                 var alpha = 0.035 + ((seed & 31) / 31.0) * 0.085
                 ctx.fillStyle = "rgba(255,255,255," + alpha + ")"
                 ctx.fillRect(x, y, 1, 1)
+            }
+        }
+    }
+
+    Connections {
+        target: PerformanceState
+        function onAnyUiVisibleChanged() {
+            if (root.noisePaintEnabled) {
+                noiseCanvas.requestPaint()
             }
         }
     }

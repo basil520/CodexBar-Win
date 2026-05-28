@@ -27,7 +27,8 @@ Rectangle {
         }
 
         SequentialAnimation on opacity {
-            loops: AppTheme.reduceMotion ? 1 : Animation.Infinite
+            running: root.providerId !== "" && PerformanceState.decorativeEffectsActive
+            loops: Animation.Infinite
             NumberAnimation { from: 0.45; to: 0.88; duration: AppTheme.duration(AppTheme.motionPanel * 6); easing.type: AppTheme.easeStandard }
             NumberAnimation { from: 0.88; to: 0.45; duration: AppTheme.duration(AppTheme.motionPanel * 6); easing.type: AppTheme.easeStandard }
         }

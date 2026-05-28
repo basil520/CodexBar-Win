@@ -18,6 +18,7 @@ private slots:
     void rejectsUnknownExtensionOrigin();
     void rejectsUnknownOrigin();
     void keepsSocketWorkOffUiThread();
+    void heartbeatSleepsUntilClientRegisters();
 
 private:
     BrowserSessionBridgeServer* m_server = nullptr;
@@ -138,6 +139,36 @@ void tst_BrowserSessionBridgeServer::keepsSocketWorkOffUiThread()
 #else
     QVERIFY(serverThreadId != uiThreadId);
 #endif
+}
+
+void tst_BrowserSessionBridgeServer::heartbeatSleepsUntilClientRegisters()
+{
+    QVERIFY(!m_server->heartbeatActive());
+
+    QWebSocket client;
+    QNetworkRequest req(QUrl(QStringLiteral("ws://127.0.0.1:%1").arg(m_server->serverPort())));
+    req.setRawHeader("Origin", "chrome-extension://cnanalhpjiclhljkpnlbgiaclpbncidk");
+    client.open(req);
+    QSignalSpy connectedSpy(&client, QOverload<>::of(&QWebSocket::connected));
+    QVERIFY(QTest::qWaitFor([&connectedSpy]() { return connectedSpy.count() > 0; }, 2000));
+
+    RegisterClientPayload reg;
+    reg.protocolVersion = BRIDGE_PROTOCOL_VERSION;
+    reg.extensionId = QStringLiteral("test-extension-id");
+    reg.browserFamily = QStringLiteral("chrome");
+    reg.profileInstanceId = QStringLiteral("uuid-test-heartbeat");
+
+    BridgeMessage msg;
+    msg.type = BridgeMessageType::RegisterClient;
+    msg.payload = BridgeProtocol::serializeRegisterClient(reg);
+    client.sendTextMessage(QString::fromUtf8(BridgeProtocol::serializeMessage(msg)));
+
+    QSignalSpy registeredSpy(m_server, &BrowserSessionBridgeServer::clientRegistered);
+    QVERIFY(QTest::qWaitFor([&registeredSpy]() { return registeredSpy.count() > 0; }, 2000));
+    QVERIFY(m_server->heartbeatActive());
+
+    client.close();
+    QVERIFY(QTest::qWaitFor([this]() { return !m_server->heartbeatActive(); }, 2000));
 }
 
 QTEST_MAIN(tst_BrowserSessionBridgeServer)

@@ -4,6 +4,7 @@
 #include "CostUsageService.h"
 #include "Localization.h"
 #include "ProviderStorageScanner.h"
+#include "PerformanceState.h"
 #include "PlanUtilizationHistoryStore.h"
 #include "SessionQuotaNotifications.h"
 #include "UsageBackend.h"
@@ -346,6 +347,22 @@ void UsageStore::setSettingsStore(SettingsStore* s) {
     configureStatusPolling();
 }
 
+void UsageStore::setPerformanceState(PerformanceState* performanceState)
+{
+    if (m_performanceState == performanceState) {
+        return;
+    }
+    if (m_performanceState) {
+        disconnect(m_performanceState, nullptr, this, nullptr);
+    }
+    m_performanceState = performanceState;
+    if (m_performanceState) {
+        connect(m_performanceState, &PerformanceState::backgroundIdleChanged,
+                this, &UsageStore::configureStatusPolling);
+    }
+    configureStatusPolling();
+}
+
 void UsageStore::setBrowserSessionBridgeService(BrowserSessionBridgeService* service)
 {
     if (m_bridgeService == service) return;
@@ -379,9 +396,19 @@ void UsageStore::configureStatusPolling() {
     const bool enabled = m_settingsStore ? m_settingsStore->statusChecksEnabled() : true;
     if (!enabled) {
         m_statusTimer.stop();
+        m_statusPollDeferred = false;
+        return;
+    }
+    if (m_performanceState && m_performanceState->backgroundIdle()) {
+        m_statusTimer.stop();
+        m_statusPollDeferred = true;
         return;
     }
     m_statusTimer.start(5 * 60 * 1000);
+    if (m_statusPollDeferred) {
+        m_statusPollDeferred = false;
+        QTimer::singleShot(0, this, &UsageStore::refreshProviderStatuses);
+    }
 }
 
 UsageSnapshot UsageStore::snapshot(const QString& providerId) const {
@@ -2233,6 +2260,10 @@ QVariantMap UsageStore::providerUsageSnapshot(const QString& providerId) const {
 }
 
 void UsageStore::refreshProviderStatuses() {
+    if (m_performanceState && m_performanceState->backgroundIdle()) {
+        m_statusPollDeferred = true;
+        return;
+    }
     if (m_statusManager) {
         m_statusManager->refreshStatuses(m_providerCatalog, m_backend);
     }

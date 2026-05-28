@@ -322,6 +322,14 @@ target_compile_definitions(tst_UiFreezeWatchdog PRIVATE ${COMMON_DEFINES})
 target_link_libraries(tst_UiFreezeWatchdog PRIVATE codexbar_core Qt6::Core Qt6::Test)
 add_wincodexbar_test(tst_UiFreezeWatchdog tst_UiFreezeWatchdog)
 
+add_executable(tst_PerformanceState
+    tst_PerformanceState.cpp
+)
+target_include_directories(tst_PerformanceState PRIVATE ${COMMON_INCLUDE})
+target_compile_definitions(tst_PerformanceState PRIVATE ${COMMON_DEFINES})
+target_link_libraries(tst_PerformanceState PRIVATE codexbar_core Qt6::Core Qt6::Test)
+add_wincodexbar_test(tst_PerformanceState tst_PerformanceState)
+
 add_executable(tst_UsageBackend
     tst_UsageBackend.cpp
 )

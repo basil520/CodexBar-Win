@@ -1,6 +1,7 @@
 ﻿import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls 2.15
+import CodexBarX 1.0
 import ".."
 
 RowLayout {
@@ -34,7 +35,9 @@ RowLayout {
             color: parent.statusColor
 
             RotationAnimation on rotation {
-                running: root.statusState === "testing" && !AppTheme.reduceMotion
+                running: root.statusState === "testing"
+                    && !AppTheme.reduceMotion
+                    && PerformanceState.anyUiVisible
                 from: 0
                 to: 360
                 duration: AppTheme.duration(850)

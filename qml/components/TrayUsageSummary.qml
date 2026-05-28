@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
+import CodexBarX 1.0
 import ".."
 
 Rectangle {
@@ -149,7 +150,9 @@ Rectangle {
                         : root.hasData ? AppTheme.statusOk : AppTheme.statusUnknown
 
                     SequentialAnimation on opacity {
-                        running: root.costUsageRefreshing && !AppTheme.reduceMotion
+                        running: root.costUsageRefreshing
+                            && !AppTheme.reduceMotion
+                            && PerformanceState.trayVisible
                         loops: Animation.Infinite
                         NumberAnimation { from: 1.0; to: 0.3; duration: AppTheme.duration(AppTheme.motionSlow) }
                         NumberAnimation { from: 0.3; to: 1.0; duration: AppTheme.duration(AppTheme.motionSlow) }

@@ -69,11 +69,14 @@ Components.ChartFrame {
         ensureValidSeries();
         chartRoot.chartPoints = UsageStore.utilizationChartData(chartRoot.providerId, chartRoot.currentSeries);
         
-        // Reset and trigger heights physical grow animation
-        chartRoot.animationFactor = 0.0;
-        chartRoot.animationFactor = 1.0;
-        
-        chartCanvas.requestPaint();
+        if (PerformanceState.anyUiVisible) {
+            // Reset and trigger heights physical grow animation
+            chartRoot.animationFactor = 0.0;
+            chartRoot.animationFactor = 1.0;
+            chartCanvas.requestVisiblePaint();
+        } else {
+            chartRoot.animationFactor = 1.0;
+        }
     }
 
     ColumnLayout {
@@ -138,7 +141,16 @@ Components.ChartFrame {
                 anchors.fill: parent
 
                 property real animFactor: chartRoot.animationFactor
-                onAnimFactorChanged: requestPaint()
+                visible: PerformanceState.anyUiVisible
+                onAnimFactorChanged: requestVisiblePaint()
+                onWidthChanged: requestVisiblePaint()
+                onHeightChanged: requestVisiblePaint()
+
+                function requestVisiblePaint() {
+                    if (PerformanceState.anyUiVisible && width > 0 && height > 0) {
+                        requestPaint()
+                    }
+                }
 
                 function drawRoundedRect(ctx, x, y, width, height, radius) {
                     ctx.beginPath();
@@ -167,6 +179,7 @@ Components.ChartFrame {
                     ctx.reset();
                     ctx.fillStyle = AppTheme.surfaceChart;
                     ctx.fillRect(0, 0, width, height);
+                    if (!PerformanceState.anyUiVisible) return;
 
                     if (chartPoints.length === 0) {
                         ctx.fillStyle = AppTheme.textDisabled;
@@ -354,7 +367,16 @@ Components.ChartFrame {
         function onTranslationRevisionChanged() {
             chartRoot.ensureValidSeries()
             tooltipLabel.text = ""
-            chartCanvas.requestPaint()
+            chartCanvas.requestVisiblePaint()
+        }
+    }
+
+    Connections {
+        target: PerformanceState
+        function onAnyUiVisibleChanged() {
+            if (PerformanceState.anyUiVisible) {
+                chartCanvas.requestVisiblePaint()
+            }
         }
     }
 }

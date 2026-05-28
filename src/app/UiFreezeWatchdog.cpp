@@ -1,6 +1,7 @@
 #include "UiFreezeWatchdog.h"
 
 #include <QDebug>
+#include <QProcessEnvironment>
 #include <QtGlobal>
 
 namespace {
@@ -28,6 +29,25 @@ void UiFreezeWatchdog::stop()
 {
     m_timer.stop();
     m_lastElapsedMs = 0;
+}
+
+bool UiFreezeWatchdog::shouldStartByDefault()
+{
+#if defined(NDEBUG)
+    return false;
+#else
+    return true;
+#endif
+}
+
+bool UiFreezeWatchdog::shouldStartForSettings(bool debugMenuEnabled)
+{
+    const QString envValue = QString::fromUtf8(qgetenv("CODEXBAR_UI_FREEZE_WATCHDOG")).trimmed().toLower();
+    const bool environmentEnabled = envValue == QLatin1String("1")
+        || envValue == QLatin1String("true")
+        || envValue == QLatin1String("yes")
+        || envValue == QLatin1String("on");
+    return shouldStartByDefault() || debugMenuEnabled || environmentEnabled;
 }
 
 QString UiFreezeWatchdog::currentPhase()

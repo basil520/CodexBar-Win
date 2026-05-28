@@ -14,6 +14,8 @@ public:
     void start(int intervalMs = 32, int warnBlockedMs = 120, int errorBlockedMs = 300);
     void stop();
 
+    static bool shouldStartByDefault();
+    static bool shouldStartForSettings(bool debugMenuEnabled);
     static QString currentPhase();
     static void setCurrentPhase(const QString& phase);
 

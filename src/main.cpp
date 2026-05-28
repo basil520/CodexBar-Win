@@ -35,6 +35,7 @@
 #include "cli/CLIEntry.h"
 #include "app/AppTheme.h"
 #include "app/PlatformSettings.h"
+#include "app/PerformanceState.h"
 #include "app/WindowGlassEffect.h"
 #include "tray/TrayIconRenderer.h"
 
@@ -621,7 +622,6 @@ int main(int argc, char* argv[]) {
         app.setFont(defaultFont);
     }
     auto* uiFreezeWatchdog = new UiFreezeWatchdog(&app);
-    uiFreezeWatchdog->start();
 
     app.setApplicationName("CodexBarX");
     app.setOrganizationName("CodexBarX");
@@ -648,6 +648,29 @@ int main(int argc, char* argv[]) {
     QThreadPool::globalInstance()->setMaxThreadCount(poolMax);
 
     SettingsStore* settings = new SettingsStore();
+    auto syncUiFreezeWatchdog = [settings, uiFreezeWatchdog]() {
+        if (UiFreezeWatchdog::shouldStartForSettings(settings->debugMenuEnabled())) {
+            uiFreezeWatchdog->start();
+        } else {
+            uiFreezeWatchdog->stop();
+        }
+    };
+    syncUiFreezeWatchdog();
+    QObject::connect(settings, &SettingsStore::debugMenuEnabledChanged,
+                     uiFreezeWatchdog, syncUiFreezeWatchdog);
+
+    auto* performanceState = new PerformanceState(&app);
+    performanceState->setReduceMotion(settings->reduceMotion());
+    performanceState->setVisualEffectsQuality(settings->visualEffectsQuality());
+    QObject::connect(settings, &SettingsStore::reduceMotionChanged,
+                     performanceState, [settings, performanceState]() {
+        performanceState->setReduceMotion(settings->reduceMotion());
+    });
+    QObject::connect(settings, &SettingsStore::visualEffectsQualityChanged,
+                     performanceState, [settings, performanceState]() {
+        performanceState->setVisualEffectsQuality(settings->visualEffectsQuality());
+    });
+
     AppThemeManager* themeMgr = new AppThemeManager(&app);
     QObject::connect(settings, &SettingsStore::themeChanged, [themeMgr, settings]() {
         themeMgr->setCurrentTheme(settings->theme());
@@ -660,6 +683,7 @@ int main(int argc, char* argv[]) {
 
     UsageStore* usageStore = new UsageStore();
     usageStore->setSettingsStore(settings);
+    usageStore->setPerformanceState(performanceState);
 
     // Initialize TokenAccountStore: load existing accounts or migrate from legacy config
     TokenAccountStore* tokenStore = TokenAccountStore::instance();
@@ -697,6 +721,7 @@ int main(int argc, char* argv[]) {
     });
 
     qmlRegisterSingletonInstance("CodexBarX", 1, 0, "SettingsStore", settings);
+    qmlRegisterSingletonInstance("CodexBarX", 1, 0, "PerformanceState", performanceState);
     qmlRegisterSingletonInstance("CodexBarX", 1, 0, "UsageStore", usageStore);
     registerAppThemeTypes(themeMgr);
     qmlRegisterSingletonInstance("CodexBarX", 1, 0, "BridgeViewModel", bridgeViewModel);
@@ -914,6 +939,10 @@ int main(int argc, char* argv[]) {
             trayView.hide();
         }
     });
+    QObject::connect(&trayView, &QWindow::visibleChanged,
+                     performanceState, [performanceState](bool visible) {
+        performanceState->setTrayVisible(visible);
+    });
     QObject::connect(&trayView, &QWindow::visibleChanged, &trayView, [&trayView, applyGlassToView, settings](bool visible) {
         if (visible) {
             applyGlassToView(trayView);
@@ -1008,6 +1037,10 @@ int main(int argc, char* argv[]) {
                      [&settingsView, applyGlassToView](bool visible) {
                          if (visible) applyGlassToView(settingsView);
                      });
+    QObject::connect(&settingsView, &QWindow::visibleChanged,
+                     performanceState, [performanceState](bool visible) {
+        performanceState->setSettingsVisible(visible);
+    });
 
     QQuickView usageView(&qmlEngine, nullptr);
     usageView.setTitle(QStringLiteral(" "));
@@ -1037,6 +1070,10 @@ int main(int argc, char* argv[]) {
                      [appController]() {
                          emit appController->usageVisibleChanged();
                      });
+    QObject::connect(&usageView, &QWindow::visibleChanged,
+                     performanceState, [performanceState](bool visible) {
+        performanceState->setUsageVisible(visible);
+    });
     QObject::connect(&usageView, &QWindow::visibleChanged, &usageView,
                      [&usageView, applyGlassToView](bool visible) {
                          if (visible) applyGlassToView(usageView);

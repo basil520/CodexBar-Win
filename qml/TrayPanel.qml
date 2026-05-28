@@ -98,9 +98,7 @@ Rectangle {
             root.isRefreshing = TrayViewModel.isRefreshing
             if (root.isRefreshing) {
                 root.refreshStartTime = Date.now()
-                refreshTimer.start()
             } else {
-                refreshTimer.stop()
                 root.refreshStartTime = 0
                 root.refreshDuration = ""
             }
@@ -111,6 +109,7 @@ Rectangle {
         id: refreshTimer
         interval: 1000
         repeat: true
+        running: root.isRefreshing && PerformanceState.trayVisible
         onTriggered: {
             if (root.refreshStartTime > 0) {
                 var seconds = Math.floor((Date.now() - root.refreshStartTime) / 1000)
@@ -276,14 +275,17 @@ Rectangle {
                     height: 240
                     x: mouseArea.mouseX - width / 2
                     y: mouseArea.mouseY - height / 2
-                    visible: mouseArea.containsMouse
-                    opacity: mouseArea.containsMouse ? 1.0 : 0.0
+                    visible: mouseArea.containsMouse && PerformanceState.decorativeEffectsActive
+                    opacity: visible ? 1.0 : 0.0
                     
                     Behavior on opacity {
                         NumberAnimation { duration: AppTheme.duration(AppTheme.motionNormal) }
                     }
 
                     onPaint: {
+                        if (!PerformanceState.decorativeEffectsActive) {
+                            return
+                        }
                         var ctx = getContext("2d");
                         ctx.reset();
                         var gradient = ctx.createRadialGradient(120, 120, 0, 120, 120, 120);
@@ -301,11 +303,20 @@ Rectangle {
                         ctx.fillRect(0, 0, 240, 240);
                     }
 
-                    Component.onCompleted: requestPaint()
+                    Component.onCompleted: if (PerformanceState.decorativeEffectsActive) requestPaint()
 
                     Connections {
                         target: cardDelegate
-                        function onBrandColorChanged() { spotlightCanvas.requestPaint() }
+                        function onBrandColorChanged() {
+                            if (PerformanceState.decorativeEffectsActive) spotlightCanvas.requestPaint()
+                        }
+                    }
+
+                    Connections {
+                        target: PerformanceState
+                        function onDecorativeEffectsActiveChanged() {
+                            if (spotlightCanvas.visible) spotlightCanvas.requestPaint()
+                        }
                     }
                 }
 

@@ -684,6 +684,31 @@ public:
     QList<QVariantMap> rows;
 };
 
+class MockPerformanceState : public QObject {
+    Q_OBJECT
+    Q_PROPERTY(bool trayVisible READ trayVisible NOTIFY trayVisibleChanged)
+    Q_PROPERTY(bool settingsVisible READ settingsVisible NOTIFY settingsVisibleChanged)
+    Q_PROPERTY(bool usageVisible READ usageVisible NOTIFY usageVisibleChanged)
+    Q_PROPERTY(bool anyUiVisible READ anyUiVisible NOTIFY anyUiVisibleChanged)
+    Q_PROPERTY(bool decorativeEffectsActive READ decorativeEffectsActive NOTIFY decorativeEffectsActiveChanged)
+    Q_PROPERTY(bool backgroundIdle READ backgroundIdle NOTIFY backgroundIdleChanged)
+public:
+    bool trayVisible() const { return true; }
+    bool settingsVisible() const { return true; }
+    bool usageVisible() const { return true; }
+    bool anyUiVisible() const { return true; }
+    bool decorativeEffectsActive() const { return true; }
+    bool backgroundIdle() const { return false; }
+
+signals:
+    void trayVisibleChanged();
+    void settingsVisibleChanged();
+    void usageVisibleChanged();
+    void anyUiVisibleChanged();
+    void decorativeEffectsActiveChanged();
+    void backgroundIdleChanged();
+};
+
 class MockSettingsProvidersModel : public QObject {
     Q_OBJECT
     Q_PROPERTY(QAbstractListModel* providers READ providers CONSTANT)
@@ -1484,6 +1509,7 @@ private:
     MockTrayViewModel mockTray;
     MockUsageDetailsViewModel mockUsageDetails;
     MockBridgeViewModel mockBridge;
+    MockPerformanceState mockPerformanceState;
     MockPlatformSettings mockPlatformSettings;
     MockProviderUIService mockProviderUIService;
     MockLanguageManager mockLang;
@@ -1500,6 +1526,7 @@ private:
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "UsageDetailsViewModel", &mockUsageDetails);
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "ProviderErrorClassifier", &providerErrorClassifier);
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "BridgeViewModel", &mockBridge);
+        qmlRegisterSingletonInstance("CodexBarX", 1, 0, "PerformanceState", &mockPerformanceState);
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "PlatformSettings", &mockPlatformSettings);
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "ProviderUIService", &mockProviderUIService);
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "AppController", &mockAppCtrl);

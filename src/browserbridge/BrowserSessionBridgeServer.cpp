@@ -75,6 +75,20 @@ bool BrowserSessionBridgeServer::isRunning() const
     return result;
 }
 
+bool BrowserSessionBridgeServer::heartbeatActive() const
+{
+    if (QThread::currentThread() == thread()) {
+        return m_heartbeatTimer && m_heartbeatTimer->isActive();
+    }
+
+    bool result = false;
+    QMetaObject::invokeMethod(
+        const_cast<BrowserSessionBridgeServer*>(this),
+        [this, &result]() { result = m_heartbeatTimer && m_heartbeatTimer->isActive(); },
+        Qt::BlockingQueuedConnection);
+    return result;
+}
+
 quint16 BrowserSessionBridgeServer::serverPort() const
 {
     if (QThread::currentThread() == thread()) {
@@ -192,7 +206,6 @@ void BrowserSessionBridgeServer::doStart()
     m_heartbeatTimer = new QTimer(this);
     m_heartbeatTimer->setInterval(15000); // 15s
     connect(m_heartbeatTimer, &QTimer::timeout, this, &BrowserSessionBridgeServer::onHeartbeatTimer);
-    m_heartbeatTimer->start();
     emit serverStateChanged(true, port);
 }
 
@@ -294,6 +307,7 @@ void BrowserSessionBridgeServer::onSocketDisconnected()
     if (!bindingId.isEmpty()) {
         emit clientDisconnected(clientId);
     }
+    syncHeartbeatTimer();
 }
 
 void BrowserSessionBridgeServer::onHeartbeatTimer()
@@ -365,6 +379,7 @@ void BrowserSessionBridgeServer::handleRegisterClient(QWebSocket* socket,
     m_clients[bindingId] = socket;
     m_socketToClientId[socket] = info.id;
     m_lastPongTimes[socket] = QDateTime::currentDateTimeUtc();
+    syncHeartbeatTimer();
 
     emit clientRegistered(info);
 }
@@ -412,4 +427,16 @@ bool BrowserSessionBridgeServer::validateOrigin(const QString& origin) const
         if (origin == allowed || origin == allowed + QLatin1Char('/')) return true;
     }
     return false;
+}
+
+void BrowserSessionBridgeServer::syncHeartbeatTimer()
+{
+    if (!m_heartbeatTimer) {
+        return;
+    }
+    if (m_clients.isEmpty()) {
+        m_heartbeatTimer->stop();
+    } else if (!m_heartbeatTimer->isActive()) {
+        m_heartbeatTimer->start();
+    }
 }

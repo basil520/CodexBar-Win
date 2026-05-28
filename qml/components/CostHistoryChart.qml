@@ -58,7 +58,7 @@ ChartFrame {
         }
 
         root.points = UsageStore.costHistoryChartData(root.providerId)
-        canvas.requestPaint()
+        canvas.requestVisiblePaint()
     }
 
     // No data state
@@ -81,13 +81,22 @@ ChartFrame {
             id: canvas
             Layout.fillWidth: true
             Layout.preferredHeight: 110
+            visible: PerformanceState.anyUiVisible
 
+            function requestVisiblePaint() {
+                if (PerformanceState.anyUiVisible && width > 0 && height > 0) {
+                    requestPaint()
+                }
+            }
+
+            onWidthChanged: requestVisiblePaint()
+            onHeightChanged: requestVisiblePaint()
             onPaint: {
                 var ctx = getContext("2d")
                 ctx.reset()
                 ctx.clearRect(0, 0, width, height)
 
-                if (points.length === 0) return
+                if (!PerformanceState.anyUiVisible || points.length === 0) return
 
                 var plotLeft = 10, plotRight = width - 10
                 var plotTop = 6, plotBottom = height - 14
@@ -176,7 +185,7 @@ ChartFrame {
                     hoverY = mouseY
                     if (points.length === 0) {
                         hoveredIndex = -1
-                        canvas.requestPaint()
+                        canvas.requestVisiblePaint()
                         return
                     }
                     var plotW = canvas.width - 20
@@ -188,11 +197,11 @@ ChartFrame {
                     } else {
                         hoveredIndex = -1
                     }
-                    canvas.requestPaint()
+                    canvas.requestVisiblePaint()
                 }
                 onExited: {
                     hoveredIndex = -1
-                    canvas.requestPaint()
+                    canvas.requestVisiblePaint()
                 }
                 cursorShape: Qt.PointingHandCursor
             }
@@ -231,6 +240,15 @@ ChartFrame {
         }
         function onCostHistoryChanged() {
             root.refreshPoints()
+        }
+    }
+
+    Connections {
+        target: PerformanceState
+        function onAnyUiVisibleChanged() {
+            if (PerformanceState.anyUiVisible) {
+                canvas.requestVisiblePaint()
+            }
         }
     }
 }

@@ -36,6 +36,7 @@ class TokenAccountOperationManager;
 class ProviderUIService;
 class ProviderRefreshCoordinator;
 class BrowserSessionBridgeService;
+class PerformanceState;
 struct UsageBackendResult;
 struct ProviderLoginStartPayload;
 
@@ -61,6 +62,7 @@ public:
     Q_INVOKABLE void clearCache();
     Q_INVOKABLE void refreshProvider(const QString& providerId);
     void setProviderEnabled(const QString& id, bool enabled);
+    void setPerformanceState(PerformanceState* performanceState);
     Q_INVOKABLE bool isProviderEnabled(const QString& id) const;
     Q_INVOKABLE QString providerDisplayName(const QString& id) const;
     Q_INVOKABLE QVariantMap snapshotData(const QString& id) const;
@@ -316,6 +318,8 @@ private:
 
     // Browser Session Bridge (Phase 2)
     BrowserSessionBridgeService* m_bridgeService = nullptr;
+    PerformanceState* m_performanceState = nullptr;
+    bool m_statusPollDeferred = false;
     QTimer m_bridgeDebounceTimer;
     QSet<QString> m_bridgePendingRefreshes;
 

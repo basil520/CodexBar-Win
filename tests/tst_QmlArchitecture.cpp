@@ -83,6 +83,7 @@ private slots:
     void themeSelectorOffersLightTheme();
     void usageChartsUseSharedChartFrameSystem();
     void ambientEffectsRespectMotionPreferences();
+    void resourceHeavyQmlUsesPerformanceState();
     void providerDetailUsesPhaseFourPanels();
     void trayUsesPhaseFiveShellComponents();
     void providerIdentityRegistryDrivesIconPolicy();
@@ -1832,6 +1833,43 @@ void QmlArchitectureTest::ambientEffectsRespectMotionPreferences()
              "ConnectionStatus pulse animations must respect reduce motion.");
     QVERIFY2(backdrop.contains(QStringLiteral("AppTheme.surfaceScrim")),
              "AcrylicBackdrop must use the shared surface scrim token for glass readability.");
+}
+
+void QmlArchitectureTest::resourceHeavyQmlUsesPerformanceState()
+{
+    const QString tray = readFile("qml/TrayPanel.qml");
+    const QString aurora = readFile("qml/components/AmbientFluidAurora.qml");
+    const QString backdrop = readFile("qml/components/AcrylicBackdrop.qml");
+    const QString connectionStatus = readFile("qml/components/ConnectionStatus.qml");
+    const QString providerDetailCard = readFile("qml/components/ProviderDetailCard.qml");
+    const QString trayUsageSummary = readFile("qml/components/TrayUsageSummary.qml");
+    const QStringList chartFiles = {
+        QStringLiteral("qml/components/CostHistoryChart.qml"),
+        QStringLiteral("qml/components/CreditsHistoryChart.qml"),
+        QStringLiteral("qml/components/UsageBreakdownChart.qml"),
+        QStringLiteral("qml/PlanUtilizationChart.qml"),
+    };
+
+    QVERIFY2(aurora.contains(QStringLiteral("PerformanceState.decorativeEffectsActive")),
+             "AmbientFluidAurora must pause continuous drawing when no UI can display it.");
+    QVERIFY2(backdrop.contains(QStringLiteral("PerformanceState.anyUiVisible")),
+             "AcrylicBackdrop noise work must be guarded by UI visibility.");
+    QVERIFY2(tray.contains(QStringLiteral("running: root.isRefreshing && PerformanceState.trayVisible")),
+             "Tray refresh duration timer must sleep while the tray panel is hidden.");
+    QVERIFY2(tray.contains(QStringLiteral("PerformanceState.decorativeEffectsActive")),
+             "Tray hover spotlight must be gated by performance state.");
+    QVERIFY2(connectionStatus.contains(QStringLiteral("PerformanceState.anyUiVisible")),
+             "ConnectionStatus testing spinner must sleep while every app window is hidden.");
+    QVERIFY2(providerDetailCard.contains(QStringLiteral("PerformanceState.decorativeEffectsActive")),
+             "ProviderDetailCard decorative accent animation must respect the shared performance state.");
+    QVERIFY2(trayUsageSummary.contains(QStringLiteral("PerformanceState.trayVisible")),
+             "TrayUsageSummary refresh pulse must stop when the tray is hidden.");
+
+    for (const QString& path : chartFiles) {
+        const QString contents = readFile(path);
+        QVERIFY2(contents.contains(QStringLiteral("PerformanceState.anyUiVisible")),
+                 qPrintable(path + QStringLiteral(" must avoid canvas repaint work while all app windows are hidden.")));
+    }
 }
 
 void QmlArchitectureTest::providerDetailUsesPhaseFourPanels()

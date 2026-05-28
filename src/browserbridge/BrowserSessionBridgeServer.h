@@ -21,6 +21,7 @@ public:
     void start();
     void stop();
     bool isRunning() const;
+    bool heartbeatActive() const;
     quint16 serverPort() const;
 
     void setAllowedOriginsForTesting(const QStringList& origins);
@@ -57,6 +58,7 @@ private:
     void sendMessage(QWebSocket* socket, const BridgeMessage& msg);
     void closeClient(QWebSocket* socket, const QString& reason);
     bool validateOrigin(const QString& origin) const;
+    void syncHeartbeatTimer();
 
     QThread m_thread;
     QWebSocketServer* m_server = nullptr;

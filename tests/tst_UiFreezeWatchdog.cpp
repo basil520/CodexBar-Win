@@ -7,6 +7,9 @@ class UiFreezeWatchdogTest : public QObject {
 
 private slots:
     void phaseScopeRestoresNestedPhases();
+    void releaseBuildDoesNotStartByDefault();
+    void debugSettingCanEnableWatchdog();
+    void environmentCanEnableWatchdog();
 };
 
 void UiFreezeWatchdogTest::phaseScopeRestoresNestedPhases()
@@ -27,6 +30,27 @@ void UiFreezeWatchdogTest::phaseScopeRestoresNestedPhases()
     }
 
     QCOMPARE(UiFreezeWatchdog::currentPhase(), QStringLiteral("idle"));
+}
+
+void UiFreezeWatchdogTest::releaseBuildDoesNotStartByDefault()
+{
+#if defined(NDEBUG)
+    QVERIFY(!UiFreezeWatchdog::shouldStartByDefault());
+#else
+    QVERIFY(UiFreezeWatchdog::shouldStartByDefault());
+#endif
+}
+
+void UiFreezeWatchdogTest::debugSettingCanEnableWatchdog()
+{
+    QVERIFY(UiFreezeWatchdog::shouldStartForSettings(true));
+}
+
+void UiFreezeWatchdogTest::environmentCanEnableWatchdog()
+{
+    qputenv("CODEXBAR_UI_FREEZE_WATCHDOG", "1");
+    QVERIFY(UiFreezeWatchdog::shouldStartForSettings(false));
+    qunsetenv("CODEXBAR_UI_FREEZE_WATCHDOG");
 }
 
 QTEST_MAIN(UiFreezeWatchdogTest)

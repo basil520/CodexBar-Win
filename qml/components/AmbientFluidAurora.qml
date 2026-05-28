@@ -9,7 +9,7 @@ Item {
     property string providerId: (typeof TrayViewModel !== "undefined" && TrayViewModel) ? TrayViewModel.selectedProviderID : ""
 
     readonly property bool glassEffectActive: SettingsStore.glassEffectEnabled
-    readonly property bool decorativeMotionEnabled: !AppTheme.reduceMotion && SettingsStore.visualEffectsQuality !== "low"
+    readonly property bool decorativeMotionEnabled: PerformanceState.decorativeEffectsActive && !AppTheme.reduceMotion
     readonly property real qualityOpacity: SettingsStore.visualEffectsQuality === "high" ? 1.0
         : SettingsStore.visualEffectsQuality === "low" ? 0.45
         : 0.75
@@ -93,13 +93,27 @@ Item {
     }
 
     onTimeChanged: {
-        if (decorativeMotionEnabled) {
+        if (decorativeMotionEnabled && PerformanceState.anyUiVisible) {
             canvas.requestPaint();
         }
     }
-    onTrackXChanged: canvas.requestPaint()
-    onTrackYChanged: canvas.requestPaint()
-    onPullWeightChanged: canvas.requestPaint()
+    onTrackXChanged: if (PerformanceState.anyUiVisible) canvas.requestPaint()
+    onTrackYChanged: if (PerformanceState.anyUiVisible) canvas.requestPaint()
+    onPullWeightChanged: if (PerformanceState.anyUiVisible) canvas.requestPaint()
+
+    Connections {
+        target: PerformanceState
+        function onAnyUiVisibleChanged() {
+            if (PerformanceState.anyUiVisible) {
+                canvas.requestPaint()
+            }
+        }
+        function onDecorativeEffectsActiveChanged() {
+            if (PerformanceState.anyUiVisible) {
+                canvas.requestPaint()
+            }
+        }
+    }
 
     // 1. Offscreen Noise Canvas (rendered once on startup)
     Canvas {
@@ -131,9 +145,10 @@ Item {
     Canvas {
         id: canvas
         anchors.fill: parent
+        visible: PerformanceState.anyUiVisible
 
-        onWidthChanged: requestPaint()
-        onHeightChanged: requestPaint()
+        onWidthChanged: if (PerformanceState.anyUiVisible) requestPaint()
+        onHeightChanged: if (PerformanceState.anyUiVisible) requestPaint()
 
         function drawRibbon(ctx, layer, startX, endX, step, rotMX, rotMY, hasMouse) {
             var t = root.time;
@@ -222,7 +237,7 @@ Item {
         onPaint: {
             var ctx = getContext("2d");
             ctx.clearRect(0, 0, width, height);
-            if (width <= 0 || height <= 0) return;
+            if (width <= 0 || height <= 0 || !PerformanceState.anyUiVisible) return;
 
             var mX = root.trackX;
             var mY = root.trackY;

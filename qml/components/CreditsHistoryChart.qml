@@ -41,12 +41,22 @@ ChartFrame {
             id: canvas
             Layout.fillWidth: true
             Layout.preferredHeight: 110
+            visible: PerformanceState.anyUiVisible
 
+            function requestVisiblePaint() {
+                if (PerformanceState.anyUiVisible && width > 0 && height > 0) {
+                    requestPaint()
+                }
+            }
+
+            onWidthChanged: requestVisiblePaint()
+            onHeightChanged: requestVisiblePaint()
+            onVisibleChanged: if (visible) requestVisiblePaint()
             onPaint: {
                 var ctx = getContext("2d")
                 ctx.reset()
                 ctx.clearRect(0, 0, width, height)
-                if (points.length === 0) return
+                if (!PerformanceState.anyUiVisible || points.length === 0) return
 
                 var plotLeft = 10, plotRight = width - 10
                 var plotTop = 6, plotBottom = height - 14
@@ -116,13 +126,13 @@ ChartFrame {
 
                 onPositionChanged: {
                     hoverX = mouseX; hoverY = mouseY
-                    if (points.length === 0) { hoveredIndex = -1; canvas.requestPaint(); return }
+                    if (points.length === 0) { hoveredIndex = -1; canvas.requestVisiblePaint(); return }
                     var barW = Math.max(2, (canvas.width - 20 - 2 * (points.length - 1)) / points.length)
                     var idx = Math.floor((mouseX - 10) / (barW + 2))
                     hoveredIndex = (idx >= 0 && idx < points.length) ? idx : -1
-                    canvas.requestPaint()
+                    canvas.requestVisiblePaint()
                 }
-                onExited: { hoveredIndex = -1; canvas.requestPaint() }
+                onExited: { hoveredIndex = -1; canvas.requestVisiblePaint() }
                 cursorShape: Qt.PointingHandCursor
             }
 
@@ -146,6 +156,17 @@ ChartFrame {
                     : ""
                 secondaryText: activePoint && activePoint.services && activePoint.services.length > 0
                     ? activePoint.services.join(" · ") : ""
+            }
+        }
+    }
+
+    onPointsChanged: canvas.requestVisiblePaint()
+
+    Connections {
+        target: PerformanceState
+        function onAnyUiVisibleChanged() {
+            if (PerformanceState.anyUiVisible) {
+                canvas.requestVisiblePaint()
             }
         }
     }
