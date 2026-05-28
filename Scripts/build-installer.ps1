@@ -60,52 +60,6 @@ function Save-Utf8Xml {
     }
 }
 
-function Remove-InstallerPayloadBloat {
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$PayloadPath
-    )
-
-    $prunedFiles = @(
-        "opengl32sw.dll",
-        "D3Dcompiler_47.dll",
-        "Qt63DExtras.dll",
-        "Qt6Quick3DUtils.dll"
-    )
-
-    $prunedDirectories = @(
-        "qmltooling",
-        "generic",
-        "sceneparsers",
-        "geometryloaders",
-        "renderplugins"
-    )
-
-    foreach ($fileName in $prunedFiles) {
-        $filePath = Join-Path $PayloadPath $fileName
-        if (Test-Path -LiteralPath $filePath -PathType Leaf) {
-            Remove-Item -LiteralPath $filePath -Force
-        }
-    }
-
-    Get-ChildItem -LiteralPath $PayloadPath -Filter "vc_redist*.exe" -File -ErrorAction SilentlyContinue |
-        Remove-Item -Force
-
-    foreach ($directoryName in $prunedDirectories) {
-        $directoryPath = Join-Path $PayloadPath $directoryName
-        if (Test-Path -LiteralPath $directoryPath -PathType Container) {
-            Remove-Item -LiteralPath $directoryPath -Recurse -Force
-        }
-    }
-
-    $translationsPath = Join-Path $PayloadPath "translations"
-    if (Test-Path -LiteralPath $translationsPath -PathType Container) {
-        Get-ChildItem -LiteralPath $translationsPath -Filter "*.qm" -File |
-            Where-Object { $_.Name -notmatch '_(en|zh_CN)\.qm$' } |
-            Remove-Item -Force
-    }
-}
-
 Write-Host "=== CodexBarX Installer Builder ===" -ForegroundColor Cyan
 Write-Host "Version: $Version"
 Write-Host "Build Type: $BuildType"
@@ -217,7 +171,13 @@ if (-not (Test-Path -LiteralPath $copyVcRuntimeScript -PathType Leaf)) {
 
 & $copyVcRuntimeScript -TargetDir $dataDir -Architecture x64
 
-Remove-InstallerPayloadBloat -PayloadPath $dataDir
+$prunePayloadScript = Join-Path $scriptDir "Prune-ReleasePayload.ps1"
+if (-not (Test-Path -LiteralPath $prunePayloadScript -PathType Leaf)) {
+    Write-Host "ERROR: release payload pruning script not found: $prunePayloadScript" -ForegroundColor Red
+    exit 1
+}
+
+& $prunePayloadScript -TargetDir $dataDir
 
 # Update version in config files
 Write-Host "`n=== Updating version information ===" -ForegroundColor Cyan

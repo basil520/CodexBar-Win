@@ -18,6 +18,10 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+if(MSVC)
+    add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:/FI${CMAKE_CURRENT_SOURCE_DIR}/src/compat/MsvcQtCheckedIteratorCompat.h>")
+endif()
+
 find_package(Qt6 6.5 COMPONENTS Core Gui Widgets Quick Qml Network Sql WebSockets Concurrent QUIET)
 set(WINCODEXBAR_QT_RUNTIME_FOUND ${Qt6_FOUND})
 if(NOT WINCODEXBAR_QT_RUNTIME_FOUND)
@@ -480,6 +484,13 @@ if(WINCODEXBAR_QT_RUNTIME_FOUND)
                 COMMENT "Deploying app-local VC runtime"
             )
         endif()
+
+        add_custom_command(TARGET CodexBarX POST_BUILD
+            COMMAND powershell -NoProfile -ExecutionPolicy Bypass
+                -File "${CMAKE_CURRENT_SOURCE_DIR}/Scripts/Prune-ReleasePayload.ps1"
+                -TargetDir "$<TARGET_FILE_DIR:CodexBarX>"
+            COMMENT "Pruning release payload"
+        )
     endif()
 
     # Compile .ts to .qm using lrelease
