@@ -5,6 +5,7 @@
 #include <QMenu>
 #include <QQuickWindow>
 #include <QIcon>
+#include <memory>
 #ifdef Q_OS_WIN
 #include <windows.h>
 #else
@@ -72,7 +73,7 @@ private:
     QAction* m_quitAction = nullptr;
     QAction* m_statusPageAction = nullptr;
     QQuickWindow* m_trayPanel = nullptr;
-    TrayIconRenderer* m_renderer = nullptr;
+    std::unique_ptr<TrayIconRenderer> m_renderer;
     UsageStore* m_store = nullptr;
     SettingsStore* m_settings = nullptr;
     QString m_currentProviderId;

@@ -647,7 +647,7 @@ int main(int argc, char* argv[]) {
     int poolMax = qMax(idealThreads * 2, 12);
     QThreadPool::globalInstance()->setMaxThreadCount(poolMax);
 
-    SettingsStore* settings = new SettingsStore();
+    SettingsStore* settings = new SettingsStore(&app);
     auto syncUiFreezeWatchdog = [settings, uiFreezeWatchdog]() {
         if (UiFreezeWatchdog::shouldStartForSettings(settings->debugMenuEnabled())) {
             uiFreezeWatchdog->start();
@@ -681,7 +681,7 @@ int main(int argc, char* argv[]) {
         TrayIconRenderer::setTrackColor(themeMgr->bgTrack());
     });
 
-    UsageStore* usageStore = new UsageStore();
+    UsageStore* usageStore = new UsageStore(&app);
     usageStore->setSettingsStore(settings);
     usageStore->setPerformanceState(performanceState);
 

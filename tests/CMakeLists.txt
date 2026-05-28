@@ -330,6 +330,17 @@ target_compile_definitions(tst_PerformanceState PRIVATE ${COMMON_DEFINES})
 target_link_libraries(tst_PerformanceState PRIVATE codexbar_core Qt6::Core Qt6::Test)
 add_wincodexbar_test(tst_PerformanceState tst_PerformanceState)
 
+add_executable(tst_OwnershipArchitecture
+    tst_OwnershipArchitecture.cpp
+)
+target_include_directories(tst_OwnershipArchitecture PRIVATE ${COMMON_INCLUDE})
+target_compile_definitions(tst_OwnershipArchitecture PRIVATE
+    ${COMMON_DEFINES}
+    PROJECT_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
+)
+target_link_libraries(tst_OwnershipArchitecture PRIVATE codexbar_core Qt6::Core Qt6::Test)
+add_wincodexbar_test(tst_OwnershipArchitecture tst_OwnershipArchitecture)
+
 add_executable(tst_UsageBackend
     tst_UsageBackend.cpp
 )

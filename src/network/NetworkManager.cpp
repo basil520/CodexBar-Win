@@ -42,7 +42,7 @@ ReplyResult waitForReplyWithStatus(QNetworkReply* reply, int timeoutMs)
 {
     if (g_shuttingDown) {
         reply->abort();
-        reply->deleteLater();
+        delete reply;
         return {};
     }
 
@@ -79,7 +79,7 @@ ReplyResult waitForReplyWithStatus(QNetworkReply* reply, int timeoutMs)
     } else {
         reply->abort();
     }
-    reply->deleteLater();
+    delete reply;
     return result;
 }
 

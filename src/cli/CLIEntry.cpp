@@ -24,14 +24,14 @@ void CLIEntry::initBackend()
 {
     ProviderBootstrap::registerAllProviders();
 
-    SettingsStore* settings = new SettingsStore();
-    UsageStore* usageStore = new UsageStore();
-    usageStore->setSettingsStore(settings);
+    SettingsStore settings;
+    UsageStore usageStore;
+    usageStore.setSettingsStore(&settings);
 
     TokenAccountStore* tokenStore = TokenAccountStore::instance();
     tokenStore->loadFromDisk();
-    tokenStore->migrateFromLegacy(settings);
-    ProviderBootstrap::applyStoredProviderEnabledStates(settings, usageStore);
+    tokenStore->migrateFromLegacy(&settings);
+    ProviderBootstrap::applyStoredProviderEnabledStates(&settings, &usageStore);
     ProviderBootstrap::syncEnabledProviderRuntimes();
 }
 

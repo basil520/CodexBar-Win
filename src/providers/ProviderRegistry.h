@@ -11,6 +11,7 @@
 class ProviderRegistry {
 public:
     static ProviderRegistry& instance();
+    ~ProviderRegistry();
 
     void registerProvider(IProvider* provider);
     void registerDescriptor(const ProviderDescriptor& descriptor);

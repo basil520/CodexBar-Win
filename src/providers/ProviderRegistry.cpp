@@ -5,12 +5,24 @@ ProviderRegistry& ProviderRegistry::instance() {
     return reg;
 }
 
+ProviderRegistry::~ProviderRegistry()
+{
+    qDeleteAll(m_providers);
+}
+
 void ProviderRegistry::registerProvider(IProvider* provider) {
     if (!provider) return;
-    m_providers[provider->id()] = provider;
+    const QString id = provider->id();
+    auto existing = m_providers.find(id);
+    if (existing != m_providers.end() && existing.value() != provider) {
+        delete existing.value();
+        existing.value() = provider;
+    } else {
+        m_providers[id] = provider;
+    }
 
     ProviderDescriptor descriptor;
-    descriptor.id = provider->id();
+    descriptor.id = id;
     descriptor.metadata.displayName = provider->displayName();
     descriptor.metadata.sessionLabel = provider->sessionLabel();
     descriptor.metadata.weeklyLabel = provider->weeklyLabel();

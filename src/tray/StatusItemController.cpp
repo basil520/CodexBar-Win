@@ -26,7 +26,7 @@ StatusItemController::StatusItemController(UsageStore* store,
     : QObject(parent)
     , m_store(store)
     , m_settings(settings)
-    , m_renderer(new TrayIconRenderer)
+    , m_renderer(std::make_unique<TrayIconRenderer>())
 {
     connect(m_store, &UsageStore::snapshotChanged,
             this, &StatusItemController::onSnapshotChanged);
