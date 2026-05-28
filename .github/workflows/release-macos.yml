@@ -117,7 +117,7 @@ jobs:
 
       - name: Deploy Qt dependencies (macdeployqt)
         run: |
-          "${{ env.Qt6_DIR }}/bin/macdeployqt" build/CodexBarX.app -qmldir=qml
+          "${{ env.QT_ROOT_DIR }}/bin/macdeployqt" build/CodexBarX.app -qmldir=qml
 
       - name: Copy translations
         run: |
