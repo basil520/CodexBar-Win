@@ -30,17 +30,23 @@ void tst_MacOSChromiumCookieDecryptor::mapsChromiumBrowsersToSafeStorageItems()
 void tst_MacOSChromiumCookieDecryptor::decryptsV10CookieWithInjectedSafeStoragePassword()
 {
     const QByteArray encrypted = QByteArray::fromBase64("djEwyPxuIMAwIMHJQSN8F/ErDQ==");
+    MacOSChromiumCookieDecryptor::SafeStorageTarget capturedTarget;
+    int readCount = 0;
+
     auto result = MacOSChromiumCookieDecryptor::decryptCookieForTesting(
         CookieImporter::Chrome,
         encrypted,
-        [](const MacOSChromiumCookieDecryptor::SafeStorageTarget& target, QString* error)
+        [&](const MacOSChromiumCookieDecryptor::SafeStorageTarget& target, QString* error)
             -> std::optional<QByteArray> {
             Q_UNUSED(error)
-            QCOMPARE(target.service, QStringLiteral("Chrome Safe Storage"));
-            QCOMPARE(target.account, QStringLiteral("Chrome"));
+            capturedTarget = target;
+            ++readCount;
             return QByteArrayLiteral("test-safe-storage");
         });
 
+    QCOMPARE(readCount, 1);
+    QCOMPARE(capturedTarget.service, QStringLiteral("Chrome Safe Storage"));
+    QCOMPARE(capturedTarget.account, QStringLiteral("Chrome"));
     QVERIFY2(result.success(), qPrintable(result.errorMessage));
     QCOMPARE(result.plaintext, QByteArrayLiteral("cookie-secret"));
 }
