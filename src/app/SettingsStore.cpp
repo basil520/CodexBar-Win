@@ -29,7 +29,12 @@ SettingsStore::SettingsStore(QObject* parent)
     m_showOptionalCreditsAndExtraUsage = m_settings.value("showOptionalCreditsAndExtraUsage", true).toBool();
     m_sessionQuotaNotificationsEnabled = m_settings.value("sessionQuotaNotificationsEnabled", true).toBool();
     m_claudePeakHoursEnabled = m_settings.value("claudePeakHoursEnabled", true).toBool();
-    m_browserSessionBridgeEnabled = m_settings.value("browserSessionBridgeEnabled", true).toBool();
+#if defined(Q_OS_MACOS)
+    const bool defaultBrowserSessionBridgeEnabled = false;
+#else
+    const bool defaultBrowserSessionBridgeEnabled = true;
+#endif
+    m_browserSessionBridgeEnabled = m_settings.value("browserSessionBridgeEnabled", defaultBrowserSessionBridgeEnabled).toBool();
     m_glassEffectEnabled = m_settings.value("glassEffectEnabled", true).toBool();
     m_glassEffectOpacity = qBound(5, m_settings.value("glassEffectOpacity", 40).toInt(), 95);
     m_reduceMotion = m_settings.value("reduceMotion", false).toBool();

@@ -11,6 +11,7 @@ class tst_BrowserSessionBridgeServer : public QObject {
     Q_OBJECT
 
 private slots:
+    void initTestCase();
     void init();
     void cleanup();
     void acceptsAllowedExtensionOrigin();
@@ -21,6 +22,13 @@ private slots:
 private:
     BrowserSessionBridgeServer* m_server = nullptr;
 };
+
+void tst_BrowserSessionBridgeServer::initTestCase()
+{
+#if defined(Q_OS_MACOS)
+    QSKIP("Browser Session Bridge live WebSocket server is disabled on macOS; native cookie import is the primary path.");
+#endif
+}
 
 void tst_BrowserSessionBridgeServer::init()
 {

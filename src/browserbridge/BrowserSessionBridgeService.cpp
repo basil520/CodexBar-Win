@@ -10,6 +10,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMetaObject>
+#include <QtGlobal>
 #include <QUuid>
 
 namespace {
@@ -235,6 +236,12 @@ BrowserSessionBridgeService::~BrowserSessionBridgeService()
 
 void BrowserSessionBridgeService::start()
 {
+#if defined(Q_OS_MACOS)
+    setLastError(QStringLiteral("Browser Session Bridge is disabled on macOS. Native browser cookie import is the primary session import path on this platform."));
+    onServerStateChanged(false, 0);
+    return;
+#endif
+
     if (!m_server) {
         m_server = new BrowserSessionBridgeServer();
 

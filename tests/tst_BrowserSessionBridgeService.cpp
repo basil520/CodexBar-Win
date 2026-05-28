@@ -55,6 +55,9 @@ public:
 void tst_BrowserSessionBridgeService::initTestCase()
 {
     QStandardPaths::setTestModeEnabled(true);
+#if defined(Q_OS_MACOS)
+    QSKIP("Browser Session Bridge live WebSocket service is disabled on macOS; native cookie import is the primary path.");
+#endif
 }
 
 void tst_BrowserSessionBridgeService::init()

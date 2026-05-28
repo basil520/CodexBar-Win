@@ -112,6 +112,9 @@ void tst_BridgeViewModel::fullTestSuite()
 
 void tst_BridgeViewModel::importFailureClearsBusyAndShowsError()
 {
+#if defined(Q_OS_MACOS)
+    QSKIP("Browser Session Bridge live WebSocket imports are disabled on macOS.");
+#endif
     m_store = std::make_unique<BrowserSessionBridgeStore>();
     m_service = std::make_unique<BrowserSessionBridgeService>(m_store.get());
     m_viewModel = std::make_unique<BridgeViewModel>(m_service.get(), m_store.get());
@@ -175,6 +178,9 @@ void tst_BridgeViewModel::importFailureClearsBusyAndShowsError()
 
 void tst_BridgeViewModel::codexOldExtensionCapabilityDoesNotAppearImportable()
 {
+#if defined(Q_OS_MACOS)
+    QSKIP("Browser Session Bridge live WebSocket imports are disabled on macOS.");
+#endif
     m_store = std::make_unique<BrowserSessionBridgeStore>();
     m_service = std::make_unique<BrowserSessionBridgeService>(m_store.get());
     m_viewModel = std::make_unique<BridgeViewModel>(m_service.get(), m_store.get());
@@ -217,6 +223,9 @@ void tst_BridgeViewModel::codexOldExtensionCapabilityDoesNotAppearImportable()
 
 void tst_BridgeViewModel::cookieOldExtensionCapabilityDoesNotAppearImportable()
 {
+#if defined(Q_OS_MACOS)
+    QSKIP("Browser Session Bridge live WebSocket imports are disabled on macOS.");
+#endif
     m_store = std::make_unique<BrowserSessionBridgeStore>();
     m_service = std::make_unique<BrowserSessionBridgeService>(m_store.get());
     m_viewModel = std::make_unique<BridgeViewModel>(m_service.get(), m_store.get());
