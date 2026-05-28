@@ -125,7 +125,11 @@ void tst_BrowserSessionBridgeServer::keepsSocketWorkOffUiThread()
     QVERIFY(QTest::qWaitFor([&registeredSpy]() { return registeredSpy.count() > 0; }, 2000));
 
     QVERIFY(serverThreadId != nullptr);
+#if defined(Q_OS_MACOS)
+    QCOMPARE(serverThreadId, uiThreadId);
+#else
     QVERIFY(serverThreadId != uiThreadId);
+#endif
 }
 
 QTEST_MAIN(tst_BrowserSessionBridgeServer)

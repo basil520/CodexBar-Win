@@ -8,6 +8,19 @@
 #include <QHostAddress>
 #include <QMetaType>
 
+namespace {
+
+bool useDedicatedServerThread()
+{
+#if defined(Q_OS_MACOS)
+    return false;
+#else
+    return true;
+#endif
+}
+
+} // namespace
+
 BrowserSessionBridgeServer::BrowserSessionBridgeServer(QObject* parent)
     : QObject(parent)
 {
@@ -17,15 +30,19 @@ BrowserSessionBridgeServer::BrowserSessionBridgeServer(QObject* parent)
     qRegisterMetaType<SessionDirtyPayload>("SessionDirtyPayload");
 
     m_allowedOrigins = BrowserSessionBridgeConstants::allowedOrigins();
-    moveToThread(&m_thread);
-    m_thread.start();
+    if (useDedicatedServerThread()) {
+        moveToThread(&m_thread);
+        m_thread.start();
+    }
 }
 
 BrowserSessionBridgeServer::~BrowserSessionBridgeServer()
 {
     stop();
-    m_thread.quit();
-    m_thread.wait(3000);
+    if (m_thread.isRunning()) {
+        m_thread.quit();
+        m_thread.wait(3000);
+    }
 }
 
 void BrowserSessionBridgeServer::start()
@@ -37,8 +54,10 @@ void BrowserSessionBridgeServer::stop()
 {
     if (QThread::currentThread() == thread()) {
         doStop();
-    } else {
+    } else if (thread() && thread()->isRunning()) {
         QMetaObject::invokeMethod(this, &BrowserSessionBridgeServer::doStop, Qt::BlockingQueuedConnection);
+    } else {
+        doStop();
     }
 }
 

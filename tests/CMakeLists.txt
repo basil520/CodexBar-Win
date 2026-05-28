@@ -298,7 +298,9 @@ target_compile_definitions(tst_QmlSmoke PRIVATE ${COMMON_DEFINES})
 target_link_libraries(tst_QmlSmoke PRIVATE Qt6::Core Qt6::Test Qt6::Quick Qt6::Qml)
 target_sources(tst_QmlSmoke PRIVATE ${CMAKE_SOURCE_DIR}/resources/qml.qrc)
 add_wincodexbar_test(tst_QmlSmoke tst_QmlSmoke)
-set_tests_properties(tst_QmlSmoke PROPERTIES RESOURCE_LOCK gpu_gui)
+set_tests_properties(tst_QmlSmoke PROPERTIES
+    RESOURCE_LOCK gpu_gui
+    TIMEOUT 45)
 
 # QML architecture guards
 add_executable(tst_QmlArchitecture
@@ -613,6 +615,7 @@ target_include_directories(tst_BrowserSessionBridgeServer PRIVATE ${COMMON_INCLU
 target_compile_definitions(tst_BrowserSessionBridgeServer PRIVATE ${COMMON_DEFINES})
 target_link_libraries(tst_BrowserSessionBridgeServer PRIVATE codexbar_core Qt6::Core Qt6::Test Qt6::WebSockets)
 add_wincodexbar_test(tst_BrowserSessionBridgeServer tst_BrowserSessionBridgeServer)
+set_tests_properties(tst_BrowserSessionBridgeServer PROPERTIES TIMEOUT 30)
 
 # Browser Session Bridge Service (Phase 2)
 add_executable(tst_BrowserSessionBridgeService tst_BrowserSessionBridgeService.cpp)
@@ -620,6 +623,7 @@ target_include_directories(tst_BrowserSessionBridgeService PRIVATE ${COMMON_INCL
 target_compile_definitions(tst_BrowserSessionBridgeService PRIVATE ${COMMON_DEFINES})
 target_link_libraries(tst_BrowserSessionBridgeService PRIVATE codexbar_core Qt6::Core Qt6::Test Qt6::WebSockets)
 add_wincodexbar_test(tst_BrowserSessionBridgeService tst_BrowserSessionBridgeService)
+set_tests_properties(tst_BrowserSessionBridgeService PROPERTIES TIMEOUT 45)
 
 # Browser Session Bridge InstallService (Phase 3)
 add_executable(tst_BrowserSessionBridgeInstallService tst_BrowserSessionBridgeInstallService.cpp)
@@ -643,3 +647,4 @@ target_include_directories(tst_BridgeViewModel PRIVATE ${COMMON_INCLUDE})
 target_compile_definitions(tst_BridgeViewModel PRIVATE ${COMMON_DEFINES})
 target_link_libraries(tst_BridgeViewModel PRIVATE codexbar_core Qt6::Core Qt6::Test)
 add_wincodexbar_test(tst_BridgeViewModel tst_BridgeViewModel)
+set_tests_properties(tst_BridgeViewModel PROPERTIES TIMEOUT 45)

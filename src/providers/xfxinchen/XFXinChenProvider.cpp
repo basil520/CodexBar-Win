@@ -161,22 +161,22 @@ ProviderFetchResult XFXinChenWebStrategy::parseResponse(const QJsonObject& json)
         return result;
     }
 
-    const QJsonObject* activeRow = nullptr;
+    QJsonObject activeRow;
     for (const QJsonValue& rowVal : rows) {
         const QJsonObject row = rowVal.toObject();
         if (row.value(QStringLiteral("status")).toInt() == 1) {
-            activeRow = &row;
+            activeRow = row;
             break;
         }
     }
-    if (!activeRow) {
+    if (activeRow.isEmpty()) {
         result.success = false;
         result.errorMessage = "No active coding plan found";
         return result;
     }
 
-    const QJsonObject usageDTO = activeRow->value(QStringLiteral("codingPlanUsageDTO")).toObject();
-    const QString planName = activeRow->value(QStringLiteral("name")).toString();
+    const QJsonObject usageDTO = activeRow.value(QStringLiteral("codingPlanUsageDTO")).toObject();
+    const QString planName = activeRow.value(QStringLiteral("name")).toString();
 
     UsageSnapshot snap;
     snap.updatedAt = QDateTime::currentDateTime();
@@ -202,7 +202,7 @@ ProviderFetchResult XFXinChenWebStrategy::parseResponse(const QJsonObject& json)
         usageDTO.value(QStringLiteral("packageUsage")).toInt(0),
         usageDTO.value(QStringLiteral("packageLimit")).toInt(0));
     if (package.has_value()) {
-        const QString expiresAtStr = activeRow->value(QStringLiteral("expiresAt")).toString();
+        const QString expiresAtStr = activeRow.value(QStringLiteral("expiresAt")).toString();
         if (!expiresAtStr.isEmpty()) {
             QDateTime expiresAt = QDateTime::fromString(expiresAtStr, Qt::ISODate);
             if (!expiresAt.isValid()) {

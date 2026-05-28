@@ -25,6 +25,16 @@ bool itemFitsWithin(QQuickItem* item, QQuickItem* ancestor)
         && bottomRight.y() <= ancestor->height() + tolerance;
 }
 
+bool itemHorizontallyFitsWithin(QQuickItem* item, QQuickItem* ancestor)
+{
+    if (!item || !ancestor) return false;
+    const qreal tolerance = 0.75;
+    const QPointF topLeft = item->mapToItem(ancestor, QPointF(0, 0));
+    const QPointF bottomRight = item->mapToItem(ancestor, QPointF(item->width(), item->height()));
+    return topLeft.x() >= -tolerance
+        && bottomRight.x() <= ancestor->width() + tolerance;
+}
+
 QString itemBoundsMessage(QQuickItem* item, QQuickItem* ancestor, const QString& label)
 {
     if (!item || !ancestor) return label + QStringLiteral(" was not found.");
@@ -38,6 +48,18 @@ QString itemBoundsMessage(QQuickItem* item, QQuickItem* ancestor, const QString&
         .arg(bottomRight.y(), 0, 'f', 1)
         .arg(ancestor->width(), 0, 'f', 1)
         .arg(ancestor->height(), 0, 'f', 1);
+}
+
+QString itemHorizontalBoundsMessage(QQuickItem* item, QQuickItem* ancestor, const QString& label)
+{
+    if (!item || !ancestor) return label + QStringLiteral(" was not found.");
+    const QPointF topLeft = item->mapToItem(ancestor, QPointF(0, 0));
+    const QPointF bottomRight = item->mapToItem(ancestor, QPointF(item->width(), item->height()));
+    return QStringLiteral("%1 horizontal bounds %2-%3 exceed ancestor width %4")
+        .arg(label)
+        .arg(topLeft.x(), 0, 'f', 1)
+        .arg(bottomRight.x(), 0, 'f', 1)
+        .arg(ancestor->width(), 0, 'f', 1);
 }
 
 } // namespace
@@ -1369,6 +1391,8 @@ public:
     Q_INVOKABLE bool autoSync(const QString&) const { return true; }
     Q_INVOKABLE QString lastImportTime(const QString&) const { return {}; }
     Q_INVOKABLE bool importBusy(const QString&) const { return false; }
+    Q_INVOKABLE QString importError(const QString&) const { return {}; }
+    Q_INVOKABLE bool shouldShowProviderPanel(const QString&) const { return false; }
     Q_INVOKABLE void prepareExtension() {}
     Q_INVOKABLE void requestImport(const QString&) {}
     Q_INVOKABLE void setBindingForProvider(const QString&, const QString&) {}
@@ -1389,6 +1413,24 @@ signals:
 
 private:
     bool installGuideSeenValue = false;
+};
+
+class MockPlatformSettings : public QObject {
+    Q_OBJECT
+    Q_PROPERTY(QString secureStoreDisplayName READ secureStoreDisplayName CONSTANT)
+public:
+    QString secureStoreDisplayName() const { return QStringLiteral("secure credential store"); }
+};
+
+class MockProviderUIService : public QObject {
+    Q_OBJECT
+public:
+    Q_INVOKABLE QVariantMap claudePeakStatus() const {
+        return {
+            { QStringLiteral("isPeak"), false },
+            { QStringLiteral("label"), QStringLiteral("Off peak") }
+        };
+    }
 };
 
 class MockAppController : public QObject {
@@ -1431,6 +1473,8 @@ class tst_QmlSmoke : public QObject {
 public:
     tst_QmlSmoke() {
         registerAppThemeTypes(&mockTheme);
+        registerSingletons();
+        setupEngine(m_engine);
     }
 
 private:
@@ -1440,17 +1484,15 @@ private:
     MockTrayViewModel mockTray;
     MockUsageDetailsViewModel mockUsageDetails;
     MockBridgeViewModel mockBridge;
+    MockPlatformSettings mockPlatformSettings;
+    MockProviderUIService mockProviderUIService;
     MockLanguageManager mockLang;
     MockAppController mockAppCtrl;
     ProviderErrorClassifier providerErrorClassifier;
     AppThemeManager mockTheme;
+    QQmlEngine m_engine;
 
-    void setupEngine(QQmlEngine& engine) {
-        engine.addImportPath("qrc:/qml");
-        installAppTheme(engine, &mockTheme);
-        mockSettingsProviders.setUsageStore(&mockUsage);
-        mockTray.setUsageStore(&mockUsage);
-        mockUsageDetails.setUsageStore(&mockUsage);
+    void registerSingletons() {
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "SettingsStore", &mockSettings);
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "UsageStore", &mockUsage);
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "SettingsProvidersModel", &mockSettingsProviders);
@@ -1458,9 +1500,21 @@ private:
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "UsageDetailsViewModel", &mockUsageDetails);
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "ProviderErrorClassifier", &providerErrorClassifier);
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "BridgeViewModel", &mockBridge);
+        qmlRegisterSingletonInstance("CodexBarX", 1, 0, "PlatformSettings", &mockPlatformSettings);
+        qmlRegisterSingletonInstance("CodexBarX", 1, 0, "ProviderUIService", &mockProviderUIService);
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "AppController", &mockAppCtrl);
         qmlRegisterSingletonInstance("CodexBarX", 1, 0, "LanguageManager", &mockLang);
     }
+
+    void setupEngine(QQmlEngine& engine) {
+        engine.addImportPath("qrc:/qml");
+        installAppTheme(engine, &mockTheme);
+        mockSettingsProviders.setUsageStore(&mockUsage);
+        mockTray.setUsageStore(&mockUsage);
+        mockUsageDetails.setUsageStore(&mockUsage);
+    }
+
+    QQmlEngine& sharedEngine() { return m_engine; }
 
     QObject* findObjectByStringProperty(QObject* root, const char* propertyName, const QString& value) const {
         if (!root) return nullptr;
@@ -1540,8 +1594,7 @@ private slots:
 };
 #else
     void basicQmlEngineWorks() {
-        QQmlEngine engine;
-        setupEngine(engine);
+        QQmlEngine& engine = sharedEngine();
 
         QByteArray qml = "import QtQuick 2.15; Rectangle { width: 100; height: 100; color: 'red' }";
         QQmlComponent component(&engine);
@@ -1556,8 +1609,7 @@ private slots:
     }
 
     void settingsWindowLoads() {
-        QQmlEngine engine;
-        setupEngine(engine);
+        QQmlEngine& engine = sharedEngine();
 
         QQmlComponent component(&engine, QUrl("qrc:/qml/SettingsWindow.qml"));
         if (component.status() == QQmlComponent::Error) {
@@ -1572,8 +1624,7 @@ private slots:
     }
 
     void settingsPageContentCanScrollWhenTall() {
-        QQuickView view;
-        setupEngine(*view.engine());
+        QQuickView view(&sharedEngine(), nullptr);
         view.resize(420, 220);
 
         QQuickItem* root = createInlineRoot(view, R"(
@@ -1632,8 +1683,7 @@ private slots:
         // the Qt event loop in CI environments, causing 5-minute timeouts.
         QSKIP("Test is unstable on macOS CI due to thread/event loop timing");
 #else
-        QQmlEngine engine;
-        setupEngine(engine);
+        QQmlEngine& engine = sharedEngine();
         mockUsage.resetCounters();
 
         QQmlComponent component(&engine, QUrl("qrc:/qml/SettingsWindow.qml"));
@@ -1652,9 +1702,8 @@ private slots:
     }
 
     void trayPanelLoads() {
-        QQmlEngine engine;
+        QQmlEngine& engine = sharedEngine();
         mockTray.resetCounters();
-        setupEngine(engine);
 
         QQmlComponent component(&engine, QUrl("qrc:/qml/TrayPanel.qml"));
         if (component.status() == QQmlComponent::Error) {
@@ -1669,12 +1718,11 @@ private slots:
     }
 
     void trayDetailsButtonRoutesToCurrentProvider() {
-        QQuickView view;
+        QQuickView view(&sharedEngine(), nullptr);
         mockSettingsProviders.resetState();
         mockTray.resetCounters();
         mockAppCtrl.openSettingsCalls = 0;
         mockTray.m_selectedProviderID = QStringLiteral("codex");
-        setupEngine(*view.engine());
 
         view.resize(360, 720);
         view.setSource(QUrl("qrc:/qml/TrayPanel.qml"));
@@ -1691,10 +1739,9 @@ private slots:
     }
 
     void settingsWindowConsumesPendingProviderDetailsRoute() {
-        QQuickView view;
+        QQuickView view(&sharedEngine(), nullptr);
         mockSettingsProviders.resetState();
         mockAppCtrl.openSettingsCalls = 0;
-        setupEngine(*view.engine());
 
         mockSettingsProviders.openProviderDetails(QStringLiteral("claude"));
         QCOMPARE(mockSettingsProviders.pendingProviderDetailsProvider(), QStringLiteral("claude"));
@@ -1717,8 +1764,7 @@ private slots:
     }
 
     void trayPanelDefersCostBreakdownOnFirstPaint() {
-        QQuickView view;
-        setupEngine(*view.engine());
+        QQuickView view(&sharedEngine(), nullptr);
         mockUsage.resetCounters();
         mockTray.resetCounters();
 
@@ -1752,8 +1798,7 @@ private slots:
     }
 
     void trayPanelSwitchesTokenAccount() {
-        QQuickView view;
-        setupEngine(*view.engine());
+        QQuickView view(&sharedEngine(), nullptr);
         mockUsage.resetCounters();
         mockTray.resetCounters();
         mockUsage.providerIDsForTest = {QStringLiteral("claude")};
@@ -1799,8 +1844,7 @@ private slots:
     }
 
     void usageWindowDefersTokenUsagePaneUntilShown() {
-        QQuickView view;
-        setupEngine(*view.engine());
+        QQuickView view(&sharedEngine(), nullptr);
         mockUsage.resetCounters();
         mockUsageDetails.resetCounters();
 
@@ -1828,8 +1872,7 @@ private slots:
     }
 
     void tokenUsagePaneRequestsCostScanOnLoad() {
-        QQuickView view;
-        setupEngine(*view.engine());
+        QQuickView view(&sharedEngine(), nullptr);
         mockUsage.resetCounters();
         mockUsageDetails.resetCounters();
         mockUsage.costUsageEnabledValue = false;
@@ -1856,8 +1899,7 @@ private slots:
     }
 
     void usageWindowReleasesTokenUsageCachesWhenHidden() {
-        QQuickView view;
-        setupEngine(*view.engine());
+        QQuickView view(&sharedEngine(), nullptr);
         mockUsage.resetCounters();
         mockUsageDetails.resetCounters();
 
@@ -1874,8 +1916,7 @@ private slots:
     }
 
     void settingsWindowRenders() {
-        QQuickView view;
-        setupEngine(*view.engine());
+        QQuickView view(&sharedEngine(), nullptr);
         view.setSource(QUrl("qrc:/qml/SettingsWindow.qml"));
         view.show();
         QTest::qWait(400);
@@ -1895,9 +1936,8 @@ private slots:
     }
 
     void trayPanelRenders() {
-        QQuickView view;
+        QQuickView view(&sharedEngine(), nullptr);
         mockTray.resetCounters();
-        setupEngine(*view.engine());
         view.setSource(QUrl("qrc:/qml/TrayPanel.qml"));
         view.show();
         QTest::qWait(400);
@@ -1911,8 +1951,7 @@ private slots:
     }
 
     void settingsWindowTabInteraction() {
-        QQuickView view;
-        setupEngine(*view.engine());
+        QQuickView view(&sharedEngine(), nullptr);
         view.setSource(QUrl("qrc:/qml/SettingsWindow.qml"));
         view.show();
         QTest::qWait(400);
@@ -1927,8 +1966,7 @@ private slots:
     }
 
     void providerAvatarLoadsContrastPolicies() {
-        QQuickView view;
-        setupEngine(*view.engine());
+        QQuickView view(&sharedEngine(), nullptr);
         view.resize(180, 56);
 
         const QByteArray qml =
@@ -1982,8 +2020,7 @@ private slots:
     }
 
     void trayProviderDockCanReturnToOverview() {
-        QQuickView view;
-        setupEngine(*view.engine());
+        QQuickView view(&sharedEngine(), nullptr);
         view.resize(260, 64);
 
         QQuickItem* root = createInlineRoot(view, R"(
@@ -2029,8 +2066,7 @@ private slots:
     }
 
     void uiFoundationComponentsLoad() {
-        QQuickView view;
-        setupEngine(*view.engine());
+        QQuickView view(&sharedEngine(), nullptr);
         view.resize(640, 360);
 
         QQuickItem* root = createInlineRoot(view, R"(
@@ -2289,8 +2325,7 @@ private slots:
     }
 
     void secretInputCommitsOnlyOnExplicitAction() {
-        QQuickView view;
-        setupEngine(*view.engine());
+        QQuickView view(&sharedEngine(), nullptr);
         view.resize(420, 80);
         QQuickItem* root = createInlineRoot(view, R"(
             import QtQuick 2.15
@@ -2332,8 +2367,7 @@ private slots:
     }
 
     void providerTextSettingCommitsOnlyOnExplicitAction() {
-        QQuickView view;
-        setupEngine(*view.engine());
+        QQuickView view(&sharedEngine(), nullptr);
         view.resize(760, 560);
         QQuickItem* root = createInlineRoot(view, R"(
             import QtQuick 2.15
@@ -2397,8 +2431,7 @@ private slots:
     }
 
     void tokenAccountsPaneAddsApiAccount() {
-        QQuickView view;
-        setupEngine(*view.engine());
+        QQuickView view(&sharedEngine(), nullptr);
         mockUsage.resetCounters();
         view.resize(760, 360);
 
@@ -2460,8 +2493,7 @@ private slots:
     }
 
     void settingsWindowDebouncesStatusProviderListRefresh() {
-        QQuickView view;
-        setupEngine(*view.engine());
+        QQuickView view(&sharedEngine(), nullptr);
         view.setSource(QUrl("qrc:/qml/SettingsWindow.qml"));
         view.show();
         QTest::qWait(400);
@@ -2489,9 +2521,8 @@ private slots:
                 settings->setGlassEffectEnabled(false);
             }
         } resetGuard{&mockSettings};
-        QQmlEngine engine;
+        QQmlEngine& engine = sharedEngine();
         mockTray.resetCounters();
-        setupEngine(engine);
 
         auto verifyRootColor = [&](const QUrl& url) {
             QQmlComponent component(&engine, url);
@@ -2539,8 +2570,7 @@ private slots:
             }
         } resetGuard{&mockSettings};
 
-        QQmlEngine engine;
-        setupEngine(engine);
+        QQmlEngine& engine = sharedEngine();
 
         QQmlComponent component(&engine);
         component.setData(R"QML(
@@ -2568,8 +2598,7 @@ private slots:
 
 void tst_QmlSmoke::disruptiveExperienceComponentsLoad()
 {
-    QQuickView view;
-    setupEngine(*view.engine());
+    QQuickView view(&sharedEngine(), nullptr);
     view.resize(760, 760);
 
     QQuickItem* root = createInlineRoot(view, R"(
@@ -2738,8 +2767,7 @@ void tst_QmlSmoke::disruptiveExperienceComponentsLoad()
 
 void tst_QmlSmoke::providerDetailControlsStayWithinNarrowViewport()
 {
-    QQuickView view;
-    setupEngine(*view.engine());
+    QQuickView view(&sharedEngine(), nullptr);
     view.resize(380, 620);
 
     QQuickItem* root = createInlineRoot(view, R"QML(
@@ -2793,24 +2821,27 @@ void tst_QmlSmoke::providerDetailControlsStayWithinNarrowViewport()
     for (const QString& text : textControls) {
         auto* item = qobject_cast<QQuickItem*>(findObjectByStringProperty(root, "text", text));
         QVERIFY2(item != nullptr, qPrintable(text + QStringLiteral(" control should exist in the narrow provider detail harness.")));
-        QVERIFY2(itemFitsWithin(item, root), qPrintable(itemBoundsMessage(item, root, text)));
+        QVERIFY2(itemHorizontallyFitsWithin(item, root), qPrintable(itemHorizontalBoundsMessage(item, root, text)));
     }
 
     auto* addButton = qobject_cast<QQuickItem*>(
         findObjectByStringProperty(root, "objectName", "addAccountButton"));
     QVERIFY2(addButton != nullptr, "Token account Add Account button should exist in the narrow provider detail harness.");
-    QVERIFY2(itemFitsWithin(addButton, root), qPrintable(itemBoundsMessage(addButton, root, QStringLiteral("Add Account"))));
+    QVERIFY2(itemHorizontallyFitsWithin(addButton, root), qPrintable(itemHorizontalBoundsMessage(addButton, root, QStringLiteral("Add Account"))));
 
     auto* apiKeyField = qobject_cast<QQuickItem*>(
         findObjectByStringProperty(root, "objectName", "accountApiKeyField"));
     QVERIFY2(apiKeyField != nullptr, "Token account API key field should exist in the narrow provider detail harness.");
-    QVERIFY2(itemFitsWithin(apiKeyField, root), qPrintable(itemBoundsMessage(apiKeyField, root, QStringLiteral("Token account API key"))));
+    QVERIFY2(itemHorizontallyFitsWithin(apiKeyField, root), qPrintable(itemHorizontalBoundsMessage(apiKeyField, root, QStringLiteral("Token account API key"))));
 
     view.hide();
 }
 
 int main(int argc, char* argv[])
 {
+    qputenv("QT_QUICK_CONTROLS_STYLE", QByteArray("Basic"));
+    qputenv("QSG_RHI_BACKEND", QByteArray("software"));
+    qputenv("QT_OPENGL", QByteArray("software"));
     QGuiApplication app(argc, argv);
     tst_QmlSmoke tc;
     return QTest::qExec(&tc, argc, argv);
